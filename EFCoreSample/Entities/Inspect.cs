@@ -3,40 +3,52 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCoreSample.Entities
 {
+    /// <summary>
+    /// 로그
+    /// </summary>
     public class Inspect : EntityBase
     {
-        //[Key]
-        //public Guid InspectId { get; set; }
+        /*[Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int InspectId { get; set; }*/
 
         [Required]
         public int InspectTypeId { get; set; }
 
-        [ForeignKey("InspectTypeId")] //lazy 로딩
+        [ForeignKey(nameof(InspectTypeId))] //lazy 로딩
         public virtual InspectType InspectType { get; set; }
 
         [Required]
-        [StringLength(10)]
-        public string InspectorName { get; set; } = string.Empty;
+        public int InspectorTypeId { get; set; }
+
+        [ForeignKey(nameof(InspectorTypeId))] //lazy 로딩
+        public virtual InspectorType InspectorType { get; set; }
 
         [Required]
-        public int InspectPcNo { get; set; }
+        public required string OriginalImg { get; set; }
 
         [Required]
-        public string OriginalImg { get; set; } = string.Empty;
+        public required string ChangedImg { get; set; }
 
         [Required]
-        public string ChangedImg { get; set; } = string.Empty;
+        public required string ChangedImgMetadata { get; set; }
 
         /// <summary>
-        /// 
+        /// true = 1 , false = 0
         /// </summary>
         [Required]
-        public string ChangedImgMetadata { get; set; } = string.Empty;
+        public int Result { get; set; }
+
+        /// <summary>
+        /// auto = 0, manual = 1 검사 방법
+        /// </summary>
+        [Required]
+        public int Method { get; set; }
 
         [Required]
-        public int ProbeId { get; set; } // 외부 키
+        public int ProbeSNId { get; set; }
 
-        [ForeignKey("ProbeId")] //lazy 로딩
-        public virtual Probe Probe { get; set; } // 외부 키의 참조
+        [ForeignKey(nameof(ProbeSNId))] //lazy 로딩
+        public virtual ProbeSN ProbeSN { get; set; } // 외부 키의 참조
     }
 }

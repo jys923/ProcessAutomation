@@ -1,14 +1,28 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCoreSample.Entities
 {
     public class ProbeType : EntityBase
     {
-        //[Key]
-        //public Guid ProbeTypeId { get; set; }
+        /*[Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ProbeTypeId { get; set; }*/
 
+        /// <summary>
+        /// SCP01
+        /// </summary>
         [Required]
-        [StringLength(50)]
-        public required string Name { get; set; }
+        [StringLength(10)]
+        public required string Code { get; set; }
+
+        /// <summary>
+        /// 7.5MHz
+        /// </summary>
+        [Required]
+        [StringLength(10)]
+        public required string Type { get; set; }
+
+
     }
 }

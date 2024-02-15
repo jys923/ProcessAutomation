@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCoreSample.Entities
 {
@@ -7,8 +8,9 @@ namespace EFCoreSample.Entities
     /// </summary>
     public class InspectType : EntityBase
     {
-        //[Key]
-        //public Guid InspectTypeId { get; set; }
+       /* [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int InspectTypeId { get; set; }*/
 
         [Required]
         [StringLength(10)]
