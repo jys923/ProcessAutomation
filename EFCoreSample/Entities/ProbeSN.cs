@@ -26,5 +26,8 @@ namespace EFCoreSample.Entities
         /// </summary>
         [Required]
         public int ProbeSeqNo { get; set; }
+
+        //[ForeignKey(nameof(Id))] //lazy 로딩
+        //public virtual IEnumerable<Inspect> Inspects { get; set; }
     }
 }

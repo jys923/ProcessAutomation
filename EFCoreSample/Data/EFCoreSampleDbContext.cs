@@ -8,11 +8,12 @@ namespace EFCoreSample.Data
         public DbSet<Inspect> Inspects { get; set; }
         public DbSet<InspectType> InspectTypes { get; set; }
         public DbSet<InspectorType> InspectorTypes { get; set; }
-        public DbSet<Probe> Probes { get; set; }
         public DbSet<ProbeSN> ProbeSNs { get; set; }
         public DbSet<ProbeSNType> ProbeSNTypes { get; set; }
         public DbSet<ProbeType> ProbeTypes { get; set; }
+        
         public DbSet<ProbeView> ProbeViews { get; set; }
+        //public DbSet<ProbeSNView> ProbeSNViews { get; set; }
         //public DbSet<EntityBase> EntityBase { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

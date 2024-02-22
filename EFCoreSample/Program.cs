@@ -1,23 +1,27 @@
 ﻿//#define INSERT_MASTER
 //#define INSERT_DATA
 //#define SELECT_LINQ
-#define SELECT_SQL
+//#define SELECT_SQL
+//#define SELECT_SQL_DYNAMIC
+#define SELECT_SQL_DYNAMIC_2
 //#define PRINT
-
-
 
 using EFCoreSample.Data;
 using EFCoreSample.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Diagnostics;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Dynamic;
+using System.Text;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
         Console.WriteLine("Hello EFCoreSample!");
+
+        int maxCnt = 100000;
+        int numberOfResults = 5;
+
         Random random = new Random();
         using (var db = new EFCoreSampleDbContext())
         {
@@ -46,10 +50,6 @@ internal class Program
 #endif
 
 #if INSERT_DATA
-            #region 100000건 삽입
-            int maxCnt = 100000;
-
-#if false
             #region probeSN
             for (int i = 0; i < maxCnt; i++)
             {
@@ -57,9 +57,7 @@ internal class Program
             }
             db.SaveChanges();
             #endregion
-#endif
-
-#if false
+            
             #region inspect
             for (int i = 0; i < maxCnt; i++)
             {
@@ -80,8 +78,6 @@ internal class Program
                 }
             }
             db.SaveChanges();
-            #endregion
-#endif
             #endregion
 #endif
 
@@ -206,14 +202,71 @@ internal class Program
                         JOIN ProbeSNs ps ON main.ProbeSNId = ps.Id
                         JOIN ProbeSNTypes pst ON ps.ProbeSNTypeId = pst.Id
                         JOIN ProbeTypes pt ON ps.ProbeTypeId = pt.Id";
-            IQueryable<ProbeView> ProbeResult = db.ProbeViews.FromSqlRaw(sql);
+            IQueryable<ProbeView> ProbeResults = db.ProbeViews.FromSqlRaw(sql);
 
-            /*foreach (var inspect in ProbeResult)
+            foreach (var probe in ProbeResults)
             {
-                Console.WriteLine($"{inspect.ProbeSN}.{inspect.Result1}.{inspect.Result2}.{inspect.Result3}.{inspect.Result4}.{inspect.Result5}");
+                Console.WriteLine($"{probe.ProbeSN}.{probe.Result1}.{probe.Result2}.{probe.Result3}.{probe.Result4}.{probe.Result5}");
+            }
+            Console.WriteLine("ProbeResult.Count : " + ProbeResults.Count());
+            #endregion
+#elif SELECT_SQL_DYNAMIC
+            #region select sql dynamic 18s
+            // SQL 쿼리 문자열을 생성
+            StringBuilder sqlBuilder = new StringBuilder();
+            for (int i = 1; i <= numberOfResults; i++)
+            {
+                sqlBuilder.AppendLine($"(SELECT Result FROM Inspects WHERE ProbeSNId = main.ProbeSNId AND InspectTypeId = {i} AND DataFlag = 1) AS Result{i},");
+            }
+            // 마지막 줄에는 쉼표를 제거
+            sqlBuilder.Remove(sqlBuilder.Length - 3, 1);
+
+            string sql = $@"
+            SELECT CONCAT(pt.Code, pst.DateTime, LPAD(pst.PcNo, 3, '0'), LPAD(ps.ProbeSeqNo,5,'0')) AS ProbeSN,
+                   {sqlBuilder}
+                FROM (SELECT DISTINCT ProbeSNId FROM Inspects) AS main
+                JOIN ProbeSNs ps ON main.ProbeSNId = ps.Id
+                JOIN ProbeSNTypes pst ON ps.ProbeSNTypeId = pst.Id
+                JOIN ProbeTypes pt ON ps.ProbeTypeId = pt.Id";
+
+            List<ProbeSNView> probeSNViews = new List<ProbeSNView>();
+
+            // 데이터베이스 연결 및 쿼리 실행
+            using (var command = db.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = sql;
+                db.Database.OpenConnection();
+                using (var result = command.ExecuteReader())
+                {
+                    while (result.Read())
+                    {
+                        ProbeSNView probeSNView = new ProbeSNView
+                        {
+                            ProbeSN = result.GetString(0), // 첫 번째 컬럼은 ProbeSN
+                            Result = new List<int>()
+                        };
+                        for (int i = 1; i <= numberOfResults; i++)
+                        {
+                            // Result1, Result2, ... 컬럼은 1부터 시작
+                            int? value = result.IsDBNull(i) ? null : (int?)result.GetInt32(i);
+                            probeSNView.Result.Add(value ?? 0); // null일 경우 0으로 대체
+                        }
+                        probeSNViews.Add(probeSNView);
+                    }
+                }
+            }
+
+            /*foreach (var item in probeSNViews)
+            {
+                Console.Write(item.ProbeSN + " ");
+                foreach (var result in item.Result)
+                {
+                    Console.Write(result + ": ");
+                }
+                Console.WriteLine("");
             }*/
-            Console.WriteLine("ProbeResult.Count : " + ProbeResult.Count());
-            #endregion  
+            Console.WriteLine("probeSNViews.Count : " + probeSNViews.Count());
+            #endregion
 #endif
 
             stopwatch.Stop();
