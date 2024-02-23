@@ -25,5 +25,12 @@ namespace EFCoreSample.Entities
             Auto,
             Manual,
         }
+
+        public enum ProbeType
+        {
+            SCP01 = 1,
+            SCP02,
+            SCP03,
+        }
     }
 }

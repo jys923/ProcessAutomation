@@ -1,5 +1,7 @@
 ﻿using EFCoreSample.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace EFCoreSample.Data
 {
@@ -9,17 +11,20 @@ namespace EFCoreSample.Data
         public DbSet<InspectType> InspectTypes { get; set; }
         public DbSet<InspectorType> InspectorTypes { get; set; }
         public DbSet<ProbeSN> ProbeSNs { get; set; }
-        public DbSet<ProbeSNType> ProbeSNTypes { get; set; }
+        //public DbSet<ProbeSNType> ProbeSNTypes { get; set; }
         public DbSet<ProbeType> ProbeTypes { get; set; }
         
-        public DbSet<ProbeView> ProbeViews { get; set; }
+        //public DbSet<ProbeView> ProbeViews { get; set; }
         //public DbSet<ProbeSNView> ProbeSNViews { get; set; }
         //public DbSet<EntityBase> EntityBase { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-
+            // Enable sensitive data logging
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            // Configure your database connection
             //string MSSQLConnectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=AspnetCoreDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False";
             //optionsBuilder.UseSqlServer(MSSQLConnectionString);
             string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_ems; Uid=root; Pwd=Endolfin12!@; SslMode=Preferred;";

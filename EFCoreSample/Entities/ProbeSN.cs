@@ -1,8 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace EFCoreSample.Entities
 {
+    [Index(nameof(ProbeSn), IsUnique = true)]
     public class ProbeSN : EntityBase
     {
         /*[Key]
@@ -16,17 +19,8 @@ namespace EFCoreSample.Entities
         public virtual ProbeType ProbeType { get; set; }
 
         [Required]
-        public int ProbeSNTypeId { get; set; }
-
-        [ForeignKey(nameof(ProbeSNTypeId))] //lazy 로딩
-        public virtual ProbeSNType ProbeSNType { get; set; }
-
-        /// <summary>
-        /// 시리얼 마지막 20240216 A PC에서 1번 제품
-        /// </summary>
-        [Required]
-        public int ProbeSeqNo { get; set; }
-
+        [StringLength(21)]
+        public required string ProbeSn { get; set; }
         //[ForeignKey(nameof(Id))] //lazy 로딩
         //public virtual IEnumerable<Inspect> Inspects { get; set; }
     }
