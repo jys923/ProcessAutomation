@@ -1,24 +1,26 @@
-﻿//#define INSERT_MASTER
-//#define INSERT_MASTER_2
-//#define INSERT_DATA
-//#define INSERT_DATA_2
-//#define SELECT_LINQ
-//#define SELECT_LINQ_2
-//#define SELECT_SQL
-//#define SELECT_SQL_DYNAMIC
-#define SELECT_SQL_DYNAMIC_2
-//#define PRINT
-
-using EFCoreSample.Data;
-using EFCoreSample.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using EFCoreSample.Data;
+using EFCoreSample.Repositories;
+using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
-using static EFCoreSample.Entities.Enums;
 
 internal class Program
 {
+    private static IServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
+
+        // 서비스 등록
+        services.AddTransient<IInspectorTypeRepository, InspectorTypeRepository>();
+        services.AddTransient<IInspectRepository, InspectRepository>();
+        services.AddTransient<IInspectTypeRepository, InspectTypeRepository>();
+        services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
+        services.AddTransient<IProbeTypeRepository, ProbeTypeRepository>();
+
+        return services.BuildServiceProvider();
+    }
+
     private static void Main(string[] args)
     {
         Console.WriteLine("Hello EFCoreSample!");
@@ -29,7 +31,7 @@ internal class Program
         string currentDate = DateTime.Now.ToString("yyyyMMdd");
 
         Random random = new Random();
-        using (var db = new EFCoreSampleDbContext())
+        using (var context = new EFCoreSampleDbContext())
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
 
@@ -416,6 +418,60 @@ internal class Program
             Console.WriteLine("probeSNViews.Count : " + probeSNViews.Count());
             #endregion
 
+#endif
+#if INSERT_MASTER_REP
+            #region 기본값 삽입 
+            context.ProbeTypes.Add(new ProbeType { Code = "SCP01", Type = "5MHz" });
+            context.ProbeTypes.Add(new ProbeType { Code = "SCP02", Type = "7.5MHz" });
+            context.ProbeTypes.Add(new ProbeType { Code = "SCP03", Type = "10MHz" });
+            context.InspectTypes.Add(new InspectType { Name = "1st test", Detail = "align" });
+            context.InspectTypes.Add(new InspectType { Name = "2nd test", Detail = "center" });
+            context.InspectTypes.Add(new InspectType { Name = "3rd test", Detail = "circle" });
+            context.InspectTypes.Add(new InspectType { Name = "4th test", Detail = "red" });
+            context.InspectTypes.Add(new InspectType { Name = "5th test", Detail = "green" });
+            context.InspectorTypes.Add(new InspectorType { Name = "yoon", PcNo = 1 });
+            context.InspectorTypes.Add(new InspectorType { Name = "sang", PcNo = 2 });
+            context.InspectorTypes.Add(new InspectorType { Name = "ko", PcNo = 3 });
+            context.InspectorTypes.Add(new InspectorType { Name = "kwon", PcNo = 4 });
+
+            var probeTypeRepository = new ProbeTypeRepository(context);
+
+            context.SaveChanges();
+            #endregion
+#endif
+#if INSERT_DATA_REP
+            #region probeSN
+            for (int i = 0; i < maxCnt; i++)
+            {
+                int tmp = random.Next(1, 4);
+                string type = Enum.GetName(typeof(Enums.ProbeType), tmp) ?? "SCP01";
+                string ProbeSn = type + currentDate + random.Next(1, 4).ToString("D3") + (i + 1).ToString("D5");
+                context.ProbeSNs.Add(new ProbeSN { ProbeTypeId = tmp, ProbeSn = ProbeSn });
+            }
+            context.SaveChanges();
+            #endregion
+            
+            #region inspect
+            for (int i = 0; i < maxCnt; i++)
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    var inspect = new Inspect
+                    {
+                        InspectTypeId = j + 1,
+                        InspectorTypeId = random.Next(1, 5),
+                        OriginalImg = $"/img/{currentDate}/{MKRandom(10)}",
+                        ChangedImg = $"/img/{currentDate}/{MKRandom(10)}",
+                        ChangedImgMetadata = MKSHA256(),
+                        Result = random.Next(0, 2),
+                        //ProbeSNId = i + 1,
+                    };
+                    inspect.ProbeSNId = i + 1;
+                    context.Inspects.Add(inspect);
+                }
+            }
+            context.SaveChanges();
+            #endregion
 #endif
 
             stopwatch.Stop();

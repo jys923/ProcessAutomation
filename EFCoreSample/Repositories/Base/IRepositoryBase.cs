@@ -1,4 +1,4 @@
-﻿namespace EFCoreSample.Repositories
+﻿namespace EFCoreSample.Repositories.Base
 {
     public interface IRepositoryBase<T> where T : class
     {
