@@ -1,6 +1,7 @@
 ﻿using EFCoreSample.Data;
 using EFCoreSample.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,7 +24,11 @@ internal class Program
 
     private static void Main(string[] args)
     {
-        Console.WriteLine("Hello EFCoreSample!");
+        var logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .CreateLogger();
+
+        logger.Information("Hello, world!");
 
         int maxCnt = 100000 - 1;
         int numberOfResults = 5;

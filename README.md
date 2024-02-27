@@ -6,13 +6,13 @@
 - [X] join 성능 개선 SQL (3990ms)
 - [X] Linq 정형 dataFlag 먼저 실행 성능 개선 
 - [ ] Linq, 메소드 방식 비정형
-- [ ] 레포지토리 패턴
+- [X] 레포지토리 패턴
 - [ ] ioc
-- [ ] mvvm 성능 측정 샘플
+- [ ] mvvm 성능 측정 샘플 추가
+- [ ] model, repo 등 dll 로 빼기
 - [ ] 진짜 UI ms lib? 날코딩? 코드 비하인드 불가
-- [ ] Linq, 메소드 방식 비정형
 - [ ] TDD 환경 구축
-- [ ] 로깅 환경 구축 Lib 선택
+- [X] 로깅 환경 구축 Lib 선택 seridog
 
 ## Memo
 -  db migration

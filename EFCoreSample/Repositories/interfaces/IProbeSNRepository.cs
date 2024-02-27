@@ -5,5 +5,6 @@ namespace EFCoreSample.Repositories
 {
     public interface IProbeSNRepository : IRepositoryBase<ProbeSN>
     {
+        IEnumerable<ProbeSNView> GetProbeSN(int numberOfResults);
     }
 }
