@@ -7,20 +7,20 @@ using System.Text;
 
 namespace EFCoreSample.Repositories
 {
-    internal class ProbeSNRepository : RepositoryBase<ProbeSN> , IProbeSNRepository
+    internal class ProbeSNRepository : RepositoryBase<TransducerModule> , IProbeSNRepository
     {
         public ProbeSNRepository(EFCoreSampleDbContext context) : base(context)
         {
         }
 
-        public IEnumerable<ProbeSNView> GetProbeSN(int numberOfResults)
+        public IEnumerable<TransducerModuleView> GetProbeSN(int resultCnt)
         {
             #region select sql dynamic 개선?
             // SQL 쿼리 문자열을 생성
             StringBuilder sqlBuilder = new StringBuilder();
-            for (int i = 1; i <= numberOfResults; i++)
+            for (int i = 1; i <= resultCnt; i++)
             {
-                sqlBuilder.AppendLine($" MAX(CASE WHEN i.InspectTypeId = {i} THEN i.Result END) AS Result{i},");
+                sqlBuilder.AppendLine($" MAX(CASE WHEN i.TestTypeId = {i} THEN i.Result END) AS Result{i},");
             }
             // 마지막 줄에는 쉼표를 제거
             sqlBuilder.Remove(sqlBuilder.Length - 3, 1);
@@ -32,16 +32,16 @@ namespace EFCoreSample.Repositories
             FROM 
                 (
                     SELECT DISTINCT ProbeSNId 
-                    FROM Inspects
+                    FROM Tests
                     WHERE DataFlag = 1
                 ) AS main
             JOIN ProbeSNs ps ON main.ProbeSNId = ps.Id
             JOIN ProbeTypes pt ON ps.ProbeTypeId = pt.Id
-            JOIN Inspects i ON main.ProbeSNId = i.ProbeSNId AND i.DataFlag = 1
+            JOIN Tests i ON main.ProbeSNId = i.ProbeSNId AND i.DataFlag = 1
             GROUP BY 
                 ps.ProbeSn";
 
-            List<ProbeSNView> probeSNViews = new List<ProbeSNView>();
+            List<TransducerModuleView> probeSNViews = new List<TransducerModuleView>();
 
             // 데이터베이스 연결 및 쿼리 실행
             using (var command = _context.Database.GetDbConnection().CreateCommand())
@@ -52,12 +52,12 @@ namespace EFCoreSample.Repositories
                 {
                     while (result.Read())
                     {
-                        ProbeSNView probeSNView = new ProbeSNView
+                        TransducerModuleView probeSNView = new TransducerModuleView
                         {
-                            ProbeSN = result.GetString(0), // 첫 번째 컬럼은 ProbeSN
+                            TransducerModuleSn = result.GetString(0), // 첫 번째 컬럼은 ProbeSN
                             Results = new List<int>()
                         };
-                        for (int i = 1; i <= numberOfResults; i++)
+                        for (int i = 1; i <= resultCnt; i++)
                         {
                             // Result1, Result2, ... 컬럼은 1부터 시작
                             int? value = result.IsDBNull(i) ? null : (int?)result.GetInt32(i);

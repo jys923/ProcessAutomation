@@ -3,8 +3,8 @@ using EFCoreSample.Repositories.Base;
 
 namespace EFCoreSample.Repositories
 {
-    public interface IProbeSNRepository : IRepositoryBase<ProbeSN>
+    public interface IProbeSNRepository : IRepositoryBase<TransducerModule>
     {
-        IEnumerable<ProbeSNView> GetProbeSN(int numberOfResults);
+        IEnumerable<TransducerModuleView> GetProbeSN(int resultCnt);
     }
 }

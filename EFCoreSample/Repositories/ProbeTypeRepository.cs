@@ -4,7 +4,7 @@ using EFCoreSample.Repositories.Base;
 
 namespace EFCoreSample.Repositories
 {
-    internal class ProbeTypeRepository : RepositoryBase<ProbeType> , IProbeTypeRepository
+    internal class ProbeTypeRepository : RepositoryBase<TransducerModuleType> , IProbeTypeRepository
     {
         public ProbeTypeRepository(EFCoreSampleDbContext context) : base(context)
         {

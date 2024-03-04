@@ -3,7 +3,7 @@ using EFCoreSample.Repositories.Base;
 
 namespace EFCoreSample.Repositories
 {
-    public interface IInspectorTypeRepository : IRepositoryBase<InspectorType>
+    public interface ITesterTypeRepository : IRepositoryBase<Tester>
     {
     }
 }

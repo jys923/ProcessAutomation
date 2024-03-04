@@ -4,9 +4,9 @@ using EFCoreSample.Repositories.Base;
 
 namespace EFCoreSample.Repositories
 {
-    internal class InspectRepository : RepositoryBase<Inspect> , IInspectRepository
+    internal class TestRepository : RepositoryBase<Test> , ITestRepository
     {
-        public InspectRepository(EFCoreSampleDbContext context) : base(context)
+        public TestRepository(EFCoreSampleDbContext context) : base(context)
         {
         }
     }
