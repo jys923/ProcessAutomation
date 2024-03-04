@@ -3,14 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCoreSample.Entities
 {
-    public class ProbeType : EntityBase
+    public class TransducerModuleType : EntityBase
     {
-        /*[Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ProbeTypeId { get; set; }*/
-
         /// <summary>
-        /// SCP01
+        /// SC0P1
         /// </summary>
         [Required]
         [StringLength(10)]

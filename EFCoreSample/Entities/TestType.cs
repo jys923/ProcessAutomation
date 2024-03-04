@@ -1,19 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCoreSample.Entities
 {
     /// <summary>
     /// 1번 검사 2번 검사...
     /// </summary>
-    public class InspectType : EntityBase
+    public class TestType : EntityBase
     {
-       /* [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int InspectTypeId { get; set; }*/
+        /*[Required]
+        public int CategoryId { get; set; } = (int)Enums.TestCategory.Processing;*/
 
         [Required]
         [StringLength(10)]
         public required string Name { get; set; }
+
+        [Required]
+        public int Threshold { get; set; } = new Random().Next(70,100);
     }
 }

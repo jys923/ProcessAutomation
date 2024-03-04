@@ -1,21 +1,39 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace EFCoreSample.Entities
 {
-    [NotMapped]
-    public class ProbeView// : EntityBase
+    [Index(nameof(ProbeSN), IsUnique = true)]
+    [Index(nameof(TransducerModuleSN), IsUnique = true)]
+    [Index(nameof(TransducerSN), IsUnique = true)]
+    [Index(nameof(MotorModuleSn), IsUnique = true)]
+    public class ProbeView : EntityBase
     {
+        [Required]
         public required string ProbeSN { get; set; }
-        public int Result1 { get; set; }
-        public int Result2 { get; set; }
-        public int Result3 { get; set; }
-        public int Result4 { get; set; }
-        public int Result5 { get; set; }
+
+        [Required]
+        public required string TransducerModuleSN { get; set; }
+
+        [Required]
+        public required string TransducerSN { get; set; }
+
+        [Required]
+        public required string MotorModuleSn { get; set; }
+
+        [Required]
+        public required IEnumerable<ProbeResult> ProbeResults { get; set; }
+    }
+
+    public class ProbeResult
+    {
+        public Enums.TestCategory Category { get; set; }
+        public Enums.TestType Type { get; set; }
+        public DateTime TestedDate { get; set; }
+        public int Result { get; set; }
     }
 }

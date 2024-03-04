@@ -8,10 +8,10 @@ namespace EFCoreSample.Entities
 {
     public class Enums
     {
-        public enum InspectResult
+        public enum TestResult
         {
             Failure,
-            Success,
+            //Success,
         }
 
         public enum DataFlag
@@ -20,17 +20,34 @@ namespace EFCoreSample.Entities
             Create,
         }
 
-        public enum Method
+        public enum TestMethod
         {
             Auto,
             Manual,
         }
 
-        public enum ProbeType
+        public enum TransducerModule
         {
             SCP01 = 1,
             SCP02,
             SCP03,
+        }
+
+        public enum TestCategory
+        {
+            Processing = 1,
+            Process,
+            Dispatch,
+        }
+
+        public enum TestType
+        {
+            Align = 1,
+            Axial,
+            Lateral,
+            Red,
+            Green,
+            Blue
         }
     }
 }
