@@ -29,6 +29,7 @@ namespace EFCoreSample.Entities
         public required IEnumerable<ProbeResult> ProbeResults { get; set; }
     }
 
+    [NotMapped]
     public class ProbeResult
     {
         public Enums.TestCategory Category { get; set; }
