@@ -12,9 +12,9 @@ namespace EFCoreSample.Services
 
         }
 
-        public void getData(int numberOfResults)
+        public void getData(int resultCnt)
         {
-            _probeSN.GetProbeSN(numberOfResults);
+            _probeSN.GetProbeSN(resultCnt);
         }
     }
 }
