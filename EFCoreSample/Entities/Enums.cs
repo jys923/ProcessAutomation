@@ -20,12 +20,6 @@ namespace EFCoreSample.Entities
             Create,
         }
 
-        public enum TestMethod
-        {
-            Auto,
-            Manual,
-        }
-
         public enum TransducerModule
         {
             SCP01 = 1,
@@ -38,6 +32,19 @@ namespace EFCoreSample.Entities
             Processing = 1,
             Process,
             Dispatch,
+        }
+
+        public enum TestCategoryKor
+        {
+            공정용 = 1,
+            최종용,
+            출하용,
+        }
+
+        public enum TestMode
+        {
+            Auto,
+            Manual,
         }
 
         public enum TestType

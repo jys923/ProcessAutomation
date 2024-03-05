@@ -43,6 +43,7 @@ namespace EFCoreSample.Entities
         public int Result { get; set; }
 
         /// <summary>
+        /// mode????
         /// auto = 0, manual = 1 검사 방법
         /// </summary>
         [Required]
