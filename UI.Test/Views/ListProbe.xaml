@@ -1,0 +1,105 @@
+﻿<Window x:Class="UI.Test.Views.ListProbe"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UI.Test.Views"
+        mc:Ignorable="d"
+        x:Name="root"
+        Title="ListProbe" Height="1080" Width="1920">
+    <Window.Style>
+        <Style TargetType="Window">
+            <Setter Property="FontSize" Value="20" />
+        </Style>
+    </Window.Style>
+    <Window.Resources>
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Width" Value="150"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="11*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="AntiqueWhite" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="340"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Content="검색 기간" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="1" Content="과정" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="2" Content="PASS/FAIL" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="3" Content="PC No" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="4" Content="Tester" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="5" Content="Probe S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="6" Content="TD S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="7" Content="MT S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="8" Content="" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="9" Content="etc" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Grid Grid.Row="1" VerticalAlignment="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width=".2*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <DatePicker Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150"/>
+                <Label Grid.Row="0" Grid.Column="1" Content="~" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <DatePicker Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="150"/>
+            </Grid>
+            <ComboBox Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" SelectedIndex="0">
+                <ComboBoxItem Content="ALL"/>
+                <ComboBoxItem Content="공정"/>
+                <ComboBoxItem Content="최종"/>
+                <ComboBoxItem Content="출하"/>
+            </ComboBox>
+            <ComboBox Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" SelectedIndex="0">
+                <ComboBoxItem Content="ALL"/>
+                <ComboBoxItem Content="PASS"/>
+                <ComboBoxItem Content="Fail"/>
+            </ComboBox>
+            <TextBox Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" Text="TextBox" VerticalAlignment="Top" Width="150"/>
+            <TextBox Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" Text="TextBox" VerticalAlignment="Top" />
+            <TextBox Grid.Column="5" HorizontalAlignment="Left" Grid.Row="1" Text="TextBox" VerticalAlignment="Top" />
+            <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" Text="TextBox" VerticalAlignment="Top" />
+            <TextBox Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" Text="TextBox" VerticalAlignment="Top" />
+            <Button Grid.Column="8" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" />
+            <Button Grid.Column="9" Content="내보내기" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" />
+        </Grid>
+        <DataGrid Grid.Row="1" x:Name="dataGrid">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Date" Width="1.5*"/>
+                <DataGridTextColumn Header="과정" Width="1*"/>
+                <DataGridTextColumn Header="Probe S/N" Width="2.5*"/>
+                <DataGridTextColumn Header="TD S/N" Width="2*"/>
+                <DataGridTextColumn Header="MT S/N" Width="1*"/>
+                <DataGridTextColumn Header="Tester" Width="1*"/>
+                <DataGridTextColumn Header="PC No" Width="1*"/>
+                <DataGridTextColumn Header="T11" Width=".5*"/>
+                <DataGridTextColumn Header="T12" Width=".5*"/>
+                <DataGridTextColumn Header="T13" Width=".5*"/>
+                <DataGridTextColumn Header="T21" Width=".5*"/>
+                <DataGridTextColumn Header="T22" Width=".5*"/>
+                <DataGridTextColumn Header="T23" Width=".5*"/>
+                <DataGridTextColumn Header="T31" Width=".5*"/>
+                <DataGridTextColumn Header="T32" Width=".5*"/>
+                <DataGridTextColumn Header="T33" Width=".5*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
