@@ -15,7 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Models\Entities\" />
+    <Folder Include="Converters\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>

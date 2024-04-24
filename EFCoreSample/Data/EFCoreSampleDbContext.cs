@@ -25,7 +25,7 @@ namespace EFCoreSample.Data
             base.OnConfiguring(optionsBuilder);
 #if DEBUG
             // Enable sensitive data logging
-            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.EnableSensitiveDataLogging(true);
             optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole())); 
 #endif
             // Configure your database connection
