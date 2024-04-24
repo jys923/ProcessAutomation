@@ -11,6 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using UI.Test.ViewModels;
 
 namespace UI.Test.Views
 {
@@ -22,6 +23,7 @@ namespace UI.Test.Views
         public MainWindow()
         {
             InitializeComponent();
+            //DataContext = App.Current.Services.GetService(typeof(MainViewModel));
         }
 
         private void TestBtn_Click(object sender, RoutedEventArgs e)
