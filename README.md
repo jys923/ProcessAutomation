@@ -1,4 +1,4 @@
-# ProcessAutomation
+# SonoCap.MES
 
 ## Todo List
 
@@ -13,6 +13,9 @@
 - [ ] 진짜 UI ms lib? 날코딩? 코드 비하인드 불가
 - [ ] TDD 환경 구축
 - [X] 로깅 환경 구축 Lib 선택 seridog
+- [ ] 모터 모듈 s/n 파일 import
+- [ ] TD s/n 파일 import
+- [ ] dark theme
 
 ## Memo
 -  db migration

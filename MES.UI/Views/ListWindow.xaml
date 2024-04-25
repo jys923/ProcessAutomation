@@ -83,22 +83,22 @@
         </Grid>
         <DataGrid Grid.Row="1" x:Name="dataGrid">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Date" Width="1.5*"/>
-                <DataGridTextColumn Header="과정" Width="1*"/>
-                <DataGridTextColumn Header="Probe S/N" Width="2.5*"/>
-                <DataGridTextColumn Header="TD S/N" Width="2*"/>
-                <DataGridTextColumn Header="MT S/N" Width="1*"/>
-                <DataGridTextColumn Header="Tester" Width="1*"/>
-                <DataGridTextColumn Header="PC No" Width="1*"/>
-                <DataGridTextColumn Header="T11" Width=".5*"/>
-                <DataGridTextColumn Header="T12" Width=".5*"/>
-                <DataGridTextColumn Header="T13" Width=".5*"/>
-                <DataGridTextColumn Header="T21" Width=".5*"/>
-                <DataGridTextColumn Header="T22" Width=".5*"/>
-                <DataGridTextColumn Header="T23" Width=".5*"/>
-                <DataGridTextColumn Header="T31" Width=".5*"/>
-                <DataGridTextColumn Header="T32" Width=".5*"/>
-                <DataGridTextColumn Header="T33" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;Date" Width="1.5*"/>
+                <DataGridTextColumn Header="&#13;과정" Width="1*"/>
+                <DataGridTextColumn Header="&#13;Probe S/N" Width="2.5*"/>
+                <DataGridTextColumn Header="&#13;TD S/N" Width="2*"/>
+                <DataGridTextColumn Header="&#13;MT S/N" Width="1*"/>
+                <DataGridTextColumn Header="&#13;Tester" Width="1*"/>
+                <DataGridTextColumn Header="&#13;PC No" Width="1*"/>
+                <DataGridTextColumn Header="공정&#13;T11" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;T12" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;T13" Width=".5*"/>
+                <DataGridTextColumn Header="최종&#13;T21" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;T22" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;T23" Width=".5*"/>
+                <DataGridTextColumn Header="출하&#13;T31" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;T32" Width=".5*"/>
+                <DataGridTextColumn Header="&#13;T33" Width=".5*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
