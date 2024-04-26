@@ -1,22 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MES.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 
-namespace UI.Test.ViewModels
+namespace MES.UI.ViewModels
 {
-    /// <summary>
-    /// 메인 뷰모델 클래스
-    /// </summary>
-    public class MainViewModel : ViewModelBase
+    [ObservableObject]
+    public partial class MainViewModel
     {
-        /// <summary>
-        /// 생성자
-        /// </summary>
+        [ObservableProperty]
+        private string _title = default!;
+
         public MainViewModel()
         {
-            Title = "MainView";
+            Title = this.GetType().Name;
+        }
+
+        [RelayCommand]
+        private void ToTest()
+        {
+            Debug.WriteLine("ToTest");
+            TestView? testView = App.Current.Services.GetService<TestView>()!;
+            testView.Show();
+        }
+
+        [RelayCommand]
+        private void ToList()
+        {
+            Debug.WriteLine("ToList");
+            ListView? listView = App.Current.Services.GetService<ListView>()!;
+            listView.Show();
         }
     }
 }

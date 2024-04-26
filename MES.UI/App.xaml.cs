@@ -1,25 +1,25 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
+﻿using MES.UI.ViewModels;
+using MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
-using System.Configuration;
-using System.Data;
 using System.Windows;
-using UI.Test.ViewModels;
-using UI.Test.Views;
 
-namespace UI.Test
+namespace MES.UI
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public sealed partial class App : Application
+    public partial class App : Application
     {
         public App()
         {
             Services = ConfigureServices();
+            Startup += App_Startup;
+        }
 
-            this.InitializeComponent();
+        private void App_Startup(object sender, StartupEventArgs e)
+        {
+            MainView? mainView = App.Current.Services.GetService<MainView>()!;
+            mainView.Show();
         }
 
         /// <summary>
@@ -45,6 +45,22 @@ namespace UI.Test
             //services.AddSingleton<IShareService, ShareService>();
             //services.AddSingleton<IEmailService, EmailService>();
             services.AddTransient(typeof(MainViewModel));
+            services.AddTransient(typeof(ListViewModel));
+            services.AddTransient(typeof(TestViewModel));
+
+            // Views
+            services.AddSingleton(s => new MainView()
+            {
+                DataContext = s.GetRequiredService<MainViewModel>()
+            });
+            services.AddSingleton(s => new ListView()
+            {
+                DataContext = s.GetRequiredService<ListViewModel>()
+            });
+            services.AddSingleton(s => new TestView()
+            {
+                DataContext = s.GetRequiredService<TestViewModel>()
+            });
 
             return services.BuildServiceProvider();
         }
