@@ -55,6 +55,9 @@ namespace MES.UI.ViewModels
         private int _testTypeIndex = default!;
 
         [ObservableProperty]
+        private int _blinkingCellIndex = default!;
+
+        [ObservableProperty]
         private BitmapImage _srcImg = default!;
 
         [ObservableProperty]
@@ -108,6 +111,10 @@ namespace MES.UI.ViewModels
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
 
+
+            BlinkingCellIndex = 22;
+
+            ProbeSn = "1234567890";
         }
 
         partial void OnTDTypeIndexChanging(int value)

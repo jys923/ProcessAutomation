@@ -22,7 +22,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Margin" Value="10,10,0,0" />
         </Style>
-        <Style x:Key="BlinkingBorderStyle" TargetType="Border">
+        <Style x:Key="BlinkingBorderStyle2" TargetType="Border">
             <Setter Property="Background" Value="LightGreen"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsBlinking}" Value="True">
@@ -40,6 +40,38 @@
                         <StopStoryboard BeginStoryboardName="BlinkingAnimation"/>
                     </DataTrigger.ExitActions>
                 </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!-- 깜빡이는 효과를 위한 스타일 리소스 -->
+        <Style x:Key="BlinkingBorderStyle" TargetType="Border">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="1">
+                    <DataTrigger.EnterActions>
+                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            To="LightGreen" Duration="0:0:0"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Background" Value="LightGray"/>
+                </Trigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
@@ -88,7 +120,7 @@
                     <Label Grid.Row="6" Grid.Column="1" Content="Seq No" FontSize="20"/>
                     <Label Grid.Row="7" Grid.Column="1" Content="MT Md Sn" FontSize="20"/>
 
-                    <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}"/>
+                    <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="True" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
                     <TextBox Grid.Row="1" Grid.Column="2" FontSize="20" Text="{Binding TDMdSn}"/>
                     <ComboBox Grid.Row="2" Grid.Column="2" FontSize="20"  SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}" SelectedItem="{Binding TDType, Mode=TwoWay}">
                         <ComboBoxItem FontSize="20" Content="5M"/>
@@ -154,34 +186,7 @@
                     <!--<RowDefinition Height="1*"/>-->
                 </Grid.RowDefinitions>
 
-                <!--<Border Grid.Column="0" Grid.Row="0" Background="LightBlue"/>-->
-                <Border x:Name="BlinkingBorder00" Grid.Column="0" Grid.Row="0" Background="LightBlue">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="LightBlue"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Trigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" 
-                                                To="Red" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </Trigger.EnterActions>
-                                    <Trigger.ExitActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" 
-                                                To="LightBlue" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </Trigger.ExitActions>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                </Border>
+                <Border Grid.Column="0" Grid.Row="0" Background="LightBlue"/>
                 <Border Grid.Column="1" Grid.Row="0" Background="LightBlue">
                     <TextBlock Text="Align" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
                 </Border>
@@ -198,18 +203,179 @@
                 <Border Grid.Column="0" Grid.Row="1" Background="LightBlue">
                     <TextBlock Text="공정용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
                 </Border>
-
-                <Border Grid.Column="1" Grid.Row="1" Background="LightGreen"/>
-                <Border Grid.Column="2" Grid.Row="1" Background="LightGreen"/>
-                <Border Grid.Column="3" Grid.Row="1" Background="LightGreen"/>
+                <Border Grid.Column="1" Grid.Row="1" Background="LightGreen">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="11">
+                                    <DataTrigger.EnterActions>
+                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                            To="LightGreen" Duration="0:0:0"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+                <Border Grid.Column="2" Grid.Row="1" Background="LightGreen">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="12">
+                                    <DataTrigger.EnterActions>
+                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+            To="LightGreen" Duration="0:0:0"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+                <Border Grid.Column="3" Grid.Row="1" Background="LightGreen">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="13">
+                                    <DataTrigger.EnterActions>
+                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+            To="LightGreen" Duration="0:0:0"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
                 <Border Grid.Column="4" Grid.Row="1" Background="LightBlue"/>
-
+                
                 <Border Grid.Column="0" Grid.Row="2" Background="LightBlue">
                     <TextBlock Text="최종용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
                 </Border>
-                <Border Grid.Column="1" Grid.Row="2" Background="LightGreen"/>
-                <Border Grid.Column="2" Grid.Row="2" Background="Yellow"/>
-                <Border Grid.Column="3" Grid.Row="2" Background="Tomato"/>
+                <Border Grid.Column="1" Grid.Row="2" Background="LightGreen">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="21">
+                                    <DataTrigger.EnterActions>
+                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+To="LightGreen" Duration="0:0:0"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+                <Border Grid.Column="2" Grid.Row="2" Background="Yellow">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="22">
+                                    <DataTrigger.EnterActions>
+                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+To="LightGreen" Duration="0:0:0"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+                <Border Grid.Column="3" Grid.Row="2" Background="Tomato">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="23">
+                                    <DataTrigger.EnterActions>
+                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+To="LightGreen" Duration="0:0:0"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
                 <Border Grid.Column="4" Grid.Row="2" Background="LightBlue"/>
 
                 <!--<Border Grid.Column="0" Grid.Row="3" Background="LightBlue">
