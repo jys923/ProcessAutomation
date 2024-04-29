@@ -6,8 +6,7 @@ using System.Diagnostics;
 
 namespace MES.UI.ViewModels
 {
-    [ObservableObject]
-    public partial class MainViewModel
+    public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _title = default!;

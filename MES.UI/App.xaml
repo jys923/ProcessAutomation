@@ -1,8 +1,23 @@
 ﻿<Application x:Class="MES.UI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:MES.UI">
+             xmlns:local="clr-namespace:MES.UI" 
+             xmlns:convertes="clr-namespace:MES.UI.Converters">
     <Application.Resources>
-         
+        <convertes:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
+        <!--<ResourceDictionary>
+            <vm:ViewModelLocator
+                xmlns:vm="clr-namespace:UI.Test.ViewModels"
+                x:Key="Locator"
+                d:IsDataSource="True" />
+
+            <Style TargetType="Window">
+                <Setter Property="FontSize" Value="28" />
+            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>-->
+        
     </Application.Resources>
 </Application>

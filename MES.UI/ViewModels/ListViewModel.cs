@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace MES.UI.ViewModels
 {
-    [ObservableObject]
-    public partial class ListViewModel
+    public partial class ListViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _title = default!;

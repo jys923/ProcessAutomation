@@ -58,6 +58,16 @@ namespace MES.UI.Test
                 DataContext = s.GetRequiredService<MainViewModel>()
             });
 
+            services.AddTransient(s => new ListView()
+            {
+                DataContext = s.GetRequiredService<ListViewModel>()
+            });
+
+            services.AddTransient(s => new TestView()
+            {
+                DataContext = s.GetRequiredService<TestViewModel>()
+            });
+
             return services.BuildServiceProvider();
         }
     }
