@@ -14,7 +14,6 @@ remove-migration
 ```
 
 ## Todo List
-
 - [ ] 
 - [X] show hide
 - [X] readonly gray
@@ -35,3 +34,6 @@ remove-migration
 - [ ] model, repo 등 dll 로 빼기
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] mvvm 성능 측정 샘플 추가
+
+## Research List
+- [ ] WPF animation
