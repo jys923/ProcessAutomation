@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     [Index(nameof(ProbeSN), IsUnique = true)]
     [Index(nameof(TransducerModuleSN), IsUnique = true)]

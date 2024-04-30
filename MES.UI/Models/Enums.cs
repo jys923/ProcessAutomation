@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     public class Enums
     {
@@ -52,9 +52,6 @@ namespace MES.UI.Entities
             Align = 1,
             Axial,
             Lateral,
-            Red,
-            Green,
-            Blue
         }
     }
 }

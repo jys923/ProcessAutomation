@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     [Index(nameof(ProbeSn), IsUnique = true)]
     public class Probe : EntityBase

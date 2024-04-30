@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     [Index(nameof(TransducerSn), IsUnique = true)]
     [Index(nameof(TransducerModuleSn), IsUnique = true)]

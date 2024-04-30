@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     public class MotorModule : EntityBase
     {

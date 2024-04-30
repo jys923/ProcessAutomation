@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     public class TransducerModuleView
     {

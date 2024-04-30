@@ -1,8 +1,7 @@
-﻿using MES.UI.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace MES.UI.Data
+namespace MES.UI.Models.Context
 {
     public class MESDbContext : DbContext
     {

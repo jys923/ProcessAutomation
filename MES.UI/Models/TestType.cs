@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     /// <summary>
     /// 1번 검사 2번 검사...

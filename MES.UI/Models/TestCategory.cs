@@ -1,17 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MES.UI.Entities
+namespace MES.UI.Models
 {
     /// <summary>
-    /// 로그인 로그 처럼 사용
+    /// 검사중,검사끝,출하전
     /// </summary>
-    public class Tester : EntityBase
+    public class TestCategory : EntityBase
     {
         [Required]
         [StringLength(10)]
         public required string Name { get; set; }
-
-        [Required]
-        public int PcNo { get; set; }
     }
 }
