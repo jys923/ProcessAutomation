@@ -7,9 +7,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Controls;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VILib;
+using MES.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MES.UI.ViewModels
 {
@@ -22,7 +26,18 @@ namespace MES.UI.ViewModels
         private string _probeSn = default!;
 
         [ObservableProperty]
+        private bool _probeSnIsReadOnly = default!;
+
+        [ObservableProperty]
         private string _tDMdSn = default!;
+
+        [ObservableProperty]
+        private bool _tDMdSnIsReadOnly = default!;
+
+        //[ObservableProperty]
+        //private string _tDType = default!;
+        [ObservableProperty]
+        private ObservableCollection<string> _tDTypes;
 
         [ObservableProperty]
         private string _tDType = default!;
@@ -46,7 +61,34 @@ namespace MES.UI.ViewModels
         private string _mTMdSn = default!;
 
         [ObservableProperty]
+        private bool _mTMdSnIsReadOnly = default!;
+
+        //[ObservableProperty]
         private int _testCategoryIndex = default!;
+
+        public int TestCategoryIndex
+        {
+            get => _testCategoryIndex;
+            set
+            {
+                if (_testCategoryIndex != value)
+                {
+                    _testCategoryIndex = value;
+                    OnPropertyChanged(nameof(TestCategoryIndex));
+                    if (value == 0)
+                    {
+                        TDMdSnIsReadOnly = true;
+                        MTMdSnIsReadOnly = true;
+                    }
+                    else
+                    {
+                        TDMdSnIsReadOnly = false;
+                        MTMdSnIsReadOnly = false;
+                    }
+                    
+                }
+            }
+        }
 
         [ObservableProperty]
         private int _testModeIndex = default!;
@@ -99,6 +141,15 @@ namespace MES.UI.ViewModels
 
         public TestViewModel()
         {
+            TDTypes = new ObservableCollection<string>
+            {
+                "5.0Mhz",
+                "7.5Mhz",
+            };
+
+            TDType = TDTypes[0];
+            TDTypeIndex = 1;
+
             ResLogs = new ObservableCollection<string>();
 
             ret = VI.Load(0);
@@ -115,6 +166,12 @@ namespace MES.UI.ViewModels
             BlinkingCellIndex = 22;
 
             ProbeSn = "1234567890";
+            ProbeSnIsReadOnly = true;
+
+            TDTypeIndex = 1;
+
+            //TDType = "5M";
+
         }
 
         partial void OnTDTypeIndexChanging(int value)
@@ -122,10 +179,10 @@ namespace MES.UI.ViewModels
             Debug.Print(value.ToString());
         }
 
-        partial void OnTestCategoryIndexChanged(int value)
-        {
-            Debug.Print(value.ToString());
-        }
+        //partial void OnTestCategoryIndexChanged(int value)
+        //{
+        //    Debug.Print(value.ToString());
+        //}
 
         partial void OnTestModeIndexChanged(int value)
         {
@@ -305,5 +362,6 @@ namespace MES.UI.ViewModels
                 return -1;
             }
         }
+
     }
 }

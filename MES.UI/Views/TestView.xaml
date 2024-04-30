@@ -120,12 +120,16 @@
                     <Label Grid.Row="6" Grid.Column="1" Content="Seq No" FontSize="20"/>
                     <Label Grid.Row="7" Grid.Column="1" Content="MT Md Sn" FontSize="20"/>
 
-                    <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="True" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
-                    <TextBox Grid.Row="1" Grid.Column="2" FontSize="20" Text="{Binding TDMdSn}"/>
-                    <ComboBox Grid.Row="2" Grid.Column="2" FontSize="20"  SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}" SelectedItem="{Binding TDType, Mode=TwoWay}">
+                    <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="{Binding ProbeSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" FontSize="20" Text="{Binding TDMdSn}" IsReadOnly="{Binding TDMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+                    <!--<ComboBox Grid.Row="2" Grid.Column="2" FontSize="20"  SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}" SelectedItem="{Binding TDType, Mode=TwoWay}">
                         <ComboBoxItem FontSize="20" Content="5M"/>
                         <ComboBoxItem FontSize="20" Content="7.5M"/>
-                    </ComboBox>
+                    </ComboBox>-->
+                    <!--<ComboBox Grid.Row="2" Grid.Column="2" FontSize="20" SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}" SelectedItem="{Binding TDType, Mode=TwoWay}">
+                    </ComboBox>-->
+                    <ComboBox Grid.Row="2" Grid.Column="2" FontSize="20" ItemsSource="{Binding TDTypes}" SelectedItem="{Binding TDType, Mode=TwoWay}" SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}"/>
+                    
                     <TextBox Grid.Row="3" Grid.Column="2" FontSize="20" Text="{Binding TDSn}"/>
                     <DatePicker Grid.Row="4" Grid.Column="2" SelectedDate="{Binding SelectedDate}" FontSize="20">
                         <DatePicker.Resources>
@@ -146,13 +150,13 @@
                     </DatePicker>
                     <TextBox Grid.Row="5" Grid.Column="2" FontSize="20" Text="{Binding PcNo}"/>
                     <TextBox Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"/>
-                    <TextBox Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn}"/>
+                    <TextBox Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn}" IsReadOnly="{Binding MTMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
                 </Grid>
                 <GroupBox Margin="0,20,0,10" Header="검사 유형 선택" Padding="0,0,0,10">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="공정용" GroupName="TestCategories" IsChecked="{Binding TestCategoryIndex, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=0}" />
                         <RadioButton Content="최종용" GroupName="TestCategories" IsChecked="{Binding TestCategoryIndex, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=1}" />
-                        <RadioButton Content="출하용" GroupName="TestCategories" IsChecked="{Binding TestCategoryIndex, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=2}" />
+                        <!--<RadioButton Content="출하용" GroupName="TestCategories" IsChecked="{Binding TestCategoryIndex, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=2}" />-->
                     </StackPanel>
                 </GroupBox>
                 <GroupBox Margin="0,0,0,10" Header="검사 모드 선택" Padding="0,0,0,10">
