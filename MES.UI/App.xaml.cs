@@ -1,4 +1,5 @@
-﻿using MES.UI.ViewModels;
+﻿using MES.UI.Repositories;
+using MES.UI.ViewModels;
 using MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
@@ -44,6 +45,15 @@ namespace MES.UI
             //services.AddSingleton<IClipboardService, ClipboardService>();
             //services.AddSingleton<IShareService, ShareService>();
             //services.AddSingleton<IEmailService, EmailService>();
+
+            // Services
+            services.AddTransient<ITesterTypeRepository, TesterTypeRepository>();
+            services.AddTransient<ITestRepository, TestRepository>();
+            services.AddTransient<ITestTypeRepository, TestTypeRepository>();
+            services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
+            services.AddTransient<IProbeTypeRepository, ProbeTypeRepository>();
+
+            // ViewModels
             services.AddTransient(typeof(MainViewModel));
             services.AddTransient(typeof(ListViewModel));
             services.AddTransient(typeof(TestViewModel));
