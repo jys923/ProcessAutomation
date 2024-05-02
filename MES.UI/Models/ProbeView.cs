@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MES.UI.Models.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -11,7 +12,7 @@ namespace MES.UI.Models
     [Index(nameof(TransducerModuleSN), IsUnique = true)]
     [Index(nameof(TransducerSN), IsUnique = true)]
     [Index(nameof(MotorModuleSn), IsUnique = true)]
-    public class ProbeView : EntityBase
+    public class ProbeView : ModelBase
     {
         [Required]
         public required string ProbeSN { get; set; }

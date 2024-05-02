@@ -5,7 +5,7 @@ namespace MES.UI.Models.Context
 {
     public class MESDbContext : DbContext
     {
-        public DbSet<Test> Tests { get; set; }
+        public virtual DbSet<Test> Tests { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<TestType> TestTypes { get; set; }
         public DbSet<Tester> Testers { get; set; }

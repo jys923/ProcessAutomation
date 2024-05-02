@@ -4,7 +4,7 @@ using MES.UI.Repositories.Base;
 
 namespace MES.UI.Repositories
 {
-    internal class TesterTypeRepository : RepositoryBase<Tester> , ITesterTypeRepository
+    public class TesterTypeRepository : RepositoryBase<Tester> , ITesterTypeRepository
     {
         public TesterTypeRepository(MESDbContext context) : base(context)
         {

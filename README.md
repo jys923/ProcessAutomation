@@ -30,7 +30,8 @@ remove-migration
 - [ ] TD s/n 파일 import
 - [ ] dark theme
 - [ ] 유저 컨트롤
-- [ ] TDD 환경 구축
+- [X] TDD 환경 구축 xunit 프로젝트 설정 바꿔야 됨, test 대상 프로젝트 참조
+- [ ] TDD mock 객체 vs UseInMemoryDatabase
 - [ ] model, repo 등 dll 로 빼기
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] mvvm 성능 측정 샘플 추가

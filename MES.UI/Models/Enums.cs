@@ -10,14 +10,16 @@ namespace MES.UI.Models
     {
         public enum TestResult
         {
-            Failure,
-            //Success,
+            Fail,
+            Pass,
         }
 
         public enum DataFlag
         {
             Delete,
             Create,
+            //Read,
+            //Update,
         }
 
         public enum TransducerModule
@@ -31,14 +33,14 @@ namespace MES.UI.Models
         {
             Processing = 1,
             Process,
-            Dispatch,
+            //Dispatch,
         }
 
         public enum TestCategoryKor
         {
             공정용 = 1,
             최종용,
-            출하용,
+            //출하용,
         }
 
         public enum TestMode

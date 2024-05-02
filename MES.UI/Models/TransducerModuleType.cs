@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
-    public class TransducerModuleType : EntityBase
+    public class TransducerModuleType : ModelBase
     {
         /// <summary>
         /// SC0P1

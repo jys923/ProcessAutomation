@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
     /// <summary>
     /// 로그인 로그 처럼 사용
     /// </summary>
-    public class Tester : EntityBase
+    public class Tester : ModelBase
     {
         [Required]
         [StringLength(10)]

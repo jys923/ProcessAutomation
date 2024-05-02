@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
     [Index(nameof(ProbeSn), IsUnique = true)]
-    public class Probe : EntityBase
+    public class Probe : ModelBase
     {
         //유니크키
         /// <summary>

@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
     /// <summary>
     /// 1번 검사 2번 검사...
     /// </summary>
-    public class TestType : EntityBase
+    public class TestType : ModelBase
     {
         /*[Required]
         public int CategoryId { get; set; } = (int)Enums.TestCategory.Processing;*/

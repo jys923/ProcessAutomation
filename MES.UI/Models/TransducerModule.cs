@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
     [Index(nameof(TransducerSn), IsUnique = true)]
     [Index(nameof(TransducerModuleSn), IsUnique = true)]
-    public class TransducerModule : EntityBase
+    public class TransducerModule : ModelBase
     {
         [Required]
         //[StringLength(21)]

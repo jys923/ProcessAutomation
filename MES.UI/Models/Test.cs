@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
     /// <summary>
     /// 로그
     /// </summary>
-    public class Test : EntityBase
+    public class Test : ModelBase
     {
         [Required]
         public int CategoryId { get; set; }

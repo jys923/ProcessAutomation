@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
-    public class _ProbeView : EntityBase
+    public class _ProbeView : ModelBase
     {
         [Required]
         public required string ProbeSn { get; set; }
