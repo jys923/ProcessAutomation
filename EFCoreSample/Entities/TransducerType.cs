@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MES.UI.Models.Base;
 
-namespace MES.UI.Models
+namespace EFCoreSample.Entities
 {
-    public class ProbeType : ModelBase
+    public class TransducerType : EntityBase
     {
         /// <summary>
         /// SC0P1

@@ -3,7 +3,7 @@ using MES.UI.Repositories.Base;
 
 namespace MES.UI.Repositories
 {
-    public interface IProbeTypeRepository : IRepositoryBase<ProbeType>
+    public interface IProbeTypeRepository : IRepositoryBase<TransducerType>
     {
     }
 }

@@ -21,7 +21,7 @@ namespace MES.UI.Models
         public int TransducerModuleTypeId { get; set; }
 
         [ForeignKey(nameof(TransducerModuleTypeId))] //lazy 로딩
-        public virtual ProbeType TransducerModuleType { get; set; }
+        public virtual TransducerType TransducerModuleType { get; set; }
 
         //[ForeignKey(nameof(Id))] //lazy 로딩
         //public virtual IEnumerable<Test> Tests { get; set; }

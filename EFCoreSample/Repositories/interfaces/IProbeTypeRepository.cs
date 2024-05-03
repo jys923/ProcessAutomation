@@ -3,7 +3,7 @@ using EFCoreSample.Repositories.Base;
 
 namespace EFCoreSample.Repositories
 {
-    public interface IProbeTypeRepository : IRepositoryBase<TransducerModuleType>
+    public interface IProbeTypeRepository : IRepositoryBase<TransducerType>
     {
     }
 }

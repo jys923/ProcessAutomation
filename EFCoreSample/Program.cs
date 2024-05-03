@@ -1,12 +1,19 @@
-﻿//#define INSERT_MASTER_3
-//#define INSERT_MASTER_REPO_3
-#define INSERT_DATA_3
+﻿//#define INSERT_MASTER_2
 //#define INSERT_DATA_REPO_3
-#define SELECT_SQL_3
+//#define INSERT_MASTER_REPO_3
+//#define INSERT_DATA_3
+//#define SELECT_SQL_3
+
+//#define INSERT_DATA_REPO_2
+//#define INSERT_MASTER_REPO_2
+#define SELECT_SQL_4
 
 using EFCoreSample.Data;
 using EFCoreSample.Entities;
 using EFCoreSample.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Diagnostics;
@@ -74,19 +81,17 @@ public class Program
 
 #if INSERT_MASTER_2
             #region 기본값 삽입 
-            db.ProbeTypes.Add(new ProbeType { Code = "SCP01", Type = "5MHz" });
-            db.ProbeTypes.Add(new ProbeType { Code = "SCP02", Type = "7.5MHz" });
-            db.ProbeTypes.Add(new ProbeType { Code = "SCP03", Type = "10MHz" });
-            db.TestTypes.Add(new TestType { Name = "1st test", Detail = "align" });
-            db.TestTypes.Add(new TestType { Name = "2nd test", Detail = "center" });
-            db.TestTypes.Add(new TestType { Name = "3rd test", Detail = "circle" });
-            db.TestTypes.Add(new TestType { Name = "4th test", Detail = "red" });
-            db.TestTypes.Add(new TestType { Name = "5th test", Detail = "green" });
-            db.TesterTypes.Add(new TesterType { Name = "yoon", PcNo = 1 });
-            db.TesterTypes.Add(new TesterType { Name = "sang", PcNo = 2 });
-            db.TesterTypes.Add(new TesterType { Name = "ko", PcNo = 3 });
-            db.TesterTypes.Add(new TesterType { Name = "kwon", PcNo = 4 });
-            db.SaveChanges();
+            context.TransducerTypes.Add(new TransducerType { Code = "SCP01", Type = "5.0MHz" });
+            context.TransducerTypes.Add(new TransducerType { Code = "SCP02", Type = "7.5MHz" });
+            context.TransducerTypes.Add(new TransducerType { Code = "SCP03", Type = "10MHz" });
+            context.TestTypes.Add(new TestType { Name = "1st align", Detail = "align" });
+            context.TestTypes.Add(new TestType { Name = "2nd center", Detail = "center" });
+            context.TestTypes.Add(new TestType { Name = "3rd circle", Detail = "circle" });
+            context.Testers.Add(new Tester { Name = "yoon", PcNo = 1 });
+            context.Testers.Add(new Tester { Name = "sang", PcNo = 2 });
+            context.Testers.Add(new Tester { Name = "ko", PcNo = 3 });
+            context.Testers.Add(new Tester { Name = "kwon", PcNo = 4 });
+            context.SaveChanges();
             #endregion
 #endif
 
@@ -303,7 +308,7 @@ public class Program
                         JOIN ProbeSNs ps ON main.ProbeSNId = ps.Id
                         JOIN ProbeSNTypes pst ON ps.ProbeSNTypeId = pst.Id
                         JOIN ProbeTypes pt ON ps.ProbeTypeId = pt.Id";
-            IQueryable<ProbeView> ProbeResults = db.ProbeViews.FromSqlRaw(sql);
+            var ProbeResults = context.Probes.FromSqlRaw(sql);
 
             foreach (var probe in ProbeResults)
             {
@@ -489,11 +494,11 @@ public class Program
             #endregion
 #endif
 
-#if true
+#if INSERT_MASTER_REPO_2
             #region 기본값 삽입 
-            context.TransducerModuleTypes.Add(new TransducerModuleType { Code = "SCP01", Type = "5MHz" });
-            context.TransducerModuleTypes.Add(new TransducerModuleType { Code = "SCP02", Type = "7.55MHz" });
-            context.TransducerModuleTypes.Add(new TransducerModuleType { Code = "SCP03", Type = "10MHz" });
+            context.TransducerTypes.Add(new TransducerType { Code = "SCP01", Type = "5MHz" });
+            context.TransducerTypes.Add(new TransducerType { Code = "SCP02", Type = "7.55MHz" });
+            context.TransducerTypes.Add(new TransducerType { Code = "SCP03", Type = "10MHz" });
 
             context.TestCategories.Add(new TestCategory { Name = Enums.TestCategory.Processing.ToString() });
             context.TestCategories.Add(new TestCategory { Name = Enums.TestCategory.Process.ToString() });
@@ -502,22 +507,17 @@ public class Program
             context.TestTypes.Add(new TestType { Name = "Align", Detail = "1st test" });
             context.TestTypes.Add(new TestType { Name = "Axial", Detail = "2nd test" });
             context.TestTypes.Add(new TestType { Name = "Lateral", Detail = "3rd test" });
-            context.TestTypes.Add(new TestType { Name = "Red", Detail = "4th test" });
-            context.TestTypes.Add(new TestType { Name = "Green", Detail = "5th test" });
-            context.TestTypes.Add(new TestType { Name = "Blue", Detail = "6th test" });
 
             context.Testers.Add(new Tester { Name = "yoon", PcNo = 1 });
             context.Testers.Add(new Tester { Name = "sang", PcNo = 2 });
             context.Testers.Add(new Tester { Name = "ko", PcNo = 3 });
             context.Testers.Add(new Tester { Name = "kwon", PcNo = 4 });
 
-            var probeTypeRepository = new ProbeTypeRepository(context);
-
             context.SaveChanges();
             #endregion
 #endif
 
-#if INSERT_DATA_3
+#if INSERT_DATA_REPO_2
             #region TransducerModules
             for (int i = 0; i < maxCnt; i++)
             {
@@ -526,7 +526,7 @@ public class Program
                 //string type = "SC0P1";
                 string TransducerSn = "td-sn " + currentDate + " " + (i + 1).ToString("D3");
                 string TransducerModuleSn = "tdm-sn " + currentDate + " " + (i + 1).ToString("D3");
-                context.TransducerModules.Add(new TransducerModule { TransducerSn = TransducerSn, TransducerModuleTypeId = tmp, TransducerModuleSn = TransducerModuleSn });
+                context.TransducerModules.Add(new TransducerModule { TransducerSn = TransducerSn, TransducerTypeId = tmp, TransducerModuleSn = TransducerModuleSn });
             }
             context.SaveChanges();
             #endregion
@@ -548,7 +548,7 @@ public class Program
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    for (int k = 0; k < 6; k++)
+                    for (int k = 0; k < 3; k++)
                     {
                         int randomValue = random.Next(60, 100);
                         int result = randomValue < 65 ? 0 : randomValue;
@@ -808,8 +808,128 @@ public class Program
             LEFT JOIN(SELECT TransducerModuleId, CategoryId, TestTypeId, CreatedDate, `Result` FROM Tests WHERE CategoryId = 3 AND DataFlag = 1) AS t18 ON p.TransducerModuleId = t18.TransducerModuleId AND t18.TestTypeId = 6;
             ";
             #endregion
+
+
 #endif
 
+#if SELECT_SQL_4
+            #region SELECT_SQL_4
+            string sql = @"
+            SELECT 
+                p.Id, 
+                p.ProbeSn,
+                tdm.TransducerModuleSn,
+                mtm.MotorModuleSn,
+                (SELECT t1_1.CategoryId FROM Tests t1_1 WHERE t1_1.TransducerModuleId = p.TransducerModuleId AND t1_1.CategoryId = 1 AND t1_1.TestTypeId = 1 AND t1_1.DataFlag = 1 LIMIT 1) AS CategoryId1_1,
+                (SELECT t1_1.TestTypeId FROM Tests t1_1 WHERE t1_1.TransducerModuleId = p.TransducerModuleId AND t1_1.CategoryId = 1 AND t1_1.TestTypeId = 1 AND t1_1.DataFlag = 1 LIMIT 1) AS TestTypeId1_1,
+                (SELECT t1_1.CreatedDate FROM Tests t1_1 WHERE t1_1.TransducerModuleId = p.TransducerModuleId AND t1_1.CategoryId = 1 AND t1_1.TestTypeId = 1 AND t1_1.DataFlag = 1 LIMIT 1) AS CreatedDate1_1,
+                (SELECT t1_1.`Result` FROM Tests t1_1 WHERE t1_1.TransducerModuleId = p.TransducerModuleId AND t1_1.CategoryId = 1 AND t1_1.TestTypeId = 1 AND t1_1.DataFlag = 1 LIMIT 1) AS Result1_1,
+                (SELECT t1_2.CategoryId FROM Tests t1_2 WHERE t1_2.TransducerModuleId = p.TransducerModuleId AND t1_2.CategoryId = 1 AND t1_2.TestTypeId = 2 AND t1_2.DataFlag = 1 LIMIT 1) AS CategoryId1_2,
+                (SELECT t1_2.TestTypeId FROM Tests t1_2 WHERE t1_2.TransducerModuleId = p.TransducerModuleId AND t1_2.CategoryId = 1 AND t1_2.TestTypeId = 2 AND t1_2.DataFlag = 1 LIMIT 1) AS TestTypeId1_2,
+                (SELECT t1_2.CreatedDate FROM Tests t1_2 WHERE t1_2.TransducerModuleId = p.TransducerModuleId AND t1_2.CategoryId = 1 AND t1_2.TestTypeId = 2 AND t1_2.DataFlag = 1 LIMIT 1) AS CreatedDate1_2,
+                (SELECT t1_2.`Result` FROM Tests t1_2 WHERE t1_2.TransducerModuleId = p.TransducerModuleId AND t1_2.CategoryId = 1 AND t1_2.TestTypeId = 2 AND t1_2.DataFlag = 1 LIMIT 1) AS Result1_2,
+                (SELECT t1_3.CategoryId FROM Tests t1_3 WHERE t1_3.TransducerModuleId = p.TransducerModuleId AND t1_3.CategoryId = 1 AND t1_3.TestTypeId = 3 AND t1_3.DataFlag = 1 LIMIT 1) AS CategoryId1_3,
+                (SELECT t1_3.TestTypeId FROM Tests t1_3 WHERE t1_3.TransducerModuleId = p.TransducerModuleId AND t1_3.CategoryId = 1 AND t1_3.TestTypeId = 3 AND t1_3.DataFlag = 1 LIMIT 1) AS TestTypeId1_3,
+                (SELECT t1_3.CreatedDate FROM Tests t1_3 WHERE t1_3.TransducerModuleId = p.TransducerModuleId AND t1_3.CategoryId = 1 AND t1_3.TestTypeId = 3 AND t1_3.DataFlag = 1 LIMIT 1) AS CreatedDate1_3,
+                (SELECT t1_3.`Result` FROM Tests t1_3 WHERE t1_3.TransducerModuleId = p.TransducerModuleId AND t1_3.CategoryId = 1 AND t1_3.TestTypeId = 3 AND t1_3.DataFlag = 1 LIMIT 1) AS Result1_3,
+                (SELECT t2_1.CategoryId FROM Tests t2_1 WHERE t2_1.TransducerModuleId = p.TransducerModuleId AND t2_1.CategoryId = 1 AND t2_1.TestTypeId = 1 AND t2_1.DataFlag = 1 LIMIT 1) AS CategoryId2_1,
+                (SELECT t2_1.TestTypeId FROM Tests t2_1 WHERE t2_1.TransducerModuleId = p.TransducerModuleId AND t2_1.CategoryId = 1 AND t2_1.TestTypeId = 1 AND t2_1.DataFlag = 1 LIMIT 1) AS TestTypeId2_1,
+                (SELECT t2_1.CreatedDate FROM Tests t2_1 WHERE t2_1.TransducerModuleId = p.TransducerModuleId AND t2_1.CategoryId = 1 AND t2_1.TestTypeId = 1 AND t2_1.DataFlag = 1 LIMIT 1) AS CreatedDate2_1,
+                (SELECT t2_1.`Result` FROM Tests t2_1 WHERE t2_1.TransducerModuleId = p.TransducerModuleId AND t2_1.CategoryId = 1 AND t2_1.TestTypeId = 1 AND t2_1.DataFlag = 1 LIMIT 1) AS Result2_1,
+                (SELECT t2_2.CategoryId FROM Tests t2_2 WHERE t2_2.TransducerModuleId = p.TransducerModuleId AND t2_2.CategoryId = 1 AND t2_2.TestTypeId = 2 AND t2_2.DataFlag = 1 LIMIT 1) AS CategoryId2_2,
+                (SELECT t2_2.TestTypeId FROM Tests t2_2 WHERE t2_2.TransducerModuleId = p.TransducerModuleId AND t2_2.CategoryId = 1 AND t2_2.TestTypeId = 2 AND t2_2.DataFlag = 1 LIMIT 1) AS TestTypeId2_2,
+                (SELECT t2_2.CreatedDate FROM Tests t2_2 WHERE t2_2.TransducerModuleId = p.TransducerModuleId AND t2_2.CategoryId = 1 AND t2_2.TestTypeId = 2 AND t2_2.DataFlag = 1 LIMIT 1) AS CreatedDate2_2,
+                (SELECT t2_2.`Result` FROM Tests t2_2 WHERE t2_2.TransducerModuleId = p.TransducerModuleId AND t2_2.CategoryId = 1 AND t2_2.TestTypeId = 2 AND t2_2.DataFlag = 1 LIMIT 1) AS Result2_2,
+                (SELECT t2_3.CategoryId FROM Tests t2_3 WHERE t2_3.TransducerModuleId = p.TransducerModuleId AND t2_3.CategoryId = 1 AND t2_3.TestTypeId = 3 AND t2_3.DataFlag = 1 LIMIT 1) AS CategoryId2_3,
+                (SELECT t2_3.TestTypeId FROM Tests t2_3 WHERE t2_3.TransducerModuleId = p.TransducerModuleId AND t2_3.CategoryId = 1 AND t2_3.TestTypeId = 3 AND t2_3.DataFlag = 1 LIMIT 1) AS TestTypeId2_3,
+                (SELECT t2_3.CreatedDate FROM Tests t2_3 WHERE t2_3.TransducerModuleId = p.TransducerModuleId AND t2_3.CategoryId = 1 AND t2_3.TestTypeId = 3 AND t2_3.DataFlag = 1 LIMIT 1) AS CreatedDate2_3,
+                (SELECT t2_3.`Result` FROM Tests t2_3 WHERE t2_3.TransducerModuleId = p.TransducerModuleId AND t2_3.CategoryId = 1 AND t2_3.TestTypeId = 3 AND t2_3.DataFlag = 1 LIMIT 1) AS Result2_3
+            FROM Probes p
+            LEFT Join TransducerModules tdm on p.TransducerModuleId = tdm.Id
+            LEFT Join MotorModules mtm on p.MotorModuleId = mtm.Id;
+            ";
+            #endregion
+
+            #region SELECT_SQL_JOIN_4
+            string sqlJoin = @"
+            SELECT 
+                p.Id, 
+                p.ProbeSn,
+                p.CreatedDate,
+                tm.TransducerModuleSn ,
+                tm.TransducerSn ,
+                mm.MotorModuleSn ,
+                t1.CategoryId AS CategoryId1_1,
+                t1.TestTypeId AS TestTypeId1_1,
+                t1.CreatedDate AS CreatedDate1_1,
+                t1.Result AS Result1_1,
+                t2.CategoryId AS CategoryId1_2,
+                t2.TestTypeId AS TestTypeId1_2,
+                t2.CreatedDate AS CreatedDate1_2,
+                t2.Result AS Result1_2,
+                t3.CategoryId AS CategoryId1_3,
+                t3.TestTypeId AS TestTypeId1_3,
+                t3.CreatedDate AS CreatedDate1_3,
+                t3.Result AS Result1_3,
+                t4.CategoryId AS CategoryId1_4,
+                t4.TestTypeId AS TestTypeId1_4,
+                t4.CreatedDate AS CreatedDate1_4,
+                t4.Result AS Result1_4,
+                t5.CategoryId AS CategoryId1_5,
+                t5.TestTypeId AS TestTypeId1_5,
+                t5.CreatedDate AS CreatedDate1_5,
+                t5.Result AS Result1_5,
+                t6.CategoryId AS CategoryId1_6,
+                t6.TestTypeId AS TestTypeId1_6,
+                t6.CreatedDate AS CreatedDate1_6,
+                t6.Result AS Result1_6
+            FROM 
+                Probes p
+            LEFT JOIN 
+                TransducerModules tm ON p.TransducerModuleId = tm.Id AND tm.DataFlag = 1
+            LEFT JOIN 
+                MotorModules mm ON p.TransducerModuleId = mm.Id AND mm.DataFlag = 1    
+            LEFT JOIN 
+                Tests t1 ON p.TransducerModuleId = t1.TransducerModuleId AND t1.CategoryId = 1 AND t1.TestTypeId = 1 AND t1.DataFlag = 1
+            LEFT JOIN 
+                Tests t2 ON p.TransducerModuleId = t2.TransducerModuleId AND t2.CategoryId = 1 AND t2.TestTypeId = 2 AND t2.DataFlag = 1
+            LEFT JOIN 
+                Tests t3 ON p.TransducerModuleId = t3.TransducerModuleId AND t3.CategoryId = 1 AND t3.TestTypeId = 3 AND t3.DataFlag = 1
+            LEFT JOIN 
+                Tests t4 ON p.TransducerModuleId = t4.TransducerModuleId AND t4.CategoryId = 2 AND t4.TestTypeId = 1 AND t4.DataFlag = 1
+            LEFT JOIN 
+                Tests t5 ON p.TransducerModuleId = t5.TransducerModuleId AND t5.CategoryId = 2 AND t5.TestTypeId = 2 AND t5.DataFlag = 1
+            LEFT JOIN 
+                Tests t6 ON p.TransducerModuleId = t6.TransducerModuleId AND t6.CategoryId = 2 AND t6.TestTypeId = 3 AND t6.DataFlag = 1;
+            ";
+            #endregion
+
+            ////var result = context.Database.SqlQuery(sqlJoin).ToList();
+            var ProbeResults = context.Probes.FromSqlRaw(sqlJoin);
+            ////var ProbeResults = context.Database.SqlQuery(sqlJoin).ToList();
+
+            //foreach (var probe in ProbeResults)
+            //{
+            //    Console.WriteLine(probe.ToString());
+            //    //Console.WriteLine($"{probe.ProbeSn}.{probe..Result1_1}.{probe.Result1_2}.{probe.Result1_3}.{probe.Result2_1}.{probe.Result2_2}.{probe.Result2_3}");
+            //}
+            Console.WriteLine("ProbeResult.Count : " + ProbeResults.Count());
+
+#endif
+
+            //var probeViews = context.Probes.Select(probe => new ProbeView
+            //{
+            //    ProbeSN = probe.ProbeSn,
+            //    TransducerModuleSN = probe.TransducerModuleSN,
+            //    TransducerSN = probe.TransducerSN,
+            //    MotorModuleSn = probe.MotorModuleSn,
+            //    Category1Results = context.TestResults
+            //        .Where(result => result.ProbeId == probe.Id && result.CategoryId == 1)
+            //        .ToList(),
+            //    Category2Results = context.TestResults
+            //        .Where(result => result.ProbeId == probe.Id && result.CategoryId == 2)
+            //        .ToList()
+            //}).ToList();
 
             stopwatch.Stop();
             Console.WriteLine($"Execution time: {stopwatch.ElapsedMilliseconds} ms");

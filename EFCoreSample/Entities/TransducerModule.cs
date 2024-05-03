@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EFCoreSample.Entities
 {
@@ -17,10 +17,10 @@ namespace EFCoreSample.Entities
         public required string TransducerSn { get; set; }
 
         [Required]
-        public int TransducerModuleTypeId { get; set; }
+        public int TransducerTypeId { get; set; }
 
-        [ForeignKey(nameof(TransducerModuleTypeId))] //lazy 로딩
-        public virtual TransducerModuleType TransducerModuleType { get; set; }
+        [ForeignKey(nameof(TransducerTypeId))] //lazy 로딩
+        public virtual TransducerType TransducerType { get; set; }
 
         //[ForeignKey(nameof(Id))] //lazy 로딩
         //public virtual IEnumerable<Test> Tests { get; set; }

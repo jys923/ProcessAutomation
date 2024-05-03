@@ -14,7 +14,7 @@ namespace MES.UI.Services
 
         public void getData(int resultCnt)
         {
-            _probeSN.GetProbeSN(resultCnt);
+            _probeSN.GetProbeSN2(resultCnt);
         }
     }
 }

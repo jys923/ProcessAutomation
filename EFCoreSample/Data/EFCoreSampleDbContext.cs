@@ -11,10 +11,9 @@ namespace EFCoreSample.Data
         public DbSet<TestType> TestTypes { get; set; }
         public DbSet<Tester> Testers { get; set; }
         public DbSet<TransducerModule> TransducerModules { get; set; }
-        public DbSet<TransducerModuleType> TransducerModuleTypes { get; set; }
+        public DbSet<TransducerType> TransducerTypes { get; set; }
         public DbSet<MotorModule> MotorModules { get; set; }
         public DbSet<Probe> Probes { get; set; }
-        public DbSet<ProbeView> ProbeViews { get; set; }
 
         //public DbSet<ProbeView> ProbeViews { get; set; }
         //public DbSet<ProbeSNView> ProbeSNViews { get; set; }

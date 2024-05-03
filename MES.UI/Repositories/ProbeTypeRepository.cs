@@ -4,7 +4,7 @@ using MES.UI.Repositories.Base;
 
 namespace MES.UI.Repositories
 {
-    internal class ProbeTypeRepository : RepositoryBase<ProbeType> , IProbeTypeRepository
+    internal class ProbeTypeRepository : RepositoryBase<TransducerType> , IProbeTypeRepository
     {
         public ProbeTypeRepository(MESDbContext context) : base(context)
         {

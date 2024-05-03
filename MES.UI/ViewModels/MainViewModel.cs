@@ -21,7 +21,8 @@ namespace MES.UI.ViewModels
         {
             Debug.WriteLine("ToTest");
             TestView? testView = App.Current.Services.GetService<TestView>()!;
-            testView.Show();
+            //testView.Show();
+            //testView.ShowDialog();
         }
 
         [RelayCommand]
