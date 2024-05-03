@@ -5,6 +5,7 @@ namespace MES.UI.Repositories
 {
     public interface IProbeSNRepository : IRepositoryBase<TransducerModule>
     {
-        IEnumerable<TransducerModuleView> GetProbeSN(int resultCnt);
+        IEnumerable<TransducerModuleView> GetProbeSN();
+        IEnumerable<TransducerModuleView> GetProbeSN2(int resultCnt);
     }
 }

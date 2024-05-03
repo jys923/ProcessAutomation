@@ -4,7 +4,7 @@ using MES.UI.Models.Base;
 
 namespace MES.UI.Models
 {
-    public class TransducerModuleType : ModelBase
+    public class ProbeType : ModelBase
     {
         /// <summary>
         /// SC0P1

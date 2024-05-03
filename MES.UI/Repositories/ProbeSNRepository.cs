@@ -1,19 +1,22 @@
 ﻿using MES.UI.Models;
-using MES.UI.Models.Context;
 using MES.UI.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using System.Text;
 
 namespace MES.UI.Repositories
 {
     internal class ProbeSNRepository : RepositoryBase<TransducerModule> , IProbeSNRepository
     {
-        public ProbeSNRepository(MESDbContext context) : base(context)
+        public ProbeSNRepository(DbContext context) : base(context)
         {
         }
 
-        public IEnumerable<TransducerModuleView> GetProbeSN(int resultCnt)
+        public IEnumerable<TransducerModuleView> GetProbeSN()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<TransducerModuleView> GetProbeSN2(int resultCnt)
         {
             #region select sql dynamic 개선?
             // SQL 쿼리 문자열을 생성

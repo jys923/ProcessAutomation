@@ -1,41 +1,19 @@
-﻿using MES.UI.Models.Base;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MES.UI.Models
 {
-    [Index(nameof(ProbeSN), IsUnique = true)]
-    [Index(nameof(TransducerModuleSN), IsUnique = true)]
-    [Index(nameof(TransducerSN), IsUnique = true)]
-    [Index(nameof(MotorModuleSn), IsUnique = true)]
-    public class ProbeView : ModelBase
+    [NotMapped]
+    public class ProbeView
     {
-        [Required]
         public required string ProbeSN { get; set; }
-
-        [Required]
         public required string TransducerModuleSN { get; set; }
-
-        [Required]
         public required string TransducerSN { get; set; }
-
-        [Required]
         public required string MotorModuleSn { get; set; }
 
-        [Required]
-        public required IEnumerable<ProbeResult> ProbeResults { get; set; }
-    }
+        // 카테고리 1 테스트 결과
+        public required List<TestResult> Category1Results { get; set; } = new List<TestResult>();
 
-    [NotMapped]
-    public class ProbeResult
-    {
-        public Enums.TestCategory Category { get; set; }
-        public Enums.TestType Type { get; set; }
-        public DateTime TestedDate { get; set; }
-        public int Result { get; set; }
+        // 카테고리 2 테스트 결과
+        public required List<TestResult> Category2Results { get; set; } = new List<TestResult>();
     }
 }

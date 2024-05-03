@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MES.UI.Models
+namespace MES.UI.Models.Base
 {
     public class Enums
     {

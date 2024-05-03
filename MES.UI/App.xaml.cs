@@ -1,7 +1,14 @@
-﻿using MES.UI.Repositories;
+﻿using MES.UI.Models.Context;
+using MES.UI.Repositories;
 using MES.UI.ViewModels;
 using MES.UI.Views;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Configuration;
+using System.IO;
 using System.Windows;
 
 namespace MES.UI
@@ -40,14 +47,39 @@ namespace MES.UI
         {
             var services = new ServiceCollection();
 
+            // IConfiguration을 설정합니다.
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            // IConfiguration을 서비스 컨테이너에 등록합니다.
+            services.AddSingleton(configuration);
+
             //services.AddSingleton<IFilesService, FilesService>();
             //services.AddSingleton<ISettingsService, SettingsService>();
             //services.AddSingleton<IClipboardService, ClipboardService>();
             //services.AddSingleton<IShareService, ShareService>();
             //services.AddSingleton<IEmailService, EmailService>();
+            //var connectionString = Configuration.GetConnectionString("MariaDBConnection");
+            //string MariaDBConnectionString = ConfigurationManager.AppSettings["MariaDBConnection"];
 
-            // Services
-            services.AddTransient<ITesterTypeRepository, TesterTypeRepository>();
+            // appsettings.json 파일에서 연결 문자열을 가져옵니다.
+            string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") 
+                ?? throw new InvalidOperationException("MariaDBConnection is null.");
+
+            // DbContext를 등록합니다.
+            services.AddDbContext<MESDbContext>(options =>
+                options
+#if DEBUG
+                .EnableSensitiveDataLogging(true)
+                .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
+#endif
+                .UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString)));
+
+
+            // Repositories
+            services.AddTransient<ITesterRepository, TesterRepository>();
             services.AddTransient<ITestRepository, TestRepository>();
             services.AddTransient<ITestTypeRepository, TestTypeRepository>();
             services.AddTransient<IProbeSNRepository, ProbeSNRepository>();

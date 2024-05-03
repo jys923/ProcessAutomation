@@ -54,41 +54,37 @@
                 <Label Grid.Row="0" Grid.Column="1" Content="~" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <DatePicker Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="150" SelectedDate="{Binding EndDate}"/>
             </Grid>
-            <Label Grid.Column="1" Content="검사 유형" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <!--<Label Grid.Column="1" Content="검사 유형" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestCategories}" SelectedItem="{Binding TestCategory, Mode=TwoWay}"/> 
             <Label Grid.Column="2" Content="검사 결과" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestResults}" SelectedItem="{Binding TestResult, Mode=TwoWay}" /> 
             <Label Grid.Column="3" Content="PC No" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="150" Text="{Binding PcNo}"/>
             <Label Grid.Column="4" Content="Tester" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding Tester}"/>
+            <TextBox Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding Tester}"/>-->
             <Label Grid.Column="5" Content="Probe S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="5" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding ProbeSn}"/>
-            <Label Grid.Column="6" Content="TD S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding TDSn}"/>
-            <Label Grid.Column="7" Content="MTMd S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="6" Content="TD Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding TDMdSn}"/>
+            <Label Grid.Column="7" Content="MT Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding MTMdSn}"/>
             <Label Grid.Column="8" Content="" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Label Grid.Column="9" Content="etc" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Button Grid.Column="8" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
             <Button Grid.Column="9" Content="내보내기" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
         </Grid>
-        <DataGrid Grid.Row="1" x:Name="dataGrid" SelectionChanged="dataGrid_SelectionChanged">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="&#13;Date" Width="1.5*"/>
-                <DataGridTextColumn Header="&#13;과정" Width="1*"/>
-                <DataGridTextColumn Header="&#13;Probe S/N" Width="2.5*"/>
-                <DataGridTextColumn Header="&#13;TD S/N" Width="2*"/>
-                <DataGridTextColumn Header="&#13;MT S/N" Width="1*"/>
-                <DataGridTextColumn Header="&#13;Tester" Width="1*"/>
-                <DataGridTextColumn Header="&#13;PC No" Width="1*"/>
+        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding Probes}" AutoGenerateColumns="True" />
+        <!--<DataGrid.Columns>
+                <DataGridTextColumn Header="&#13;생성 날짜" Width="1*"/>
+                <DataGridTextColumn Header="&#13;Probe S/N" Width="1.5*"/>
+                <DataGridTextColumn Header="&#13;TD Md S/N" Width="1.5*"/>
+                <DataGridTextColumn Header="&#13;MT Md S/N" Width="1*"/>
                 <DataGridTextColumn Header="공정&#13;T11" Width=".5*"/>
                 <DataGridTextColumn Header="&#13;T12" Width=".5*"/>
                 <DataGridTextColumn Header="&#13;T13" Width=".5*"/>
                 <DataGridTextColumn Header="최종&#13;T21" Width=".5*"/>
                 <DataGridTextColumn Header="&#13;T22" Width=".5*"/>
                 <DataGridTextColumn Header="&#13;T23" Width=".5*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+            </DataGrid.Columns>-->
     </Grid>
 </Window>

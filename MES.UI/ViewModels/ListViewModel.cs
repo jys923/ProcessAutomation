@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MES.UI.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,32 +22,35 @@ namespace MES.UI.ViewModels
         [ObservableProperty]
         private DateTime _endDate = DateTime.Now;
 
-        [ObservableProperty]
-        private ObservableCollection<string> _testCategories;
+        //[ObservableProperty]
+        //private ObservableCollection<string> _testCategories;
 
-        [ObservableProperty]
-        private string _testCategory = default!;
+        //[ObservableProperty]
+        //private string _testCategory = default!;
 
-        [ObservableProperty]
-        private ObservableCollection<string> _testResults;
+        //[ObservableProperty]
+        //private ObservableCollection<string> _testResults;
 
-        [ObservableProperty]
-        private string _testResult = default!;
+        //[ObservableProperty]
+        //private string _testResult = default!;
 
-        [ObservableProperty]
-        private int _pcNo = default!;
+        //[ObservableProperty]
+        //private int _pcNo = default!;
 
-        [ObservableProperty]
-        private string _tester = default!;
+        //[ObservableProperty]
+        //private string _tester = default!;
 
         [ObservableProperty]
         private string _probeSn = default!;
 
         [ObservableProperty]
-        private string _tDSn = default!;
+        private string _tDMdSn = default!;
 
         [ObservableProperty]
         private string _mTMdSn = default!;
+
+        [ObservableProperty]
+        private ObservableCollection<Probe> _probes = default!;
 
         [RelayCommand]
         private void Search()
@@ -64,35 +68,40 @@ namespace MES.UI.ViewModels
         {
             Title = this.GetType().Name;
             
-            //db 조회
-            TestCategories = new ObservableCollection<string>
-            {
-                "ALL",
-                "공정용",
-                "출하용",
-            };
+            //TestCategories = new ObservableCollection<string>
+            //{
+            //    "ALL",
+            //    "공정용",
+            //    "출하용",
+            //};
 
-            TestCategory = TestCategories[0];
+            //TestCategory = TestCategories[0];
 
-            TestResults = new ObservableCollection<string>
-            {
-                "ALL",
-                "FAIL",
-                "PASS",
-            };
+            //TestResults = new ObservableCollection<string>
+            //{
+            //    "ALL",
+            //    "FAIL",
+            //    "PASS",
+            //};
 
-            TestResult = TestResults[0];
-            //출력
+            //TestResult = TestResults[0];
+            ////출력
 
-            PcNo = 1;
+            //PcNo = 1;
 
-            Tester = "yoon";
+            //Tester = "yoon";
 
             ProbeSn = "P S/N";
 
-            TDSn = "transducer";
+            TDMdSn = "transducer Module";
 
             MTMdSn = "aaaa";
+
+            //db 조회
+
+            Probes = new ObservableCollection<Probe>();
+
+            //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
     }
 }

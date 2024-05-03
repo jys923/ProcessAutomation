@@ -3,7 +3,7 @@ using MES.UI.Repositories.Base;
 
 namespace MES.UI.Repositories
 {
-    public interface ITesterTypeRepository : IRepositoryBase<Tester>
+    public interface ITesterRepository : IRepositoryBase<Tester>
     {
     }
 }
