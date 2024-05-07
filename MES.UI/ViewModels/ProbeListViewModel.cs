@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace MES.UI.ViewModels
 {
-    public partial class ListViewModel : ObservableObject
+    public partial class ProbeListViewModel : ObservableObject
     {
         [ObservableProperty]
         private string _title = default!;
@@ -59,7 +59,7 @@ namespace MES.UI.ViewModels
             Debug.WriteLine($"{nameof(Export)}");
         }
 
-        public ListViewModel()
+        public ProbeListViewModel()
         {
             Title = this.GetType().Name;
             

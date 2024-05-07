@@ -6,7 +6,6 @@ using MES.UI.Repositories.interfaces;
 using MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using System.Linq;
 
 namespace MES.UI.ViewModels
 {
@@ -38,8 +37,8 @@ namespace MES.UI.ViewModels
         private void ToList()
         {
             Debug.WriteLine("ToList");
-            ListView? listView = App.Current.Services.GetService<ListView>()!;
-            listView.Show();
+            ProbeListView? probeListView = App.Current.Services.GetService<ProbeListView>()!;
+            probeListView.Show();
         }
 
         [RelayCommand]

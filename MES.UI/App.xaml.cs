@@ -89,7 +89,7 @@ namespace MES.UI
 
             // ViewModels
             services.AddTransient(typeof(MainViewModel));
-            services.AddTransient(typeof(ListViewModel));
+            services.AddTransient(typeof(ProbeListViewModel));
             services.AddTransient(typeof(TestListViewModel));
             services.AddTransient(typeof(TestViewModel));
 
@@ -98,9 +98,9 @@ namespace MES.UI
             {
                 DataContext = s.GetRequiredService<MainViewModel>()
             });
-            services.AddSingleton(s => new ListView()
+            services.AddSingleton(s => new ProbeListView()
             {
-                DataContext = s.GetRequiredService<ListViewModel>()
+                DataContext = s.GetRequiredService<ProbeListViewModel>()
             });
             services.AddSingleton(s => new TestListView()
             {
