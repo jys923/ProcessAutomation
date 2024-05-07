@@ -3,7 +3,7 @@
 namespace MES.UI.Models
 {
     [NotMapped]
-    public class ProbeView
+    public class ProbeView2
     {
         public required string ProbeSN { get; set; }
         public required string TransducerModuleSN { get; set; }

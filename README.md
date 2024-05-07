@@ -6,7 +6,7 @@
 
 ## Memo
 - db migration
-- 패키지 관리자 콘솔 PM> 에서 실행
+- 패키지 관리자 콘솔 PM 에서 실행
 ```
 add-migration 1st
 update-database

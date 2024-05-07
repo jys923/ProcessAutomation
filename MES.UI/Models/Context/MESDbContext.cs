@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MES.UI.Models.Context
 {
@@ -13,20 +14,25 @@ namespace MES.UI.Models.Context
         public DbSet<TransducerType> TransducerModuleTypes { get; set; }
         public DbSet<MotorModule> MotorModules { get; set; }
         public DbSet<Probe> Probes { get; set; }
+        public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
         //public DbSet<ProbeView> ProbeViews { get; set; }
         //public DbSet<ProbeSNView> ProbeSNViews { get; set; }
         //public DbSet<EntityBase> EntityBase { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public MESDbContext(DbContextOptions<MESDbContext> options) : base(options)
         {
-            base.OnConfiguring(optionsBuilder);
-#if DEBUG
-            // Enable sensitive data logging
-            optionsBuilder.EnableSensitiveDataLogging(true);
-            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
-#endif
-            string MariaDBConnectionString = Properties.Settings.Default.MariaDBConnection;
-            optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
         }
+
+//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        {
+//            base.OnConfiguring(optionsBuilder);
+//#if DEBUG
+//            // Enable sensitive data logging
+//            optionsBuilder.EnableSensitiveDataLogging(true);
+//            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+//#endif
+//            string MariaDBConnectionString = Properties.Settings.Default.MariaDBConnection;
+//            optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
+//        }
     }
 }

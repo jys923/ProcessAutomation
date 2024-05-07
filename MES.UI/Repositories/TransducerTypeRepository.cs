@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MES.UI.Repositories
 {
-    public class TransducerModuleRepository : RepositoryBase<TransducerModule>, ITransducerModuleRepository
+    public class TransducerTypeRepository : RepositoryBase<TransducerType>, ITransducerTypeRepository
     {
-        public TransducerModuleRepository(DbContext context) : base(context)
+        public TransducerTypeRepository(DbContext context) : base(context)
         {
         }
     }

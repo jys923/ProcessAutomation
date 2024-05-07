@@ -9,7 +9,9 @@
         d:DataContext="{d:DesignInstance Type={x:Type vm:MainViewModel}}"
         Title="{Binding Title}" Height="450" Width="800">
     <Grid>
-        <Button x:Name="TestBtn" Content="Test" Command="{Binding ToTestCommand}" HorizontalAlignment="Left" Margin="50,50,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="ListBtn" Content="List" Command="{Binding ToListCommand}"  HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="TestBtn" Content="Test" Command="{Binding ToTestCommand}" HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="ListBtn" Content="List" Command="{Binding ToListCommand}"  HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top"/>
+        <Button Content="Master" Command="{Binding MasterCommand}" HorizontalAlignment="Left" Margin="300,50,0,0" VerticalAlignment="Top"/>
+        <Button Content="Select1" Command="{Binding Select1Command}" HorizontalAlignment="Left" Margin="400,50,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.734,0.41"/>
     </Grid>
 </Window>

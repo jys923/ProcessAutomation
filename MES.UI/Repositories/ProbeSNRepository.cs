@@ -1,13 +1,14 @@
 ﻿using MES.UI.Models;
+using MES.UI.Models.Context;
 using MES.UI.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 
 namespace MES.UI.Repositories
 {
-    internal class ProbeSNRepository : RepositoryBase<TransducerModule> , IProbeSNRepository
+    public class ProbeSNRepository : RepositoryBase<TransducerModule> , IProbeSNRepository
     {
-        public ProbeSNRepository(DbContext context) : base(context)
+        public ProbeSNRepository(MESDbContext context) : base(context)
         {
         }
 

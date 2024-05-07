@@ -1,5 +1,6 @@
 ﻿using MES.UI.Models.Context;
 using MES.UI.Repositories;
+using MES.UI.Repositories.interfaces;
 using MES.UI.ViewModels;
 using MES.UI.Views;
 using Microsoft.EntityFrameworkCore;
@@ -61,8 +62,6 @@ namespace MES.UI
             //services.AddSingleton<IClipboardService, ClipboardService>();
             //services.AddSingleton<IShareService, ShareService>();
             //services.AddSingleton<IEmailService, EmailService>();
-            //var connectionString = Configuration.GetConnectionString("MariaDBConnection");
-            //string MariaDBConnectionString = ConfigurationManager.AppSettings["MariaDBConnection"];
 
             // appsettings.json 파일에서 연결 문자열을 가져옵니다.
             string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") 
@@ -79,11 +78,15 @@ namespace MES.UI
 
 
             // Repositories
+            services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
+            services.AddTransient<IProbeRepository, ProbeRepository>();
+            services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
+            services.AddTransient<ITestCategoryRepository, TestCategoryRepository>();
             services.AddTransient<ITesterRepository, TesterRepository>();
             services.AddTransient<ITestRepository, TestRepository>();
             services.AddTransient<ITestTypeRepository, TestTypeRepository>();
-            services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
-            services.AddTransient<IProbeTypeRepository, ProbeTypeRepository>();
+            services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
+            services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
 
             // ViewModels
             services.AddTransient(typeof(MainViewModel));

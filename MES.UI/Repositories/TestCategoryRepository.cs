@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MES.UI.Models;
+using MES.UI.Repositories.Base;
+using MES.UI.Repositories.interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace MES.UI.Repositories
 {
-    internal class TestCategoryRepository
+    public class TestCategoryRepository : RepositoryBase<TestCategory>, ITestCategoryRepository
     {
+        public TestCategoryRepository(DbContext context) : base(context)
+        {
+        }
     }
 }
