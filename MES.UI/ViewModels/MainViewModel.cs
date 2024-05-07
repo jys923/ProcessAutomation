@@ -31,7 +31,7 @@ namespace MES.UI.ViewModels
             Debug.WriteLine("ToTest");
             TestView? testView = App.Current.Services.GetService<TestView>()!;
             //testView.Show();
-            //testView.ShowDialog();
+            testView.ShowDialog();
         }
 
         [RelayCommand]
@@ -40,6 +40,14 @@ namespace MES.UI.ViewModels
             Debug.WriteLine("ToList");
             ListView? listView = App.Current.Services.GetService<ListView>()!;
             listView.Show();
+        }
+
+        [RelayCommand]
+        private void ToTestList()
+        {
+            Debug.WriteLine("ToTestList");
+            TestListView? testListView = App.Current.Services.GetService<TestListView>()!;
+            testListView.Show();
         }
 
         [RelayCommand]

@@ -80,7 +80,6 @@ namespace MES.UI
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();
-            services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
             services.AddTransient<ITestCategoryRepository, TestCategoryRepository>();
             services.AddTransient<ITesterRepository, TesterRepository>();
             services.AddTransient<ITestRepository, TestRepository>();
@@ -91,6 +90,7 @@ namespace MES.UI
             // ViewModels
             services.AddTransient(typeof(MainViewModel));
             services.AddTransient(typeof(ListViewModel));
+            services.AddTransient(typeof(TestListViewModel));
             services.AddTransient(typeof(TestViewModel));
 
             // Views
@@ -101,6 +101,10 @@ namespace MES.UI
             services.AddSingleton(s => new ListView()
             {
                 DataContext = s.GetRequiredService<ListViewModel>()
+            });
+            services.AddSingleton(s => new TestListView()
+            {
+                DataContext = s.GetRequiredService<TestListViewModel>()
             });
             services.AddSingleton(s => new TestView()
             {

@@ -1,20 +1,21 @@
 ﻿using MES.UI.Repositories;
+using MES.UI.Repositories.interfaces;
 
 namespace MES.UI.Services
 {
     public class UserUIService
     {
-        private readonly IProbeSNRepository _probeSN;
+        private readonly IProbeRepository _probeRepository;
 
-        public UserUIService(IProbeSNRepository ProbeSN)
+        public UserUIService(IProbeRepository probeRepository)
         {
-            _probeSN = ProbeSN;
+            _probeRepository = probeRepository;
 
         }
 
         public void getData(int resultCnt)
         {
-            _probeSN.GetProbeSN2(resultCnt);
+            //_probeRepository.GetProbeSN2(resultCnt);
         }
     }
 }
