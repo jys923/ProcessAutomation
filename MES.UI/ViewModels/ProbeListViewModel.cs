@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MES.UI.Models;
+using MES.UI.Repositories.interfaces;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -8,6 +9,8 @@ namespace MES.UI.ViewModels
 {
     public partial class ProbeListViewModel : ObservableObject
     {
+        private readonly IProbeRepository _probeRepository;
+
         [ObservableProperty]
         private string _title = default!;
 
@@ -45,12 +48,15 @@ namespace MES.UI.ViewModels
         private string _mTMdSn = default!;
 
         [ObservableProperty]
-        private ObservableCollection<Probe> _probes = default!;
+        private ObservableCollection<ProbeTestResult> _probes = default!;
+        
 
         [RelayCommand]
         private void Search()
         {
             Debug.WriteLine($"{nameof(Search)}");
+            List<ProbeTestResult> probes = _probeRepository.GetProbeSN();
+            Probes = new ObservableCollection<ProbeTestResult>(probes);
         }
 
         [RelayCommand]
@@ -59,10 +65,10 @@ namespace MES.UI.ViewModels
             Debug.WriteLine($"{nameof(Export)}");
         }
 
-        public ProbeListViewModel()
+        public ProbeListViewModel(IProbeRepository probeRepository)
         {
             Title = this.GetType().Name;
-            
+            this._probeRepository = probeRepository;
             //TestCategories = new ObservableCollection<string>
             //{
             //    "ALL",
@@ -94,7 +100,7 @@ namespace MES.UI.ViewModels
 
             //db 조회
 
-            Probes = new ObservableCollection<Probe>();
+            this._probeRepository = probeRepository;
 
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MES.UI.Models;
+using MES.UI.Repositories;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -8,6 +9,8 @@ namespace MES.UI.ViewModels
 {
     public partial class TestListViewModel : ObservableObject
     {
+        private readonly ITestRepository _testRepository;
+
         [ObservableProperty]
         private string _title = default!;
 
@@ -48,9 +51,12 @@ namespace MES.UI.ViewModels
         private ObservableCollection<Test> _tests = default!;
 
         [RelayCommand]
-        private void Search()
+        private async Task SearchAsync()
         {
-            Debug.WriteLine($"{nameof(Search)}");
+            Debug.WriteLine($"{nameof(SearchAsync)}");
+            //var aa = _testRepository.GetAllAsync().Wait();
+            IEnumerable<Test> tests = await _testRepository.GetAllAsync();
+            Tests = new ObservableCollection<Test>(tests);
         }
 
         [RelayCommand]
@@ -59,9 +65,10 @@ namespace MES.UI.ViewModels
             Debug.WriteLine($"{nameof(Export)}");
         }
 
-        public TestListViewModel()
+        public TestListViewModel(ITestRepository testRepository)
         {
             Title = this.GetType().Name;
+            this._testRepository = testRepository;
 
             TestCategories = new ObservableCollection<string>
             {
@@ -95,6 +102,7 @@ namespace MES.UI.ViewModels
             //db 조회
 
             Tests = new ObservableCollection<Test>();
+            
 
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
