@@ -7,8 +7,12 @@ namespace MES.UI.Repositories.interfaces
     {
         List<ProbeTestResult> GetProbeSN();
         Task<List<ProbeTestResult>> GetProbeSNAsync();
-        
+
+        List<ProbeTestResult> GetProbeSN(DateTime startDate, DateTime endDate);
+
         List<ProbeTestResult> GetProbeSNSql();
         Task<List<ProbeTestResult>> GetProbeSNSqlAsync();
+
+        List<ProbeTestResult> GetProbeSNSql(DateTime startDate, DateTime endDate);
     }
 }

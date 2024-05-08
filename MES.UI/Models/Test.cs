@@ -13,19 +13,19 @@ namespace MES.UI.Models
         public int CategoryId { get; set; }
         
         [ForeignKey(nameof(CategoryId))] //lazy 로딩
-        public virtual TestCategory Category { get; set; }
+        public virtual required TestCategory Category { get; set; }
 
         [Required]
         public int TestTypeId { get; set; }
 
         [ForeignKey(nameof(TestTypeId))] //lazy 로딩
-        public virtual TestType TestType { get; set; }
+        public virtual required TestType TestType { get; set; }
 
         [Required]
         public int TesterId { get; set; }
 
         [ForeignKey(nameof(TesterId))] //lazy 로딩
-        public virtual Tester Tester { get; set; }
+        public virtual required Tester Tester { get; set; }
 
         [Required]
         public required string OriginalImg { get; set; }
@@ -50,9 +50,9 @@ namespace MES.UI.Models
         public int Method { get; set; }
 
         [Required]
-        public int TransducerModuleId { get; set; }
+        public int TransducerModuleId { get; set; } = default!;
 
         [ForeignKey(nameof(TransducerModuleId))] //lazy 로딩
-        public virtual TransducerModule TransducerModule { get; set; } // 외부 키의 참조
+        public virtual required TransducerModule TransducerModule { get; set; } = default!;
     }
 }
