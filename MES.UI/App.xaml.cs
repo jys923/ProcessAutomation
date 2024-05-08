@@ -74,8 +74,8 @@ namespace MES.UI
                 .EnableSensitiveDataLogging(true)
                 .UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
 #endif
+                .UseLazyLoadingProxies(true)
                 .UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString)));
-
 
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
