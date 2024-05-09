@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MES.UI.Views"
+        xmlns:Converter="clr-namespace:MES.UI.Converters"
         xmlns:vm="clr-namespace:MES.UI.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type vm:TestListViewModel}}"
@@ -73,16 +74,18 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <Button Grid.Column="8" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
             <Button Grid.Column="9" Content="내보내기" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
         </Grid>
-        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding Tests}" AutoGenerateColumns="False" IsReadOnly="True">
+        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding TestProbes}" AutoGenerateColumns="False" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="TestId" Width="1*" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header="생성날짜" Width="1*" Binding="{Binding CreatedDate}"/>
                 <DataGridTextColumn Header="Category" Width="1*" Binding="{Binding Category.Name}"/>
                 <DataGridTextColumn Header="TestType" Width="1*" Binding="{Binding TestType.Name}"/>
-                <DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
+                <!--<DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
                 <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
-                <DataGridTextColumn Header="ChangedImgMetadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>
+                <DataGridTextColumn Header="ChangedImgMetadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>-->
                 <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.TransducerModuleSn}"/>
+                <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding ProbeSn}"/>
+                <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.MotorModuleSn}"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

@@ -53,7 +53,8 @@ namespace MES.UI.ViewModels
         private async Task Master()
         {
             Debug.WriteLine("Master");
-            var aaa =_probeRepository.GetProbeSN();
+            //var aaa =_probeRepository.GetProbeSN();
+            var aaa = _testRepository.GetTestProbe();
             Debug.WriteLine("Master:" + aaa.ToList().Count);
         }
 

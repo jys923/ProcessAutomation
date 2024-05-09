@@ -48,15 +48,16 @@ namespace MES.UI.ViewModels
         private string _mTMdSn = default!;
 
         [ObservableProperty]
-        private ObservableCollection<Test> _tests = default!;
+        private ObservableCollection<TestProbe> _testProbes = default!;
 
         [RelayCommand]
         private async Task SearchAsync()
         {
             Debug.WriteLine($"{nameof(SearchAsync)}");
-            //var aa = _testRepository.GetAllAsync().Wait();
-            IEnumerable<Test> tests = await _testRepository.GetAllAsync();
-            Tests = new ObservableCollection<Test>(tests);
+            //IEnumerable<Test> tests = await _testRepository.GetAllAsync();
+            //Tests = new ObservableCollection<Test>(tests);
+            List<TestProbe> testProbes = _testRepository.GetTestProbe();
+            TestProbes = new ObservableCollection<TestProbe>(testProbes);
         }
 
         [RelayCommand]
@@ -101,7 +102,7 @@ namespace MES.UI.ViewModels
 
             //db 조회
 
-            Tests = new ObservableCollection<Test>();
+            TestProbes = new ObservableCollection<TestProbe>();
             
 
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });

@@ -5,6 +5,7 @@
              xmlns:convertes="clr-namespace:MES.UI.Converters">
     <Application.Resources>
         <convertes:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
+        <convertes:RowIndexConverter x:Key="RowIndexConverter" />
         <!--<ResourceDictionary>
             <vm:ViewModelLocator
                 xmlns:vm="clr-namespace:UI.Test.ViewModels"
