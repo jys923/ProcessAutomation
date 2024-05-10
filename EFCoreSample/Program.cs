@@ -6,7 +6,7 @@
 
 //#define INSERT_DATA_REPO_2
 //#define INSERT_MASTER_REPO_2
-#define SELECT_SQL_4
+//#define SELECT_SQL_4
 
 using EFCoreSample.Data;
 using EFCoreSample.Entities;
