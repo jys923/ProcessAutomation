@@ -58,15 +58,15 @@ Title="{Binding Title}" Height="1080" Width="1920">
                 <StackPanel Grid.Row="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,0">
                     <Label Content="검색 기간" VerticalAlignment="Center" Margin="2,0,0,2"/>
                     <Separator Margin="3,0,0,3"/>
-                    <Button Content="1일" Margin="3,0,0,3"/>
+                    <Button Content="1일" Margin="3,0,0,3" Command="{Binding DayCommand}"/>
                     <Separator Margin="3,0,0,3"/>
-                    <Button Content="1주" Margin="3,0,0,3"/>
+                    <Button Content="1주" Margin="3,0,0,3" Command="{Binding WeekCommand}"/>
                     <Separator Margin="3,0,0,3"/>
-                    <Button Content="1달" Margin="3,0,0,3"/>
+                    <Button Content="1달" Margin="3,0,0,3" Command="{Binding MonthCommand}"/>
                     <Separator Margin="3,0,0,3"/>
-                    <Button Content="1년" Margin="3,0,0,3"/>
+                    <Button Content="1년" Margin="3,0,0,3" Command="{Binding YearCommand}"/>
                     <Separator  Margin="3,0,0,3"/>
-                    <Button Content="전체"  Margin="3,0,0,3"/>
+                    <Button Content="전체"  Margin="3,0,0,3" Command="{Binding AllCommand}"/>
                     <Separator Margin="3,0,0,3"/>
                 </StackPanel>
                 <DatePicker Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150" SelectedDate="{Binding StartDate}"/>

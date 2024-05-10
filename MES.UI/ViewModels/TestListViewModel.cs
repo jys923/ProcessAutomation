@@ -4,6 +4,7 @@ using MES.UI.Models;
 using MES.UI.Repositories;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace MES.UI.ViewModels
 {
@@ -19,6 +20,49 @@ namespace MES.UI.ViewModels
 
         [ObservableProperty]
         private DateTime _endDate = DateTime.Now;
+
+        [RelayCommand]
+        private void Day()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //StartDate = DateTime.Now.AddDays(-1);
+            StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,0,0,0);
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void Week()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            StartDate = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek).Date;
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void Month()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //StartDate = DateTime.Now.AddMonths(-1);
+            StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void Year()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //StartDate = DateTime.Now.AddYears(-1);
+            StartDate = new DateTime(DateTime.Now.Year, 1, 1);
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void All()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            StartDate = DateTime.MinValue;
+            EndDate = DateTime.Now;
+        }
 
         [ObservableProperty]
         private ObservableCollection<string> _testCategories;
@@ -56,10 +100,12 @@ namespace MES.UI.ViewModels
         [ObservableProperty]
         private ObservableCollection<TestProbe> _testProbes = default!;
 
+
+
         [RelayCommand]
         private async Task SearchAsync()
         {
-            Debug.WriteLine($"{nameof(SearchAsync)}");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             //IEnumerable<Test> tests = await _testRepository.GetAllAsync();
             //Tests = new ObservableCollection<Test>(tests);
             List<TestProbe> testProbes = _testRepository.GetTestProbe();
@@ -69,7 +115,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Export()
         {
-            Debug.WriteLine($"{nameof(Export)}");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
         }
 
         public TestListViewModel(ITestRepository testRepository)
@@ -114,13 +160,12 @@ namespace MES.UI.ViewModels
 
             TDMdSn = "transducer Module";
 
-            MTMdSn = "aaaa";
+            MTMdSn = "motor";
 
             //db 조회
 
             TestProbes = new ObservableCollection<TestProbe>();
             
-
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
     }
