@@ -75,12 +75,6 @@ namespace MES.UI
                 .UseLazyLoadingProxies(true)
                 .UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString)));
 
-            //services.AddSingleton<IFilesService, FilesService>();
-            //services.AddSingleton<ISettingsService, SettingsService>();
-            //services.AddSingleton<IClipboardService, ClipboardService>();
-            //services.AddSingleton<IShareService, ShareService>();
-            //services.AddSingleton<IEmailService, EmailService>();
-
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();
