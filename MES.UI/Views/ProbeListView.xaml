@@ -1,10 +1,12 @@
 ﻿<Window x:Class="MES.UI.Views.ProbeListView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MES.UI.Views"
-        xmlns:vm="clr-namespace:MES.UI.ViewModels"
+        xmlns:Converter="clr-namespace:MES.UI.Converters"
+        xmlns:Behavior="clr-namespace:MES.UI.Behaviors"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type vm:ProbeListViewModel}}"
         Title="{Binding Title}" Height="1080" Width="1920">
@@ -22,6 +24,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="11*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Background="AntiqueWhite" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
@@ -73,9 +76,11 @@
             <Button Grid.Column="8" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
             <Button Grid.Column="9" Content="내보내기" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
         </Grid>
-        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding Probes}" AutoGenerateColumns="False" IsReadOnly="True">
-        <DataGrid.Columns>
-                <DataGridTextColumn Header="&#13;Probe ID" Width="0.5*" Binding="{Binding Id}"/>
+        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding Probes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90">
+            <b:Interaction.Behaviors>
+                <Behavior:DataGridBehavior ShowRowNumber="True" RowHeaderWidth="90"/>
+            </b:Interaction.Behaviors>
+            <DataGrid.Columns>
                 <DataGridTextColumn Header="&#13;생성 날짜" Width="1*" Binding="{Binding CreatedDate}"/>
                 <DataGridTextColumn Header="&#13;Probe S/N" Width="1.5*" Binding="{Binding ProbeSN}"/>
                 <DataGridTextColumn Header="&#13;TD Md S/N" Width="1.5*" Binding="{Binding TransducerModuleSN}"/>
@@ -88,5 +93,22 @@
                 <DataGridTextColumn Header="&#13;T23" Width=".5*" Binding="{Binding TestResults[5].Result}"/>
             </DataGrid.Columns>
         </DataGrid>
+        <StatusBar Grid.Row="3">
+            <!-- Status bar content -->
+            <StatusBarItem>
+                <TextBlock>Status: Ready</TextBlock>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock HorizontalAlignment="Right">Additional Information</TextBlock>
+            </StatusBarItem>
+            <Separator Grid.Column="1" />
+            <StatusBarItem Grid.Column="2">
+                <TextBlock Text="c:\path\of\current\file.txt" />
+            </StatusBarItem>
+            <Separator Grid.Column="3" />
+            <StatusBarItem Grid.Column="4">
+                <ProgressBar Value="50" Width="90" Height="16" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

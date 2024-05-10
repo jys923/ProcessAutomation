@@ -5,7 +5,8 @@ namespace MES.UI.Repositories
 {
     public interface ITestRepository : IRepositoryBase<Test>
     {
-        //Task<List<Test>> GetAllAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
         List<TestProbe> GetTestProbe();
+        //List<TestProbe> GetTestProbe(DateTime? startDate, DateTime? endDate, int? categoryId, int? testTypeId,int? testerId, int? result, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+        //Task<List<TestProbe>> GetTestProbeAsync();
     }
 }

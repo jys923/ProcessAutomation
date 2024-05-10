@@ -27,6 +27,12 @@ namespace MES.UI.ViewModels
         private string _testCategory = default!;
 
         [ObservableProperty]
+        private ObservableCollection<string> _testTypes;
+
+        [ObservableProperty]
+        private string _testType = default!;
+
+        [ObservableProperty]
         private ObservableCollection<string> _testResults;
 
         [ObservableProperty]
@@ -79,6 +85,16 @@ namespace MES.UI.ViewModels
             };
 
             TestCategory = TestCategories[0];
+
+            TestTypes = new ObservableCollection<string>
+            {
+                "ALL",
+                "Aline",
+                "Axial",
+                "Lateral",
+            };
+
+            TestType = TestTypes[0];
 
             TestResults = new ObservableCollection<string>
             {

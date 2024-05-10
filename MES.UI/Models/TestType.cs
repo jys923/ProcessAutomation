@@ -8,9 +8,6 @@ namespace MES.UI.Models
     /// </summary>
     public class TestType : ModelBase
     {
-        /*[Required]
-        public int CategoryId { get; set; } = (int)Enums.TestCategory.Processing;*/
-
         [Required]
         [StringLength(10)]
         public required string Name { get; set; }

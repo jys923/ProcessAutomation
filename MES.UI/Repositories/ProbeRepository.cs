@@ -288,30 +288,30 @@ namespace MES.UI.Repositories
             // 필터 조건 추가
             if (startDate != null)
             {
-                query = query.Where(p => p.CreatedDate >= startDate);
+                query = query.Where(ptr => ptr.CreatedDate >= startDate);
             }
             if (endDate != null)
             {
-                query = query.Where(p => p.CreatedDate <= endDate);
+                query = query.Where(ptr => ptr.CreatedDate <= endDate);
             }
             if (!string.IsNullOrEmpty(probeSn))
             {
-                query = query.Where(p => p.ProbeSN == probeSn);
+                query = query.Where(ptr => ptr.ProbeSN == probeSn);
             }
 
             if (!string.IsNullOrEmpty(transducerModuleSn))
             {
-                query = query.Where(tm => tm.TransducerModuleSN == transducerModuleSn);
+                query = query.Where(ptr => ptr.TransducerModuleSN == transducerModuleSn);
             }
 
             if (!string.IsNullOrEmpty(transducerSn))
             {
-                query = query.Where(tm => tm.TransducerSN == transducerSn);
+                query = query.Where(ptr => ptr.TransducerSN == transducerSn);
             }
 
             if (!string.IsNullOrEmpty(motorModuleSn))
             {
-                query = query.Where(mm => mm.MotorModuleSn == motorModuleSn);
+                query = query.Where(ptr => ptr.MotorModuleSn == motorModuleSn);
             }
 
             // 필터를 적용한 후에 ToList 호출하여 쿼리를 실행
