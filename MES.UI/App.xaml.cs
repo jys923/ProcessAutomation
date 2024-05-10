@@ -1,4 +1,4 @@
-﻿//#define AppConfig
+﻿//#define appsettings
 
 using MES.UI.Models.Context;
 using MES.UI.Repositories;
@@ -50,7 +50,7 @@ namespace MES.UI
             
             var services = new ServiceCollection();
 
-#if AppConfig
+#if appsettings
             // IConfiguration을 설정합니다.
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
