@@ -1,4 +1,6 @@
-﻿using MES.UI.Models.Context;
+﻿//#define AppConfig
+
+using MES.UI.Models.Context;
 using MES.UI.Repositories;
 using MES.UI.Repositories.interfaces;
 using MES.UI.ViewModels;
@@ -7,8 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Configuration;
 using System.IO;
 using System.Windows;
 
@@ -46,8 +46,11 @@ namespace MES.UI
         /// </summary>
         private static IServiceProvider ConfigureServices()
         {
+            
+            
             var services = new ServiceCollection();
 
+#if AppConfig
             // IConfiguration을 설정합니다.
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -57,16 +60,11 @@ namespace MES.UI
             // IConfiguration을 서비스 컨테이너에 등록합니다.
             services.AddSingleton(configuration);
 
-            //services.AddSingleton<IFilesService, FilesService>();
-            //services.AddSingleton<ISettingsService, SettingsService>();
-            //services.AddSingleton<IClipboardService, ClipboardService>();
-            //services.AddSingleton<IShareService, ShareService>();
-            //services.AddSingleton<IEmailService, EmailService>();
-
             // appsettings.json 파일에서 연결 문자열을 가져옵니다.
-            string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") 
-                ?? throw new InvalidOperationException("MariaDBConnection is null.");
-
+            string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") ?? throw new InvalidOperationException("MariaDBConnection is null.");
+#else
+            string MariaDBConnectionString = MES.UI.Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
+#endif 
             // DbContext를 등록합니다.
             services.AddDbContext<MESDbContext>(options =>
                 options
@@ -76,6 +74,12 @@ namespace MES.UI
 #endif
                 .UseLazyLoadingProxies(true)
                 .UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString)));
+
+            //services.AddSingleton<IFilesService, FilesService>();
+            //services.AddSingleton<ISettingsService, SettingsService>();
+            //services.AddSingleton<IClipboardService, ClipboardService>();
+            //services.AddSingleton<IShareService, ShareService>();
+            //services.AddSingleton<IEmailService, EmailService>();
 
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
