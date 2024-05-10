@@ -11,16 +11,36 @@ namespace MES.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private readonly ITestRepository _testRepository;
+        private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IProbeRepository _probeRepository;
+        private readonly ITestCategoryRepository _testCategoryRepository;
+        private readonly ITesterRepository _testerRepository;
+        private readonly ITestRepository _testRepository;
+        private readonly ITestTypeRepository _testTypeRepository;
+        private readonly ITransducerModuleRepository _transducerModuleRepository;
+        private readonly ITransducerTypeRepository _transducerTypeRepository;
 
         [ObservableProperty]
         private string _title = default!;
 
-        public MainViewModel(ITestRepository testRepository,IProbeRepository probeRepository)
+        public MainViewModel(
+            IMotorModuleRepository motorModuleRepository,
+            IProbeRepository probeRepository,
+            ITestCategoryRepository testCategoryRepository,
+            ITesterRepository testerRepository,
+            ITestRepository testRepository,
+            ITestTypeRepository testTypeRepository,
+            ITransducerModuleRepository transducerModuleRepository,
+            ITransducerTypeRepository transducerTypeRepository)
         {
+            _motorModuleRepository = motorModuleRepository;
+            _probeRepository = probeRepository; 
+            _testCategoryRepository = testCategoryRepository;
+            _testerRepository = testerRepository;
             _testRepository = testRepository;
-            _probeRepository = probeRepository;
+            _testTypeRepository = testTypeRepository;
+            _transducerModuleRepository = transducerModuleRepository;
+            _transducerTypeRepository = transducerTypeRepository;
             Title = this.GetType().Name;
         }
 

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="MariaDBConnection" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Server=192.168.0.61; Port=3306; Database=sonocap_ems; Uid=root; Pwd=Endolfin12!@;</Value>
+      <Value Profile="(Default)">Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

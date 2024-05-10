@@ -28,6 +28,12 @@ namespace MES.UI.Models
         public virtual required Tester Tester { get; set; }
 
         [Required]
+        public int PcId { get; set; }
+
+        [ForeignKey(nameof(PcId))] //lazy 로딩
+        public virtual required Pc Pc { get; set; }
+
+        [Required]
         public required string OriginalImg { get; set; }
 
         [Required]
@@ -50,9 +56,9 @@ namespace MES.UI.Models
         public int Method { get; set; }
 
         [Required]
-        public int TransducerModuleId { get; set; } = default!;
+        public int TransducerModuleId { get; set; }
 
         [ForeignKey(nameof(TransducerModuleId))] //lazy 로딩
-        public virtual required TransducerModule TransducerModule { get; set; } = default!;
+        public virtual required TransducerModule TransducerModule { get; set; }
     }
 }

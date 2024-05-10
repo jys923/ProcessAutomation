@@ -6,10 +6,8 @@ using MES.UI.Repositories.interfaces;
 using MES.UI.ViewModels;
 using MES.UI.Views;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Windows;
 
 namespace MES.UI
@@ -46,8 +44,6 @@ namespace MES.UI
         /// </summary>
         private static IServiceProvider ConfigureServices()
         {
-            
-            
             var services = new ServiceCollection();
 
 #if appsettings
