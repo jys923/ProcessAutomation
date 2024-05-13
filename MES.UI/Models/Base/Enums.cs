@@ -22,7 +22,7 @@ namespace MES.UI.Models.Base
             //Update,
         }
 
-        public enum TransducerModule
+        public enum TransducerType
         {
             SCP01 = 1,
             SCP02,

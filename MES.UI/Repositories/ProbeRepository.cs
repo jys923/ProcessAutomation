@@ -117,7 +117,7 @@ namespace MES.UI.Repositories
                 (tm.TransducerSn = @TransducerSn OR @TransducerSn IS NULL OR @TransducerSn = '') AND
                 (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL OR @MotorModuleSn = '')";
 
-        public ProbeRepository(MESDbContext context) : base(context)
+        public ProbeRepository(DbContext context) : base(context)
         {
         }
 

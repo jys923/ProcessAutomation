@@ -1,17 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MES.UI.Models;
+using MES.UI.Models.Base;
 using MES.UI.Repositories;
 using MES.UI.Repositories.interfaces;
 using MES.UI.Views;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using System;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace MES.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
         private readonly IMotorModuleRepository _motorModuleRepository;
+        private readonly IPcRepository _pcRepository;
         private readonly IProbeRepository _probeRepository;
         private readonly ITestCategoryRepository _testCategoryRepository;
         private readonly ITesterRepository _testerRepository;
@@ -25,6 +31,7 @@ namespace MES.UI.ViewModels
 
         public MainViewModel(
             IMotorModuleRepository motorModuleRepository,
+            IPcRepository pcRepository,
             IProbeRepository probeRepository,
             ITestCategoryRepository testCategoryRepository,
             ITesterRepository testerRepository,
@@ -34,6 +41,7 @@ namespace MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository)
         {
             _motorModuleRepository = motorModuleRepository;
+            _pcRepository = pcRepository;
             _probeRepository = probeRepository; 
             _testCategoryRepository = testCategoryRepository;
             _testerRepository = testerRepository;
@@ -47,7 +55,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void ToTest()
         {
-            Debug.WriteLine("ToTest");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             TestView? testView = App.Current.Services.GetService<TestView>()!;
             //testView.Show();
             testView.ShowDialog();
@@ -56,7 +64,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void ToList()
         {
-            Debug.WriteLine("ToList");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             ProbeListView? probeListView = App.Current.Services.GetService<ProbeListView>()!;
             probeListView.Show();
         }
@@ -64,7 +72,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void ToTestList()
         {
-            Debug.WriteLine("ToTestList");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             TestListView? testListView = App.Current.Services.GetService<TestListView>()!;
             testListView.Show();
         }
@@ -72,19 +80,116 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private async Task Master()
         {
-            Debug.WriteLine("Master");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             //var aaa =_probeRepository.GetProbeSN();
-            var aaa = _testRepository.GetTestProbe();
-            Debug.WriteLine("Master:" + aaa.ToList().Count);
+            //var aaa = _testRepository.GetTestProbe();
+            //Debug.WriteLine($"{MethodBase.GetCurrentMethod()}" + aaa.ToList().Count);
+
+            int maxCnt = 100000;
+            int resultCnt = 5;
+
+            string currentDate = DateTime.Now.ToString("yyMMdd");
+
+            Random random = new Random();
+
+            #region MotorModules
+            for (int i = 0; i < maxCnt; ++i)
+            {
+                int tmp = random.Next(1, 4);
+                string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D3");
+                await _motorModuleRepository.InsertAsync(new MotorModule { MotorModuleSn = MotorModuleSn });
+            }
+            #endregion
+
+            await _pcRepository.InsertAsync(new Pc { Name = "left" }); 
+            await _pcRepository.InsertAsync(new Pc { Name = "middle" }); 
+            await _pcRepository.InsertAsync(new Pc { Name = "right" });
+
+            //_probeRepository --
+
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = Enums.TestCategoryKor.공정용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = Enums.TestCategoryKor.최종용.ToString() });
+
+            await _testerRepository.InsertAsync(new Tester { Name = "yoon" });
+            await _testerRepository.InsertAsync(new Tester { Name = "sang" });
+            await _testerRepository.InsertAsync(new Tester { Name = "kwon" });
+
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
+
+            //_testRepository --
+
+            //_transducerModuleRepository --
+
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = Enums.TransducerType.SCP01.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = Enums.TransducerType.SCP02.ToString(), Type = "7.5Mhz" });
+
+            #region TransducerModules
+            for (int i = 0; i < maxCnt; ++i)
+            {
+                int transducerTypeId = random.Next(1, 3);
+                string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D3");
+                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D3");
+                await _transducerModuleRepository.InsertAsync(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerSn = TransducerSn,TransducerTypeId = transducerTypeId });
+            }
+            #endregion
+
+            #region Tests
+            for (int i = 0; i < maxCnt; ++i)
+            {
+                for (int j = 0; j < Enum.GetNames(typeof(Enums.TestCategory)).Length; j++) //2
+                {
+                    for (int k = 0; k < Enum.GetNames(typeof(Enums.TestType)).Length; k++) //3
+                    {
+                        int randomValue = 0;
+                        int result = 0;
+                        for (; ; )
+                        {
+                            randomValue = random.Next(65, 100);
+                            result = randomValue < 70 ? 0 : randomValue;
+                            Test test = new Test
+                            {
+                                CategoryId = j + 1,
+                                TestTypeId = k + 1,
+                                TesterId = random.Next(1, 4),
+                                PcId = random.Next(1, 2),
+                                OriginalImg = $"/img/{currentDate}/{Commons.Commons.MKRandom(10)}",
+                                ChangedImg = $"/img/{currentDate}/{Commons.Commons.MKRandom(10)}",
+                                ChangedImgMetadata = Commons.Commons.MKSHA256(),
+                                Result = result,
+                                Method = random.Next(0, 2),
+                            };
+                            test.TransducerModuleId = i;
+                            await _testRepository.InsertAsync(test);
+
+                            if (result >= 70)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            #endregion
+
+            #region Probes
+            for (int i = 0; i < maxCnt; ++i)
+            {
+                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D3");
+                await _probeRepository.InsertAsync(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i});
+                //context.Probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i + 1, MotorModuleId = i + 1 });
+            }
+            #endregion
         }
 
         [RelayCommand]
         private async Task Select1Async()
         {
-            Debug.WriteLine("Select1");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
             List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
-            Debug.WriteLine("Select1:" + enumerable.ToList().Count);
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}" + enumerable.ToList().Count);
         }
     }
 }

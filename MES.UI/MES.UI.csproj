@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commons\" />
     <Folder Include="Services\Base\" />
     <Folder Include="Services\interfaces\" />
   </ItemGroup>

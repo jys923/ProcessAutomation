@@ -18,10 +18,10 @@ namespace MES.UI.Models
         public required string TransducerSn { get; set; }
 
         [Required]
-        public int TransducerModuleTypeId { get; set; }
+        public int TransducerTypeId { get; set; }
 
-        [ForeignKey(nameof(TransducerModuleTypeId))] //lazy 로딩
-        public virtual TransducerType TransducerModuleType { get; set; }
+        [ForeignKey(nameof(TransducerTypeId))] //lazy 로딩
+        public virtual TransducerType TransducerType { get; set; } = default!;
 
         //[ForeignKey(nameof(Id))] //lazy 로딩
         //public virtual IEnumerable<Test> Tests { get; set; }

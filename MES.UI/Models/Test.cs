@@ -11,27 +11,27 @@ namespace MES.UI.Models
     {
         [Required]
         public int CategoryId { get; set; }
-        
+
         [ForeignKey(nameof(CategoryId))] //lazy 로딩
-        public virtual required TestCategory Category { get; set; }
+        public virtual TestCategory Category { get; set; } = default!;
 
         [Required]
         public int TestTypeId { get; set; }
 
         [ForeignKey(nameof(TestTypeId))] //lazy 로딩
-        public virtual required TestType TestType { get; set; }
+        public virtual TestType TestType { get; set; } = default!;
 
         [Required]
         public int TesterId { get; set; }
 
         [ForeignKey(nameof(TesterId))] //lazy 로딩
-        public virtual required Tester Tester { get; set; }
+        public virtual Tester Tester { get; set; } = default!;
 
         [Required]
         public int PcId { get; set; }
 
         [ForeignKey(nameof(PcId))] //lazy 로딩
-        public virtual required Pc Pc { get; set; }
+        public virtual Pc Pc { get; set; }
 
         [Required]
         public required string OriginalImg { get; set; }
@@ -59,6 +59,6 @@ namespace MES.UI.Models
         public int TransducerModuleId { get; set; }
 
         [ForeignKey(nameof(TransducerModuleId))] //lazy 로딩
-        public virtual required TransducerModule TransducerModule { get; set; }
+        public virtual TransducerModule TransducerModule { get; set; } = default!;
     }
 }

@@ -22,15 +22,15 @@ namespace MES.UI.Models
         public required string ProbeSn { get; set; }
 
         [Required]
-        public int TransducerModuleId { get; set; }
+        public required int TransducerModuleId { get; set; }
 
         [ForeignKey(nameof(TransducerModuleId))] //lazy 로딩
-        public virtual TransducerModule TransducerModule { get; set; } // 외부 키의 참조
+        public virtual TransducerModule TransducerModule { get; set; } = default!;
 
         [Required]
         public int MotorModuleId { get; set;}
         
         [ForeignKey(nameof(MotorModuleId))] //lazy 로딩
-        public virtual MotorModule MotorModule { get; set; } // 외부 키의 참조
+        public virtual MotorModule MotorModule { get; set; } = default!;
     }
 }
