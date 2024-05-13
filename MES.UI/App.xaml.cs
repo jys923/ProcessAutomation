@@ -73,6 +73,7 @@ namespace MES.UI
 
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
+            services.AddTransient<IPcRepository, PcRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();
             services.AddTransient<ITestCategoryRepository, TestCategoryRepository>();
             services.AddTransient<ITesterRepository, TesterRepository>();

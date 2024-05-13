@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MES.UI.Models
 {
+    [NotMapped]
     [Keyless]
     public class TestProbe
     {

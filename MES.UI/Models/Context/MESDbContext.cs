@@ -17,9 +17,9 @@ namespace MES.UI.Models.Context
         public DbSet<TransducerModule> TransducerModules { get; set; }
         public DbSet<TransducerType> TransducerTypes { get; set; }
 
-        //public MESDbContext()
-        //{
-        //}
+//        public MESDbContext()
+//        {
+//        }
 
         public MESDbContext(DbContextOptions<MESDbContext> options) : base(options)
         {
