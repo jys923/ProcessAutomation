@@ -72,7 +72,7 @@
                 <Label Grid.Row="1" Grid.Column="1" Content="~" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <DatePicker Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="150" SelectedDate="{Binding EndDate}"/>
             </Grid>
-            <Label Grid.Column="1" Content="검사 유형" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <!--<Label Grid.Column="1" Content="검사 유형" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestCategories}" SelectedItem="{Binding TestCategory, Mode=TwoWay}"/>
             <Label Grid.Column="2" Content="검사 방법" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestTypes}" SelectedItem="{Binding TestType, Mode=TwoWay}"/>
@@ -81,7 +81,7 @@
             <Label Grid.Column="4" Content="PC No" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="150" Text="{Binding PcNo}"/>
             <Label Grid.Column="5" Content="Tester" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="5" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding Tester}"/>
+            <TextBox Grid.Column="5" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding Tester}"/>-->
             <Label Grid.Column="6" Content="Probe S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding ProbeSn}"/>
             <Label Grid.Column="7" Content="TD Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>

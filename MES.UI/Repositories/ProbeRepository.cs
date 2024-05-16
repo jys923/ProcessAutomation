@@ -169,6 +169,64 @@ namespace MES.UI.Repositories
                 (tm.TransducerSn = @TransducerSn OR @TransducerSn IS NULL) AND
                 (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL)";
 
+        private string _sqlData1 =
+        @"SELECT 
+            p.Id, 
+            p.ProbeSn,
+            p.CreatedDate,
+            tm.TransducerModuleSn ,
+            tm.TransducerSn ,
+            mm.MotorModuleSn ,
+            t1.CategoryId AS CategoryId1_1,
+            t1.TestTypeId AS TestTypeId1_1,
+            t1.CreatedDate AS CreatedDate1_1,
+            t1.Result AS Result1_1,
+            t2.CategoryId AS CategoryId1_2,
+            t2.TestTypeId AS TestTypeId1_2,
+            t2.CreatedDate AS CreatedDate1_2,
+            t2.Result AS Result1_2,
+            t3.CategoryId AS CategoryId1_3,
+            t3.TestTypeId AS TestTypeId1_3,
+            t3.CreatedDate AS CreatedDate1_3,
+            t3.Result AS Result1_3,
+            t4.CategoryId AS CategoryId1_4,
+            t4.TestTypeId AS TestTypeId1_4,
+            t4.CreatedDate AS CreatedDate1_4,
+            t4.Result AS Result1_4,
+            t5.CategoryId AS CategoryId1_5,
+            t5.TestTypeId AS TestTypeId1_5,
+            t5.CreatedDate AS CreatedDate1_5,
+            t5.Result AS Result1_5,
+            t6.CategoryId AS CategoryId1_6,
+            t6.TestTypeId AS TestTypeId1_6,
+            t6.CreatedDate AS CreatedDate1_6,
+            t6.Result AS Result1_6
+        FROM 
+            Probes p
+        LEFT JOIN 
+            TransducerModules tm ON p.TransducerModuleId = tm.Id AND tm.DataFlag = 1
+        LEFT JOIN 
+            MotorModules mm ON p.TransducerModuleId = mm.Id AND mm.DataFlag = 1    
+        LEFT JOIN 
+            Tests t1 ON p.TransducerModuleId = t1.TransducerModuleId AND t1.Id = (SELECT Id FROM Tests WHERE TransducerModuleId = p.TransducerModuleId AND CategoryId = 1 AND TestTypeId = 1 AND DataFlag = 1 ORDER BY Id DESC LIMIT 1)
+        LEFT JOIN 
+            Tests t2 ON p.TransducerModuleId = t2.TransducerModuleId AND t2.Id = (SELECT Id FROM Tests WHERE TransducerModuleId = p.TransducerModuleId AND CategoryId = 1 AND TestTypeId = 2 AND DataFlag = 1 ORDER BY Id DESC LIMIT 1)
+        LEFT JOIN 
+            Tests t3 ON p.TransducerModuleId = t3.TransducerModuleId AND t3.Id = (SELECT Id FROM Tests WHERE TransducerModuleId = p.TransducerModuleId AND CategoryId = 1 AND TestTypeId = 3 AND DataFlag = 1 ORDER BY Id DESC LIMIT 1)
+        LEFT JOIN 
+            Tests t4 ON p.TransducerModuleId = t4.TransducerModuleId AND t4.Id = (SELECT Id FROM Tests WHERE TransducerModuleId = p.TransducerModuleId AND CategoryId = 2 AND TestTypeId = 1 AND DataFlag = 1 ORDER BY Id DESC LIMIT 1)
+        LEFT JOIN 
+            Tests t5 ON p.TransducerModuleId = t5.TransducerModuleId AND t5.Id = (SELECT Id FROM Tests WHERE TransducerModuleId = p.TransducerModuleId AND CategoryId = 2 AND TestTypeId = 2 AND DataFlag = 1 ORDER BY Id DESC LIMIT 1)
+        LEFT JOIN 
+            Tests t6 ON p.TransducerModuleId = t6.TransducerModuleId AND t6.Id = (SELECT Id FROM Tests WHERE TransducerModuleId = p.TransducerModuleId AND CategoryId = 2 AND TestTypeId = 3 AND DataFlag = 1 ORDER BY Id DESC LIMIT 1)
+        WHERE
+            (p.CreatedDate >= @StartDate OR @StartDate IS NULL) AND
+            (p.CreatedDate <= @EndDate OR @EndDate IS NULL) AND
+            (p.ProbeSn = @ProbeSn OR @ProbeSn IS NULL) AND
+            (tm.TransducerModuleSn = @TransducerModuleSn OR @TransducerModuleSn IS NULL) AND
+            (tm.TransducerSn = @TransducerSn OR @TransducerSn IS NULL) AND
+            (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL)";
+
         private string _sqlData2 =
             @"SELECT 
                 p.Id, 
@@ -621,6 +679,5 @@ namespace MES.UI.Repositories
                 .ToListAsync();
             return probeTestResults;
         }
-
     }
 }
