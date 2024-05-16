@@ -4,6 +4,7 @@ using MES.UI.Models;
 using MES.UI.Repositories.interfaces;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace MES.UI.ViewModels
 {
@@ -19,6 +20,49 @@ namespace MES.UI.ViewModels
 
         [ObservableProperty]
         private DateTime _endDate = DateTime.Now;
+
+        [RelayCommand]
+        private void Day()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //StartDate = DateTime.Now.AddDays(-1);
+            StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void Week()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            StartDate = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek).Date;
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void Month()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //StartDate = DateTime.Now.AddMonths(-1);
+            StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void Year()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //StartDate = DateTime.Now.AddYears(-1);
+            StartDate = new DateTime(DateTime.Now.Year, 1, 1);
+            EndDate = DateTime.Now;
+        }
+
+        [RelayCommand]
+        private void All()
+        {
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            StartDate = DateTime.MinValue;
+            EndDate = DateTime.Now;
+        }
 
         //[ObservableProperty]
         //private ObservableCollection<string> _testCategories;
@@ -45,18 +89,24 @@ namespace MES.UI.ViewModels
         private string _tDMdSn = default!;
 
         [ObservableProperty]
+        private string _tDSn = default!;
+
+        [ObservableProperty]
         private string _mTMdSn = default!;
 
         [ObservableProperty]
         private ObservableCollection<ProbeTestResult> _probes = default!;
-        
+
+        [ObservableProperty]
+        private int _resultCnt;
 
         [RelayCommand]
-        private void Search()
+        private async Task SearchAsync()
         {
-            Debug.WriteLine($"{nameof(Search)}");
-            List<ProbeTestResult> probes = _probeRepository.GetProbeSN();
+            Debug.WriteLine($"{nameof(SearchAsync)}");
+            List<ProbeTestResult> probes = await _probeRepository.GetProbeSNAsync(StartDate, EndDate, ProbeSn, TDMdSn, TDSn, MTMdSn);
             Probes = new ObservableCollection<ProbeTestResult>(probes);
+            ResultCnt = probes.Count;
         }
 
         [RelayCommand]
@@ -92,11 +142,13 @@ namespace MES.UI.ViewModels
 
             //Tester = "yoon";
 
-            ProbeSn = "P S/N";
+            ProbeSn = "";
 
-            TDMdSn = "transducer Module";
+            TDMdSn = "";
+            
+            TDSn = "";
 
-            MTMdSn = "aaaa";
+            MTMdSn = "";
 
             //db 조회
 

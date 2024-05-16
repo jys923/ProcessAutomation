@@ -93,6 +93,9 @@ namespace MES.UI.ViewModels
 
         [ObservableProperty]
         private string _tDMdSn = default!;
+        
+        [ObservableProperty]
+        private string _tDSn = default!;
 
         [ObservableProperty]
         private string _mTMdSn = default!;

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace MES.UI.Repositories.Base
 {
@@ -50,6 +51,23 @@ namespace MES.UI.Repositories.Base
             int count = await _context.SaveChangesAsync();
 
             return count > 0;
+        }
+
+        public async Task<bool> BulkInsertAsync(IEnumerable<T> entities)
+        {
+            bool result = false;
+
+            try
+            {
+                await _context.BulkInsertAsync(entities);
+                result = true;
+            } catch (Exception ex)
+            {
+                Console.WriteLine($"BulkInsertAsync 작업 중 오류 발생: {ex.Message}");
+                result = false;
+            }
+
+            return result;
         }
 
         public async Task<bool> UpdateAsync(T entity)

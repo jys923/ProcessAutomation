@@ -31,16 +31,16 @@ namespace MES.UI.Models
         public int PcId { get; set; }
 
         [ForeignKey(nameof(PcId))] //lazy 로딩
-        public virtual Pc Pc { get; set; }
+        public virtual Pc Pc { get; set; } = default!;
 
         [Required]
-        public required string OriginalImg { get; set; }
+        public string OriginalImg { get; set; } = "";
 
         [Required]
-        public required string ChangedImg { get; set; }
+        public string ChangedImg { get; set; } = "";
 
         [Required]
-        public required string ChangedImgMetadata { get; set; }
+        public string ChangedImgMetadata { get; set; } = "";
 
         /// <summary>
         /// true > 0 , false = 0

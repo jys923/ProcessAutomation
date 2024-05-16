@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MES.UI.Models
 {
-    [NotMapped]
     [Keyless]
     public class ProbeTestResult
     {

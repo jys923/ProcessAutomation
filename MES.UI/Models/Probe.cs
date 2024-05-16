@@ -28,7 +28,7 @@ namespace MES.UI.Models
         public virtual TransducerModule TransducerModule { get; set; } = default!;
 
         [Required]
-        public int MotorModuleId { get; set;}
+        public required int MotorModuleId { get; set;}
         
         [ForeignKey(nameof(MotorModuleId))] //lazy 로딩
         public virtual MotorModule MotorModule { get; set; } = default!;

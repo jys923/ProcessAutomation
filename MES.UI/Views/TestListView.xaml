@@ -87,8 +87,10 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding ProbeSn}"/>
             <Label Grid.Column="7" Content="TD Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding TDMdSn}"/>
-            <Label Grid.Column="8" Content="MT Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="8" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding MTMdSn}"/>
+            <Label Grid.Column="8" Content="TD S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="8" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding TDSn}"/>
+            <Label Grid.Column="9" Content="MT Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox Grid.Column="9" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding MTMdSn}" Grid.Row="2"/>
             <Label Grid.Column="9" Content="" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Label Grid.Column="10" Content="etc" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Button Grid.Column="10" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
@@ -100,6 +102,7 @@ Title="{Binding Title}" Height="1080" Width="1920">
                 <Behavior:DataGridBehavior ShowRowNumber="True" RowHeaderWidth="90"/>
             </b:Interaction.Behaviors>
             <DataGrid.Columns>
+                <DataGridTextColumn Header="&#13;ID" Width="1*" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header="생성날짜" Width="1*" Binding="{Binding CreatedDate}"/>
                 <DataGridTextColumn Header="Category" Width="1*" Binding="{Binding Category.Name}"/>
                 <DataGridTextColumn Header="TestType" Width="1*" Binding="{Binding TestType.Name}"/>

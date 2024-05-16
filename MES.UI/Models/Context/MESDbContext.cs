@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿//#define MIGRATION
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MES.UI.Models.Context
@@ -17,24 +19,37 @@ namespace MES.UI.Models.Context
         public DbSet<TransducerModule> TransducerModules { get; set; }
         public DbSet<TransducerType> TransducerTypes { get; set; }
 
-//        public MESDbContext()
-//        {
-//        }
+#if MIGRATION
+
+        public MESDbContext()
+        {
+        }
+
+        public MESDbContext(DbContextOptions options) : base(options)
+        {
+        }
 
         public MESDbContext(DbContextOptions<MESDbContext> options) : base(options)
         {
         }
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            base.OnConfiguring(optionsBuilder);
-//#if DEBUG
-//            optionsBuilder.EnableSensitiveDataLogging(true);
-//            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
-//#endif
-//            optionsBuilder.UseLazyLoadingProxies(true);
-//            string MariaDBConnectionString = MES.UI.Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
-//            optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
-//        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+#if DEBUG
+            optionsBuilder.EnableSensitiveDataLogging(true);
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+#endif
+            optionsBuilder.UseLazyLoadingProxies(true);
+            string MariaDBConnectionString = MES.UI.Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
+            optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
+        }
+        
+#else
+        public MESDbContext(DbContextOptions<MESDbContext> options) : base(options)
+        {
+        }
+
+#endif
     }
 }

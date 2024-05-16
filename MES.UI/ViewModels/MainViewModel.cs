@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MES.UI.Commons;
 using MES.UI.Models;
 using MES.UI.Models.Base;
 using MES.UI.Repositories;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -92,20 +94,27 @@ namespace MES.UI.ViewModels
 
             Random random = new Random();
 
+
+            List<MotorModule> moterModules = new List<MotorModule>();
+            List<TransducerModule> transducerModules = new List<TransducerModule>();
+            List<Test> tests = new List<Test>();
+            List<Probe> probes = new List<Probe>();
+
             #region MotorModules
-            for (int i = 0; i < maxCnt; ++i)
+            for (int i = 1; i <= maxCnt; ++i)
             {
-                int tmp = random.Next(1, 4);
-                string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D3");
-                await _motorModuleRepository.InsertAsync(new MotorModule { MotorModuleSn = MotorModuleSn });
+                string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D6");
+                moterModules.Add(new MotorModule { MotorModuleSn = MotorModuleSn });
+                //await _motorModuleRepository.InsertAsync(new MotorModule { MotorModuleSn = MotorModuleSn });
             }
+            await _motorModuleRepository.BulkInsertAsync(moterModules);
             #endregion
 
-            await _pcRepository.InsertAsync(new Pc { Name = "left" }); 
-            await _pcRepository.InsertAsync(new Pc { Name = "middle" }); 
+            await _pcRepository.InsertAsync(new Pc { Name = "left" });
+            await _pcRepository.InsertAsync(new Pc { Name = "middle" });
             await _pcRepository.InsertAsync(new Pc { Name = "right" });
 
-            //_probeRepository --
+            //_probeRepository--
 
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = Enums.TestCategoryKor.공정용.ToString() });
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = Enums.TestCategoryKor.최종용.ToString() });
@@ -126,21 +135,23 @@ namespace MES.UI.ViewModels
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = Enums.TransducerType.SCP02.ToString(), Type = "7.5Mhz" });
 
             #region TransducerModules
-            for (int i = 0; i < maxCnt; ++i)
+            for (int i = 1; i <= maxCnt; ++i)
             {
                 int transducerTypeId = random.Next(1, 3);
-                string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D3");
-                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D3");
-                await _transducerModuleRepository.InsertAsync(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerSn = TransducerSn,TransducerTypeId = transducerTypeId });
+                string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D6");
+                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
+                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerSn = TransducerSn, TransducerTypeId = transducerTypeId });
+                //await _transducerModuleRepository.InsertAsync(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerSn = TransducerSn,TransducerTypeId = transducerTypeId });
             }
+            await _transducerModuleRepository.BulkInsertAsync(transducerModules);
             #endregion
 
             #region Tests
-            for (int i = 0; i < maxCnt; ++i)
+            for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int j = 0; j < Enum.GetNames(typeof(Enums.TestCategory)).Length; j++) //2
+                for (int j = 1; j <= Enum.GetNames(typeof(Enums.TestCategory)).Length; ++j) //2
                 {
-                    for (int k = 0; k < Enum.GetNames(typeof(Enums.TestType)).Length; k++) //3
+                    for (int k = 1; k <= Enum.GetNames(typeof(Enums.TestType)).Length; ++k) //3
                     {
                         int randomValue = 0;
                         int result = 0;
@@ -150,18 +161,19 @@ namespace MES.UI.ViewModels
                             result = randomValue < 70 ? 0 : randomValue;
                             Test test = new Test
                             {
-                                CategoryId = j + 1,
-                                TestTypeId = k + 1,
+                                CategoryId = j,
+                                TestTypeId = k,
                                 TesterId = random.Next(1, 4),
-                                PcId = random.Next(1, 2),
+                                PcId = random.Next(1, 4),
                                 OriginalImg = $"/img/{currentDate}/{Commons.Commons.MKRandom(10)}",
                                 ChangedImg = $"/img/{currentDate}/{Commons.Commons.MKRandom(10)}",
                                 ChangedImgMetadata = Commons.Commons.MKSHA256(),
                                 Result = result,
-                                Method = random.Next(0, 2),
+                                Method = random.Next(1, 3),
                             };
                             test.TransducerModuleId = i;
-                            await _testRepository.InsertAsync(test);
+                            tests.Add(test);
+                            //await _testRepository.InsertAsync(test);
 
                             if (result >= 70)
                             {
@@ -171,24 +183,28 @@ namespace MES.UI.ViewModels
                     }
                 }
             }
+            await _testRepository.BulkInsertAsync(tests);
             #endregion
 
             #region Probes
-            for (int i = 0; i < maxCnt; ++i)
+            for (int i = 1; i <= maxCnt; ++i)
             {
-                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D3");
-                await _probeRepository.InsertAsync(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i});
-                //context.Probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i + 1, MotorModuleId = i + 1 });
+                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
+                probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
+                //await _probeRepository.InsertAsync(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i});
             }
+            await _probeRepository.BulkInsertAsync(probes);
             #endregion
         }
 
         [RelayCommand]
+        [PerformanceInterceptor]
         private async Task Select1Async()
         {
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
-            List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
+            //List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
+            List<ProbeTestResult> enumerable = _probeRepository.GetProbeSN();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()}" + enumerable.ToList().Count);
         }
     }
