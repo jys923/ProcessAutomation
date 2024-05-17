@@ -28,12 +28,6 @@ namespace MES.UI.Models
         public virtual Tester Tester { get; set; } = default!;
 
         [Required]
-        public int PcId { get; set; }
-
-        [ForeignKey(nameof(PcId))] //lazy 로딩
-        public virtual Pc Pc { get; set; } = default!;
-
-        [Required]
         public string OriginalImg { get; set; } = "";
 
         [Required]

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace MES.UI.Commons
 {
-    public class Commons
+    public class Utilities
     {
         public static string MKRandom(int length)
         {
@@ -43,6 +43,20 @@ namespace MES.UI.Commons
                 string hashString = sb.ToString();
                 //Console.WriteLine("SHA-256 해시 값: " + hashString);
                 return hashString;
+            }
+        }
+
+        public static void Shuffle<T>(IList<T> list)
+        {
+            Random random = new Random();
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using MES.UI.Models.Base;
 
 namespace MES.UI.Models
@@ -13,6 +14,9 @@ namespace MES.UI.Models
         public required string Name { get; set; }
 
         [Required]
-        public int PcNo { get; set; }
+        public int PcId { get; set; }
+
+        [ForeignKey(nameof(PcId))] //lazy 로딩
+        public virtual Pc Pc { get; set; } = default!;
     }
 }

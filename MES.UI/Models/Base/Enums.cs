@@ -10,16 +10,18 @@ namespace MES.UI.Models.Base
     {
         public enum TestResult
         {
-            Fail,
-            Pass,
+            //All = 0,
+            Success = 1,
+            Failure = 2,
         }
 
         public enum DataFlag
         {
-            Delete,
-            Create,
+            All = 0,
+            Create = 1,
+            Delete = 2,
+            //Update = 3,
             //Read,
-            //Update,
         }
 
         public enum TransducerType

@@ -83,7 +83,10 @@ namespace MES.UI.ViewModels
         private string _testResult = default!;
 
         [ObservableProperty]
-        private int _pcNo = default!;
+        private ObservableCollection<string> _pcs;
+
+        [ObservableProperty]
+        private string _pc = default!;
 
         [ObservableProperty]
         private string _tester = default!;
@@ -102,17 +105,17 @@ namespace MES.UI.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<TestProbe> _testProbes = default!;
-
-
+        
+        [ObservableProperty]
+        private int _resultCnt = 0000001;
 
         [RelayCommand]
         private async Task SearchAsync()
         {
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            //IEnumerable<Test> tests = await _testRepository.GetAllAsync();
-            //Tests = new ObservableCollection<Test>(tests);
-            List<TestProbe> testProbes = _testRepository.GetTestProbe();
+            List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(StartDate,EndDate, TestCategories.IndexOf(TestCategory),TestTypes.IndexOf(TestType),Tester,Pcs.IndexOf(Pc),TestResults.IndexOf(TestResult),ProbeSn,TDMdSn,TDSn,MTMdSn);
             TestProbes = new ObservableCollection<TestProbe>(testProbes);
+            ResultCnt = TestProbes.Count;
         }
 
         [RelayCommand]
@@ -128,7 +131,7 @@ namespace MES.UI.ViewModels
 
             TestCategories = new ObservableCollection<string>
             {
-                "ALL",
+                "ALL",//0
                 "공정용",
                 "출하용",
             };
@@ -137,7 +140,7 @@ namespace MES.UI.ViewModels
 
             TestTypes = new ObservableCollection<string>
             {
-                "ALL",
+                "ALL",//0
                 "Aline",
                 "Axial",
                 "Lateral",
@@ -147,27 +150,35 @@ namespace MES.UI.ViewModels
 
             TestResults = new ObservableCollection<string>
             {
-                "ALL",
-                "FAIL",
+                "ALL",//0
                 "PASS",
+                "FAIL",
             };
 
             TestResult = TestResults[0];
             //출력
 
-            PcNo = 1;
+            Pcs = new ObservableCollection<string>
+            {
+                "ALL",
+                "Left",
+                "Middle",
+                "Right",
+            };
 
-            Tester = "yoon";
+            Pc = Pcs[0];
 
-            ProbeSn = "P S/N";
+            //Tester = "yoon";
 
-            TDMdSn = "transducer Module";
+            //ProbeSn = "P S/N";
 
-            MTMdSn = "motor";
+            //TDMdSn = "transducer Module";
+
+            //MTMdSn = "motor";
 
             //db 조회
 
-            TestProbes = new ObservableCollection<TestProbe>();
+            //TestProbes = new ObservableCollection<TestProbe>();
             
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }

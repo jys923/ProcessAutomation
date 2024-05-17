@@ -6,11 +6,7 @@ using MES.UI.Models.Base;
 using MES.UI.Repositories;
 using MES.UI.Repositories.interfaces;
 using MES.UI.Views;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -44,7 +40,7 @@ namespace MES.UI.ViewModels
         {
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
-            _probeRepository = probeRepository; 
+            _probeRepository = probeRepository;
             _testCategoryRepository = testCategoryRepository;
             _testerRepository = testerRepository;
             _testRepository = testRepository;
@@ -98,6 +94,7 @@ namespace MES.UI.ViewModels
             List<MotorModule> moterModules = new List<MotorModule>();
             List<TransducerModule> transducerModules = new List<TransducerModule>();
             List<Test> tests = new List<Test>();
+            List<Tester> tester = new List<Tester>();
             List<Probe> probes = new List<Probe>();
 
             #region MotorModules
@@ -119,9 +116,17 @@ namespace MES.UI.ViewModels
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = Enums.TestCategoryKor.공정용.ToString() });
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = Enums.TestCategoryKor.최종용.ToString() });
 
-            await _testerRepository.InsertAsync(new Tester { Name = "yoon" });
-            await _testerRepository.InsertAsync(new Tester { Name = "sang" });
-            await _testerRepository.InsertAsync(new Tester { Name = "kwon" });
+            List<int> _pcs = Enumerable.Range(1, 3).ToList();
+
+            for (int i = 1; i <= maxCnt/100; i++)
+            {
+                Utilities.Shuffle(_pcs);
+                tester.Add(new Tester { Name = "yoon", PcId = _pcs[0] });
+                tester.Add(new Tester { Name = "sang", PcId = _pcs[1] });
+                tester.Add(new Tester { Name = "bkko", PcId = _pcs[2] });
+            }
+
+            await _testerRepository.BulkInsertAsync(tester);
 
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
@@ -147,6 +152,13 @@ namespace MES.UI.ViewModels
             #endregion
 
             #region Tests
+            List<int> _tests = new List<int>();
+            for (int i = 0; i < maxCnt / 100 * 2 * 3 / 3; i++)
+            {
+                _tests.AddRange(Enumerable.Range(1, 3000));
+            }
+            Utilities.Shuffle( _tests );
+
             for (int i = 1; i <= maxCnt; ++i)
             {
                 for (int j = 1; j <= Enum.GetNames(typeof(Enums.TestCategory)).Length; ++j) //2
@@ -163,11 +175,10 @@ namespace MES.UI.ViewModels
                             {
                                 CategoryId = j,
                                 TestTypeId = k,
-                                TesterId = random.Next(1, 4),
-                                PcId = random.Next(1, 4),
-                                OriginalImg = $"/img/{currentDate}/{Commons.Commons.MKRandom(10)}",
-                                ChangedImg = $"/img/{currentDate}/{Commons.Commons.MKRandom(10)}",
-                                ChangedImgMetadata = Commons.Commons.MKSHA256(),
+                                TesterId = _tests[i-1],
+                                OriginalImg = $"/img/{currentDate}/{Commons.Utilities.MKRandom(10)}",
+                                ChangedImg = $"/img/{currentDate}/{Commons.Utilities.MKRandom(10)}",
+                                ChangedImgMetadata = Commons.Utilities.MKSHA256(),
                                 Result = result,
                                 Method = random.Next(1, 3),
                             };
@@ -204,7 +215,7 @@ namespace MES.UI.ViewModels
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
-            List<ProbeTestResult> enumerable = _probeRepository.GetProbeSN();
+            List<ProbeTestResult> enumerable = _probeRepository.GetProbeTestResult();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()}" + enumerable.ToList().Count);
         }
     }

@@ -79,8 +79,8 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <ComboBox Grid.Column="2" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestTypes}" SelectedItem="{Binding TestType, Mode=TwoWay}"/>
             <Label Grid.Column="3" Content="검사 결과" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="3" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestResults}" SelectedItem="{Binding TestResult, Mode=TwoWay}" />
-            <Label Grid.Column="4" Content="PC No" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="150" Text="{Binding PcNo}"/>
+            <Label Grid.Column="4" Content="PC" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <ComboBox Grid.Column="4" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Pcs}" SelectedItem="{Binding Pc, Mode=TwoWay}"/>
             <Label Grid.Column="5" Content="Tester" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="5" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding Tester}"/>
             <Label Grid.Column="6" Content="Probe S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
@@ -104,31 +104,40 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="&#13;ID" Width="1*" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header="생성날짜" Width="1*" Binding="{Binding CreatedDate}"/>
+                <DataGridTextColumn Header="Detail" Width="1*" Binding="{Binding Detail}"/>
                 <DataGridTextColumn Header="Category" Width="1*" Binding="{Binding Category.Name}"/>
                 <DataGridTextColumn Header="TestType" Width="1*" Binding="{Binding TestType.Name}"/>
-                <!--<DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
-                <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
-                <DataGridTextColumn Header="ChangedImgMetadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>-->
-                <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.TransducerModuleSn}"/>
+                <DataGridTextColumn Header="Result" Width="1*" Binding="{Binding Result}"/>
+                <DataGridTextColumn Header="Pc" Width="1*" Binding="{Binding Pc.Name}"/>
+                <DataGridTextColumn Header="Tester" Width="1*" Binding="{Binding Tester}"/>
                 <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding ProbeSn}"/>
+                <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.TransducerModuleSn}"/>
+                <DataGridTextColumn Header="Transducer" Width="1*" Binding="{Binding TransducerModule.TransducerSn}"/>
                 <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.MotorModuleSn}"/>
+                <DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
+                <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
+                <DataGridTextColumn Header="ChangedImgMetadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>
             </DataGrid.Columns>
         </DataGrid>
         <!-- Status Bar -->
-        <StatusBar Grid.Row="3">
+        <StatusBar Grid.Row="5">
             <!-- Status bar content -->
             <StatusBarItem>
-                <TextBlock>Status: Ready</TextBlock>
+                <TextBlock Text="Result Count : "/>
             </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock Text="{Binding ResultCnt}"/>
+            </StatusBarItem>
+            <Separator Grid.Column="1" />
             <StatusBarItem>
                 <TextBlock HorizontalAlignment="Right">Additional Information</TextBlock>
             </StatusBarItem>
-            <Separator Grid.Column="1" />
-            <StatusBarItem Grid.Column="2">
+            <Separator Grid.Column="2" />
+            <StatusBarItem Grid.Column="3">
                 <TextBlock Text="c:\path\of\current\file.txt" />
             </StatusBarItem>
-            <Separator Grid.Column="3" />
-            <StatusBarItem Grid.Column="4">
+            <Separator Grid.Column="4" />
+            <StatusBarItem Grid.Column="5">
                 <ProgressBar Value="50" Width="90" Height="16" />
             </StatusBarItem>
         </StatusBar>

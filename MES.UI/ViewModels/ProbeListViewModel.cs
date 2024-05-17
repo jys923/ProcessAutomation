@@ -104,7 +104,7 @@ namespace MES.UI.ViewModels
         private async Task SearchAsync()
         {
             Debug.WriteLine($"{nameof(SearchAsync)}");
-            List<ProbeTestResult> probes = await _probeRepository.GetProbeSNAsync(StartDate, EndDate, ProbeSn, TDMdSn, TDSn, MTMdSn);
+            List<ProbeTestResult> probes = await _probeRepository.GetProbeTestResultAsync(StartDate, EndDate, ProbeSn, TDMdSn, TDSn, MTMdSn);
             Probes = new ObservableCollection<ProbeTestResult>(probes);
             ResultCnt = probes.Count;
         }

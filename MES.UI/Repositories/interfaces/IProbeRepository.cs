@@ -5,18 +5,18 @@ namespace MES.UI.Repositories.interfaces
 {
     public interface IProbeRepository : IRepositoryBase<Probe>
     {
-        List<ProbeTestResult> GetProbeSN();
-        Task<List<ProbeTestResult>> GetProbeSNAsync();
+        List<ProbeTestResult> GetProbeTestResult();
+        Task<List<ProbeTestResult>> GetProbeTestResultAsync();
 
-        List<ProbeTestResult> GetProbeSN(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
-        Task<List<ProbeTestResult>> GetProbeSNAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+        List<ProbeTestResult> GetProbeTestResult(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+        Task<List<ProbeTestResult>> GetProbeTestResultAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
 
-        List<ProbeTestResult> GetProbeSNSql();
-        Task<List<ProbeTestResult>> GetProbeSNSqlAsync();
+        List<ProbeTestResult> GetProbeTestResultSql();
+        Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync();
 
-        List<ProbeTestResult> GetProbeSNSql(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+        List<ProbeTestResult> GetProbeTestResultSql(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
 
-        Task<List<ProbeTestResult>> GetProbeSNSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+        Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
 
     }
 }
