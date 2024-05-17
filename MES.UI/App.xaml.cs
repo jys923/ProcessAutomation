@@ -1,5 +1,6 @@
 ﻿//#define appsettings
 
+using MES.UI.Commons;
 using MES.UI.Models.Context;
 using MES.UI.Repositories;
 using MES.UI.Repositories.interfaces;
@@ -65,6 +66,7 @@ namespace MES.UI
             // ILoggerFactory를 서비스에 추가
             services.AddLogging(builder =>
             {
+                builder.AddProvider(new VisualStudioOutputLoggerProvider());
                 // 로그 출력을 콘솔에 추가
                 builder.AddConsole();
 
