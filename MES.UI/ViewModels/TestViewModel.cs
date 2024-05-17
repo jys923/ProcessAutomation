@@ -7,13 +7,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VILib;
-using MES.UI.Views;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace MES.UI.ViewModels
 {

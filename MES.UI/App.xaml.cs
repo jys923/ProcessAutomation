@@ -1,4 +1,5 @@
 ﻿//#define appsettings
+//#define DataTemplate
 
 using MES.UI.Commons;
 using MES.UI.Models.Context;
@@ -27,8 +28,14 @@ namespace MES.UI
 
         private void App_Startup(object sender, StartupEventArgs e)
         {
+#if DataTemplate
+            MainView testView = App.Current.Services.GetRequiredService<MainView>();
+            testView.DataContext = App.Current.Services.GetRequiredService<MainViewModel>(); // 뷰모델을 바인딩
+            testView.Show();
+#else
             MainView? mainView = App.Current.Services.GetService<MainView>()!;
             mainView.Show();
+#endif
         }
 
         /// <summary>
@@ -62,17 +69,17 @@ namespace MES.UI
             string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") ?? throw new InvalidOperationException("MariaDBConnection is null.");
 #else
             string MariaDBConnectionString = MES.UI.Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
-#endif 
+#endif
             // ILoggerFactory를 서비스에 추가
             services.AddLogging(builder =>
             {
+                //builder.ClearProviders(); // 기존 로깅 프로바이더를 제거합니다.
+                //builder.SetMinimumLevel(LogLevel.Trace); // 로그 레벨 설정
                 builder.AddProvider(new VisualStudioOutputLoggerProvider());
                 // 로그 출력을 콘솔에 추가
-                builder.AddConsole();
-
-                // 더 많은 로그 출력 대상을 추가할 수 있음
-                // builder.AddDebug();
-                // builder.AddEventLog();
+                //builder.AddConsole();
+                //builder.AddDebug();
+                //builder.AddEventLog();
                 // 등등...
             });
 
@@ -97,6 +104,19 @@ namespace MES.UI
             services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
 
+#if DataTemplate
+            // ViewModels
+            services.AddTransient<MainViewModel>();
+            services.AddTransient<ProbeListViewModel>();
+            services.AddTransient<TestListViewModel>();
+            services.AddTransient<TestViewModel>();
+
+            // Views
+            services.AddTransient<MainView>();
+            services.AddTransient<ProbeListView>();
+            services.AddTransient<TestListView>();
+            services.AddTransient<TestView>();
+#else
             // ViewModels
             services.AddTransient(typeof(MainViewModel));
             services.AddTransient(typeof(ProbeListViewModel));
@@ -104,23 +124,23 @@ namespace MES.UI
             services.AddTransient(typeof(TestViewModel));
 
             // Views
-            services.AddSingleton(s => new MainView()
+            services.AddTransient(s => new MainView()
             {
                 DataContext = s.GetRequiredService<MainViewModel>()
             });
-            services.AddSingleton(s => new ProbeListView()
+            services.AddTransient(s => new ProbeListView()
             {
                 DataContext = s.GetRequiredService<ProbeListViewModel>()
             });
-            services.AddSingleton(s => new TestListView()
+            services.AddTransient(s => new TestListView()
             {
                 DataContext = s.GetRequiredService<TestListViewModel>()
             });
-            services.AddSingleton(s => new TestView()
+            services.AddTransient(s => new TestView()
             {
                 DataContext = s.GetRequiredService<TestViewModel>()
             });
-
+#endif
             return services.BuildServiceProvider();
         }
     }

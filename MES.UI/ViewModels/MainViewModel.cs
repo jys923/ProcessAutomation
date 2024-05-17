@@ -15,6 +15,8 @@ namespace MES.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private TestView? _testView;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<MainViewModel> _logger;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -30,6 +32,7 @@ namespace MES.UI.ViewModels
         private string _title = default!;
 
         public MainViewModel(
+            IServiceProvider serviceProvider,
             ILogger<MainViewModel> logger,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
@@ -41,6 +44,7 @@ namespace MES.UI.ViewModels
             ITransducerModuleRepository transducerModuleRepository,
             ITransducerTypeRepository transducerTypeRepository)
         {
+            _serviceProvider = serviceProvider;
             _logger = logger;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
@@ -59,9 +63,32 @@ namespace MES.UI.ViewModels
         {
             _logger.LogInformation("Message logged at {Time} in {MethodName}", DateTime.Now, nameof(ToTest));
             //Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            //TestView? testView = App.Current.Services.GetService<TestView>()!;
-            ////testView.Show();
+            //TestView testView = App.Current.Services.GetService<TestView>()!;
+            //testView.Show();
             //testView.ShowDialog();
+
+            //TestView testView = App.Current.Services.GetRequiredService<TestView>();
+            //testView.DataContext = App.Current.Services.GetRequiredService<TestViewModel>(); // 뷰모델을 바인딩
+            //testView.Show();
+
+            // 이미 열려 있는 창이 있는지 확인
+            if (_testView == null || !_testView.IsLoaded)
+            {
+                _testView = _serviceProvider.GetRequiredService<TestView>();
+                //_testView.DataContext = _serviceProvider.GetRequiredService<TestViewModel>();
+                _testView.Show();
+            }
+            else
+            {
+                // 창이 최소화되어 있으면 최상위로 올리기
+                if (_testView.WindowState == System.Windows.WindowState.Minimized)
+                {
+                    _testView.WindowState = System.Windows.WindowState.Normal;
+                }
+
+                // 창을 최상위로 가져오기
+                _testView.Activate();
+            }
         }
 
         [RelayCommand]
