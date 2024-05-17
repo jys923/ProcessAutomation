@@ -96,7 +96,7 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <Button Grid.Column="10" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
             <Button Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
         </Grid>
-        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding TestProbes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90">
+        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding TestProbes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" EnableColumnVirtualization="True" EnableRowVirtualization="True">
             <!--  생성한 Behavior 연결  -->
             <b:Interaction.Behaviors>
                 <Behavior:DataGridBehavior ShowRowNumber="True" RowHeaderWidth="90"/>

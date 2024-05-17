@@ -62,6 +62,18 @@ namespace MES.UI
 #else
             string MariaDBConnectionString = MES.UI.Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
 #endif 
+            // ILoggerFactory를 서비스에 추가
+            services.AddLogging(builder =>
+            {
+                // 로그 출력을 콘솔에 추가
+                builder.AddConsole();
+
+                // 더 많은 로그 출력 대상을 추가할 수 있음
+                // builder.AddDebug();
+                // builder.AddEventLog();
+                // 등등...
+            });
+
             // DbContext를 등록합니다.
             services.AddDbContext<MESDbContext>(options =>
                 options

@@ -7,6 +7,7 @@ using MES.UI.Repositories;
 using MES.UI.Repositories.interfaces;
 using MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -14,6 +15,7 @@ namespace MES.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private readonly ILogger<MainViewModel> _logger;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
         private readonly IProbeRepository _probeRepository;
@@ -28,6 +30,7 @@ namespace MES.UI.ViewModels
         private string _title = default!;
 
         public MainViewModel(
+            ILogger<MainViewModel> logger,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
             IProbeRepository probeRepository,
@@ -38,6 +41,7 @@ namespace MES.UI.ViewModels
             ITransducerModuleRepository transducerModuleRepository,
             ITransducerTypeRepository transducerTypeRepository)
         {
+            _logger = logger;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
             _probeRepository = probeRepository;
@@ -53,10 +57,11 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void ToTest()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            TestView? testView = App.Current.Services.GetService<TestView>()!;
-            //testView.Show();
-            testView.ShowDialog();
+            _logger.LogInformation("Message logged at {Time} in {MethodName}", DateTime.Now, nameof(ToTest));
+            //Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+            //TestView? testView = App.Current.Services.GetService<TestView>()!;
+            ////testView.Show();
+            //testView.ShowDialog();
         }
 
         [RelayCommand]
