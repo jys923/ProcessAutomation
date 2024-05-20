@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MES.UI.Commons;
+using MES.UI.Interceptor;
 using MES.UI.Models;
 using MES.UI.Models.Base;
 using MES.UI.Repositories;
@@ -17,7 +18,6 @@ namespace MES.UI.ViewModels
     {
         private TestView? _testView;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<MainViewModel> _logger;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
         private readonly IProbeRepository _probeRepository;
@@ -33,7 +33,6 @@ namespace MES.UI.ViewModels
 
         public MainViewModel(
             IServiceProvider serviceProvider,
-            ILogger<MainViewModel> logger,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
             IProbeRepository probeRepository,
@@ -45,7 +44,6 @@ namespace MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository)
         {
             _serviceProvider = serviceProvider;
-            _logger = logger;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
             _probeRepository = probeRepository;
@@ -58,10 +56,10 @@ namespace MES.UI.ViewModels
             Title = this.GetType().Name;
         }
 
+        [Logging]
         [RelayCommand]
         private void ToTest()
         {
-            _logger.LogInformation("Message logged at {Time} in {MethodName}", DateTime.Now, nameof(ToTest));
             //Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
             //TestView testView = App.Current.Services.GetService<TestView>()!;
             //testView.Show();
@@ -241,7 +239,6 @@ namespace MES.UI.ViewModels
         }
 
         [RelayCommand]
-        [PerformanceInterceptor]
         private async Task Select1Async()
         {
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");

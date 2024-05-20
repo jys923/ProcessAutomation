@@ -3,6 +3,18 @@ using System.Diagnostics;
 
 namespace MES.UI.Commons
 {
+    //// ILoggerFactory를 서비스에 추가
+    //services.AddLogging(builder =>
+    //{
+    //    //builder.ClearProviders(); // 기존 로깅 프로바이더를 제거합니다.
+    //    //builder.SetMinimumLevel(LogLevel.Trace); // 로그 레벨 설정
+    //    builder.AddProvider(new VisualStudioOutputLoggerProvider());
+    //    // 로그 출력을 콘솔에 추가
+    //    //builder.AddConsole();
+    //    //builder.AddDebug();
+    //    //builder.AddEventLog();
+    //    // 등등...
+    //});
     public class VisualStudioOutputLoggerProvider : ILoggerProvider
     {
         public ILogger CreateLogger(string categoryName)

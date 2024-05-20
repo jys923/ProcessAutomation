@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MES.UI", "MES.UI\MES.UI.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MES.Tests", "MES.Tests\MES.Tests.csproj", "{B58EDAFE-6A7A-4913-A181-DDCD2F78BA7A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspectCoreSample", "AspectCoreSample\AspectCoreSample.csproj", "{ACF747BB-7578-4B9E-A99E-BB426607D324}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,18 @@ Global
 		{B58EDAFE-6A7A-4913-A181-DDCD2F78BA7A}.Release|x64.Build.0 = Release|Any CPU
 		{B58EDAFE-6A7A-4913-A181-DDCD2F78BA7A}.Release|x86.ActiveCfg = Release|Any CPU
 		{B58EDAFE-6A7A-4913-A181-DDCD2F78BA7A}.Release|x86.Build.0 = Release|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Debug|x64.Build.0 = Debug|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Debug|x86.Build.0 = Debug|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Release|x64.ActiveCfg = Release|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Release|x64.Build.0 = Release|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Release|x86.ActiveCfg = Release|Any CPU
+		{ACF747BB-7578-4B9E-A99E-BB426607D324}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

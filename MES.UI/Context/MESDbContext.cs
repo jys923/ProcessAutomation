@@ -1,9 +1,11 @@
 ﻿//#define MIGRATION
 
+using MES.UI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
-namespace MES.UI.Models.Context
+namespace MES.UI.Context
 {
     public class MESDbContext : DbContext
     {
@@ -36,12 +38,19 @@ namespace MES.UI.Models.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
+            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddSerilog(dispose: true); // Serilog를 LoggerFactory에 추가
+                builder.AddFilter((category, level) =>
+                    category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information); // EF Core의 로그를 필터링하여 Serilog에게 전달
+            });
 #if DEBUG
             optionsBuilder.EnableSensitiveDataLogging(true);
-            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
 #endif
+            //optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
-            string MariaDBConnectionString = MES.UI.Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
+            string MariaDBConnectionString = Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
         }
         
