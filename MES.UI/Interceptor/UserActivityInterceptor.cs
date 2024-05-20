@@ -3,9 +3,16 @@ using Serilog;
 
 namespace MES.UI.Interceptor
 {
-    public class UserActivityInterceptor : AbstractInterceptor
+    public class UserActivityInterceptor : BaseInterceptor
     {
-        public override async Task Invoke(AspectContext context, AspectDelegate next)
+        //public override async Task Invoke(AspectContext context, AspectDelegate next)
+        //{
+        //    var userId = context.Parameters.FirstOrDefault()?.ToString();
+        //    Log.Information($"User {userId} performed an action in method {context.ImplementationMethod.Name}");
+        //    await next(context);
+        //}
+
+        protected override async Task Execute(AspectContext context, AspectDelegate next)
         {
             var userId = context.Parameters.FirstOrDefault()?.ToString();
             Log.Information($"User {userId} performed an action in method {context.ImplementationMethod.Name}");

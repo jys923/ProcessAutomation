@@ -3,8 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using MES.UI.Models;
 using MES.UI.Repositories;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace MES.UI.ViewModels
 {
@@ -24,16 +22,16 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Day()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //StartDate = DateTime.Now.AddDays(-1);
-            StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day,0,0,0);
+            StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
             EndDate = DateTime.Now;
         }
 
         [RelayCommand]
         private void Week()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             StartDate = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek).Date;
             EndDate = DateTime.Now;
         }
@@ -41,7 +39,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Month()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //StartDate = DateTime.Now.AddMonths(-1);
             StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             EndDate = DateTime.Now;
@@ -50,7 +48,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Year()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //StartDate = DateTime.Now.AddYears(-1);
             StartDate = new DateTime(DateTime.Now.Year, 1, 1);
             EndDate = DateTime.Now;
@@ -59,7 +57,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void All()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             StartDate = DateTime.MinValue;
             EndDate = DateTime.Now;
         }
@@ -96,7 +94,7 @@ namespace MES.UI.ViewModels
 
         [ObservableProperty]
         private string _tDMdSn = default!;
-        
+
         [ObservableProperty]
         private string _tDSn = default!;
 
@@ -105,15 +103,15 @@ namespace MES.UI.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<TestProbe> _testProbes = default!;
-        
+
         [ObservableProperty]
         private int _resultCnt = 0000001;
 
         [RelayCommand]
         private async Task SearchAsync()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(StartDate,EndDate, TestCategories.IndexOf(TestCategory),TestTypes.IndexOf(TestType),Tester,Pcs.IndexOf(Pc),TestResults.IndexOf(TestResult),ProbeSn,TDMdSn,TDSn,MTMdSn);
+
+            List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(StartDate, EndDate, TestCategories.IndexOf(TestCategory), TestTypes.IndexOf(TestType), Tester, Pcs.IndexOf(Pc), TestResults.IndexOf(TestResult), ProbeSn, TDMdSn, TDSn, MTMdSn);
             TestProbes = new ObservableCollection<TestProbe>(testProbes);
             ResultCnt = TestProbes.Count;
         }
@@ -121,7 +119,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Export()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
         }
 
         public TestListViewModel(ITestRepository testRepository)
@@ -179,7 +177,7 @@ namespace MES.UI.ViewModels
             //db 조회
 
             //TestProbes = new ObservableCollection<TestProbe>();
-            
+
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
     }

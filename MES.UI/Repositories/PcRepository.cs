@@ -5,7 +5,7 @@ using MES.UI.Repositories.interfaces;
 
 namespace MES.UI.Repositories
 {
-    public class PcRepository : RepositoryBase<Pc> , IPcRepository
+    public class PcRepository : RepositoryBase<Pc>, IPcRepository
     {
         public PcRepository(MESDbContext context) : base(context)
         {

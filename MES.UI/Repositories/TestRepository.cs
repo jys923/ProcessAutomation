@@ -13,11 +13,11 @@ namespace MES.UI.Repositories
 
         public List<TestProbe> GetTestProbe2()
         {
-            IEnumerable<TestProbe> probes = 
+            IEnumerable<TestProbe> probes =
                 (from t in _context.Set<Test>()
                  join p in _context.Set<Probe>() on t.TransducerModule equals p.TransducerModule into pGroup
                  from p in pGroup.DefaultIfEmpty()
-                 select new TestProbe 
+                 select new TestProbe
                  {
                      Id = t.Id,
                      CreatedDate = t.CreatedDate,
@@ -142,7 +142,7 @@ namespace MES.UI.Repositories
             {
                 query = query.Where(tp => tp.CreatedDate >= startDate);
             }
-            
+
             if (endDate != null)
             {
                 query = query.Where(tp => tp.CreatedDate <= endDate);

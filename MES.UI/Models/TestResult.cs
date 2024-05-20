@@ -8,9 +8,9 @@ namespace MES.UI.Models
     [Keyless]
     public class TestResult
     {
-        public required Enums.TestCategory CategoryId { get; set; }
-        public required Enums.TestType TypeId { get; set; }
-        public required DateTime CreatedDate { get; set; }
-        public required string Result { get; set; } = default!;
+        public Enums.TestCategory? CategoryId { get; set; }
+        public Enums.TestType? TypeId { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public string? Result { get; set; } = default!;
     }
 }

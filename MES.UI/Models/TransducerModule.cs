@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
+﻿using MES.UI.Models.Base;
 using Microsoft.EntityFrameworkCore;
-using MES.UI.Models.Base;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MES.UI.Models
 {

@@ -27,14 +27,29 @@ remove-migration
 - [X] 로깅 환경 구축 Lib 선택 seridog
 - [ ] 모터 모듈 s/n 파일 import
 - [ ] TD s/n 파일 import
-- [ ] dark theme
 - [ ] 유저 컨트롤
-- [ ] db crud
+- [X] db crud
+- [ ] 데이터 필터링
+- [ ] datagrid 필터링
+	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
 - [ ] model, repo 등 dll 로 빼기
 - [ ] 한소노 lib에서 영상 직접 받기
-- [ ] mvvm 성능 측정 샘플 추가
+- [X] mvvm 성능 측정 샘플 추가
+- [ ] datagrid 60만건 속도 개선
+	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
+- [X] AOP 로깅 이름,속도
+	- https://blog.arong.info/c%23/2023/02/06/C-Method-Intercept(AOP).html
+- [ ] db 조회 null값 대응
+- [X] Tester name,pcNo(외래키 pcId) 검색 대응
+- [ ] BulkInsertAsync 로그
+- [ ] dark theme
+- [X] 윈도우 재시작 에러 test만
 
 ## Research List
+- [ ] linq
+- [X] Microsoft.Extensions.Logging vs serilog
+	- logging .net 기본 시간 표기 가능,
+	- serilog 구조화된 로그 추가 복잡할떄 사용
 - [ ] TDD mock 객체 vs UseInMemoryDatabase
 - [ ] WPF animation
 - [ ] behavior

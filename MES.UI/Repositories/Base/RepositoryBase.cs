@@ -61,7 +61,8 @@ namespace MES.UI.Repositories.Base
             {
                 await _context.BulkInsertAsync(entities);
                 result = true;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($"BulkInsertAsync 작업 중 오류 발생: {ex.Message}");
                 result = false;

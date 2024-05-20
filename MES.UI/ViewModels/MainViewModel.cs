@@ -8,7 +8,6 @@ using MES.UI.Repositories;
 using MES.UI.Repositories.interfaces;
 using MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -16,6 +15,8 @@ namespace MES.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
+        private ProbeListView? _probeListView;
+        private TestListView? _testListView;
         private TestView? _testView;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -56,19 +57,9 @@ namespace MES.UI.ViewModels
             Title = this.GetType().Name;
         }
 
-        [Logging]
         [RelayCommand]
         private void ToTest()
         {
-            //Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            //TestView testView = App.Current.Services.GetService<TestView>()!;
-            //testView.Show();
-            //testView.ShowDialog();
-
-            //TestView testView = App.Current.Services.GetRequiredService<TestView>();
-            //testView.DataContext = App.Current.Services.GetRequiredService<TestViewModel>(); // 뷰모델을 바인딩
-            //testView.Show();
-
             // 이미 열려 있는 창이 있는지 확인
             if (_testView == null || !_testView.IsLoaded)
             {
@@ -92,26 +83,44 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void ToList()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            ProbeListView? probeListView = App.Current.Services.GetService<ProbeListView>()!;
-            probeListView.Show();
+            if (_probeListView == null || !_probeListView.IsLoaded)
+            {
+                _probeListView = _serviceProvider.GetRequiredService<ProbeListView>();
+                _probeListView.Show();
+            }
+            else
+            {
+                if(_probeListView.WindowState == System.Windows.WindowState.Minimized)
+                {
+                    _probeListView.WindowState = System.Windows.WindowState.Normal;
+                }
+
+                _probeListView.Activate();
+            }
         }
 
         [RelayCommand]
         private void ToTestList()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            TestListView? testListView = App.Current.Services.GetService<TestListView>()!;
-            testListView.Show();
+            if (_testListView == null || !_testListView.IsLoaded)
+            {
+                _testListView = _serviceProvider.GetRequiredService<TestListView>();
+                _testListView.Show();
+            }
+            else
+            {
+                if (_testListView.WindowState == System.Windows.WindowState.Minimized)
+                {
+                    _testListView.WindowState = System.Windows.WindowState.Normal;
+                }
+
+                _testListView.Activate();
+            }
         }
 
         [RelayCommand]
         private async Task Master()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
-            //var aaa =_probeRepository.GetProbeSN();
-            //var aaa = _testRepository.GetTestProbe();
-            //Debug.WriteLine($"{MethodBase.GetCurrentMethod()}" + aaa.ToList().Count);
 
             int maxCnt = 100000;
             int resultCnt = 5;
@@ -148,7 +157,7 @@ namespace MES.UI.ViewModels
 
             List<int> _pcs = Enumerable.Range(1, 3).ToList();
 
-            for (int i = 1; i <= maxCnt/100; i++)
+            for (int i = 1; i <= maxCnt / 100; i++)
             {
                 Utilities.Shuffle(_pcs);
                 tester.Add(new Tester { Name = "yoon", PcId = _pcs[0] });
@@ -187,7 +196,7 @@ namespace MES.UI.ViewModels
             {
                 _tests.AddRange(Enumerable.Range(1, 3000));
             }
-            Utilities.Shuffle( _tests );
+            Utilities.Shuffle(_tests);
 
             for (int i = 1; i <= maxCnt; ++i)
             {
@@ -205,7 +214,7 @@ namespace MES.UI.ViewModels
                             {
                                 CategoryId = j,
                                 TestTypeId = k,
-                                TesterId = _tests[i-1],
+                                TesterId = _tests[i - 1],
                                 OriginalImg = $"/img/{currentDate}/{Commons.Utilities.MKRandom(10)}",
                                 ChangedImg = $"/img/{currentDate}/{Commons.Utilities.MKRandom(10)}",
                                 ChangedImgMetadata = Commons.Utilities.MKSHA256(),
@@ -241,11 +250,10 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private async Task Select1Async()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
             List<ProbeTestResult> enumerable = _probeRepository.GetProbeTestResult();
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}" + enumerable.ToList().Count);
         }
     }
 }

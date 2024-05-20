@@ -291,7 +291,7 @@ namespace MES.UI.Repositories
         public List<ProbeTestResult> GetProbeTestResult()
         {
             // Probe 테이블과 TransducerModule 테이블을 조인
-            var query = 
+            var query =
                 from p in _context.Set<Probe>()
                 join tm in _context.Set<TransducerModule>()
                     on p.TransducerModuleId equals tm.Id into tmGroup
@@ -299,10 +299,10 @@ namespace MES.UI.Repositories
                 join mm in _context.Set<MotorModule>()
                     on p.TransducerModuleId equals mm.Id into mmGroup
                 from mm in mmGroup.DefaultIfEmpty()
-                select new { Probe = p, TransducerModule = tm, MotorModule = mm};
+                select new { Probe = p, TransducerModule = tm, MotorModule = mm };
 
             // Test 테이블에서 필요한 데이터를 가져오기 위해 분할된 쿼리를 조합
-            IQueryable<ProbeTestResult> probeTestResults = 
+            IQueryable<ProbeTestResult> probeTestResults =
                 from q in query
                 let t1 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
                 let t2 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
@@ -562,7 +562,7 @@ namespace MES.UI.Repositories
             // 필터를 적용한 후에 ToList 호출하여 쿼리를 실행
             return probeTestResults.ToList();
         }
-        
+
         public async Task<List<ProbeTestResult>> GetProbeTestResultAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             // 초기 쿼리 생성
@@ -643,13 +643,13 @@ namespace MES.UI.Repositories
             List<ProbeTestResult> probeTestResults = _context.Set<ProbeTestResult>().FromSqlRaw(_sql).ToList();
             return probeTestResults;
         }
-        
+
         public async Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync()
         {
             List<ProbeTestResult> probeTestResults = await _context.Set<ProbeTestResult>().FromSqlRaw(_sql).ToListAsync();
             return probeTestResults;
         }
-        
+
         public List<ProbeTestResult> GetProbeTestResultSql(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             List<ProbeTestResult> probeTestResults = _context.Set<ProbeTestResult>()
@@ -664,7 +664,7 @@ namespace MES.UI.Repositories
                 .ToList();
             return probeTestResults;
         }
-        
+
         public async Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             List<ProbeTestResult> probeTestResults = await _context.Set<ProbeTestResult>()

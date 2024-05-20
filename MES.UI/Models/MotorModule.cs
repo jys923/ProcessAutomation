@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MES.UI.Models.Base;
+﻿using MES.UI.Models.Base;
+using System.ComponentModel.DataAnnotations;
 
 namespace MES.UI.Models
 {

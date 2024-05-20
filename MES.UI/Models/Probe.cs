@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MES.UI.Models.Base;
 using Microsoft.EntityFrameworkCore;
-using MES.UI.Models.Base;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MES.UI.Models
 {
@@ -28,8 +23,8 @@ namespace MES.UI.Models
         public virtual TransducerModule TransducerModule { get; set; } = default!;
 
         [Required]
-        public required int MotorModuleId { get; set;}
-        
+        public required int MotorModuleId { get; set; }
+
         [ForeignKey(nameof(MotorModuleId))] //lazy 로딩
         public virtual MotorModule MotorModule { get; set; } = default!;
     }

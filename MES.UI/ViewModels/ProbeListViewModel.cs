@@ -4,7 +4,6 @@ using MES.UI.Models;
 using MES.UI.Repositories.interfaces;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace MES.UI.ViewModels
 {
@@ -24,7 +23,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Day()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //StartDate = DateTime.Now.AddDays(-1);
             StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
             EndDate = DateTime.Now;
@@ -33,7 +32,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Week()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             StartDate = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek).Date;
             EndDate = DateTime.Now;
         }
@@ -41,7 +40,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Month()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //StartDate = DateTime.Now.AddMonths(-1);
             StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             EndDate = DateTime.Now;
@@ -50,7 +49,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Year()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             //StartDate = DateTime.Now.AddYears(-1);
             StartDate = new DateTime(DateTime.Now.Year, 1, 1);
             EndDate = DateTime.Now;
@@ -59,7 +58,7 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void All()
         {
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()}");
+
             StartDate = DateTime.MinValue;
             EndDate = DateTime.Now;
         }
@@ -103,7 +102,6 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            Debug.WriteLine($"{nameof(SearchAsync)}");
             List<ProbeTestResult> probes = await _probeRepository.GetProbeTestResultAsync(StartDate, EndDate, ProbeSn, TDMdSn, TDSn, MTMdSn);
             Probes = new ObservableCollection<ProbeTestResult>(probes);
             ResultCnt = probes.Count;
@@ -112,7 +110,6 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Export()
         {
-            Debug.WriteLine($"{nameof(Export)}");
         }
 
         public ProbeListViewModel(IProbeRepository probeRepository)
@@ -145,7 +142,7 @@ namespace MES.UI.ViewModels
             ProbeSn = "";
 
             TDMdSn = "";
-            
+
             TDSn = "";
 
             MTMdSn = "";

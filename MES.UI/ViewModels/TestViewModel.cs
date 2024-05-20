@@ -81,7 +81,7 @@ namespace MES.UI.ViewModels
                         TDMdSnIsReadOnly = false;
                         MTMdSnIsReadOnly = false;
                     }
-                    
+
                 }
             }
         }
@@ -198,7 +198,6 @@ namespace MES.UI.ViewModels
         [RelayCommand]
         private void Test()
         {
-            Debug.WriteLine("Test");
             //이미지 불러오기
             //이미지 불러오기
             m_OrgBmp = new Bitmap(@"img\\4.bmp");

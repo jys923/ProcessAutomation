@@ -3,7 +3,6 @@
 
 using AspectCore.Configuration;
 using AspectCore.Extensions.DependencyInjection;
-using Azure.Identity;
 using MES.UI.Context;
 using MES.UI.Interceptor;
 using MES.UI.Repositories;
@@ -122,20 +121,20 @@ namespace MES.UI
             services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
 
-            //// AspectCore의 동적 프록시 설정을 구성합니다.
-            //services.ConfigureDynamicProxy(config =>
-            //{
-            //    // 모든 서비스에 LoggingInterceptor를 적용하도록 설정합니다.
-            //    config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<ExceptionLoggingInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<ParameterLoggingInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<TimingInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<PerformanceInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<CallCountInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<UserBehaviorInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<ChangeHistoryInterceptor>(Predicates.ForService("*"));
-            //    config.Interceptors.AddTyped<UserActivityInterceptor>(Predicates.ForService("*"));
-            //});
+            // AspectCore의 동적 프록시 설정을 구성합니다.
+            services.ConfigureDynamicProxy(config =>
+            {
+                // 모든 서비스에 LoggingInterceptor를 적용하도록 설정합니다.
+                config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<ExceptionLoggingInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<ParameterLoggingInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<TimingInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<PerformanceInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<CallCountInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<UserBehaviorInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<ChangeHistoryInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<UserActivityInterceptor>(Predicates.ForService("*"));
+            });
 
 #if DataTemplate
             // ViewModels

@@ -2,8 +2,6 @@
 
 using MES.UI.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace MES.UI.Context
 {
