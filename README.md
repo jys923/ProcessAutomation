@@ -25,6 +25,8 @@ remove-migration
 - [X] ioc
 - [X] 진짜 UI ms lib? 날코딩? 코드 비하인드 불가
 - [X] 로깅 환경 구축 Lib 선택 seridog
+- [ ] 윈도우 생명주기
+- [ ] 윈도우 파라미터 전달
 - [ ] 실패 점수 기록
 - [ ] test 삭제까지 보이게
 - [ ] test 갯수 가변

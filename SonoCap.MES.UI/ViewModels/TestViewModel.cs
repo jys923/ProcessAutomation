@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Serilog;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -172,7 +173,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         partial void OnTDTypeIndexChanging(int value)
         {
-            Debug.Print(value.ToString());
+            Log.Information(value.ToString());
         }
 
         //partial void OnTestCategoryIndexChanged(int value)
@@ -182,17 +183,17 @@ namespace SonoCap.MES.UI.ViewModels
 
         partial void OnTestModeIndexChanged(int value)
         {
-            Debug.Print(value.ToString());
+            Log.Information(value.ToString());
         }
 
         partial void OnTestTypeIndexChanged(int value)
         {
-            Debug.Print(value.ToString());
+            Log.Information(value.ToString());
         }
 
         partial void OnTestResultTypeIndexChanged(int value)
         {
-            Debug.Print(value.ToString());
+            Log.Information(value.ToString());
         }
 
         [RelayCommand]
