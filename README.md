@@ -25,25 +25,29 @@ remove-migration
 - [X] ioc
 - [X] 진짜 UI ms lib? 날코딩? 코드 비하인드 불가
 - [X] 로깅 환경 구축 Lib 선택 seridog
+- [ ] 실패 점수 기록
+- [ ] test 삭제까지 보이게
+- [ ] test 갯수 가변
+- [ ] 성공 조건 가변
+- [ ] dataflag 0 조회 확인
+- [ ] 한소노 lib에서 영상 직접 받기
+- [ ] Dark theme
 - [ ] 모터 모듈 s/n 파일 import
 - [ ] TD s/n 파일 import
 - [ ] 유저 컨트롤
-- [X] db crud
-- [ ] datagrid 필터링
+- [ ] Datagrid 필터링
 	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
-- [ ] model, repo 등 dll 로 빼기
-- [ ] 한소노 lib에서 영상 직접 받기
-- [X] mvvm 성능 측정 샘플 추가
 - [ ] datagrid 60만건 속도 개선
 	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
+- [X] db crud
+- [X] model, repo 등 dll 로 빼기
+- [X] mvvm 성능 측정 샘플 추가
 - [X] AOP 로깅 이름,속도
 	- https://blog.arong.info/c%23/2023/02/06/C-Method-Intercept(AOP).html
 - [X] db 조회 null값 대응-자동
 - [X] Tester name,pcNo(외래키 pcId) 검색 대응
-- [X] BulkInsertAsync 로그 못봄
-- [ ] dark theme
-- [X] 윈도우 재시작 에러 test만
-
+- [X] BulkInsertAsync 원래 로그 못봄
+- [X] 윈도우 재시작 에러
 ## Research List
 - [ ] linq
 - [X] Microsoft.Extensions.Logging vs <font color='green'>Serilog Good</font>

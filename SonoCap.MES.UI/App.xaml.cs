@@ -3,10 +3,7 @@
 
 using AspectCore.Configuration;
 using AspectCore.Extensions.DependencyInjection;
-using SonoCap.MES.UI.Context;
-using SonoCap.MES.UI.Interceptor;
-using SonoCap.MES.UI.Repositories;
-using SonoCap.MES.UI.Repositories.interfaces;
+using SonoCap.Interceptors;
 using SonoCap.MES.UI.ViewModels;
 using SonoCap.MES.UI.Views;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +12,9 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Windows;
+using SonoCap.MES.Repositories;
+using SonoCap.MES.Repositories.Context;
+using SonoCap.MES.Repositories.Interfaces;
 
 namespace SonoCap.MES.UI
 {

@@ -1,15 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SonoCap.MES.UI.Commons;
-using SonoCap.MES.UI.Interceptor;
-using SonoCap.MES.UI.Models;
-using SonoCap.MES.UI.Models.Base;
-using SonoCap.MES.UI.Repositories;
-using SonoCap.MES.UI.Repositories.interfaces;
+using SonoCap.MES.Models;
+using SonoCap.MES.Models.Base;
+using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace SonoCap.MES.UI.ViewModels
 {

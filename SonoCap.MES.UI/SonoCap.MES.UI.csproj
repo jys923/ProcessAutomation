@@ -48,6 +48,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SonoCap.Interceptors\SonoCap.Interceptors.csproj" />
+    <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
+    <ProjectReference Include="..\Sonocap.MES.Repositories\SonoCap.MES.Repositories.csproj" />
+    <ProjectReference Include="..\SonoCap.MES.Services\SonoCap.MES.Services.csproj" />
     <ProjectReference Include="..\VILib\VILib.vcxproj" />
   </ItemGroup>
 
@@ -73,10 +77,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
