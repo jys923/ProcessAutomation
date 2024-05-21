@@ -29,7 +29,6 @@ remove-migration
 - [ ] TD s/n 파일 import
 - [ ] 유저 컨트롤
 - [X] db crud
-- [ ] 데이터 필터링
 - [ ] datagrid 필터링
 	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
 - [ ] model, repo 등 dll 로 빼기
@@ -39,17 +38,17 @@ remove-migration
 	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
 - [X] AOP 로깅 이름,속도
 	- https://blog.arong.info/c%23/2023/02/06/C-Method-Intercept(AOP).html
-- [ ] db 조회 null값 대응
+- [X] db 조회 null값 대응-자동
 - [X] Tester name,pcNo(외래키 pcId) 검색 대응
-- [ ] BulkInsertAsync 로그
+- [X] BulkInsertAsync 로그 못봄
 - [ ] dark theme
 - [X] 윈도우 재시작 에러 test만
 
 ## Research List
 - [ ] linq
-- [X] Microsoft.Extensions.Logging vs serilog
+- [X] Microsoft.Extensions.Logging vs <font color='green'>Serilog Good</font>
 	- logging .net 기본 시간 표기 가능,
-	- serilog 구조화된 로그 추가 복잡할떄 사용
+	- serilog 구조화된 로그 추가 복잡할 때 사용
 - [ ] TDD mock 객체 vs UseInMemoryDatabase
 - [ ] WPF animation
 - [ ] behavior

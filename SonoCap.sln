@@ -14,13 +14,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonoCap_PS", "SonoCap_PS\So
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MES.UI.Test", "MES.UI.Test\MES.UI.Test.csproj", "{F7B45910-24BC-47C1-834A-DE2E8607686C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MES.UI", "MES.UI\MES.UI.csproj", "{6DA06DAC-F849-41A4-94E7-24E51CCFD13B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonoCap.MES.UI", "SonoCap.MES.UI\SonoCap.MES.UI.csproj", "{6DA06DAC-F849-41A4-94E7-24E51CCFD13B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MES.Tests", "MES.Tests\MES.Tests.csproj", "{B58EDAFE-6A7A-4913-A181-DDCD2F78BA7A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspectCoreSample", "AspectCoreSample\AspectCoreSample.csproj", "{ACF747BB-7578-4B9E-A99E-BB426607D324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfAppWithAop", "WpfAppWithAop\WpfAppWithAop.csproj", "{CE7251FA-BED5-45E6-91F2-C42C42A3D799}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WpfAppWithAop", "WpfAppWithAop\WpfAppWithAop.csproj", "{CE7251FA-BED5-45E6-91F2-C42C42A3D799}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
