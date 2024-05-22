@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
+using SonoCap.MES.Models.Base;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -8,6 +9,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VILib;
@@ -95,6 +97,42 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private int _blinkingCellIndex = default!;
+
+        private ICommand _cellClickCommand;
+        public ICommand CellClickCommand => _cellClickCommand ??= new RelayCommand<CellPosition>(ExecuteCellClick);
+
+        private void ExecuteCellClick(CellPosition position)
+        {
+            switch (position)
+            {
+                case CellPosition.Row1_Column1:
+                    Console.WriteLine("Cell 11 Clicked");
+                    break;
+                case CellPosition.Row1_Column2:
+                    Console.WriteLine("Cell 12 Clicked");
+                    break;
+                case CellPosition.Row1_Column3:
+                    Console.WriteLine("Cell 13 Clicked");
+                    break;
+                case CellPosition.Row1_Column4:
+                    Console.WriteLine("Cell 14 Clicked");
+                    break;
+                case CellPosition.Row2_Column1:
+                    Console.WriteLine("Cell 21 Clicked");
+                    break;
+                case CellPosition.Row2_Column2:
+                    Console.WriteLine("Cell 22 Clicked");
+                    break;
+                case CellPosition.Row2_Column3:
+                    Console.WriteLine("Cell 23 Clicked");
+                    break;
+                case CellPosition.Row2_Column4:
+                    Console.WriteLine("Cell 24 Clicked");
+                    break;
+                default:
+                    break;
+            }
+        }
 
         [ObservableProperty]
         private BitmapImage _srcImg = default!;

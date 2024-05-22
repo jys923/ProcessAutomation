@@ -1,5 +1,24 @@
 ﻿namespace SonoCap.MES.Models.Base
 {
+    public enum CellPosition
+    {
+        Row0_Column0,
+        Row0_Column1,
+        Row0_Column2,
+        Row0_Column3,
+        Row0_Column4,
+        Row1_Column0,
+        Row1_Column1 = 11,
+        Row1_Column2 = 12,
+        Row1_Column3 = 13,
+        Row1_Column4 = 14,
+        Row2_Column0,
+        Row2_Column1 = 21,
+        Row2_Column2 = 22,
+        Row2_Column3 = 23,
+        Row2_Column4 = 24,
+    }
+
     public class Enums
     {
         public enum Commons
