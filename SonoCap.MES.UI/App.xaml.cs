@@ -125,15 +125,15 @@ namespace SonoCap.MES.UI
             services.ConfigureDynamicProxy(config =>
             {
                 // 모든 서비스에 LoggingInterceptor를 적용하도록 설정합니다.
-                config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<ExceptionLoggingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<ParameterLoggingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<TimingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<PerformanceInterceptor>(Predicates.ForService("*"));
                 config.Interceptors.AddTyped<CallCountInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<UserBehaviorInterceptor>(Predicates.ForService("*"));
                 config.Interceptors.AddTyped<ChangeHistoryInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<ExceptionLoggingInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForMethod("*"));
+                config.Interceptors.AddTyped<ParameterLoggingInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<PerformanceInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<TimingInterceptor>(Predicates.ForService("*"));
                 config.Interceptors.AddTyped<UserActivityInterceptor>(Predicates.ForService("*"));
+                config.Interceptors.AddTyped<UserBehaviorInterceptor>(Predicates.ForService("*"));
             });
 
 #if DataTemplate

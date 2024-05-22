@@ -25,8 +25,13 @@ remove-migration
 - [X] ioc
 - [X] 진짜 UI ms lib? 날코딩? 코드 비하인드 불가
 - [X] 로깅 환경 구축 Lib 선택 seridog
-- [ ] 윈도우 생명주기
-- [ ] 윈도우 파라미터 전달
+- [ ] null 이면 전부 검색으로 바꾸자! all 일떄 항상 0 인게 문제. all을 항상 -1 해서 -1 이면 무시
+	- if (dataFlagProbe != null && dataFlagProbe != 0)
+            {
+                query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
+            }
+- [ ] 윈도우 생명주기 필요! 화면 최상단 일때 사진 로드
+- [ ] 윈도우 간 파라미터 전달
 - [ ] 실패 점수 기록
 - [ ] test 삭제까지 보이게
 - [ ] test 갯수 가변

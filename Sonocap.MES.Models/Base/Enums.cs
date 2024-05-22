@@ -2,6 +2,11 @@
 {
     public class Enums
     {
+        public enum Commons
+        {
+            All = -123,
+        }
+
         public enum TestResult
         {
             //All = 0,

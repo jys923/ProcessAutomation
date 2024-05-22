@@ -3,6 +3,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.Models.Base;
 
 namespace SonoCap.MES.Repositories
 {
@@ -204,7 +205,7 @@ namespace SonoCap.MES.Repositories
             return query.ToList();
         }
 
-        public async Task<List<TestProbe>> GetTestProbeAsync(DateTime? startDate, DateTime? endDate, int? categoryId, int? testTypeId, string? tester, int? pcId, int? result, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public async Task<List<TestProbe>> GetTestProbeAsync(DateTime? startDate, DateTime? endDate, int? categoryId, int? testTypeId, string? tester, int? pcId, int? result, int? dataFlagTest, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn, int? dataFlagProbe)
         {
             IQueryable<TestProbe> query =
                 (from t in _context.Set<Test>()
@@ -225,8 +226,10 @@ namespace SonoCap.MES.Repositories
                      Result = t.Result,
                      Method = t.Method,
                      TransducerModule = t.TransducerModule,
+                     DataFlagTest = t.DataFlag,
                      ProbeSn = p.ProbeSn,
-                     MotorModule = p.MotorModule
+                     MotorModule = p.MotorModule,
+                     DataFlagProbe = p.DataFlag,
                  });
 
             if (startDate != null)
@@ -239,12 +242,12 @@ namespace SonoCap.MES.Repositories
                 query = query.Where(tp => tp.CreatedDate <= endDate);
             }
 
-            if (categoryId != null && categoryId != 0)
+            if (categoryId != null && categoryId != (int)Enums.Commons.All)
             {
                 query = query.Where(tp => tp.Category.Id == categoryId);
             }
 
-            if (testTypeId != null && testTypeId != 0)
+            if (testTypeId != null && testTypeId != (int)Enums.Commons.All)
             {
                 query = query.Where(tp => tp.TestType.Id == testTypeId);
             }
@@ -254,21 +257,19 @@ namespace SonoCap.MES.Repositories
                 query = query.Where(tp => tp.Tester == tester);
             }
 
-            if (pcId != null && pcId != 0)
+            if (pcId != null && pcId != (int)Enums.Commons.All)
             {
                 query = query.Where(tp => tp.Pc.Id == pcId);
             }
 
-            if (result != null && result != 0)
+            if (result != null && result != (int)Enums.Commons.All)
             {
-                if (result == 1)
-                {
-                    query = query.Where(tp => tp.Result > 2);
-                }
-                else if (result == 2)
-                {
-                    query = query.Where(tp => tp.Result == 2);
-                }
+                query = query.Where(tp => tp.Result >= result);
+            }
+
+            if (dataFlagTest != null && dataFlagTest != (int)Enums.Commons.All)
+            {
+                query = query.Where(tp => tp.DataFlagTest == dataFlagTest);
             }
 
             if (!string.IsNullOrEmpty(probeSn))
@@ -278,17 +279,22 @@ namespace SonoCap.MES.Repositories
 
             if (!string.IsNullOrEmpty(transducerModuleSn))
             {
-                query = query.Where(tp => tp.TransducerModule.TransducerModuleSn!.Contains(transducerModuleSn));
+                query = query.Where(tp => tp.TransducerModule.TransducerModuleSn.Contains(transducerModuleSn));
             }
 
             if (!string.IsNullOrEmpty(transducerSn))
             {
-                query = query.Where(tp => tp.TransducerModule.TransducerSn!.Contains(transducerSn));
+                query = query.Where(tp => tp.TransducerModule.TransducerSn.Contains(transducerSn));
             }
 
             if (!string.IsNullOrEmpty(motorModuleSn))
             {
-                query = query.Where(tp => tp.MotorModule.MotorModuleSn!.Contains(motorModuleSn));
+                query = query.Where(tp => tp.MotorModule != null && tp.MotorModule.MotorModuleSn.Contains(motorModuleSn));
+            }
+
+            if (dataFlagProbe != null && dataFlagProbe != (int)Enums.Commons.All)
+            {
+                query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
             }
 
             return await query.ToListAsync();

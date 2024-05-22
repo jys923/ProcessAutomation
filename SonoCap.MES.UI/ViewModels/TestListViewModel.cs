@@ -1,6 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Serilog;
+using SonoCap.Interceptors;
 using SonoCap.MES.Models;
+using SonoCap.MES.Models.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using System.Collections.ObjectModel;
 
@@ -110,8 +113,20 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-
-            List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(StartDate, EndDate, TestCategories.IndexOf(TestCategory), TestTypes.IndexOf(TestType), Tester, Pcs.IndexOf(Pc), TestResults.IndexOf(TestResult), ProbeSn, TDMdSn, TDSn, MTMdSn);
+            List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(
+                StartDate,
+                EndDate,
+                TestCategory.Equals("All") ? (int)Enums.Commons.All : TestCategories.IndexOf(TestCategory),
+                TestType.Equals("All") ? (int)Enums.Commons.All : TestTypes.IndexOf(TestType),
+                Tester,
+                Pcs.IndexOf(Pc),
+                TestResult.Equals("All") ? (int)Enums.Commons.All : TestResults.IndexOf(TestResult),
+                null,
+                ProbeSn,
+                TDMdSn,
+                TDSn,
+                MTMdSn,
+                null);
             TestProbes = new ObservableCollection<TestProbe>(testProbes);
             ResultCnt = TestProbes.Count;
         }
@@ -119,7 +134,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void Export()
         {
-
+            Log.Information("Export");
         }
 
         public TestListViewModel(ITestRepository testRepository)

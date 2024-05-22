@@ -193,19 +193,15 @@ namespace SonoCap.MES.UI.ViewModels
                 _tests.AddRange(Enumerable.Range(1, 3000));
             }
             Utilities.Shuffle(_tests);
-
             for (int i = 1; i <= maxCnt; ++i)
             {
                 for (int j = 1; j <= Enum.GetNames(typeof(Enums.TestCategory)).Length; ++j) //2
                 {
                     for (int k = 1; k <= Enum.GetNames(typeof(Enums.TestType)).Length; ++k) //3
                     {
-                        int randomValue = 0;
-                        int result = 0;
-                        for (; ; )
+                        while (true)
                         {
-                            randomValue = random.Next(65, 100);
-                            result = randomValue < 70 ? 0 : randomValue;
+                            int randomValue = random.Next(65, 100);
                             Test test = new Test
                             {
                                 CategoryId = j,
@@ -214,14 +210,13 @@ namespace SonoCap.MES.UI.ViewModels
                                 OriginalImg = $"/img/{currentDate}/{Commons.Utilities.MKRandom(10)}",
                                 ChangedImg = $"/img/{currentDate}/{Commons.Utilities.MKRandom(10)}",
                                 ChangedImgMetadata = Commons.Utilities.MKSHA256(),
-                                Result = result,
+                                Result = randomValue,
                                 Method = random.Next(1, 3),
                             };
                             test.TransducerModuleId = i;
                             tests.Add(test);
-                            //await _testRepository.InsertAsync(test);
 
-                            if (result >= 70)
+                            if (randomValue >= 70)
                             {
                                 break;
                             }
