@@ -216,8 +216,7 @@
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -225,8 +224,7 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                            To="LightGreen" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
@@ -244,8 +242,7 @@
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -253,8 +250,7 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-            To="LightGreen" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
@@ -272,8 +268,7 @@
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -281,8 +276,7 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-            To="LightGreen" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
@@ -305,8 +299,7 @@
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -314,8 +307,7 @@ To="Red" Duration="0:0:0.5" AutoReverse="True"/>
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-To="LightGreen" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
@@ -324,7 +316,7 @@ To="LightGreen" Duration="0:0:0"/>
                         </Style>
                     </Border.Style>
                 </Border>
-                <Border Grid.Column="2" Grid.Row="2" Background="Yellow">
+                <Border Grid.Column="2" Grid.Row="2" Background="LightBlue">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
@@ -333,8 +325,7 @@ To="LightGreen" Duration="0:0:0"/>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -342,8 +333,7 @@ To="Red" Duration="0:0:0.5" AutoReverse="True"/>
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-To="LightGreen" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
@@ -361,8 +351,7 @@ To="LightGreen" Duration="0:0:0"/>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -370,8 +359,7 @@ To="Red" Duration="0:0:0.5" AutoReverse="True"/>
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-To="LightGreen" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
