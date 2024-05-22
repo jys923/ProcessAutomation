@@ -1,4 +1,4 @@
-﻿namespace SonoCap.MES.Models.Base
+﻿namespace SonoCap.MES.Models.Enums
 {
     public enum CellPosition
     {

@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.Models;
-using SonoCap.MES.Models.Base;
+using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -171,8 +171,8 @@ namespace SonoCap.MES.UI.ViewModels
 
             //_transducerModuleRepository --
 
-            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Base.TransducerType.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Base.TransducerType.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Enums.TransducerType.SCP01.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Enums.TransducerType.SCP02.ToString(), Type = "7.5Mhz" });
 
             #region TransducerModules
             for (int i = 1; i <= maxCnt; ++i)
@@ -195,9 +195,9 @@ namespace SonoCap.MES.UI.ViewModels
             Utilities.Shuffle(_tests);
             for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int j = 1; j <= Enum.GetNames(typeof(SonoCap.MES.Models.Base.TestCategory)).Length; ++j) //2
+                for (int j = 1; j <= Enum.GetNames(typeof(SonoCap.MES.Models.Enums.TestCategory)).Length; ++j) //2
                 {
-                    for (int k = 1; k <= Enum.GetNames(typeof(SonoCap.MES.Models.Base.TestType)).Length; ++k) //3
+                    for (int k = 1; k <= Enum.GetNames(typeof(SonoCap.MES.Models.Enums.TestType)).Length; ++k) //3
                     {
                         while (true)
                         {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SonoCap.MES.Models.Base
+namespace SonoCap.MES.Models.Enums
 {
     public class ModelBase
     {

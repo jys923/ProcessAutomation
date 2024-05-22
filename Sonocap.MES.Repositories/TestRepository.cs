@@ -3,7 +3,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.Models.Base;
+using SonoCap.MES.Models.Enums;
 
 namespace SonoCap.MES.Repositories
 {

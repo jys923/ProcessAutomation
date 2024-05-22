@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
-using SonoCap.MES.Models.Base;
+using SonoCap.MES.Models.Enums;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
