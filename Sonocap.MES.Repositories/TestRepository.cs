@@ -242,12 +242,12 @@ namespace SonoCap.MES.Repositories
                 query = query.Where(tp => tp.CreatedDate <= endDate);
             }
 
-            if (categoryId != null && categoryId != (int)Enums.Commons.All)
+            if (categoryId != null && categoryId != (int)Commons.All)
             {
                 query = query.Where(tp => tp.Category.Id == categoryId);
             }
 
-            if (testTypeId != null && testTypeId != (int)Enums.Commons.All)
+            if (testTypeId != null && testTypeId != (int)Commons.All)
             {
                 query = query.Where(tp => tp.TestType.Id == testTypeId);
             }
@@ -257,17 +257,17 @@ namespace SonoCap.MES.Repositories
                 query = query.Where(tp => tp.Tester == tester);
             }
 
-            if (pcId != null && pcId != (int)Enums.Commons.All)
+            if (pcId != null && pcId != (int)Commons.All)
             {
                 query = query.Where(tp => tp.Pc.Id == pcId);
             }
 
-            if (result != null && result != (int)Enums.Commons.All)
+            if (result != null && result != (int)Commons.All)
             {
                 query = query.Where(tp => tp.Result >= result);
             }
 
-            if (dataFlagTest != null && dataFlagTest != (int)Enums.Commons.All)
+            if (dataFlagTest != null && dataFlagTest != (int)Commons.All)
             {
                 query = query.Where(tp => tp.DataFlagTest == dataFlagTest);
             }
@@ -292,7 +292,7 @@ namespace SonoCap.MES.Repositories
                 query = query.Where(tp => tp.MotorModule != null && tp.MotorModule.MotorModuleSn.Contains(motorModuleSn));
             }
 
-            if (dataFlagProbe != null && dataFlagProbe != (int)Enums.Commons.All)
+            if (dataFlagProbe != null && dataFlagProbe != (int)Commons.All)
             {
                 query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
             }

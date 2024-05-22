@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
-using SonoCap.Interceptors;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Base;
 using SonoCap.MES.Repositories.Interfaces;
@@ -116,11 +115,11 @@ namespace SonoCap.MES.UI.ViewModels
             List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(
                 StartDate,
                 EndDate,
-                TestCategory.Equals("All") ? (int)Enums.Commons.All : TestCategories.IndexOf(TestCategory),
-                TestType.Equals("All") ? (int)Enums.Commons.All : TestTypes.IndexOf(TestType),
+                TestCategory.Equals("All") ? (int)SonoCap.MES.Models.Base.Commons.All : TestCategories.IndexOf(TestCategory),
+                TestType.Equals("All") ? (int)SonoCap.MES.Models.Base.Commons.All : TestTypes.IndexOf(TestType),
                 Tester,
                 Pcs.IndexOf(Pc),
-                TestResult.Equals("All") ? (int)Enums.Commons.All : TestResults.IndexOf(TestResult),
+                TestResult.Equals("All") ? (int)SonoCap.MES.Models.Base.Commons.All : TestResults.IndexOf(TestResult),
                 null,
                 ProbeSn,
                 TDMdSn,
