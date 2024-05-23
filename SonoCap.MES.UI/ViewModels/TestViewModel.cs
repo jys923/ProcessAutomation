@@ -33,8 +33,6 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private bool _tDMdSnIsReadOnly = default!;
 
-        //[ObservableProperty]
-        //private string _tDType = default!;
         [ObservableProperty]
         private ObservableCollection<string> _tDTypes;
 
@@ -106,28 +104,28 @@ namespace SonoCap.MES.UI.ViewModels
             switch (position)
             {
                 case CellPosition.Row1_Column1:
-                    Console.WriteLine("Cell 11 Clicked");
+                    BlinkingCellIndex = (int)CellPosition.Row1_Column1;
                     break;
                 case CellPosition.Row1_Column2:
-                    Console.WriteLine("Cell 12 Clicked");
+                    BlinkingCellIndex = (int)CellPosition.Row1_Column2;
                     break;
                 case CellPosition.Row1_Column3:
-                    Console.WriteLine("Cell 13 Clicked");
+                    BlinkingCellIndex = (int)CellPosition.Row1_Column3;
                     break;
                 case CellPosition.Row1_Column4:
-                    Console.WriteLine("Cell 14 Clicked");
+                    Log.Information($"click {CellPosition.Row1_Column4}");
                     break;
                 case CellPosition.Row2_Column1:
-                    Console.WriteLine("Cell 21 Clicked");
+                    BlinkingCellIndex = (int)CellPosition.Row2_Column1;
                     break;
                 case CellPosition.Row2_Column2:
-                    Console.WriteLine("Cell 22 Clicked");
+                    BlinkingCellIndex = (int)CellPosition.Row2_Column2;
                     break;
                 case CellPosition.Row2_Column3:
-                    Console.WriteLine("Cell 23 Clicked");
+                    BlinkingCellIndex = (int)CellPosition.Row2_Column3;
                     break;
                 case CellPosition.Row2_Column4:
-                    Console.WriteLine("Cell 24 Clicked");
+                    Log.Information($"click {CellPosition.Row2_Column4}");
                     break;
                 default:
                     break;
