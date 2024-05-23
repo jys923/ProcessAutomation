@@ -1,4 +1,4 @@
-﻿using SonoCap.MES.Models.Enums;
+﻿using SonoCap.MES.Models.Base;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

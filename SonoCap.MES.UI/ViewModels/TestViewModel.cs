@@ -97,35 +97,35 @@ namespace SonoCap.MES.UI.ViewModels
         private int _blinkingCellIndex = default!;
 
         private ICommand _cellClickCommand;
-        public ICommand CellClickCommand => _cellClickCommand ??= new RelayCommand<CellPosition>(ExecuteCellClick);
+        public ICommand CellClickCommand => _cellClickCommand ??= new RelayCommand<CellPositions>(ExecuteCellClick);
 
-        private void ExecuteCellClick(CellPosition position)
+        private void ExecuteCellClick(CellPositions position)
         {
             switch (position)
             {
-                case CellPosition.Row1_Column1:
-                    BlinkingCellIndex = (int)CellPosition.Row1_Column1;
+                case CellPositions.Row1_Column1:
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column1;
                     break;
-                case CellPosition.Row1_Column2:
-                    BlinkingCellIndex = (int)CellPosition.Row1_Column2;
+                case CellPositions.Row1_Column2:
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column2;
                     break;
-                case CellPosition.Row1_Column3:
-                    BlinkingCellIndex = (int)CellPosition.Row1_Column3;
+                case CellPositions.Row1_Column3:
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column3;
                     break;
-                case CellPosition.Row1_Column4:
-                    Log.Information($"click {CellPosition.Row1_Column4}");
+                case CellPositions.Row1_Column4:
+                    Log.Information($"click {CellPositions.Row1_Column4}");
                     break;
-                case CellPosition.Row2_Column1:
-                    BlinkingCellIndex = (int)CellPosition.Row2_Column1;
+                case CellPositions.Row2_Column1:
+                    BlinkingCellIndex = (int)CellPositions.Row2_Column1;
                     break;
-                case CellPosition.Row2_Column2:
-                    BlinkingCellIndex = (int)CellPosition.Row2_Column2;
+                case CellPositions.Row2_Column2:
+                    BlinkingCellIndex = (int)CellPositions.Row2_Column2;
                     break;
-                case CellPosition.Row2_Column3:
-                    BlinkingCellIndex = (int)CellPosition.Row2_Column3;
+                case CellPositions.Row2_Column3:
+                    BlinkingCellIndex = (int)CellPositions.Row2_Column3;
                     break;
-                case CellPosition.Row2_Column4:
-                    Log.Information($"click {CellPosition.Row2_Column4}");
+                case CellPositions.Row2_Column4:
+                    Log.Information($"click {CellPositions.Row2_Column4}");
                     break;
                 default:
                     break;

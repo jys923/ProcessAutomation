@@ -1,6 +1,6 @@
 ﻿namespace SonoCap.MES.Models.Enums
 {
-    public enum CellPosition
+    public enum CellPositions
     {
         Row0_Column0,
         Row0_Column1,
@@ -24,14 +24,14 @@
         All = -123,
     }
 
-    public enum TestResult
+    public enum TestResults
     {
         //All = 0,
         Success = 1,
         Failure = 2,
     }
 
-    public enum DataFlag
+    public enum DataFlags
     {
         All = 0,
         Create = 1,
@@ -40,34 +40,34 @@
         //Read,
     }
 
-    public enum TransducerType
+    public enum TransducerTypes
     {
         SCP01 = 1,
         SCP02,
         SCP03,
     }
 
-    public enum TestCategory
+    public enum TestCategories
     {
         Processing = 1,
         Process,
         //Dispatch,
     }
 
-    public enum TestCategoryKor
+    public enum TestCategoriesKor
     {
         공정용 = 1,
         최종용,
         //출하용,
     }
 
-    public enum TestMode
+    public enum TestModes
     {
         Auto,
         Manual,
     }
 
-    public enum TestType
+    public enum TestTypes
     {
         Align = 1,
         Axial,

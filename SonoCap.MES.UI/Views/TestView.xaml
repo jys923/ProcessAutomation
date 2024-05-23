@@ -372,14 +372,14 @@
                 <Border Grid.Column="4" Grid.Row="2" Background="LightBlue"/>
 
                 <!-- 버튼 컨트롤 -->
-                <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row1_Column1}" Background="Transparent"/>
-                <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row1_Column2}" Background="Transparent"/>
-                <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row1_Column3}" Background="Transparent"/>
-                <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row1_Column4}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row2_Column1}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row2_Column2}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row2_Column3}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPosition.Row2_Column4}" Background="Transparent"/>
+                <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent"/>
+                <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" Background="Transparent"/>
+                <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" Background="Transparent"/>
+                <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent"/>
+                <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent"/>
+                <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" Background="Transparent"/>
+                <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" Background="Transparent"/>
+                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent"/>
             </Grid>
         </GroupBox>
         <StackPanel Grid.Column="1" Grid.Row="0" >

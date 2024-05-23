@@ -30,6 +30,8 @@ remove-migration
             {
                 query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
             }
+- [ ] enums 추가 네임스페이스만 필요. 클래스 필요없음
+- [ ] 서버에서 날짜 형식별 연번 필요
 - [ ] 윈도우 생명주기 필요! 화면 최상단 일때 사진 로드
 - [ ] 윈도우 간 파라미터 전달
 - [X] 실패 점수 기록
@@ -37,7 +39,7 @@ remove-migration
 - [X] test 갯수 가변
 - [ ] 성공 조건 가변
 - [X] dataflag 0 조회 확인
-- [ ] testView 시나리오 확립
+- [X] testView 시나리오 확립
 - [ ] datagrid click 세부 내용
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] Dark theme
@@ -49,6 +51,7 @@ remove-migration
 - [ ] datagrid 60만건 속도 개선
 	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
 - [X] db crud
+- [ ] db 만건 1초 튜닝
 - [X] model, repo 등 dll 로 빼기
 - [X] mvvm 성능 측정 샘플 추가
 - [X] AOP 로깅 이름,속도

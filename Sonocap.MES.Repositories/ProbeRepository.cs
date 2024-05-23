@@ -322,12 +322,12 @@ namespace SonoCap.MES.Repositories
                     TestResults = new List<TestResult>
                     {
                         // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t1.CategoryId, TypeId = (Models.Enums.TestType)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t2.CategoryId, TypeId = (Models.Enums.TestType)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t3.CategoryId, TypeId = (Models.Enums.TestType)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t4.CategoryId, TypeId = (Models.Enums.TestType)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t5.CategoryId, TypeId = (Models.Enums.TestType)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t6.CategoryId, TypeId = (Models.Enums.TestType)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                     }
                 };
             return probeTestResults.ToList();
@@ -377,12 +377,12 @@ namespace SonoCap.MES.Repositories
                      MotorModuleSn = mm.MotorModuleSn,
                      TestResults = new List<TestResult>
                         {
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t1.CategoryId, TypeId = (Models.Enums.TestType)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t2.CategoryId, TypeId = (Models.Enums.TestType)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t3.CategoryId, TypeId = (Models.Enums.TestType)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t4.CategoryId, TypeId = (Models.Enums.TestType)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t5.CategoryId, TypeId = (Models.Enums.TestType)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t6.CategoryId, TypeId = (Models.Enums.TestType)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                         }
                  });
             return probeTestResults.ToList();
@@ -427,12 +427,12 @@ namespace SonoCap.MES.Repositories
                  TestResults =
                  new List<TestResult>
                     {
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t1.CategoryId, TypeId = (Models.Enums.TestType)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t2.CategoryId, TypeId = (Models.Enums.TestType)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t3.CategoryId, TypeId = (Models.Enums.TestType)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t4.CategoryId, TypeId = (Models.Enums.TestType)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t5.CategoryId, TypeId = (Models.Enums.TestType)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t6.CategoryId, TypeId = (Models.Enums.TestType)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                     }
              });
 
@@ -474,12 +474,12 @@ namespace SonoCap.MES.Repositories
                     TestResults = new List<TestResult>
                     {
                 // Test 결과 추가
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t1.CategoryId, TypeId = (Models.Enums.TestType)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t2.CategoryId, TypeId = (Models.Enums.TestType)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t3.CategoryId, TypeId = (Models.Enums.TestType)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t4.CategoryId, TypeId = (Models.Enums.TestType)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t5.CategoryId, TypeId = (Models.Enums.TestType)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t6.CategoryId, TypeId = (Models.Enums.TestType)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                     }
                 };
 
@@ -521,12 +521,12 @@ namespace SonoCap.MES.Repositories
                     TestResults = new List<TestResult>
                     {
                         // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t1.CategoryId, TypeId = (Models.Enums.TestType)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t2.CategoryId, TypeId = (Models.Enums.TestType)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t3.CategoryId, TypeId = (Models.Enums.TestType)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t4.CategoryId, TypeId = (Models.Enums.TestType)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t5.CategoryId, TypeId = (Models.Enums.TestType)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t6.CategoryId, TypeId = (Models.Enums.TestType)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                     }
                 };
 
@@ -597,12 +597,12 @@ namespace SonoCap.MES.Repositories
                     TestResults = new List<TestResult>
                     {
                         // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t1.CategoryId, TypeId = (Models.Enums.TestType)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t2.CategoryId, TypeId = (Models.Enums.TestType)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t3.CategoryId, TypeId = (Models.Enums.TestType)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t4.CategoryId, TypeId = (Models.Enums.TestType)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t5.CategoryId, TypeId = (Models.Enums.TestType)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategory)t6.CategoryId, TypeId = (Models.Enums.TestType)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                     }
                 };
 

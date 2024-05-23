@@ -148,8 +148,8 @@ namespace SonoCap.MES.UI.ViewModels
 
             //_probeRepository--
 
-            await _testCategoryRepository.InsertAsync(new Models.TestCategory { Name = TestCategoryKor.공정용.ToString() });
-            await _testCategoryRepository.InsertAsync(new Models.TestCategory { Name = TestCategoryKor.최종용.ToString() });
+            await _testCategoryRepository.InsertAsync(new Models.TestCategory { Name = TestCategoriesKor.공정용.ToString() });
+            await _testCategoryRepository.InsertAsync(new Models.TestCategory { Name = TestCategoriesKor.최종용.ToString() });
 
             List<int> _pcs = Enumerable.Range(1, 3).ToList();
 
@@ -171,8 +171,8 @@ namespace SonoCap.MES.UI.ViewModels
 
             //_transducerModuleRepository --
 
-            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Enums.TransducerType.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Enums.TransducerType.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Enums.TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new Models.TransducerType { Code = SonoCap.MES.Models.Enums.TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
 
             #region TransducerModules
             for (int i = 1; i <= maxCnt; ++i)
@@ -195,9 +195,9 @@ namespace SonoCap.MES.UI.ViewModels
             Utilities.Shuffle(_tests);
             for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int j = 1; j <= Enum.GetNames(typeof(SonoCap.MES.Models.Enums.TestCategory)).Length; ++j) //2
+                for (int j = 1; j <= Enum.GetNames(typeof(SonoCap.MES.Models.Enums.TestCategories)).Length; ++j) //2
                 {
-                    for (int k = 1; k <= Enum.GetNames(typeof(SonoCap.MES.Models.Enums.TestType)).Length; ++k) //3
+                    for (int k = 1; k <= Enum.GetNames(typeof(SonoCap.MES.Models.Enums.TestTypes)).Length; ++k) //3
                     {
                         while (true)
                         {
