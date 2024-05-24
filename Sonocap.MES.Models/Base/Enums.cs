@@ -51,14 +51,14 @@
     {
         Processing = 1,
         Process,
-        //Dispatch,
+        Dispatch,
     }
 
     public enum TestCategoriesKor
     {
         공정용 = 1,
         최종용,
-        //출하용,
+        출하용,
     }
 
     public enum TestModes

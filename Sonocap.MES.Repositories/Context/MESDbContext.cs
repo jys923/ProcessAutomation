@@ -57,7 +57,7 @@ namespace SonoCap.MES.Repositories.Context
             optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
             string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
-            optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
+            optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString), options => options.CommandTimeout(120));
         }
 #endif
     }

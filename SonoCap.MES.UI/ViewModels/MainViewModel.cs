@@ -133,7 +133,11 @@ namespace SonoCap.MES.UI.ViewModels
             List<TransducerModule> transducerModules = new List<TransducerModule>();
             List<Test> tests = new List<Test>();
             List<Tester> tester = new List<Tester>();
+            List<int> testerIds = new List<int>();
+            List<int> pcIds = new List<int>();
             List<Probe> probes = new List<Probe>();
+            List<int> tdIds = new List<int>();
+
             #region MotorModules
             for (int i = 1; i <= maxCnt; ++i)
             {
@@ -152,15 +156,16 @@ namespace SonoCap.MES.UI.ViewModels
 
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
 
-            List<int> _pcs = Enumerable.Range(1, 3).ToList();
-            
+            pcIds = Enumerable.Range(1, 3).ToList();
+
             for (int i = 1; i <= maxCnt / 100; i++)
             {
-                Utilities.Shuffle(_pcs);
-                tester.Add(new Tester { Name = "yoon", PcId = _pcs[0] });
-                tester.Add(new Tester { Name = "sang", PcId = _pcs[1] });
-                tester.Add(new Tester { Name = "bkko", PcId = _pcs[2] });
+                Utilities.Shuffle(pcIds);
+                tester.Add(new Tester { Name = "yoon", PcId = pcIds[0] });
+                tester.Add(new Tester { Name = "sang", PcId = pcIds[1] });
+                tester.Add(new Tester { Name = "bkko", PcId = pcIds[2] });
             }
             await _testerRepository.BulkInsertAsync(tester);
 
@@ -169,12 +174,10 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" }); 
 
             #region Transducers
-
-            List<int> _TDs = new List<int>();
-            _TDs.AddRange(Enumerable.Range(1, maxCnt));
+            tdIds.AddRange(Enumerable.Range(1, maxCnt));
 
             for (int i = 1; i <= maxCnt; ++i)
             {
@@ -186,7 +189,6 @@ namespace SonoCap.MES.UI.ViewModels
             #endregion
 
             #region TransducerModules
-
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
@@ -204,80 +206,119 @@ namespace SonoCap.MES.UI.ViewModels
             await _probeRepository.BulkInsertAsync(probes);
             #endregion
 
-            #region Tests
-            List<int> _testers = new List<int>();
-            for (int i = 0; i < maxCnt / 100 * 2 * 3 / 3; i++)
+            
+           // #region TestsTDs
+            for (int i = 1; i <= 100 ; ++i)
             {
-                _testers.AddRange(Enumerable.Range(1, 3000));
+                testerIds.AddRange(Enumerable.Range(1, 3000));
             }
-            Utilities.Shuffle(_testers);
-
-            int transducerIndex = 1;
-            int transducerModuleIndex = 1;
-            int probeIndex = 1;
+            //Utilities.Shuffle(_testers);
 
             for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int j = 1; j <= Enum.GetNames(typeof(TestCategories)).Length; ++j) //2
+                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
                 {
-                    for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                    while (true)
                     {
-                        while (true)
+                        int randomValue = random.Next(65, 100);
+                        Test test = new Test
                         {
-                            int randomValue = random.Next(65, 100);
-                            Test test = new Test
-                            {
-                                TestCategoryId = j,
-                                TestTypeId = k,
-                                TesterId = _testers[i - 1],
-                                OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
-                                ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
-                                ChangedImgMetadata = Utilities.MKSHA256(),
-                                Result = randomValue,
-                                Method = random.Next(1, 3),
-                            };
+                            TestCategoryId = (int)TestCategories.Processing,
+                            TestTypeId = k,
+                            TesterId = testerIds[(i - 1) * 3 + (k - 1)],
+                            OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImgMetadata = Utilities.MKSHA256(),
+                            Result = randomValue,
+                            Method = random.Next(1, 3),
+                        };
 
-                            switch ((i - 1) % 3)
-                            {
-                                case 0:
-                                    test.TransducerId = transducerIndex++;
-                                    break;
-                                case 1:
-                                    test.TransducerModuleId = transducerModuleIndex++;
-                                    break;
-                                case 2:
-                                    test.ProbeId = probeIndex++;
-                                    break;
-                            }
+                        test.TransducerId = i;
 
-                            tests.Add(test);
+                        tests.Add(test);
 
-                            //await _testRepository.InsertAsync(test);
+                        await _testRepository.InsertAsync(test);
 
-                            if (randomValue >= 70)
-                            {
-                                break;
-                            }
-
-                            // Indices adjustment to revert the increment
-                            switch ((i - 1) % 3)
-                            {
-                                case 0:
-                                    transducerIndex--;
-                                    break;
-                                case 1:
-                                    transducerModuleIndex--;
-                                    break;
-                                case 2:
-                                    probeIndex--;
-                                    break;
-                            }
+                        if (randomValue >= 70)
+                        {
+                            break;
                         }
                     }
                 }
             }
             await _testRepository.BulkInsertAsync(tests);
-            #endregion
+
+            tests.Clear();
+
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                {
+                    while (true)
+                    {
+                        int randomValue = random.Next(65, 100);
+                        Test test = new Test
+                        {
+                            TestCategoryId = (int)TestCategories.Process,
+                            TestTypeId = k,
+                            TesterId = testerIds[(i - 1) * 3 + (k - 1)],
+                            OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImgMetadata = Utilities.MKSHA256(),
+                            Result = randomValue,
+                            Method = random.Next(1, 3),
+                        };
+
+                        test.TransducerModuleId = i;
+
+                        tests.Add(test);
+
+                        //await _testRepository.InsertAsync(test);
+
+                        if (randomValue >= 70)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            await _testRepository.BulkInsertAsync(tests);
+
+            tests.Clear();
+
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                {
+                    while (true)
+                    {
+                        int randomValue = random.Next(65, 100);
+                        Test test = new Test
+                        {
+                            TestCategoryId = (int)TestCategories.Dispatch,
+                            TestTypeId = k,
+                            TesterId = testerIds[(i - 1) * 3 + (k - 1)],
+                            OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImgMetadata = Utilities.MKSHA256(),
+                            Result = randomValue,
+                            Method = random.Next(1, 3),
+                        };
+
+                        test.ProbeId = i;
+
+                        tests.Add(test);
+
+                        //await _testRepository.InsertAsync(test);
+
+                        if (randomValue >= 70)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            await _testRepository.BulkInsertAsync(tests);
         }
 
         [RelayCommand]
