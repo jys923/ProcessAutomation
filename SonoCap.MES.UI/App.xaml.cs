@@ -6,9 +6,7 @@ using AspectCore.Extensions.DependencyInjection;
 using SonoCap.Interceptors;
 using SonoCap.MES.UI.ViewModels;
 using SonoCap.MES.UI.Views;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Windows;
@@ -70,13 +68,6 @@ namespace SonoCap.MES.UI
 
             IServiceCollection services = new ServiceCollection();
 
-            // AspectCore의 동적 프록시 설정을 구성합니다.
-            services.ConfigureDynamicProxy(config =>
-            {
-                // 모든 서비스에 LoggingInterceptor를 적용하도록 설정합니다.
-                config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForService("*"));
-            });
-
 #if appsettings
             // IConfiguration을 설정합니다.
             IConfiguration configuration = new ConfigurationBuilder()
@@ -90,9 +81,12 @@ namespace SonoCap.MES.UI
             // appsettings.json 파일에서 연결 문자열을 가져옵니다.
             string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") ?? throw new InvalidOperationException("MariaDBConnection is null.");
 #else
-            string MariaDBConnectionString = SonoCap.MES.UI.Properties.Settings.Default.MariaDBConnection
+            string MariaDBConnectionString = UI.Properties.Settings.Default.MariaDBConnection
                                              ?? throw new InvalidOperationException("MariaDBConnection is null.");
 #endif
+#if DEBUG
+            services.AddDbContext<MESDbContext>();
+#else
             ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
             {
                 builder.AddSerilog(dispose: true); // Serilog를 LoggerFactory에 추가
@@ -109,6 +103,7 @@ namespace SonoCap.MES.UI
                 .UseLoggerFactory(loggerFactory) // Serilog에 EF Core 로그 리디렉션
                 .UseLazyLoadingProxies(true)
                 .UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString)));
+#endif
 
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
@@ -118,6 +113,7 @@ namespace SonoCap.MES.UI
             services.AddTransient<ITesterRepository, TesterRepository>();
             services.AddTransient<ITestRepository, TestRepository>();
             services.AddTransient<ITestTypeRepository, TestTypeRepository>();
+            services.AddTransient<ITransducerRepository, TransducerRepository>();
             services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
 

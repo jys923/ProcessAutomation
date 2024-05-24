@@ -288,284 +288,8 @@ namespace SonoCap.MES.Repositories
         {
         }
 
-        public List<ProbeTestResult> GetProbeTestResult()
-        {
-            // Probe 테이블과 TransducerModule 테이블을 조인
-            var query =
-                from p in _context.Set<Probe>()
-                join tm in _context.Set<TransducerModule>()
-                    on p.TransducerModuleId equals tm.Id into tmGroup
-                from tm in tmGroup.DefaultIfEmpty()
-                join mm in _context.Set<MotorModule>()
-                    on p.TransducerModuleId equals mm.Id into mmGroup
-                from mm in mmGroup.DefaultIfEmpty()
-                select new { Probe = p, TransducerModule = tm, MotorModule = mm };
-
-            // Test 테이블에서 필요한 데이터를 가져오기 위해 분할된 쿼리를 조합
-            IQueryable<ProbeTestResult> probeTestResults =
-                from q in query
-                let t1 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t2 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t3 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t4 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t5 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t6 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                // 나머지 Test들도 동일하게 처리
-                select new ProbeTestResult
-                {
-                    Id = q.Probe.Id,
-                    ProbeSN = q.Probe.ProbeSn,
-                    CreatedDate = q.Probe.CreatedDate,
-                    TransducerModuleSN = q.TransducerModule.TransducerModuleSn,
-                    TransducerSN = q.TransducerModule.TransducerSn,
-                    MotorModuleSn = q.MotorModule.MotorModuleSn,
-                    TestResults = new List<TestResult>
-                    {
-                        // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
-                    }
-                };
-            return probeTestResults.ToList();
-        }
-
-        public List<ProbeTestResult> GetProbeTestResult1()
-        {
-            IEnumerable<ProbeTestResult> probeTestResults =
-                (from p in _context.Set<Probe>()
-                 join tm in _context.Set<TransducerModule>()
-                     on p.TransducerModuleId equals tm.Id into tmGroup
-                 from tm in tmGroup.DefaultIfEmpty()
-                 join mm in _context.Set<MotorModule>()
-                     on p.TransducerModuleId equals mm.Id into mmGroup
-                 from mm in mmGroup.DefaultIfEmpty()
-                 join t1 in _context.Set<Test>()
-                     on new { ModuleId = p.TransducerModuleId, CategoryId = 1, TestTypeId = 1 }
-                     equals new { ModuleId = t1.TransducerModuleId, t1.CategoryId, t1.TestTypeId } into t1Group
-                 from t1 in t1Group.DefaultIfEmpty()
-                 join t2 in _context.Set<Test>()
-                     on new { ModuleId = p.TransducerModuleId, CategoryId = 1, TestTypeId = 2 }
-                     equals new { ModuleId = t2.TransducerModuleId, t2.CategoryId, t2.TestTypeId } into t2Group
-                 from t2 in t2Group.DefaultIfEmpty()
-                 join t3 in _context.Set<Test>()
-                     on new { ModuleId = p.TransducerModuleId, CategoryId = 1, TestTypeId = 3 }
-                     equals new { ModuleId = t3.TransducerModuleId, t3.CategoryId, t3.TestTypeId } into t3Group
-                 from t3 in t3Group.DefaultIfEmpty()
-                 join t4 in _context.Set<Test>()
-                     on new { ModuleId = p.TransducerModuleId, CategoryId = 2, TestTypeId = 1 }
-                     equals new { ModuleId = t4.TransducerModuleId, t4.CategoryId, t4.TestTypeId } into t4Group
-                 from t4 in t4Group.DefaultIfEmpty()
-                 join t5 in _context.Set<Test>()
-                     on new { ModuleId = p.TransducerModuleId, CategoryId = 2, TestTypeId = 2 }
-                     equals new { ModuleId = t5.TransducerModuleId, t5.CategoryId, t5.TestTypeId } into t5Group
-                 from t5 in t5Group.DefaultIfEmpty()
-                 join t6 in _context.Set<Test>()
-                     on new { ModuleId = p.TransducerModuleId, CategoryId = 2, TestTypeId = 3 }
-                     equals new { ModuleId = t6.TransducerModuleId, t6.CategoryId, t6.TestTypeId } into t6Group
-                 from t6 in t6Group.DefaultIfEmpty()
-                 select new ProbeTestResult
-                 {
-                     Id = p.Id,
-                     ProbeSN = p.ProbeSn,
-                     CreatedDate = p.CreatedDate,
-                     TransducerModuleSN = tm.TransducerModuleSn,
-                     TransducerSN = tm.TransducerSn,
-                     MotorModuleSn = mm.MotorModuleSn,
-                     TestResults = new List<TestResult>
-                        {
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                            new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
-                        }
-                 });
-            return probeTestResults.ToList();
-        }
-
-        public List<ProbeTestResult> GetProbeTestResult2()
-        {
-            IEnumerable<ProbeTestResult> probeTestResults =
-            (from p in _context.Set<Probe>()
-             join tm in _context.Set<TransducerModule>()
-                 on p.TransducerModuleId equals tm.Id into tmGroup
-             from tm in tmGroup.DefaultIfEmpty()
-             join mm in _context.Set<MotorModule>()
-                 on p.TransducerModuleId equals mm.Id into mmGroup
-             from mm in mmGroup.DefaultIfEmpty()
-             join t1 in _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1)
-                 on p.TransducerModuleId equals t1.TransducerModuleId into t1Group
-             from t1 in t1Group.OrderByDescending(t => t.Id).Take(1).DefaultIfEmpty()
-             join t2 in _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1)
-                 on p.TransducerModuleId equals t2.TransducerModuleId into t2Group
-             from t2 in t2Group.OrderByDescending(t => t.Id).Take(1).DefaultIfEmpty()
-             join t3 in _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1)
-                 on p.TransducerModuleId equals t3.TransducerModuleId into t3Group
-             from t3 in t3Group.OrderByDescending(t => t.Id).Take(1).DefaultIfEmpty()
-             join t4 in _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1)
-                 on p.TransducerModuleId equals t4.TransducerModuleId into t4Group
-             from t4 in t4Group.OrderByDescending(t => t.Id).Take(1).DefaultIfEmpty()
-             join t5 in _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1)
-                 on p.TransducerModuleId equals t5.TransducerModuleId into t5Group
-             from t5 in t5Group.OrderByDescending(t => t.Id).Take(1).DefaultIfEmpty()
-             join t6 in _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1)
-                 on p.TransducerModuleId equals t6.TransducerModuleId into t6Group
-             from t6 in t6Group.OrderByDescending(t => t.Id).Take(1).DefaultIfEmpty()
-             select new ProbeTestResult
-             {
-                 Id = p.Id,
-                 ProbeSN = p.ProbeSn,
-                 CreatedDate = p.CreatedDate,
-                 TransducerModuleSN = tm.TransducerModuleSn,
-                 TransducerSN = tm.TransducerSn,
-                 MotorModuleSn = mm.MotorModuleSn,
-                 TestResults =
-                 new List<TestResult>
-                    {
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
-                    }
-             });
-
-            var a = probeTestResults.ToList();
-            return a;
-        }
-
-        public async Task<List<ProbeTestResult>> GetProbeTestResultAsync()
-        {
-            // Probe 테이블과 TransducerModule 테이블을 조인
-            var query =
-                from p in _context.Set<Probe>()
-                join tm in _context.Set<TransducerModule>()
-                    on p.TransducerModuleId equals tm.Id into tmGroup
-                from tm in tmGroup.DefaultIfEmpty()
-                join mm in _context.Set<MotorModule>()
-                    on p.TransducerModuleId equals mm.Id into mmGroup
-                from mm in mmGroup.DefaultIfEmpty()
-                select new { Probe = p, TransducerModule = tm, MotorModule = mm };
-
-            // Test 테이블에서 필요한 데이터를 가져오기 위해 분할된 쿼리를 조합
-            IQueryable<ProbeTestResult> probeTestResults =
-                from q in query
-                let t1 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t2 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t3 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t4 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t5 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t6 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                // 나머지 Test들도 동일하게 처리
-                select new ProbeTestResult
-                {
-                    Id = q.Probe.Id,
-                    ProbeSN = q.Probe.ProbeSn,
-                    CreatedDate = q.Probe.CreatedDate,
-                    TransducerModuleSN = q.TransducerModule.TransducerModuleSn,
-                    TransducerSN = q.TransducerModule.TransducerSn,
-                    MotorModuleSn = q.MotorModule.MotorModuleSn,
-                    TestResults = new List<TestResult>
-                    {
-                // Test 결과 추가
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
-                    }
-                };
-
-            // 결과를 리스트로 변환하여 반환
-            return await probeTestResults.ToListAsync();
-        }
-
-        public List<ProbeTestResult> GetProbeTestResult(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
-        {
-            // 초기 쿼리 생성
-            var query =
-                from p in _context.Set<Probe>()
-                join tm in _context.Set<TransducerModule>()
-                    on p.TransducerModuleId equals tm.Id into tmGroup
-                from tm in tmGroup.DefaultIfEmpty()
-                join mm in _context.Set<MotorModule>()
-                    on p.TransducerModuleId equals mm.Id into mmGroup
-                from mm in mmGroup.DefaultIfEmpty()
-                select new { Probe = p, TransducerModule = tm, MotorModule = mm };
-
-            // Test 테이블에서 필요한 데이터를 가져오기 위해 분할된 쿼리를 조합
-            IQueryable<ProbeTestResult> probeTestResults =
-                from q in query
-                let t1 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t2 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t3 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t4 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t5 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t6 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                // 나머지 Test들도 동일하게 처리
-                select new ProbeTestResult
-                {
-                    Id = q.Probe.Id,
-                    ProbeSN = q.Probe.ProbeSn,
-                    CreatedDate = q.Probe.CreatedDate,
-                    TransducerModuleSN = q.TransducerModule.TransducerModuleSn,
-                    TransducerSN = q.TransducerModule.TransducerSn,
-                    MotorModuleSn = q.MotorModule.MotorModuleSn,
-                    TestResults = new List<TestResult>
-                    {
-                        // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
-                    }
-                };
-
-            // 필터 조건 추가
-            if (startDate != null)
-            {
-                probeTestResults = probeTestResults.Where(ptr => ptr.CreatedDate >= startDate);
-            }
-            if (endDate != null)
-            {
-                probeTestResults = probeTestResults.Where(ptr => ptr.CreatedDate <= endDate);
-            }
-            if (!string.IsNullOrEmpty(probeSn))
-            {
-                probeTestResults = probeTestResults.Where(ptr => ptr.ProbeSN == probeSn);
-            }
-
-            if (!string.IsNullOrEmpty(transducerModuleSn))
-            {
-                probeTestResults = probeTestResults.Where(ptr => ptr.TransducerModuleSN == transducerModuleSn);
-            }
-
-            if (!string.IsNullOrEmpty(transducerSn))
-            {
-                probeTestResults = probeTestResults.Where(ptr => ptr.TransducerSN == transducerSn);
-            }
-
-            if (!string.IsNullOrEmpty(motorModuleSn))
-            {
-                probeTestResults = probeTestResults.Where(ptr => ptr.MotorModuleSn == motorModuleSn);
-            }
-
-            // 필터를 적용한 후에 ToList 호출하여 쿼리를 실행
-            return probeTestResults.ToList();
-        }
-
         public async Task<List<ProbeTestResult>> GetProbeTestResultAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
-            // 초기 쿼리 생성
             var query =
                 from p in _context.Set<Probe>()
                 join tm in _context.Set<TransducerModule>()
@@ -574,17 +298,20 @@ namespace SonoCap.MES.Repositories
                 join mm in _context.Set<MotorModule>()
                     on p.TransducerModuleId equals mm.Id into mmGroup
                 from mm in mmGroup.DefaultIfEmpty()
-                select new { Probe = p, TransducerModule = tm, MotorModule = mm };
+                join td in _context.Set<Transducer>()
+                    on tm.Id equals td.Id into tdGroup
+                from td in tdGroup.DefaultIfEmpty()
+                select new { Probe = p, Transducer = td, TransducerModule = tm, MotorModule = mm };
 
             // Test 테이블에서 필요한 데이터를 가져오기 위해 분할된 쿼리를 조합
             IQueryable<ProbeTestResult> probeTestResults =
                 from q in query
-                let t1 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t2 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t3 = _context.Set<Test>().Where(t => t.CategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t4 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t5 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
-                let t6 = _context.Set<Test>().Where(t => t.CategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
+                let t1 = _context.Set<Test>().Where(t => t.TestCategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
+                let t2 = _context.Set<Test>().Where(t => t.TestCategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
+                let t3 = _context.Set<Test>().Where(t => t.TestCategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
+                let t4 = _context.Set<Test>().Where(t => t.TestCategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
+                let t5 = _context.Set<Test>().Where(t => t.TestCategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
+                let t6 = _context.Set<Test>().Where(t => t.TestCategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1 && t.TransducerModuleId == q.TransducerModule.Id).OrderByDescending(t => t.Id).FirstOrDefault()
                 // 나머지 Test들도 동일하게 처리
                 select new ProbeTestResult
                 {
@@ -592,17 +319,17 @@ namespace SonoCap.MES.Repositories
                     ProbeSN = q.Probe.ProbeSn,
                     CreatedDate = q.Probe.CreatedDate,
                     TransducerModuleSN = q.TransducerModule.TransducerModuleSn,
-                    TransducerSN = q.TransducerModule.TransducerSn,
+                    TransducerSN = q.TransducerModule.Transducer.TransducerSn,
                     MotorModuleSn = q.MotorModule.MotorModuleSn,
                     TestResults = new List<TestResult>
                     {
                         // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.CategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.CategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.CategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.CategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.CategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.CategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.TestCategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.TestCategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.TestCategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.TestCategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.TestCategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
+                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.TestCategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
                     }
                 };
 

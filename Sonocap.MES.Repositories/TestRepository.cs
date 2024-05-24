@@ -24,7 +24,7 @@ namespace SonoCap.MES.Repositories
                      Id = t.Id,
                      CreatedDate = t.CreatedDate,
                      Detail = t.Detail,
-                     Category = t.Category,
+                     Category = t.TestCategory,
                      TestType = t.TestType,
                      Tester = t.Tester.Name,
                      Pc = t.Tester.Pc,
@@ -51,7 +51,7 @@ namespace SonoCap.MES.Repositories
                      Id = t.Id,
                      CreatedDate = t.CreatedDate,
                      Detail = t.Detail,
-                     Category = t.Category,
+                     Category = t.TestCategory,
                      TestType = t.TestType,
                      Tester = t.Tester.Name,
                      Pc = t.Tester.Pc,
@@ -83,7 +83,7 @@ namespace SonoCap.MES.Repositories
                      Id = t.Id,
                      CreatedDate = t.CreatedDate,
                      Detail = t.Detail,
-                     Category = t.Category,
+                     Category = t.TestCategory,
                      TestType = t.TestType,
                      Tester = t.Tester.Name,
                      Pc = t.Tester.Pc,
@@ -126,7 +126,7 @@ namespace SonoCap.MES.Repositories
                      Id = t.Id,
                      CreatedDate = t.CreatedDate,
                      Detail = t.Detail,
-                     Category = t.Category,
+                     Category = t.TestCategory,
                      TestType = t.TestType,
                      Tester = t.Tester.Name,
                      Pc = t.Tester.Pc,
@@ -194,7 +194,7 @@ namespace SonoCap.MES.Repositories
 
             if (!string.IsNullOrEmpty(transducerSn))
             {
-                query = query.Where(tp => tp.TransducerModule.TransducerSn!.Contains(transducerSn));
+                query = query.Where(tp => tp.TransducerModule.Transducer.TransducerSn!.Contains(transducerSn));
             }
 
             if (!string.IsNullOrEmpty(motorModuleSn))
@@ -216,7 +216,7 @@ namespace SonoCap.MES.Repositories
                      Id = t.Id,
                      CreatedDate = t.CreatedDate,
                      Detail = t.Detail,
-                     Category = t.Category,
+                     Category = t.TestCategory,
                      TestType = t.TestType,
                      Tester = t.Tester.Name,
                      Pc = t.Tester.Pc,
@@ -284,7 +284,7 @@ namespace SonoCap.MES.Repositories
 
             if (!string.IsNullOrEmpty(transducerSn))
             {
-                query = query.Where(tp => tp.TransducerModule.TransducerSn.Contains(transducerSn));
+                query = query.Where(tp => tp.TransducerModule.Transducer.TransducerSn.Contains(transducerSn));
             }
 
             if (!string.IsNullOrEmpty(motorModuleSn))

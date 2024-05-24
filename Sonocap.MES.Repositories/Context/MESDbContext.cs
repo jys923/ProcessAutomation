@@ -1,7 +1,9 @@
-﻿//#define MIGRATION
+﻿#define MIGRATION
 
 using SonoCap.MES.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace SonoCap.MES.Repositories.Context
 {
@@ -10,22 +12,19 @@ namespace SonoCap.MES.Repositories.Context
         public DbSet<MotorModule> MotorModules { get; set; }
         public DbSet<Pc> Pcs { get; set; }
         public DbSet<Probe> Probes { get; set; }
+        
         public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<Tester> Testers { get; set; }
+
         public DbSet<TestProbe> TestProbes { get; set; }
         public DbSet<TestType> TestTypes { get; set; }
+        public DbSet<Transducer> Transducers { get; set; }
         public DbSet<TransducerModule> TransducerModules { get; set; }
         public DbSet<TransducerType> TransducerTypes { get; set; }
 
-#if MIGRATION
-
         public MESDbContext()
-        {
-        }
-
-        public MESDbContext(DbContextOptions options) : base(options)
         {
         }
 
@@ -33,6 +32,15 @@ namespace SonoCap.MES.Repositories.Context
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // ProbeTestResult 엔터티를 모델에서 제외합니다.
+            modelBuilder.Ignore<ProbeTestResult>();
+            modelBuilder.Ignore<TestProbe>();
+
+            base.OnModelCreating(modelBuilder);
+        }
+#if MIGRATION
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -45,18 +53,12 @@ namespace SonoCap.MES.Repositories.Context
 #if DEBUG
             optionsBuilder.EnableSensitiveDataLogging(true);
 #endif
-            //optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
             optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
-            string MariaDBConnectionString = Properties.Settings.Default.MariaDBConnection ?? throw new InvalidOperationException("MariaDBConnection is null.");
+            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString));
         }
-        
-#else
-        public MESDbContext(DbContextOptions<MESDbContext> options) : base(options)
-        {
-        }
-
 #endif
     }
 }

@@ -4,16 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SonoCap.MES.Models
 {
-    /// <summary>
-    /// 로그
-    /// </summary>
     public class Test : ModelBase
     {
         [Required]
-        public int CategoryId { get; set; }
+        public int TestCategoryId { get; set; }
 
-        [ForeignKey(nameof(CategoryId))] //lazy 로딩
-        public virtual TestCategory Category { get; set; } = default!;
+        [ForeignKey(nameof(TestCategoryId))] //lazy 로딩
+        public virtual TestCategory TestCategory { get; set; } = default!;
 
         [Required]
         public int TestTypeId { get; set; }
@@ -49,10 +46,19 @@ namespace SonoCap.MES.Models
         [Required]
         public int Method { get; set; }
 
-        [Required]
-        public int TransducerModuleId { get; set; }
+        public int? TransducerId { get; set; }
+
+        [ForeignKey(nameof(TransducerId))] //lazy 로딩
+        public virtual Transducer? Transducer { get; set; }
+
+        public int? TransducerModuleId { get; set; }
 
         [ForeignKey(nameof(TransducerModuleId))] //lazy 로딩
-        public virtual TransducerModule TransducerModule { get; set; } = default!;
+        public virtual TransducerModule? TransducerModule { get; set; }
+
+        public int? ProbeId { get; set; }
+
+        [ForeignKey(nameof(ProbeId))] //lazy 로딩
+        public virtual Probe? Probe { get; set; }
     }
 }

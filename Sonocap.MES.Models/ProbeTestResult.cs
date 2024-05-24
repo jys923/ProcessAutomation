@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SonoCap.MES.Models
 {
-    [NotMapped]
     [Keyless]
     public class ProbeTestResult
     {
