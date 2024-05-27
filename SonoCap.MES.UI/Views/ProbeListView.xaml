@@ -102,16 +102,19 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="&#13;ID" Width="1*" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header="&#13;생성 날짜" Width="1*" Binding="{Binding CreatedDate}"/>
-                <DataGridTextColumn Header="&#13;Probe S/N" Width="1.5*" Binding="{Binding ProbeSN}"/>
-                <DataGridTextColumn Header="&#13;TD Md S/N" Width="1.5*" Binding="{Binding TransducerModuleSN}"/>
-                <DataGridTextColumn Header="&#13;TD S/N" Width="1.5*" Binding="{Binding TransducerSN}"/>
+                <DataGridTextColumn Header="&#13;Probe S/N" Width="1.5*" Binding="{Binding ProbeSn}"/>
+                <DataGridTextColumn Header="&#13;TD Md S/N" Width="1.5*" Binding="{Binding TransducerModuleSn}"/>
+                <DataGridTextColumn Header="&#13;TD S/N" Width="1.5*" Binding="{Binding TransducerSn}"/>
                 <DataGridTextColumn Header="&#13;MT Md S/N" Width="1*" Binding="{Binding MotorModuleSn}"/>
-                <DataGridTextColumn Header="공정&#13;T11" Width=".5*" Binding="{Binding TestResults[0].Result}"/>
-                <DataGridTextColumn Header="&#13;T12" Width=".5*" Binding="{Binding TestResults[1].Result}"/>
-                <DataGridTextColumn Header="&#13;T13" Width=".5*" Binding="{Binding TestResults[2].Result}"/>
-                <DataGridTextColumn Header="최종&#13;T21" Width=".5*" Binding="{Binding TestResults[3].Result}"/>
-                <DataGridTextColumn Header="&#13;T22" Width=".5*" Binding="{Binding TestResults[4].Result}"/>
-                <DataGridTextColumn Header="&#13;T23" Width=".5*" Binding="{Binding TestResults[5].Result}"/>
+                <DataGridTextColumn Header="공정&#13;T11" Width=".5*" Binding="{Binding Test1_Result}"/>
+                <DataGridTextColumn Header="&#13;T12" Width=".5*" Binding="{Binding Test2_Result}"/>
+                <DataGridTextColumn Header="&#13;T13" Width=".5*" Binding="{Binding Test3_Result}"/>
+                <DataGridTextColumn Header="최종&#13;T21" Width=".5*" Binding="{Binding Test4_Result}"/>
+                <DataGridTextColumn Header="&#13;T22" Width=".5*" Binding="{Binding Test5_Result}"/>
+                <DataGridTextColumn Header="&#13;T23" Width=".5*" Binding="{Binding Test6_Result}"/>
+                <DataGridTextColumn Header="출하&#13;T31" Width=".5*" Binding="{Binding Test7_Result}"/>
+                <DataGridTextColumn Header="&#13;T32" Width=".5*" Binding="{Binding Test8_Result}"/>
+                <DataGridTextColumn Header="&#13;T33" Width=".5*" Binding="{Binding Test9_Result}"/>
             </DataGrid.Columns>
         </DataGrid>
         <StatusBar Grid.Row="5">

@@ -94,7 +94,7 @@ namespace SonoCap.MES.UI.ViewModels
         private string _mTMdSn = default!;
 
         [ObservableProperty]
-        private ObservableCollection<ProbeTestResult> _probes = default!;
+        private ObservableCollection<ProbeTestResultDao> _probes = default!;
 
         [ObservableProperty]
         private int _resultCnt;
@@ -102,18 +102,14 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<ProbeTestResult> probes = await _probeRepository.GetProbeTestResultSqlAsync(
+            List<ProbeTestResultDao> probes = await _probeRepository.GetProbeTestResultSqlAsync(
                 StartDate,
                 EndDate,
                 ProbeSn,
                 TDMdSn,
                 TDSn,
                 MTMdSn);
-            Probes = new ObservableCollection<ProbeTestResult>(probes);
-            List<TestResult> _testResults = probes[0].TestResults;
-            TestResult aa = _testResults[0];
-            var bb = aa.Result;
-            Console.WriteLine("--------------------------"+probes);
+            Probes = new ObservableCollection<ProbeTestResultDao>(probes);
             ResultCnt = probes.Count;
         }
 

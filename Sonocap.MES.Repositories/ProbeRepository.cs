@@ -507,7 +507,7 @@ WHERE
             return probeTestResults;
         }
 
-        public async Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public async Task<List<ProbeTestResultDao>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             List<ProbeTestResultDao> probeTestResultDaos = await _context.Set<ProbeTestResultDao>()
                 .FromSqlRaw(_sqlData4,
@@ -525,9 +525,8 @@ WHERE
             //    ProbeTestResult result = ProbeTestResultConverter.Convert(dao);
             //    probeTestResults.Add(result);
             //}
-
-            List<ProbeTestResult> probeTestResults = ProbeTestResultConverter.Convert(probeTestResultDaos);
-            return probeTestResults;
+            //List<ProbeTestResult> probeTestResults = ProbeTestResultConverter.Convert(probeTestResultDaos);
+            return probeTestResultDaos;
         }
     }
 }
