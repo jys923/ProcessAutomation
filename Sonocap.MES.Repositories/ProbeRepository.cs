@@ -4,6 +4,9 @@ using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Data.SqlClient;
+using SonoCap.MES.Models.Enums;
+using MySqlConnector;
+using SonoCap.MES.Services.Converters;
 
 namespace SonoCap.MES.Repositories
 {
@@ -284,6 +287,118 @@ namespace SonoCap.MES.Repositories
                 (tm.TransducerSn = @TransducerSn OR @TransducerSn IS NULL OR @TransducerSn = '') AND
                 (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL OR @MotorModuleSn = '')";
 
+        private string _sqlData3 =
+            @"
+SELECT 
+    p.Id,
+    p.ProbeSn,
+    p.CreatedDate AS ProbeCreatedDate,
+    tm.TransducerModuleSn,
+    td.TransducerSn,
+    mm.MotorModuleSn,
+    1 AS TestCategoryId1, 1 AS TestTypeId1, t1.CreatedDate AS Test1_CreatedDate, t1.Result AS Test1_Result,
+    1 AS TestCategoryId2, 2 AS TestTypeId2, t2.CreatedDate AS Test2_CreatedDate, t2.Result AS Test2_Result,
+    1 AS TestCategoryId3, 3 AS TestTypeId3, t3.CreatedDate AS Test3_CreatedDate, t3.Result AS Test3_Result,
+    2 AS TestCategoryId4, 1 AS TestTypeId4, t4.CreatedDate AS Test4_CreatedDate, t4.Result AS Test4_Result,
+    2 AS TestCategoryId5, 2 AS TestTypeId5, t5.CreatedDate AS Test5_CreatedDate, t5.Result AS Test5_Result,
+    2 AS TestCategoryId6, 3 AS TestTypeId6, t6.CreatedDate AS Test6_CreatedDate, t6.Result AS Test6_Result,
+    3 AS TestCategoryId7, 1 AS TestTypeId7, t7.CreatedDate AS Test7_CreatedDate, t7.Result AS Test7_Result,
+    3 AS TestCategoryId8, 2 AS TestTypeId8, t8.CreatedDate AS Test8_CreatedDate, t8.Result AS Test8_Result,
+    3 AS TestCategoryId9, 3 AS TestTypeId9, t9.CreatedDate AS Test9_CreatedDate, t9.Result AS Test9_Result
+FROM 
+    Probes p
+LEFT JOIN 
+    TransducerModules tm ON p.TransducerModuleId = tm.Id AND tm.DataFlag = 1 
+LEFT JOIN 
+    Transducers td ON tm.TransducerId = td.Id AND td.DataFlag = 1
+LEFT JOIN 
+    MotorModules mm ON p.MotorModuleId = mm.Id AND mm.DataFlag = 1
+LEFT JOIN 
+    Tests t1 ON td.Id = t1.TransducerId AND t1.TestCategoryId = 1 AND t1.TestTypeId = 1 AND t1.DataFlag = 1
+LEFT JOIN 
+    Tests t2 ON td.Id = t2.TransducerId AND t2.TestCategoryId = 1 AND t2.TestTypeId = 2 AND t2.DataFlag = 1
+LEFT JOIN 
+    Tests t3 ON td.Id = t3.TransducerId AND t3.TestCategoryId = 1 AND t3.TestTypeId = 3 AND t3.DataFlag = 1
+LEFT JOIN 
+    Tests t4 ON tm.Id = t4.TransducerModuleId AND t4.TestCategoryId = 2 AND t4.TestTypeId = 1 AND t4.DataFlag = 1
+LEFT JOIN 
+    Tests t5 ON tm.Id = t5.TransducerModuleId AND t5.TestCategoryId = 2 AND t5.TestTypeId = 2 AND t5.DataFlag = 1
+LEFT JOIN 
+    Tests t6 ON tm.Id = t6.TransducerModuleId AND t6.TestCategoryId = 2 AND t6.TestTypeId = 3 AND t6.DataFlag = 1
+LEFT JOIN 
+    Tests t7 ON p.Id = t7.ProbeId AND t7.TestCategoryId = 3 AND t7.TestTypeId = 1 AND t7.DataFlag = 1
+LEFT JOIN 
+    Tests t8 ON p.Id = t8.ProbeId AND t8.TestCategoryId = 3 AND t8.TestTypeId = 2 AND t8.DataFlag = 1
+LEFT JOIN 
+    Tests t9 ON p.Id = t9.ProbeId AND t9.TestCategoryId = 3 AND t9.TestTypeId = 3 AND t9.DataFlag = 1
+WHERE 
+    p.DataFlag = 1 AND
+    (p.CreatedDate >= @StartDate OR @StartDate IS NULL) AND 
+    (p.CreatedDate <= @EndDate OR @EndDate IS NULL) AND
+    (p.ProbeSn = @ProbeSn OR @ProbeSn IS NULL OR @ProbeSn = '') AND
+    (tm.TransducerModuleSn = @TransducerModuleSn OR @TransducerModuleSn IS NULL OR @TransducerModuleSn = '') AND
+    (td.TransducerSn = @TransducerSn OR @TransducerSn IS NULL OR @TransducerSn = '') AND
+    (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL OR @MotorModuleSn = '');
+
+";
+
+        private string _sqlData4 =
+            @"
+SELECT
+    p.Id,
+    p.ProbeSn,
+    p.CreatedDate,
+    tm.TransducerModuleSn,
+    td.TransducerSn,
+    mm.MotorModuleSn,
+    1 AS TestCategoryId1, 1 AS TestTypeId1, t1.CreatedDate AS Test1_CreatedDate, t1.Result AS Test1_Result,
+    1 AS TestCategoryId2, 2 AS TestTypeId2, t2.CreatedDate AS Test2_CreatedDate, t2.Result AS Test2_Result,
+    1 AS TestCategoryId3, 3 AS TestTypeId3, t3.CreatedDate AS Test3_CreatedDate, t3.Result AS Test3_Result,
+    2 AS TestCategoryId4, 1 AS TestTypeId4, t4.CreatedDate AS Test4_CreatedDate, t4.Result AS Test4_Result,
+    2 AS TestCategoryId5, 2 AS TestTypeId5, t5.CreatedDate AS Test5_CreatedDate, t5.Result AS Test5_Result,
+    2 AS TestCategoryId6, 3 AS TestTypeId6, t6.CreatedDate AS Test6_CreatedDate, t6.Result AS Test6_Result,
+    3 AS TestCategoryId7, 1 AS TestTypeId7, t7.CreatedDate AS Test7_CreatedDate, t7.Result AS Test7_Result,
+    3 AS TestCategoryId8, 2 AS TestTypeId8, t8.CreatedDate AS Test8_CreatedDate, t8.Result AS Test8_Result,
+    3 AS TestCategoryId9, 3 AS TestTypeId9, t9.CreatedDate AS Test9_CreatedDate, t9.Result AS Test9_Result
+FROM
+    Probes p
+LEFT JOIN
+    TransducerModules tm ON p.TransducerModuleId = tm.Id AND tm.DataFlag = 1
+LEFT JOIN
+    Transducers td ON tm.TransducerId = td.Id AND td.DataFlag = 1
+LEFT JOIN
+    MotorModules mm ON p.MotorModuleId = mm.Id AND mm.DataFlag = 1
+LEFT JOIN
+    Tests t1 ON td.Id = t1.TransducerId AND t1.TestCategoryId = 1 AND t1.TestTypeId = 1 AND t1.DataFlag = 1
+LEFT JOIN
+    Tests t2 ON td.Id = t2.TransducerId AND t2.TestCategoryId = 1 AND t2.TestTypeId = 2 AND t2.DataFlag = 1
+LEFT JOIN
+    Tests t3 ON td.Id = t3.TransducerId AND t3.TestCategoryId = 1 AND t3.TestTypeId = 3 AND t3.DataFlag = 1
+LEFT JOIN
+    Tests t4 ON tm.Id = t4.TransducerModuleId AND t4.TestCategoryId = 2 AND t4.TestTypeId = 1 AND t4.DataFlag = 1
+LEFT JOIN
+    Tests t5 ON tm.Id = t5.TransducerModuleId AND t5.TestCategoryId = 2 AND t5.TestTypeId = 2 AND t5.DataFlag = 1
+LEFT JOIN
+    Tests t6 ON tm.Id = t6.TransducerModuleId AND t6.TestCategoryId = 2 AND t6.TestTypeId = 3 AND t6.DataFlag = 1
+LEFT JOIN
+    Tests t7 ON p.Id = t7.ProbeId AND t7.TestCategoryId = 3 AND t7.TestTypeId = 1 AND t7.DataFlag = 1
+LEFT JOIN
+    Tests t8 ON p.Id = t8.ProbeId AND t8.TestCategoryId = 3 AND t8.TestTypeId = 2 AND t8.DataFlag = 1
+LEFT JOIN
+    Tests t9 ON p.Id = t9.ProbeId AND t9.TestCategoryId = 3 AND t9.TestTypeId = 3 AND t9.DataFlag = 1
+WHERE
+    p.DataFlag = 1 AND
+    (p.CreatedDate >= @StartDate OR @StartDate IS NULL) AND
+    (p.CreatedDate <= @EndDate OR @EndDate IS NULL) AND
+    (p.ProbeSn = @ProbeSn OR @ProbeSn IS NULL OR @ProbeSn = '') AND
+    (tm.TransducerModuleSn = @TransducerModuleSn OR @TransducerModuleSn IS NULL OR @TransducerModuleSn = '') AND
+    (td.TransducerSn = @TransducerSn OR @TransducerSn IS NULL OR @TransducerSn = '') AND
+    (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL OR @MotorModuleSn = '');
+
+
+
+";
+
         public ProbeRepository(MESDbContext context) : base(context)
         {
         }
@@ -324,12 +439,12 @@ namespace SonoCap.MES.Repositories
                     TestResults = new List<TestResult>
                     {
                         // Test 결과 추가
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t1.TestCategoryId, TypeId = (Models.Enums.TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t2.TestCategoryId, TypeId = (Models.Enums.TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t3.TestCategoryId, TypeId = (Models.Enums.TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t4.TestCategoryId, TypeId = (Models.Enums.TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t5.TestCategoryId, TypeId = (Models.Enums.TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.ChangedImgMetadata},
-                        new TestResult { CategoryId = (SonoCap.MES.Models.Enums.TestCategories)t6.TestCategoryId, TypeId = (Models.Enums.TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.ChangedImgMetadata},
+                        new TestResult { CategoryId = (TestCategories)t1.TestCategoryId, TypeId = (TestTypes)t1.TestTypeId, CreatedDate = t1.CreatedDate, Result = t1.Result},
+                        new TestResult { CategoryId = (TestCategories)t2.TestCategoryId, TypeId = (TestTypes)t2.TestTypeId, CreatedDate = t2.CreatedDate, Result = t2.Result},
+                        new TestResult { CategoryId = (TestCategories)t3.TestCategoryId, TypeId = (TestTypes)t3.TestTypeId, CreatedDate = t3.CreatedDate, Result = t3.Result},
+                        new TestResult { CategoryId = (TestCategories)t4.TestCategoryId, TypeId = (TestTypes)t4.TestTypeId, CreatedDate = t4.CreatedDate, Result = t4.Result},
+                        new TestResult { CategoryId = (TestCategories)t5.TestCategoryId, TypeId = (TestTypes)t5.TestTypeId, CreatedDate = t5.CreatedDate, Result = t5.Result},
+                        new TestResult { CategoryId = (TestCategories)t6.TestCategoryId, TypeId = (TestTypes)t6.TestTypeId, CreatedDate = t6.CreatedDate, Result = t6.Result},
                     }
                 };
 
@@ -380,7 +495,7 @@ namespace SonoCap.MES.Repositories
         public List<ProbeTestResult> GetProbeTestResultSql(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             List<ProbeTestResult> probeTestResults = _context.Set<ProbeTestResult>()
-                .FromSqlRaw(_sqlData2,
+                .FromSqlRaw(_sqlData3,
                     new SqlParameter("@StartDate", startDate),
                     new SqlParameter("@EndDate", endDate),
                     new SqlParameter("@ProbeSn", probeSn),
@@ -394,16 +509,24 @@ namespace SonoCap.MES.Repositories
 
         public async Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
-            List<ProbeTestResult> probeTestResults = await _context.Set<ProbeTestResult>()
-                .FromSqlRaw(_sqlData2,
-                    new SqlParameter("@StartDate", startDate),
-                    new SqlParameter("@EndDate", endDate),
-                    new SqlParameter("@ProbeSn", probeSn),
-                    new SqlParameter("@TransducerModuleSn", transducerModuleSn),
-                    new SqlParameter("@TransducerSn", transducerSn),
-                    new SqlParameter("@MotorModuleSn ", motorModuleSn)
+            List<ProbeTestResultDao> probeTestResultDaos = await _context.Set<ProbeTestResultDao>()
+                .FromSqlRaw(_sqlData4,
+                    new MySqlParameter("@StartDate", startDate),
+                    new MySqlParameter("@EndDate", endDate),
+                    new MySqlParameter("@ProbeSn", probeSn),
+                    new MySqlParameter("@TransducerModuleSn", transducerModuleSn),
+                    new MySqlParameter("@TransducerSn", transducerSn),
+                    new MySqlParameter("@MotorModuleSn ", motorModuleSn)
                 )
                 .ToListAsync();
+            //List<ProbeTestResult> probeTestResults = new List<ProbeTestResult>();
+            //foreach (var dao in probeTestResultDaos)
+            //{
+            //    ProbeTestResult result = ProbeTestResultConverter.Convert(dao);
+            //    probeTestResults.Add(result);
+            //}
+
+            List<ProbeTestResult> probeTestResults = ProbeTestResultConverter.Convert(probeTestResultDaos);
             return probeTestResults;
         }
     }

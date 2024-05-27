@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.VisualBasic.Logging;
 using SonoCap.MES.Models;
 using SonoCap.MES.Repositories.Interfaces;
 using System.Collections.ObjectModel;
@@ -101,8 +102,18 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<ProbeTestResult> probes = await _probeRepository.GetProbeTestResultAsync(StartDate, EndDate, ProbeSn, TDMdSn, TDSn, MTMdSn);
+            List<ProbeTestResult> probes = await _probeRepository.GetProbeTestResultSqlAsync(
+                StartDate,
+                EndDate,
+                ProbeSn,
+                TDMdSn,
+                TDSn,
+                MTMdSn);
             Probes = new ObservableCollection<ProbeTestResult>(probes);
+            List<TestResult> _testResults = probes[0].TestResults;
+            TestResult aa = _testResults[0];
+            var bb = aa.Result;
+            Console.WriteLine("--------------------------"+probes);
             ResultCnt = probes.Count;
         }
 

@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Models.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SonoCap.MES.Models
 {
-    [NotMapped]
     [Keyless]
     public class TestResult
     {

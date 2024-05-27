@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
+    <ProjectReference Include="..\SonoCap.MES.Services\SonoCap.MES.Services.csproj" />
   </ItemGroup>
 
 </Project>

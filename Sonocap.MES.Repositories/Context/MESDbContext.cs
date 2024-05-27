@@ -14,6 +14,7 @@ namespace SonoCap.MES.Repositories.Context
         public DbSet<Probe> Probes { get; set; }
         
         public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
+        public DbSet<ProbeTestResultDao> ProbeTestDaoResults { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<Tester> Testers { get; set; }
@@ -35,8 +36,9 @@ namespace SonoCap.MES.Repositories.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ProbeTestResult 엔터티를 모델에서 제외합니다.
-            modelBuilder.Ignore<ProbeTestResult>();
-            modelBuilder.Ignore<TestProbe>();
+            //modelBuilder.Ignore<ProbeTestResult>();
+            //modelBuilder.Ignore<ProbeTestResultDao>();
+            //modelBuilder.Ignore<TestProbe>();
 
             base.OnModelCreating(modelBuilder);
         }
