@@ -102,7 +102,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<ProbeTestResultDao> probes = await _probeRepository.GetProbeTestResultSqlAsync(
+            List<ProbeTestResultDao> probes = await _probeRepository.GetProbeTestResultAsync(
                 StartDate,
                 EndDate,
                 ProbeSn,
