@@ -3,11 +3,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
-using SonoCap.MES.Models.Enums;
 using MySqlConnector;
-using SonoCap.MES.Services.Converters;
-using System.Linq;
 
 namespace SonoCap.MES.Repositories
 {
@@ -40,7 +36,7 @@ namespace SonoCap.MES.Repositories
             LEFT JOIN
                 MotorModules mm ON p.MotorModuleId = mm.Id AND mm.DataFlag = 1
             LEFT JOIN
-                Tests t1 ON td.Id = t1.TransducerId AND t1.TestCategoryId = 1 AND t1.TestTypeId = 1 AND t1.DataFlag = 1
+                Tests t1 ON td.Id = t1.TransducerId AND t1.TestCategoryId = 1 AND t1.TestTypeId = 1 AND t1.DataFlag = 1 
             LEFT JOIN
                 Tests t2 ON td.Id = t2.TransducerId AND t2.TestCategoryId = 1 AND t2.TestTypeId = 2 AND t2.DataFlag = 1
             LEFT JOIN
@@ -71,7 +67,7 @@ namespace SonoCap.MES.Repositories
         {
         }
 
-        public async Task<List<ProbeTestResultDao>> GetProbeTestResultAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public async Task<List<ProbeTestResult>> GetProbeTestResultAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             var query =
                 from p in _context.Set<Probe>()
@@ -107,7 +103,7 @@ namespace SonoCap.MES.Repositories
                     (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn)) &&
                     (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn)) &&
                     (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
-                select new ProbeTestResultDao
+                select new ProbeTestResult
                 {
                     Id = p.Id,
                     ProbeSn = p.ProbeSn,
@@ -156,9 +152,9 @@ namespace SonoCap.MES.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<List<ProbeTestResultDao>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public async Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
-            List<ProbeTestResultDao> probeTestResultDaos = await _context.Set<ProbeTestResultDao>()
+            List<ProbeTestResult> probeTestResultDaos = await _context.Set<ProbeTestResult>()
                 .FromSqlRaw(ProbeTestResultsQuery,
                     new MySqlParameter("@StartDate", startDate),
                     new MySqlParameter("@EndDate", endDate),

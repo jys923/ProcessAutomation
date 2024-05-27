@@ -4,9 +4,9 @@ namespace SonoCap.MES.Services.Converters
 {
     public class ProbeTestResultConverter
     {
-        public static ProbeTestResult Convert(ProbeTestResultDao dao)
+        public static ProbeTestReport Convert(ProbeTestResult dao)
         {
-            ProbeTestResult result = new ProbeTestResult
+            ProbeTestReport result = new ProbeTestReport
             {
                 Id = dao.Id,
                 ProbeSN = dao.ProbeSn,
@@ -31,9 +31,9 @@ namespace SonoCap.MES.Services.Converters
             return result;
         }
 
-        public static List<ProbeTestResult> Convert(List<ProbeTestResultDao> daos)
+        public static List<ProbeTestReport> Convert(List<ProbeTestResult> daos)
         {
-            var probeTestResults = new List<ProbeTestResult>();
+            var probeTestResults = new List<ProbeTestReport>();
 
             foreach (var dao in daos)
             {

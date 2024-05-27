@@ -13,8 +13,8 @@ namespace SonoCap.MES.Repositories.Context
         public DbSet<Pc> Pcs { get; set; }
         public DbSet<Probe> Probes { get; set; }
         
-        public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
-        public DbSet<ProbeTestResultDao> ProbeTestDaoResults { get; set; }
+        public DbSet<ProbeTestReport> ProbeTestResults { get; set; }
+        public DbSet<ProbeTestResult> ProbeTestDaoResults { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<Tester> Testers { get; set; }
