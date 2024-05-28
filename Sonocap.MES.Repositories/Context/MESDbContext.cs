@@ -44,10 +44,11 @@ namespace SonoCap.MES.Repositories.Context
             //modelBuilder.Ignore<ProbeTestResultView>();
             modelBuilder.Ignore<TestProbe>();
 
-            modelBuilder.Entity<Test>().ToTable(t => t.HasCheckConstraint("CK_Tests_Only_One_Not_Null",
-           "(TransducerModuleId IS NOT NULL AND TransducerId IS NULL AND ProbeId IS NULL) OR " +
-           "(TransducerModuleId IS NULL AND TransducerId IS NOT NULL AND ProbeId IS NULL) OR " +
-           "(TransducerModuleId IS NULL AND TransducerId IS NULL AND ProbeId IS NOT NULL)"));
+            modelBuilder.Entity<Test>()
+                .ToTable(t => t.HasCheckConstraint("CK_Tests_Only_One_Not_Null",
+               "(TransducerModuleId IS NOT NULL AND TransducerId IS NULL AND ProbeId IS NULL) OR " +
+               "(TransducerModuleId IS NULL AND TransducerId IS NOT NULL AND ProbeId IS NULL) OR " +
+               "(TransducerModuleId IS NULL AND TransducerId IS NULL AND ProbeId IS NOT NULL)"));
 
             modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test01)
