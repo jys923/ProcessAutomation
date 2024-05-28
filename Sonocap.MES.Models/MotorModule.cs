@@ -7,5 +7,8 @@ namespace SonoCap.MES.Models
     {
         [Required]
         public required string MotorModuleSn { get; set; }
+
+        // Navigation properties
+        public virtual ICollection<ProbeTestResultView> PTRViewMotorModule { get; set; }
     }
 }

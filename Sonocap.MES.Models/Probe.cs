@@ -27,5 +27,8 @@ namespace SonoCap.MES.Models
 
         [ForeignKey(nameof(MotorModuleId))] //lazy 로딩
         public virtual MotorModule MotorModule { get; set; } = default!;
+
+        // Navigation properties
+        public virtual ICollection<ProbeTestResultView> PTRViewProbe { get; set; }
     }
 }

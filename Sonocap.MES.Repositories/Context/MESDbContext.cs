@@ -43,6 +43,30 @@ namespace SonoCap.MES.Repositories.Context
             modelBuilder.Ignore<TestProbe>();
 
             modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Probe)
+                .WithMany(p => p.PTRViewProbe)
+                .HasForeignKey(ptrv => ptrv.ProbeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.TransducerModule)
+                .WithMany(tdm => tdm.PTRViewTransducerModule)
+                .HasForeignKey(ptrv => ptrv.TransducerModuleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Transducer)
+                .WithMany(td => td.PTRViewTransducer)
+                .HasForeignKey(ptrv => ptrv.TransducerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.MotorModule)
+                .WithMany(mm => mm.PTRViewMotorModule)
+                .HasForeignKey(ptrv => ptrv.MotorModuleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
                 .HasOne(ptrv => ptrv.Test01)
                 .WithMany(t => t.ProbeTestResultView01)
                 .HasForeignKey(ptrv => ptrv.TestId01)
