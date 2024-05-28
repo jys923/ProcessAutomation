@@ -15,7 +15,8 @@ namespace SonoCap.MES.Repositories.Context
         
         public DbSet<ProbeTestReport> ProbeTestReports { get; set; }
         public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
-        public DbSet<ProbeTestResultView> ProbeTestResultViews { get; set; }
+        //public DbSet<ProbeTestResultView> ProbeTestResultViews { get; set; }
+        public DbSet<PTRView> PTRViews { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<Tester> Testers { get; set; }
@@ -42,81 +43,57 @@ namespace SonoCap.MES.Repositories.Context
             //modelBuilder.Ignore<ProbeTestResultView>();
             modelBuilder.Ignore<TestProbe>();
 
-            modelBuilder.Entity<ProbeTestResultView>()
-                .HasOne(ptrv => ptrv.Probe)
-                .WithMany(p => p.PTRViewProbe)
-                .HasForeignKey(ptrv => ptrv.ProbeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ProbeTestResultView>()
-                .HasOne(ptrv => ptrv.TransducerModule)
-                .WithMany(tdm => tdm.PTRViewTransducerModule)
-                .HasForeignKey(ptrv => ptrv.TransducerModuleId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ProbeTestResultView>()
-                .HasOne(ptrv => ptrv.Transducer)
-                .WithMany(td => td.PTRViewTransducer)
-                .HasForeignKey(ptrv => ptrv.TransducerId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ProbeTestResultView>()
-                .HasOne(ptrv => ptrv.MotorModule)
-                .WithMany(mm => mm.PTRViewMotorModule)
-                .HasForeignKey(ptrv => ptrv.MotorModuleId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test01)
-                .WithMany(t => t.ProbeTestResultView01)
+                .WithMany(t => t.PTRViewT01)
                 .HasForeignKey(ptrv => ptrv.TestId01)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test02)
-                .WithMany(t => t.ProbeTestResultView02)
+                .WithMany(t => t.PTRViewT02)
                 .HasForeignKey(ptrv => ptrv.TestId02)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test03)
-                .WithMany(t => t.ProbeTestResultView03)
+                .WithMany(t => t.PTRViewT03)
                 .HasForeignKey(ptrv => ptrv.TestId03)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test04)
-                .WithMany(t => t.ProbeTestResultView04)
+                .WithMany(t => t.PTRViewT04)
                 .HasForeignKey(ptrv => ptrv.TestId04)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test05)
-                .WithMany(t => t.ProbeTestResultView05)
+                .WithMany(t => t.PTRViewT05)
                 .HasForeignKey(ptrv => ptrv.TestId05)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test06)
-                .WithMany(t => t.ProbeTestResultView06)
+                .WithMany(t => t.PTRViewT06)
                 .HasForeignKey(ptrv => ptrv.TestId06)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test07)
-                .WithMany(t => t.ProbeTestResultView07)
+                .WithMany(t => t.PTRViewT07)
                 .HasForeignKey(ptrv => ptrv.TestId07)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test08)
-                .WithMany(t => t.ProbeTestResultView08)
+                .WithMany(t => t.PTRViewT08)
                 .HasForeignKey(ptrv => ptrv.TestId08)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ProbeTestResultView>()
+            modelBuilder.Entity<PTRView>()
                 .HasOne(ptrv => ptrv.Test09)
-                .WithMany(t => t.ProbeTestResultView09)
+                .WithMany(t => t.PTRViewT09)
                 .HasForeignKey(ptrv => ptrv.TestId09)
                 .OnDelete(DeleteBehavior.Restrict);
 

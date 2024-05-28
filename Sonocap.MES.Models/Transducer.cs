@@ -17,8 +17,5 @@ namespace SonoCap.MES.Models
 
         [ForeignKey(nameof(TransducerTypeId))] //lazy 로딩
         public virtual TransducerType TransducerType { get; set; } = default!;
-
-        // Navigation properties
-        public virtual ICollection<ProbeTestResultView> PTRViewTransducer { get; set; }
     }
 }

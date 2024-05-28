@@ -62,14 +62,14 @@ namespace SonoCap.MES.Models
         public virtual Probe? Probe { get; set; }
 
         // Navigation properties
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView01 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView02 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView03 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView04 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView05 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView06 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView07 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView08 { get; set; }
-        public virtual ICollection<ProbeTestResultView> ProbeTestResultView09 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT01 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT02 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT03 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT04 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT05 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT06 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT07 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT08 { get; set; }
+        public virtual ICollection<PTRView> PTRViewT09 { get; set; }
     }
 }
