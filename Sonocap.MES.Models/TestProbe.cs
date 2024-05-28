@@ -18,10 +18,13 @@ namespace SonoCap.MES.Models
         public required string ChangedImgMetadata { get; set; }
         public int Result { get; set; }
         public int Method { get; set; }
-        public required virtual TransducerModule TransducerModule { get; set; } = default!;
-        public string? ProbeSn { get; set; }
+
+        public virtual Probe? Probe { get; set; }
+
+        public virtual TransducerModule? TransducerModule { get; set; } = default!;
+
+        public virtual Transducer? Transducer { get; set; } = default!;
+
         public virtual MotorModule? MotorModule { get; set; }
-        public int DataFlagTest { get; set; }
-        public int DataFlagProbe { get; set; }
     }
 }

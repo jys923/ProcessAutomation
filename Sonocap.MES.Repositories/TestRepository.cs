@@ -3,7 +3,6 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.Models.Enums;
 
 namespace SonoCap.MES.Repositories
 {
@@ -13,114 +12,39 @@ namespace SonoCap.MES.Repositories
         {
         }
 
-        public List<TestProbe> GetTestProbe2()
-        {
-            IEnumerable<TestProbe> probes =
-                (from t in _context.Set<Test>()
-                 join p in _context.Set<Probe>() on t.TransducerModule equals p.TransducerModule into pGroup
-                 from p in pGroup.DefaultIfEmpty()
-                 select new TestProbe
-                 {
-                     Id = t.Id,
-                     CreatedDate = t.CreatedDate,
-                     Detail = t.Detail,
-                     Category = t.TestCategory,
-                     TestType = t.TestType,
-                     Tester = t.Tester.Name,
-                     Pc = t.Tester.Pc,
-                     OriginalImg = t.OriginalImg,
-                     ChangedImg = t.ChangedImg,
-                     ChangedImgMetadata = t.ChangedImgMetadata,
-                     Result = t.Result,
-                     Method = t.Method,
-                     TransducerModule = t.TransducerModule,
-                     ProbeSn = p.ProbeSn,
-                     MotorModule = p.MotorModule
-                 });
-            return probes.ToList();
-        }
-
-        public List<TestProbe> GetTestProbe()
-        {
-            List<TestProbe> testprobes =
-                (from t in _context.Set<Test>()
-                 join p in _context.Set<Probe>() on t.TransducerModuleId equals p.TransducerModuleId into pGroup
-                 from p in pGroup.DefaultIfEmpty()
-                 select new TestProbe
-                 {
-                     Id = t.Id,
-                     CreatedDate = t.CreatedDate,
-                     Detail = t.Detail,
-                     Category = t.TestCategory,
-                     TestType = t.TestType,
-                     Tester = t.Tester.Name,
-                     Pc = t.Tester.Pc,
-                     OriginalImg = t.OriginalImg,
-                     ChangedImg = t.ChangedImg,
-                     ChangedImgMetadata = t.ChangedImgMetadata,
-                     Result = t.Result,
-                     Method = t.Method,
-                     TransducerModule = t.TransducerModule,
-                     ProbeSn = p.ProbeSn,
-                     MotorModule = p.MotorModule
-                 }).ToList();
-
-            return testprobes;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public async Task<List<TestProbe>> GetTestProbeAsync()
-        {
-            IQueryable<TestProbe> testprobes =
-                (from t in _context.Set<Test>()
-                 join p in _context.Set<Probe>() on t.TransducerModuleId equals p.TransducerModuleId into pGroup
-                 from p in pGroup.DefaultIfEmpty()
-                 select new TestProbe
-                 {
-                     Id = t.Id,
-                     CreatedDate = t.CreatedDate,
-                     Detail = t.Detail,
-                     Category = t.TestCategory,
-                     TestType = t.TestType,
-                     Tester = t.Tester.Name,
-                     Pc = t.Tester.Pc,
-                     OriginalImg = t.OriginalImg,
-                     ChangedImg = t.ChangedImg,
-                     ChangedImgMetadata = t.ChangedImgMetadata,
-                     Result = t.Result,
-                     Method = t.Method,
-                     TransducerModule = t.TransducerModule,
-                     ProbeSn = p.ProbeSn,
-                     MotorModule = p.MotorModule
-                 });
-
-            return await testprobes.ToListAsync();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="startDate"></param>
-        /// <param name="endDate"></param>
-        /// <param name="categoryId"></param>
-        /// <param name="testTypeId"></param>
-        /// <param name="tester"></param>
-        /// <param name="pcId"></param>
-        /// <param name="result"></param>
-        /// <param name="probeSn"></param>
-        /// <param name="transducerModuleSn"></param>
-        /// <param name="transducerSn"></param>
-        /// <param name="motorModuleSn"></param>
-        /// <returns></returns>
-        public List<TestProbe> GetTestProbe(DateTime? startDate, DateTime? endDate, int? categoryId, int? testTypeId, string? tester, int? pcId, int? result, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public async Task<List<TestProbe>> GetTestProbeLinqAsync(
+            DateTime? startDate,
+            DateTime? endDate,
+            int? categoryId,
+            int? testTypeId,
+            string? tester,
+            int? pcId,
+            int? result,
+            int? dataFlagTest,
+            string? probeSn,
+            string? transducerModuleSn,
+            string? transducerSn,
+            string? motorModuleSn,
+            int? dataFlagProbe)
         {
             IQueryable<TestProbe> query =
                 (from t in _context.Set<Test>()
-                 join p in _context.Set<Probe>() on t.TransducerModuleId equals p.TransducerModuleId into pGroup
+                 join p in _context.Set<Probe>() on t.ProbeId equals p.Id into pGroup
                  from p in pGroup.DefaultIfEmpty()
+                 join tm in _context.Set<TransducerModule>() on t.TransducerModuleId equals tm.Id into tmGroup
+                 from tm in tmGroup.DefaultIfEmpty()
+                 join td in _context.Set<Transducer>() on t.TransducerId equals td.Id into tdGroup
+                 from td in tdGroup.DefaultIfEmpty()
+                 join mm in _context.Set<MotorModule>() on p.MotorModuleId equals mm.Id into mmGroup
+                 from mm in mmGroup.DefaultIfEmpty()
+                 where t.DataFlag == 1
+                    //&& t.Id < 100000
+                    && (startDate == null || t.CreatedDate >= startDate)
+                    && (endDate == null || t.CreatedDate <= endDate)
+                    && (string.IsNullOrEmpty(probeSn) || p.ProbeSn.Contains(probeSn))
+                    && (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn))
+                    && (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn))
+                    && (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
                  select new TestProbe
                  {
                      Id = t.Id,
@@ -135,167 +59,11 @@ namespace SonoCap.MES.Repositories
                      ChangedImgMetadata = t.ChangedImgMetadata,
                      Result = t.Result,
                      Method = t.Method,
-                     TransducerModule = t.TransducerModule,
-                     ProbeSn = p.ProbeSn,
-                     MotorModule = p.MotorModule
+                     Probe = p,
+                     TransducerModule = tm,
+                     Transducer = td,
+                     MotorModule = mm,
                  });
-
-            if (startDate != null)
-            {
-                query = query.Where(tp => tp.CreatedDate >= startDate);
-            }
-
-            if (endDate != null)
-            {
-                query = query.Where(tp => tp.CreatedDate <= endDate);
-            }
-
-            if (categoryId != null && categoryId != 0)
-            {
-                query = query.Where(tp => tp.Category.Id == categoryId);
-            }
-
-            if (testTypeId != null && testTypeId != 0)
-            {
-                query = query.Where(tp => tp.TestType.Id == testTypeId);
-            }
-
-            if (!string.IsNullOrEmpty(tester))
-            {
-                query = query.Where(tp => tp.Tester == tester);
-            }
-
-            if (pcId != null && pcId != 0)
-            {
-                query = query.Where(tp => tp.Pc.Id == pcId);
-            }
-
-            if (result != null && result != 0)
-            {
-                if (result == 1)
-                {
-                    query = query.Where(tp => tp.Result > 2);
-                }
-                else if (result == 2)
-                {
-                    query = query.Where(tp => tp.Result == 2);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(probeSn))
-            {
-                query = query.Where(tp => tp.ProbeSn!.Contains(probeSn));
-            }
-
-            if (!string.IsNullOrEmpty(transducerModuleSn))
-            {
-                query = query.Where(tp => tp.TransducerModule.TransducerModuleSn!.Contains(transducerModuleSn));
-            }
-
-            if (!string.IsNullOrEmpty(transducerSn))
-            {
-                query = query.Where(tp => tp.TransducerModule.Transducer.TransducerSn!.Contains(transducerSn));
-            }
-
-            if (!string.IsNullOrEmpty(motorModuleSn))
-            {
-                query = query.Where(tp => tp.MotorModule.MotorModuleSn!.Contains(motorModuleSn));
-            }
-
-            return query.ToList();
-        }
-
-        public async Task<List<TestProbe>> GetTestProbeAsync(DateTime? startDate, DateTime? endDate, int? categoryId, int? testTypeId, string? tester, int? pcId, int? result, int? dataFlagTest, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn, int? dataFlagProbe)
-        {
-            IQueryable<TestProbe> query =
-                (from t in _context.Set<Test>()
-                 join p in _context.Set<Probe>() on t.TransducerModuleId equals p.TransducerModuleId into pGroup
-                 from p in pGroup.DefaultIfEmpty()
-                 select new TestProbe
-                 {
-                     Id = t.Id,
-                     CreatedDate = t.CreatedDate,
-                     Detail = t.Detail,
-                     Category = t.TestCategory,
-                     TestType = t.TestType,
-                     Tester = t.Tester.Name,
-                     Pc = t.Tester.Pc,
-                     OriginalImg = t.OriginalImg,
-                     ChangedImg = t.ChangedImg,
-                     ChangedImgMetadata = t.ChangedImgMetadata,
-                     Result = t.Result,
-                     Method = t.Method,
-                     TransducerModule = t.TransducerModule,
-                     DataFlagTest = t.DataFlag,
-                     ProbeSn = p.ProbeSn,
-                     MotorModule = p.MotorModule,
-                     DataFlagProbe = p.DataFlag,
-                 });
-
-            if (startDate != null)
-            {
-                query = query.Where(tp => tp.CreatedDate >= startDate);
-            }
-
-            if (endDate != null)
-            {
-                query = query.Where(tp => tp.CreatedDate <= endDate);
-            }
-
-            if (categoryId != null && categoryId != (int)Commons.All)
-            {
-                query = query.Where(tp => tp.Category.Id == categoryId);
-            }
-
-            if (testTypeId != null && testTypeId != (int)Commons.All)
-            {
-                query = query.Where(tp => tp.TestType.Id == testTypeId);
-            }
-
-            if (!string.IsNullOrEmpty(tester))
-            {
-                query = query.Where(tp => tp.Tester == tester);
-            }
-
-            if (pcId != null && pcId != (int)Commons.All)
-            {
-                query = query.Where(tp => tp.Pc.Id == pcId);
-            }
-
-            if (result != null && result != (int)Commons.All)
-            {
-                query = query.Where(tp => tp.Result >= result);
-            }
-
-            if (dataFlagTest != null && dataFlagTest != (int)Commons.All)
-            {
-                query = query.Where(tp => tp.DataFlagTest == dataFlagTest);
-            }
-
-            if (!string.IsNullOrEmpty(probeSn))
-            {
-                query = query.Where(tp => tp.ProbeSn!.Contains(probeSn));
-            }
-
-            if (!string.IsNullOrEmpty(transducerModuleSn))
-            {
-                query = query.Where(tp => tp.TransducerModule.TransducerModuleSn.Contains(transducerModuleSn));
-            }
-
-            if (!string.IsNullOrEmpty(transducerSn))
-            {
-                query = query.Where(tp => tp.TransducerModule.Transducer.TransducerSn.Contains(transducerSn));
-            }
-
-            if (!string.IsNullOrEmpty(motorModuleSn))
-            {
-                query = query.Where(tp => tp.MotorModule != null && tp.MotorModule.MotorModuleSn.Contains(motorModuleSn));
-            }
-
-            if (dataFlagProbe != null && dataFlagProbe != (int)Commons.All)
-            {
-                query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
-            }
 
             return await query.ToListAsync();
         }

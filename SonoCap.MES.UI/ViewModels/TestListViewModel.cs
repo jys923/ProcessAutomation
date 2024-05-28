@@ -111,14 +111,14 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<TestProbe> testProbes = await _testRepository.GetTestProbeAsync(
+            List<TestProbe> testProbes = await _testRepository.GetTestProbeLinqAsync(
                 StartDate,
                 EndDate,
-                TestCategory.Equals("ALL") ? (int)SonoCap.MES.Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
-                TestType.Equals("ALL") ? (int)SonoCap.MES.Models.Enums.Commons.All : TestTypes.IndexOf(TestType),
+                TestCategory.Equals("ALL") ? (int)Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
+                TestType.Equals("ALL") ? (int)Models.Enums.Commons.All : TestTypes.IndexOf(TestType),
                 Tester,
-                Pc.Equals("ALL") ? (int)SonoCap.MES.Models.Enums.Commons.All : Pcs.IndexOf(Pc),
-                TestResult.Equals("ALL") ? (int)SonoCap.MES.Models.Enums.Commons.All : TestResults.IndexOf(TestResult),
+                Pc.Equals("ALL") ? (int)Models.Enums.Commons.All : Pcs.IndexOf(Pc),
+                TestResult.Equals("ALL") ? (int)Models.Enums.Commons.All : TestResults.IndexOf(TestResult),
                 null,
                 ProbeSn,
                 TDMdSn,
@@ -145,6 +145,7 @@ namespace SonoCap.MES.UI.ViewModels
                 "ALL",//0
                 "공정용",
                 "출하용",
+                "최종용",
             };
 
             TestCategory = TestCategories[0];
