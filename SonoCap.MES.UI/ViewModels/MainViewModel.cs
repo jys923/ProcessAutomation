@@ -117,6 +117,207 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        //[RelayCommand]
+        private async Task Master2()
+        {
+            int maxCnt = 100000;
+            int resultCnt = 5;
+
+            string currentDate = DateTime.Now.ToString("yyMMdd");
+
+            Random random = new Random();
+
+
+            List<MotorModule> moterModules = new List<MotorModule>();
+            List<Transducer> transducers = new List<Transducer>();
+            List<TransducerModule> transducerModules = new List<TransducerModule>();
+            List<Test> tests = new List<Test>();
+            List<Tester> tester = new List<Tester>();
+            List<int> testerIds = new List<int>();
+            List<int> pcIds = new List<int>();
+            List<Probe> probes = new List<Probe>();
+            List<ProbeTestResultView> probeTestResultViews = new List<ProbeTestResultView>();
+            List<int> tdIds = new List<int>();
+
+            #region MotorModules
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D6");
+                moterModules.Add(new MotorModule { MotorModuleSn = MotorModuleSn });
+            }
+            await _motorModuleRepository.BulkInsertAsync(moterModules);
+            #endregion
+
+            await _pcRepository.InsertAsync(new Pc { Name = "left" });
+            await _pcRepository.InsertAsync(new Pc { Name = "middle" });
+            await _pcRepository.InsertAsync(new Pc { Name = "right" });
+
+            //_probeRepository--
+
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
+
+            pcIds = Enumerable.Range(1, 3).ToList();
+
+            for (int i = 1; i <= maxCnt / 100; i++)
+            {
+                Utilities.Shuffle(pcIds);
+                tester.Add(new Tester { Name = "yoon", PcId = pcIds[0] });
+                tester.Add(new Tester { Name = "sang", PcId = pcIds[1] });
+                tester.Add(new Tester { Name = "bkko", PcId = pcIds[2] });
+            }
+            await _testerRepository.BulkInsertAsync(tester);
+
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
+
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" }); 
+
+           // #region TestsTDs
+            for (int i = 1; i <= 100 ; ++i)
+            {
+                testerIds.AddRange(Enumerable.Range(1, 3000));
+            }
+            //Utilities.Shuffle(_testers);
+
+            #region Transducers
+            //tdIds.AddRange(Enumerable.Range(1, maxCnt));
+
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                int transducerTypeId = random.Next(1, 3);
+                string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D6");
+                transducers.Add(new Transducer { TransducerSn = TransducerSn, TransducerTypeId = transducerTypeId });
+            }
+            await _transducerRepository.BulkInsertAsync(transducers);
+            #endregion
+
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                {
+                    while (true)
+                    {
+                        int randomValue = random.Next(65, 100);
+                        Test test = new Test
+                        {
+                            TestCategoryId = (int)TestCategories.Processing,
+                            TestTypeId = k,
+                            TesterId = testerIds[(i - 1) * 3 + (k - 1)],
+                            OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImgMetadata = Utilities.MKSHA256(),
+                            Result = randomValue,
+                            Method = random.Next(1, 3),
+                        };
+
+                        test.TransducerId = i;
+
+                        tests.Add(test);
+
+                        if (randomValue >= 70)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            await _testRepository.BulkInsertAsync(tests);
+
+            tests.Clear();
+
+            #region TransducerModules
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
+                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerId = i });
+            }
+            await _transducerModuleRepository.BulkInsertAsync(transducerModules);
+            #endregion
+
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                {
+                    while (true)
+                    {
+                        int randomValue = random.Next(65, 100);
+                        Test test = new Test
+                        {
+                            TestCategoryId = (int)TestCategories.Process,
+                            TestTypeId = k,
+                            TesterId = testerIds[(i - 1) * 3 + (k - 1)],
+                            OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImgMetadata = Utilities.MKSHA256(),
+                            Result = randomValue,
+                            Method = random.Next(1, 3),
+                        };
+
+                        test.TransducerModuleId = i;
+
+                        tests.Add(test);
+
+                        //await _testRepository.InsertAsync(test);
+
+                        if (randomValue >= 70)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            await _testRepository.BulkInsertAsync(tests);
+
+            tests.Clear();
+
+            #region Probes
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
+                probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
+            }
+            await _probeRepository.BulkInsertAsync(probes);
+            #endregion
+
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                {
+                    while (true)
+                    {
+                        int randomValue = random.Next(65, 100);
+                        Test test = new Test
+                        {
+                            TestCategoryId = (int)TestCategories.Dispatch,
+                            TestTypeId = k,
+                            TesterId = testerIds[(i - 1) * 3 + (k - 1)],
+                            OriginalImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImg = $"/img/{currentDate}/{Utilities.MKRandom(10)}",
+                            ChangedImgMetadata = Utilities.MKSHA256(),
+                            Result = randomValue,
+                            Method = random.Next(1, 3),
+                        };
+
+                        test.ProbeId = i;
+
+                        tests.Add(test);
+
+                        //await _testRepository.InsertAsync(test);
+
+                        if (randomValue >= 70)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            await _testRepository.BulkInsertAsync(tests);
+        }
+
         [RelayCommand]
         private async Task Master()
         {
@@ -126,7 +327,6 @@ namespace SonoCap.MES.UI.ViewModels
             string currentDate = DateTime.Now.ToString("yyMMdd");
 
             Random random = new Random();
-
 
             List<MotorModule> moterModules = new List<MotorModule>();
             List<Transducer> transducers = new List<Transducer>();
@@ -174,7 +374,7 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" }); 
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
 
             #region Transducers
             tdIds.AddRange(Enumerable.Range(1, maxCnt));
@@ -192,7 +392,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
-                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn,TransducerId = i});
+                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerId = i });
             }
             await _transducerModuleRepository.BulkInsertAsync(transducerModules);
             #endregion
@@ -206,9 +406,9 @@ namespace SonoCap.MES.UI.ViewModels
             await _probeRepository.BulkInsertAsync(probes);
             #endregion
 
-            
-           // #region TestsTDs
-            for (int i = 1; i <= 100 ; ++i)
+
+            // #region TestsTDs
+            for (int i = 1; i <= 100; ++i)
             {
                 testerIds.AddRange(Enumerable.Range(1, 3000));
             }
@@ -237,7 +437,7 @@ namespace SonoCap.MES.UI.ViewModels
 
                         tests.Add(test);
 
-                        await _testRepository.InsertAsync(test);
+                        //await _testRepository.InsertAsync(test);
 
                         if (randomValue >= 70)
                         {

@@ -60,5 +60,16 @@ namespace SonoCap.MES.Models
 
         [ForeignKey(nameof(ProbeId))] //lazy 로딩
         public virtual Probe? Probe { get; set; }
+
+        // Navigation properties
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView01 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView02 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView03 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView04 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView05 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView06 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView07 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView08 { get; set; }
+        public virtual ICollection<ProbeTestResultView> ProbeTestResultView09 { get; set; }
     }
 }

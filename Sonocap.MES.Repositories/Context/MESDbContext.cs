@@ -13,8 +13,9 @@ namespace SonoCap.MES.Repositories.Context
         public DbSet<Pc> Pcs { get; set; }
         public DbSet<Probe> Probes { get; set; }
         
-        public DbSet<ProbeTestReport> ProbeTestResults { get; set; }
-        public DbSet<ProbeTestResult> ProbeTestDaoResults { get; set; }
+        public DbSet<ProbeTestReport> ProbeTestReports { get; set; }
+        public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
+        public DbSet<ProbeTestResultView> ProbeTestResultViews { get; set; }
         public DbSet<Test> Tests { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<Tester> Testers { get; set; }
@@ -36,9 +37,64 @@ namespace SonoCap.MES.Repositories.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ProbeTestResult 엔터티를 모델에서 제외합니다.
-            //modelBuilder.Ignore<ProbeTestResult>();
-            //modelBuilder.Ignore<ProbeTestResultDao>();
-            //modelBuilder.Ignore<TestProbe>();
+            modelBuilder.Ignore<ProbeTestReport>();
+            modelBuilder.Ignore<ProbeTestResult>();
+            //modelBuilder.Ignore<ProbeTestResultView>();
+            modelBuilder.Ignore<TestProbe>();
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test01)
+                .WithMany(t => t.ProbeTestResultView01)
+                .HasForeignKey(ptrv => ptrv.TestId01)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test02)
+                .WithMany(t => t.ProbeTestResultView02)
+                .HasForeignKey(ptrv => ptrv.TestId02)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test03)
+                .WithMany(t => t.ProbeTestResultView03)
+                .HasForeignKey(ptrv => ptrv.TestId03)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test04)
+                .WithMany(t => t.ProbeTestResultView04)
+                .HasForeignKey(ptrv => ptrv.TestId04)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test05)
+                .WithMany(t => t.ProbeTestResultView05)
+                .HasForeignKey(ptrv => ptrv.TestId05)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test06)
+                .WithMany(t => t.ProbeTestResultView06)
+                .HasForeignKey(ptrv => ptrv.TestId06)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test07)
+                .WithMany(t => t.ProbeTestResultView07)
+                .HasForeignKey(ptrv => ptrv.TestId07)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test08)
+                .WithMany(t => t.ProbeTestResultView08)
+                .HasForeignKey(ptrv => ptrv.TestId08)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProbeTestResultView>()
+                .HasOne(ptrv => ptrv.Test09)
+                .WithMany(t => t.ProbeTestResultView09)
+                .HasForeignKey(ptrv => ptrv.TestId09)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -58,7 +114,8 @@ namespace SonoCap.MES.Repositories.Context
             optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
             optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
-            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            
+            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_4; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString), options => options.CommandTimeout(120));
         }
 #endif
