@@ -16,11 +16,28 @@ namespace SonoCap.MES.Models
         //[StringLength(15)]
         public required string ProbeSn { get; set; }
 
+        public int? ProbeTestId { get; set; }
+
+        [ForeignKey(nameof(ProbeTestId))]
+        public virtual Test ProbeTest { get; set; } = default!;
+
         [Required]
         public required int TransducerModuleId { get; set; }
 
         [ForeignKey(nameof(TransducerModuleId))] //lazy 로딩
         public virtual TransducerModule TransducerModule { get; set; } = default!;
+
+        [Required]
+        public int TransducerModuleTestId { get; set; }
+
+        [ForeignKey(nameof(TransducerModuleTestId))]
+        public virtual Test TransducerModuleTest { get; set; } = default!;
+
+        [Required]
+        public int TransducerTestId { get; set; }
+
+        [ForeignKey(nameof(TransducerTestId))]
+        public virtual Test TransducerTest { get; set; } = default!;
 
         [Required]
         public required int MotorModuleId { get; set; }

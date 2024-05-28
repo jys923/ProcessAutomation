@@ -36,9 +36,27 @@ namespace SonoCap.MES.Repositories.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ProbeTestResult 엔터티를 모델에서 제외합니다.
-            //modelBuilder.Ignore<ProbeTestResult>();
-            //modelBuilder.Ignore<ProbeTestResultDao>();
-            //modelBuilder.Ignore<TestProbe>();
+            modelBuilder.Ignore<ProbeTestResult>();
+            modelBuilder.Ignore<ProbeTestReport>();
+            modelBuilder.Ignore<TestProbe>();
+
+            modelBuilder.Entity<Probe>()
+               .HasOne(p => p.TransducerModuleTest)
+               .WithMany(t => t.ProbesAsTransducerModuleTest)
+               .HasForeignKey(p => p.TransducerModuleTestId)
+               .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Probe>()
+                .HasOne(p => p.TransducerTest)
+                .WithMany(t => t.ProbesAsTransducerTest)
+                .HasForeignKey(p => p.TransducerTestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Probe>()
+                .HasOne(p => p.ProbeTest)
+                .WithMany(t => t.ProbesTest)
+                .HasForeignKey(p => p.ProbeTestId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -58,7 +76,7 @@ namespace SonoCap.MES.Repositories.Context
             optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
             optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
-            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_3; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString), options => options.CommandTimeout(120));
         }
 #endif

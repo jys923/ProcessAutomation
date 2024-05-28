@@ -8,6 +8,7 @@
         Task<bool> InsertAsync(T entity);
         Task<bool> BulkInsertAsync(IEnumerable<T> entities);
         Task<bool> UpdateAsync(T entity);
+        Task<bool> BulkUpdateAsync(IEnumerable<T> entities);
         Task<bool> DeleteAsync(T entity);
         Task<bool> DeleteByIdAsync(int id);
     }

@@ -46,7 +46,7 @@ namespace SonoCap.MES.Models
         [Required]
         public int Method { get; set; }
 
-        public int? TransducerId { get; set; }
+        public int TransducerId { get; set; }
 
         [ForeignKey(nameof(TransducerId))] //lazy 로딩
         public virtual Transducer? Transducer { get; set; }
@@ -60,5 +60,10 @@ namespace SonoCap.MES.Models
 
         [ForeignKey(nameof(ProbeId))] //lazy 로딩
         public virtual Probe? Probe { get; set; }
+
+        // Navigation properties
+        public virtual ICollection<Probe>? ProbesAsTransducerModuleTest { get; set; }
+        public virtual ICollection<Probe>? ProbesAsTransducerTest { get; set; }
+        public virtual ICollection<Probe>? ProbesTest { get; set; }
     }
 }

@@ -71,6 +71,24 @@ namespace SonoCap.MES.Repositories.Base
             return result;
         }
 
+        public async Task<bool> BulkUpdateAsync(IEnumerable<T> entities)
+        {
+            bool result = false;
+
+            try
+            {
+                await _context.BulkUpdateAsync(entities);
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"BulkInsertAsync 작업 중 오류 발생: {ex.Message}");
+                result = false;
+            }
+
+            return result;
+        }
+
         public async Task<bool> UpdateAsync(T entity)
         {
             _context.Entry(entity).State = EntityState.Modified;

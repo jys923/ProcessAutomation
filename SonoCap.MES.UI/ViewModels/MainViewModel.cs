@@ -117,6 +117,13 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        public class testTd()
+        {
+            public int? pId { get; set; }
+            public int? tmId { get; set; }
+            public int? tdId { get; set; }
+        }
+
         [RelayCommand]
         private async Task Master()
         {
@@ -127,6 +134,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             Random random = new Random();
 
+         
 
             List<MotorModule> moterModules = new List<MotorModule>();
             List<Transducer> transducers = new List<Transducer>();
@@ -137,6 +145,7 @@ namespace SonoCap.MES.UI.ViewModels
             List<int> pcIds = new List<int>();
             List<Probe> probes = new List<Probe>();
             List<int> tdIds = new List<int>();
+            List<testTd> testIds = new List<testTd>();
 
             #region MotorModules
             for (int i = 1; i <= maxCnt; ++i)
@@ -162,7 +171,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             for (int i = 1; i <= maxCnt / 100; i++)
             {
-                Utilities.Shuffle(pcIds);
+                //Utilities.Shuffle(pcIds);
                 tester.Add(new Tester { Name = "yoon", PcId = pcIds[0] });
                 tester.Add(new Tester { Name = "sang", PcId = pcIds[1] });
                 tester.Add(new Tester { Name = "bkko", PcId = pcIds[2] });
@@ -187,25 +196,6 @@ namespace SonoCap.MES.UI.ViewModels
             }
             await _transducerRepository.BulkInsertAsync(transducers);
             #endregion
-
-            #region TransducerModules
-            for (int i = 1; i <= maxCnt; ++i)
-            {
-                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
-                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn,TransducerId = i});
-            }
-            await _transducerModuleRepository.BulkInsertAsync(transducerModules);
-            #endregion
-
-            #region Probes
-            for (int i = 1; i <= maxCnt; ++i)
-            {
-                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
-                probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
-            }
-            await _probeRepository.BulkInsertAsync(probes);
-            #endregion
-
             
            // #region TestsTDs
             for (int i = 1; i <= 100 ; ++i)
@@ -213,7 +203,6 @@ namespace SonoCap.MES.UI.ViewModels
                 testerIds.AddRange(Enumerable.Range(1, 3000));
             }
             //Utilities.Shuffle(_testers);
-
             for (int i = 1; i <= maxCnt; ++i)
             {
                 for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
@@ -237,10 +226,11 @@ namespace SonoCap.MES.UI.ViewModels
 
                         tests.Add(test);
 
-                        await _testRepository.InsertAsync(test);
+                        //await _testRepository.InsertAsync(test);
 
                         if (randomValue >= 70)
                         {
+                            testIds.Add(new testTd { tdId = tests.Count });
                             break;
                         }
                     }
@@ -249,6 +239,15 @@ namespace SonoCap.MES.UI.ViewModels
             await _testRepository.BulkInsertAsync(tests);
 
             tests.Clear();
+
+            #region TransducerModules
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
+                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerId = i });
+            }
+            await _transducerModuleRepository.BulkInsertAsync(transducerModules);
+            #endregion
 
             for (int i = 1; i <= maxCnt; ++i)
             {
@@ -277,6 +276,8 @@ namespace SonoCap.MES.UI.ViewModels
 
                         if (randomValue >= 70)
                         {
+                            //Console.WriteLine("tests.Count:" + tests.Count);
+                            testIds[i - 1].tmId= tests.Count;
                             break;
                         }
                     }
@@ -285,6 +286,15 @@ namespace SonoCap.MES.UI.ViewModels
             await _testRepository.BulkInsertAsync(tests);
 
             tests.Clear();
+
+            #region Probes
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
+                probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i, TransducerTestId = (int)testIds[i - 1].tdId!, TransducerModuleTestId = (int)testIds[i - 1].tmId! });
+            }
+            await _probeRepository.BulkInsertAsync(probes);
+            #endregion
 
             for (int i = 1; i <= maxCnt; ++i)
             {
@@ -313,12 +323,19 @@ namespace SonoCap.MES.UI.ViewModels
 
                         if (randomValue >= 70)
                         {
+                            testIds[i - 1].pId = tests.Count;
                             break;
                         }
                     }
                 }
             }
             await _testRepository.BulkInsertAsync(tests);
+            for (int i = 1; i <= maxCnt; ++i)
+            {
+                probes[i - 1].ProbeTestId = testIds[i - 1].pId;
+            }
+            //updata
+            await _probeRepository.BulkUpdateAsync(probes);
         }
 
         [RelayCommand]
