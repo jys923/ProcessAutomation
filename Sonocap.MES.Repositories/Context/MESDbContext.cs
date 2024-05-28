@@ -39,7 +39,7 @@ namespace SonoCap.MES.Repositories.Context
         {
             // ProbeTestResult 엔터티를 모델에서 제외합니다.
             modelBuilder.Ignore<ProbeTestReport>();
-            modelBuilder.Ignore<ProbeTestResult>();
+            //modelBuilder.Ignore<ProbeTestResult>();
             //modelBuilder.Ignore<ProbeTestResultView>();
             modelBuilder.Ignore<TestProbe>();
 

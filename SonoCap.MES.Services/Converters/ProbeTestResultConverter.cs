@@ -18,15 +18,15 @@ namespace SonoCap.MES.Services.Converters
             };
 
             // Add TestResults from dao
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId1, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId1, CreatedDate = dao.Test1_CreatedDate, Result = dao.Test1_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId2, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId2, CreatedDate = dao.Test2_CreatedDate, Result = dao.Test2_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId3, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId3, CreatedDate = dao.Test3_CreatedDate, Result = dao.Test3_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId4, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId4, CreatedDate = dao.Test4_CreatedDate, Result = dao.Test4_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId5, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId5, CreatedDate = dao.Test5_CreatedDate, Result = dao.Test5_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId6, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId6, CreatedDate = dao.Test6_CreatedDate, Result = dao.Test6_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId7, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId7, CreatedDate = dao.Test7_CreatedDate, Result = dao.Test7_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId8, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId8, CreatedDate = dao.Test8_CreatedDate, Result = dao.Test8_Result });
-            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId9, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId9, CreatedDate = dao.Test9_CreatedDate, Result = dao.Test9_Result });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId1, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId1, CreatedDate = dao.TestCreatedDate1, Result = dao.TestResult1 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId2, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId2, CreatedDate = dao.TestCreatedDate2, Result = dao.TestResult2 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId3, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId3, CreatedDate = dao.TestCreatedDate3, Result = dao.TestResult3 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId4, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId4, CreatedDate = dao.TestCreatedDate4, Result = dao.TestResult4 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId5, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId5, CreatedDate = dao.TestCreatedDate5, Result = dao.TestResult5 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId6, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId6, CreatedDate = dao.TestCreatedDate6, Result = dao.TestResult6 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId7, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId7, CreatedDate = dao.TestCreatedDate7, Result = dao.TestResult7 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId8, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId8, CreatedDate = dao.TestCreatedDate8, Result = dao.TestResult8 });
+            result.TestResults.Add(new TestResult { CategoryId = (Models.Enums.TestCategories?)dao.TestCategoryId9, TypeId = (Models.Enums.TestTypes?)dao.TestTypeId9, CreatedDate = dao.TestCreatedDate9, Result = dao.TestResult9 });
 
             return result;
         }

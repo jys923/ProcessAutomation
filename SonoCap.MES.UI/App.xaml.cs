@@ -109,6 +109,7 @@ namespace SonoCap.MES.UI
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
             services.AddTransient<IPcRepository, PcRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();
+            services.AddTransient<IPTRViewRepository, PTRViewRepository>();
             services.AddTransient<ITestCategoryRepository, TestCategoryRepository>();
             services.AddTransient<ITesterRepository, TesterRepository>();
             services.AddTransient<ITestRepository, TestRepository>();

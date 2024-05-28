@@ -10,6 +10,7 @@ namespace SonoCap.MES.UI.ViewModels
     public partial class ProbeListViewModel : ObservableObject
     {
         private readonly IProbeRepository _probeRepository;
+        private readonly IPTRViewRepository _pTRViewRepository;
 
         [ObservableProperty]
         private string _title = default!;
@@ -102,7 +103,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<ProbeTestResult> probes = await _probeRepository.GetProbeTestResultSqlAsync(
+            List<ProbeTestResult> probes = await _pTRViewRepository.GetProbeTestResultSqlAsync(
                 StartDate,
                 EndDate,
                 ProbeSn,
@@ -118,10 +119,13 @@ namespace SonoCap.MES.UI.ViewModels
         {
         }
 
-        public ProbeListViewModel(IProbeRepository probeRepository)
+        public ProbeListViewModel(
+            IProbeRepository probeRepository,
+            IPTRViewRepository pTRViewRepository)
         {
             Title = this.GetType().Name;
-            this._probeRepository = probeRepository;
+            _probeRepository = probeRepository;
+            _pTRViewRepository = pTRViewRepository;
             //TestCategories = new ObservableCollection<string>
             //{
             //    "ALL",
@@ -154,8 +158,6 @@ namespace SonoCap.MES.UI.ViewModels
             MTMdSn = "";
 
             //db 조회
-
-            this._probeRepository = probeRepository;
 
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
