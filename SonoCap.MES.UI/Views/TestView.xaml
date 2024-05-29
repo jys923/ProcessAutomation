@@ -11,69 +11,31 @@
         d:DataContext="{d:DesignInstance Type={x:Type vm:TestViewModel}}"
         Title="{Binding Title}" Height="1080" Width="1920">
     <Window.Resources>
-        <Converter:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
-        <Style TargetType="Label">
-            <Setter Property="FontSize" Value="40"/>
-        </Style>
-        <Style TargetType="GroupBox">
-            <Setter Property="FontSize" Value="20"/>
-        </Style>
         <Style TargetType="RadioButton">
             <Setter Property="FontSize" Value="20"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="10,10,0,0" />
-        </Style>
-        <Style x:Key="BlinkingBorderStyle2" TargetType="Border">
-            <Setter Property="Background" Value="LightGreen"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsBlinking}" Value="True">
-                    <DataTrigger.EnterActions>
-                        <BeginStoryboard>
-                            <Storyboard RepeatBehavior="Forever">
-                                <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Background).(SolidColorBrush.Color)">
-                                    <DiscreteColorKeyFrame KeyTime="0:0:0" Value="Red"/>
-                                    <DiscreteColorKeyFrame KeyTime="0:0:0.5" Value="LightGreen"/>
-                                </ColorAnimationUsingKeyFrames>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </DataTrigger.EnterActions>
-                    <DataTrigger.ExitActions>
-                        <StopStoryboard BeginStoryboardName="BlinkingAnimation"/>
-                    </DataTrigger.ExitActions>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <!-- 깜빡이는 효과를 위한 스타일 리소스 -->
-        <Style x:Key="BlinkingBorderStyle" TargetType="Border">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="1">
-                    <DataTrigger.EnterActions>
-                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                        <BeginStoryboard>
-                            <Storyboard RepeatBehavior="Forever">
-                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="Red" Duration="0:0:0.5" AutoReverse="True"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </DataTrigger.EnterActions>
-                    <DataTrigger.ExitActions>
-                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="LightGreen" Duration="0:0:0"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </DataTrigger.ExitActions>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
-            <Style.Triggers>
-                <Trigger Property="IsReadOnly" Value="True">
-                    <Setter Property="Background" Value="LightGray"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Foreground" Value="Black"/>
+            <!-- 선택 원과 텍스트 사이의 간격 조절 -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Ellipse x:Name="RadioButton" Grid.Column="0" Width="20" Height="20" Stroke="Black" StrokeThickness="2" Fill="{TemplateBinding Background}"/>
+                            <!-- 간격 조절을 위해 Margin 추가 -->
+                            <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <!-- 선택 상태에 따라 배경 색상 변경 -->
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="RadioButton" Property="Fill" Value="Black"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
     <Grid Margin="15">
@@ -114,24 +76,16 @@
                     </Grid.RowDefinitions>
                     <Label Grid.Row="0" Grid.Column="1" Content="Probe Sn" FontSize="20"/>
                     <Label Grid.Row="1" Grid.Column="1" Content="TD Md Sn" FontSize="20"/>
-                    <Label Grid.Row="2" Grid.Column="1" Content="TD Type" FontSize="20"/>
                     <Label Grid.Row="3" Grid.Column="1" Content="TD Sn" FontSize="20"/>
-                    <Label Grid.Row="4" Grid.Column="1" Content="Date  " FontSize="20"/>
-                    <Label Grid.Row="5" Grid.Column="1" Content="PC No" FontSize="20"/>
+                    <Label Grid.Row="4" Grid.Column="1" Content="Date" FontSize="20"/>
+                    <Label Grid.Row="5" Grid.Column="1" Content="PC Name" FontSize="20"/>
                     <Label Grid.Row="6" Grid.Column="1" Content="Seq No" FontSize="20"/>
                     <Label Grid.Row="7" Grid.Column="1" Content="MT Md Sn" FontSize="20"/>
 
                     <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="{Binding ProbeSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
                     <TextBox Grid.Row="1" Grid.Column="2" FontSize="20" Text="{Binding TDMdSn}" IsReadOnly="{Binding TDMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
-                    <!--<ComboBox Grid.Row="2" Grid.Column="2" FontSize="20"  SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}" SelectedItem="{Binding TDType, Mode=TwoWay}">
-                        <ComboBoxItem FontSize="20" Content="5M"/>
-                        <ComboBoxItem FontSize="20" Content="7.5M"/>
-                    </ComboBox>-->
-                    <!--<ComboBox Grid.Row="2" Grid.Column="2" FontSize="20" SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}" SelectedItem="{Binding TDType, Mode=TwoWay}">
-                    </ComboBox>-->
-                    <ComboBox Grid.Row="2" Grid.Column="2" FontSize="20" ItemsSource="{Binding TDTypes}" SelectedItem="{Binding TDType, Mode=TwoWay}" SelectedIndex="{Binding TDTypeIndex, Mode=TwoWay}"/>
+                    <TextBox Grid.Row="3" Grid.Column="2" FontSize="20" Text="{Binding TDSn}" IsReadOnly="{Binding TDSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
 
-                    <TextBox Grid.Row="3" Grid.Column="2" FontSize="20" Text="{Binding TDSn}"/>
                     <DatePicker Grid.Row="4" Grid.Column="2" SelectedDate="{Binding SelectedDate}" FontSize="20">
                         <DatePicker.Resources>
                             <Style TargetType="ToggleButton">
@@ -149,7 +103,7 @@
                             </Style>
                         </DatePicker.Resources>
                     </DatePicker>
-                    <TextBox Grid.Row="5" Grid.Column="2" FontSize="20" Text="{Binding PcNo}"/>
+                    <ComboBox Grid.Row="5" Grid.Column="2" FontSize="20" ItemsSource="{Binding PCs}" SelectedIndex="{Binding PCIndex, Mode=TwoWay}"/>
                     <TextBox Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"/>
                     <TextBox Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn}" IsReadOnly="{Binding MTMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
                 </Grid>

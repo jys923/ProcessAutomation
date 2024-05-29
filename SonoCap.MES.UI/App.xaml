@@ -11,10 +11,24 @@
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
             <converters:RowIndexConverter x:Key="RowIndexConverter" />
             <Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
+            <Style TargetType="Label">
+                <Setter Property="FontSize" Value="40"/>
+            </Style>
+            <Style TargetType="GroupBox">
+                <Setter Property="FontSize" Value="20"/>
+            </Style>
+            <Style x:Key="ReadOnlyTextBoxStyle" TargetType="TextBox">
+                <Style.Triggers>
+                    <Trigger Property="IsReadOnly" Value="True">
+                        <Setter Property="Background" Value="LightGray"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <!--<ResourceDictionary Source="/Styles/BlinkingButtonStyle.xaml"/>-->
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
+        
         <!-- DataTemplate을 이용하여 ViewModel과 View를 연결 -->
         <!--<DataTemplate DataType="{x:Type viewmodels:MainViewModel}">
             <views:MainView/>

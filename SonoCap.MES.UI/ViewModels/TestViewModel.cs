@@ -34,22 +34,22 @@ namespace SonoCap.MES.UI.ViewModels
         private bool _tDMdSnIsReadOnly = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _tDTypes;
-
-        [ObservableProperty]
-        private string _tDType = default!;
-
-        [ObservableProperty]
-        private int _tDTypeIndex = default!;
-
-        [ObservableProperty]
         private string _tDSn = default!;
+
+        [ObservableProperty]
+        private bool _tDSnIsReadOnly = default!;
 
         [ObservableProperty]
         private DateTime _selectedDate = DateTime.Now;
 
         [ObservableProperty]
-        private string _pcNo = default!;
+        private bool _selectedDateIsReadOnly = default!;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _pCs;
+
+        [ObservableProperty]
+        private int _pCIndex = default!;
 
         [ObservableProperty]
         private string _seqNo = default!;
@@ -60,89 +60,11 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private bool _mTMdSnIsReadOnly = default!;
 
-        //[ObservableProperty]
-        private int _testCategoryIndex = default!;
-
-        public int TestCategoryIndex
-        {
-            get => _testCategoryIndex;
-            set
-            {
-                if (_testCategoryIndex != value)
-                {
-                    _testCategoryIndex = value;
-                    OnPropertyChanged(nameof(TestCategoryIndex));
-                    if (value == 0)
-                    {
-                        TDMdSnIsReadOnly = true;
-                        MTMdSnIsReadOnly = true;
-                    }
-                    else
-                    {
-                        TDMdSnIsReadOnly = false;
-                        MTMdSnIsReadOnly = false;
-                    }
-
-                }
-            }
-        }
-
-        [ObservableProperty]
-        private int _testModeIndex = default!;
-
-        [ObservableProperty]
-        private int _testTypeIndex = default!;
-
         [ObservableProperty]
         private int _blinkingCellIndex = -1;
 
         [RelayCommand]
         private void CellClick(CellPositions position)
-        {
-            switch (position)
-            {
-                case CellPositions.Row1_Column1:
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column1;
-                    break;
-                case CellPositions.Row1_Column2:
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column2;
-                    break;
-                case CellPositions.Row1_Column3:
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column3;
-                    break;
-                case CellPositions.Row1_Column4:
-                    Log.Information($"click {CellPositions.Row1_Column4}");
-                    break;
-                case CellPositions.Row2_Column1:
-                    BlinkingCellIndex = (int)CellPositions.Row2_Column1;
-                    break;
-                case CellPositions.Row2_Column2:
-                    BlinkingCellIndex = (int)CellPositions.Row2_Column2;
-                    break;
-                case CellPositions.Row2_Column3:
-                    BlinkingCellIndex = (int)CellPositions.Row2_Column3;
-                    break;
-                case CellPositions.Row2_Column4:
-                    Log.Information($"click {CellPositions.Row2_Column4}");
-                    break;
-                case CellPositions.Row3_Column1:
-                    BlinkingCellIndex = (int)CellPositions.Row3_Column1;
-                    break;
-                case CellPositions.Row3_Column2:
-                    BlinkingCellIndex = (int)CellPositions.Row3_Column2;
-                    break;
-                case CellPositions.Row3_Column3:
-                    BlinkingCellIndex = (int)CellPositions.Row3_Column3;
-                    break;
-                case CellPositions.Row3_Column4:
-                    Log.Information($"click {CellPositions.Row3_Column4}");
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void ExecuteCellClick(CellPositions position)
         {
             switch (position)
             {
@@ -229,14 +151,13 @@ namespace SonoCap.MES.UI.ViewModels
 
         public TestViewModel()
         {
-            TDTypes = new ObservableCollection<string>
+            PCs = new ObservableCollection<string>
             {
-                "5.0Mhz",
-                "7.5Mhz",
+                "Left",
+                "Middle",
+                "Right"
             };
-
-            TDType = TDTypes[0];
-            TDTypeIndex = 1;
+            PCIndex = 0;
 
             ResLogs = new ObservableCollection<string>();
 
@@ -250,31 +171,15 @@ namespace SonoCap.MES.UI.ViewModels
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
 
-            ProbeSn = "1234567890";
+            ProbeSn = "";
             ProbeSnIsReadOnly = true;
-
-            TDTypeIndex = 1;
-
-            //TDType = "5M";
+            MTMdSnIsReadOnly = true;
+            TDMdSnIsReadOnly = true;
+            TDSnIsReadOnly = true;
 
         }
 
-        partial void OnTDTypeIndexChanging(int value)
-        {
-            Log.Information(value.ToString());
-        }
-
-        //partial void OnTestCategoryIndexChanged(int value)
-        //{
-        //    Debug.Print(value.ToString());
-        //}
-
-        partial void OnTestModeIndexChanged(int value)
-        {
-            Log.Information(value.ToString());
-        }
-
-        partial void OnTestTypeIndexChanged(int value)
+        partial void OnPCIndexChanged(int value)
         {
             Log.Information(value.ToString());
         }

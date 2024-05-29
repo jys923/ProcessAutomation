@@ -43,6 +43,10 @@ remove-migration
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] Dark theme
 - [ ] 모터 모듈 s/n 파일 import
+- [ ] 모터 모듈 s/n -> Lot 라고 바꾸기
+- [ ] winform bmp -> wpf bmp 바꾸기
+- [ ] 시리얼 검색 버튼
+	- [ ] 없으면 밑에 없다고 출력
 - [ ] TD s/n 파일 import
 - [ ] 유저 컨트롤
 - [ ] Datagrid 필터링
