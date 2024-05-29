@@ -50,9 +50,10 @@ remove-migration
 - [ ] datagrid 60만건 속도 개선
 	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
 - [X] db crud
-- [ ] db 만건 1초 튜닝
-	- lazy 로딩 끄기
-	- join 튜닝, 안쓰기
+- [X] db 만건 1초 튜닝
+	- [ ] lazy 로딩 끄기 
+	- [ ] join 튜닝, 안쓰기
+	- [X] 뷰 테이블 생성 
 - [X] model, repo 등 dll 로 빼기
 - [X] mvvm 성능 측정 샘플 추가
 - [X] AOP 로깅 이름,속도
@@ -63,7 +64,7 @@ remove-migration
 - [X] 윈도우 재시작 에러
 ## Research List
 - [ ] linq
-- [X] Microsoft.Extensions.Logging vs <font color='green'>Serilog Good</font>
+- [X] Microsoft.Extensions.Logging vs <font color='green'>Serilog</font>
 	- logging .net 기본 시간 표기 가능,
 	- serilog 구조화된 로그 추가 복잡할 때 사용
 - [ ] TDD mock 객체 vs UseInMemoryDatabase
