@@ -2,11 +2,12 @@
 {
     public enum CellPositions
     {
+        None = -1,
         Row0_Column0,
-        Row0_Column1,
-        Row0_Column2,
-        Row0_Column3,
-        Row0_Column4,
+        Row0_Column1 = 1,
+        Row0_Column2 = 2,
+        Row0_Column3 = 3,
+        Row0_Column4 = 4,
         Row1_Column0,
         Row1_Column1 = 11,
         Row1_Column2 = 12,

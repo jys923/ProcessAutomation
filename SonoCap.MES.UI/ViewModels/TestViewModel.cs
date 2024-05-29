@@ -94,10 +94,53 @@ namespace SonoCap.MES.UI.ViewModels
         private int _testTypeIndex = default!;
 
         [ObservableProperty]
-        private int _blinkingCellIndex = default!;
+        private int _blinkingCellIndex = -1;
 
-        private ICommand _cellClickCommand;
-        public ICommand CellClickCommand => _cellClickCommand ??= new RelayCommand<CellPositions>(ExecuteCellClick);
+        [RelayCommand]
+        private void CellClick(CellPositions position)
+        {
+            switch (position)
+            {
+                case CellPositions.Row1_Column1:
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column1;
+                    break;
+                case CellPositions.Row1_Column2:
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column2;
+                    break;
+                case CellPositions.Row1_Column3:
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column3;
+                    break;
+                case CellPositions.Row1_Column4:
+                    Log.Information($"click {CellPositions.Row1_Column4}");
+                    break;
+                case CellPositions.Row2_Column1:
+                    BlinkingCellIndex = (int)CellPositions.Row2_Column1;
+                    break;
+                case CellPositions.Row2_Column2:
+                    BlinkingCellIndex = (int)CellPositions.Row2_Column2;
+                    break;
+                case CellPositions.Row2_Column3:
+                    BlinkingCellIndex = (int)CellPositions.Row2_Column3;
+                    break;
+                case CellPositions.Row2_Column4:
+                    Log.Information($"click {CellPositions.Row2_Column4}");
+                    break;
+                case CellPositions.Row3_Column1:
+                    BlinkingCellIndex = (int)CellPositions.Row3_Column1;
+                    break;
+                case CellPositions.Row3_Column2:
+                    BlinkingCellIndex = (int)CellPositions.Row3_Column2;
+                    break;
+                case CellPositions.Row3_Column3:
+                    BlinkingCellIndex = (int)CellPositions.Row3_Column3;
+                    break;
+                case CellPositions.Row3_Column4:
+                    Log.Information($"click {CellPositions.Row3_Column4}");
+                    break;
+                default:
+                    break;
+            }
+        }
 
         private void ExecuteCellClick(CellPositions position)
         {
@@ -126,6 +169,18 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row2_Column4:
                     Log.Information($"click {CellPositions.Row2_Column4}");
+                    break;
+                case CellPositions.Row3_Column1:
+                    BlinkingCellIndex = (int)CellPositions.Row3_Column1;
+                    break;
+                case CellPositions.Row3_Column2:
+                    BlinkingCellIndex = (int)CellPositions.Row3_Column2;
+                    break;
+                case CellPositions.Row3_Column3:
+                    BlinkingCellIndex = (int)CellPositions.Row3_Column3;
+                    break;
+                case CellPositions.Row3_Column4:
+                    Log.Information($"click {CellPositions.Row3_Column4}");
                     break;
                 default:
                     break;
@@ -194,9 +249,6 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-
-
-            BlinkingCellIndex = 22;
 
             ProbeSn = "1234567890";
             ProbeSnIsReadOnly = true;

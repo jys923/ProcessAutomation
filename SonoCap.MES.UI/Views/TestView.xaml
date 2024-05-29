@@ -188,16 +188,37 @@
                 <Border Grid.Column="0" Grid.Row="1" Background="LightBlue">
                     <TextBlock Text="공정용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
                 </Border>
-                <Border Grid.Column="1" Grid.Row="1" Background="LightGreen">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                <Border Grid.Column="1" Grid.Row="1" Background="LightGreen"/>
+                <Border Grid.Column="2" Grid.Row="1" Background="LightGreen"/>
+                <Border Grid.Column="3" Grid.Row="1" Background="LightGreen"/>
+                <Border Grid.Column="4" Grid.Row="1" Background="LightBlue"/>
+
+                <Border Grid.Column="0" Grid.Row="2" Background="LightBlue">
+                    <TextBlock Text="최종용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                </Border>
+                <Border Grid.Column="1" Grid.Row="2" Background="LightGreen"/>
+                <Border Grid.Column="2" Grid.Row="2" Background="LightBlue"/>
+                <Border Grid.Column="3" Grid.Row="2" Background="Tomato"/>
+                <Border Grid.Column="4" Grid.Row="2" Background="LightBlue"/>
+
+                <Border Grid.Column="0" Grid.Row="3" Background="LightBlue">
+                    <TextBlock Text="출하용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                </Border>
+                <Border Grid.Column="1" Grid.Row="3" Background="LightGreen"/>
+                <Border Grid.Column="2" Grid.Row="3" Background="LightBlue"/>
+                <Border Grid.Column="3" Grid.Row="3" Background="Tomato"/>
+                <Border Grid.Column="4" Grid.Row="3" Background="LightBlue"/>
+                <!-- 버튼 컨트롤 -->
+                <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="11">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -205,25 +226,25 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="2" Grid.Row="1" Background="LightGreen">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="12">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -231,25 +252,25 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="3" Grid.Row="1" Background="LightGreen">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="13">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -257,30 +278,27 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="4" Grid.Row="1" Background="LightBlue"/>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent" d:IsHidden="True"/>
 
-                <Border Grid.Column="0" Grid.Row="2" Background="LightBlue">
-                    <TextBlock Text="최종용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-                </Border>
-                <Border Grid.Column="1" Grid.Row="2" Background="LightGreen">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="21">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -288,25 +306,25 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="2" Grid.Row="2" Background="LightBlue">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="22">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -314,25 +332,25 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="3" Grid.Row="2" Background="Tomato">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="23">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -340,30 +358,27 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="4" Grid.Row="2" Background="LightBlue"/>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent" d:IsHidden="True"/>
 
-                <Border Grid.Column="0" Grid.Row="3" Background="LightBlue">
-                    <TextBlock Text="출하용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
-                </Border>
-                <Border Grid.Column="1" Grid.Row="3" Background="LightGreen">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                <Button Grid.Row="3" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="21">
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="31">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -371,25 +386,25 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="2" Grid.Row="3" Background="LightBlue">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="3" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="22">
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="32">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -397,25 +412,25 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="3" Grid.Row="3" Background="Tomato">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="3" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" Background="Transparent" d:IsHidden="True">
+                    <Button.Style>
+                        <Style TargetType="Button">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="23">
+                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="33">
                                     <DataTrigger.EnterActions>
                                         <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.EnterActions>
@@ -423,29 +438,18 @@
                                         <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                                <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </DataTrigger.ExitActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                </Border>
-                <Border Grid.Column="4" Grid.Row="3" Background="LightBlue"/>
-                <!-- 버튼 컨트롤 -->
-                <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent"/>
-                <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" Background="Transparent"/>
-                <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" Background="Transparent"/>
-                <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" Background="Transparent"/>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent"/>
+                    </Button.Style>
+                </Button>
+                <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent" d:IsHidden="True">
+                    
+                </Button>
             </Grid>
         </GroupBox>
         <StackPanel Grid.Column="1" Grid.Row="0" >
