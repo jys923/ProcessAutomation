@@ -27,6 +27,9 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITransducerTypeRepository _transducerTypeRepository;
 
         [ObservableProperty]
+        private bool _isBlinking = false;
+
+        [ObservableProperty]
         private string _title = default!;
 
         public MainViewModel(
@@ -54,6 +57,13 @@ namespace SonoCap.MES.UI.ViewModels
             _transducerModuleRepository = transducerModuleRepository;
             _transducerTypeRepository = transducerTypeRepository;
             Title = this.GetType().Name;
+        }
+
+        [RelayCommand]
+        private void ToBlink()
+        {
+            IsBlinking = !IsBlinking;
+            //Task.Run(() => DoBackgroundWork());
         }
 
         [RelayCommand]

@@ -11,8 +11,36 @@
     <Grid>
         <Button x:Name="TestBtn" Content="Test" Command="{Binding ToTestCommand}" HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ListBtn" Content="ProbeList" Command="{Binding ToListCommand}"  HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="TestListBtn" Content="TestList" Command="{Binding ToTestListCommand}"  HorizontalAlignment="Left" Margin="200,150,0,0" VerticalAlignment="Top"/>
         <Button Content="Master" Command="{Binding MasterCommand}" HorizontalAlignment="Left" Margin="300,50,0,0" VerticalAlignment="Top"/>
         <Button Content="Select1" Command="{Binding Select1Command}" HorizontalAlignment="Left" Margin="400,50,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.734,0.41"/>
+        <Button x:Name="TestListBtn" Content="TestList" Command="{Binding ToTestListCommand}"  HorizontalAlignment="Left" Margin="100,150,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="BlinkBtn" Content="BlinkToggle" Command="{Binding ToBlinkCommand}" 
+        HorizontalAlignment="Left" Margin="200,150,0,0" VerticalAlignment="Top">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsBlinking}" Value="True">
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                                To="Red" Duration="0:0:0.5" AutoReverse="True"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <!--<ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                                To="{Binding RelativeSource={RelativeSource self}, Path=Background}" Duration="0:0:0"/>-->
+                                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
     </Grid>
 </Window>
