@@ -18,6 +18,7 @@ namespace SonoCap.MES.UI.ViewModels
 {
     public partial class TestViewModel : ObservableObject
     {
+        
         [ObservableProperty]
         private string _title = default!;
 
@@ -63,9 +64,21 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private int _blinkingCellIndex = -1;
 
+        int oldRow = -1;
+
         [RelayCommand]
         private void CellClick(CellPositions position)
         {
+            int row = (int)position / 10;
+            Log.Information("row:"+row);
+            
+            if (oldRow != row)
+            {
+                oldRow = row;
+                ClearAll();
+                ChangeReadOnly((TestCategories)row);
+            } 
+            
             switch (position)
             {
                 case CellPositions.Row1_Column1:
@@ -148,6 +161,43 @@ namespace SonoCap.MES.UI.ViewModels
         uint size = 0;
         int opt = 0;
         string sModel = "SC-GP5";
+
+        private void ClearAll()
+        {
+            ProbeSn = "";
+            ProbeSnIsReadOnly = true;
+            TDMdSn = "";
+            TDMdSnIsReadOnly = true;
+            TDSn = "";
+            TDSnIsReadOnly = true;
+            SeqNo = "";
+            MTMdSn = "";
+            MTMdSnIsReadOnly = true;
+            SrcImg = default!;
+            ResImg = default!;
+            TestResultTypeIndex = 0;
+        }
+
+        private void ChangeReadOnly(TestCategories categories)
+        {
+            //ProbeSnIsReadOnly = false;
+            //MTMdSnIsReadOnly = false;
+            //TDMdSnIsReadOnly = false;
+            //TDSnIsReadOnly = false;
+            switch (categories)
+            {
+                case TestCategories.Process:
+                    TDSnIsReadOnly = false;
+                    break;
+                case TestCategories.Processing:
+                    TDMdSnIsReadOnly = false;
+                    break;
+                case TestCategories.Dispatch:
+                    ProbeSnIsReadOnly = false;
+                    MTMdSnIsReadOnly = false;
+                    break;
+            }
+        }
 
         public TestViewModel()
         {

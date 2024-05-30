@@ -2,7 +2,6 @@
 {
     public enum CellPositions
     {
-        None = -1,
         Row0_Column0,
         Row0_Column1 = 1,
         Row0_Column2 = 2,
@@ -28,6 +27,7 @@
     public enum Commons
     {
         All = -123,
+        None = -1,
     }
 
     public enum TestResults
