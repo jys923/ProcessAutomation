@@ -33,6 +33,7 @@ remove-migration
 - [X] enums 추가 네임스페이스만 필요. 클래스 필요없음
 - [ ] 윈도우 생명주기 필요! 화면 최상단 일때 사진 로드
 - [ ] 윈도우 간 파라미터 전달
+	- https://kaki104.tistory.com/869
 - [X] 실패 점수 기록
 - [X] test 삭제까지 보이게
 - [X] test 갯수 가변

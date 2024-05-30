@@ -5,12 +5,12 @@ using SonoCap.MES.Models.Base;
 
 namespace SonoCap.MES.Models
 {
-    [Index(nameof(TransducerModuleSn), IsUnique = true)]
-    public class TransducerModule : ModelBase
+    [Index(nameof(Sn), IsUnique = true)]
+    public class TransducerModule : ModelBase, ISn
     {
         [Required]
         //[StringLength(21)]
-        public required string TransducerModuleSn { get; set; }
+        public required string Sn { get; set; }
 
         [Required]
         public int TransducerId { get; set; }

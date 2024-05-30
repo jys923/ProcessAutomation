@@ -110,10 +110,10 @@ Title="{Binding Title}" Height="1080" Width="1920">
                 <DataGridTextColumn Header="Result" Width="1*" Binding="{Binding Result}"/>
                 <DataGridTextColumn Header="Pc" Width="1*" Binding="{Binding Pc.Name}"/>
                 <DataGridTextColumn Header="Tester" Width="1*" Binding="{Binding Tester}"/>
-                <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding Probe.ProbeSn}"/>
-                <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.TransducerModuleSn}"/>
-                <DataGridTextColumn Header="Transducer" Width="1*" Binding="{Binding Transducer.TransducerSn}"/>
-                <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.MotorModuleSn}"/>
+                <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding Probe.Sn}"/>
+                <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.Sn}"/>
+                <DataGridTextColumn Header="Transducer" Width="1*" Binding="{Binding Transducer.Sn}"/>
+                <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.Sn}"/>
                 <DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
                 <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
                 <DataGridTextColumn Header="ChangedImgMetadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>

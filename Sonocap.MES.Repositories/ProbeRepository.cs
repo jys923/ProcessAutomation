@@ -9,6 +9,10 @@ namespace SonoCap.MES.Repositories
 {
     public class ProbeRepository : RepositoryBase<Probe>, IProbeRepository
     {
+        public ProbeRepository(MESDbContext context) : base(context)
+        {
+        }
+
         private string ProbeTestResultsQuery1 =
             @"
             SELECT
@@ -66,11 +70,11 @@ namespace SonoCap.MES.Repositories
         private string ProbeTestResultsQuery = @"
 SELECT
     p.Id,
-    p.ProbeSn,
+    p.Sn,
     p.CreatedDate,
-    tm.TransducerModuleSn,
-    td.TransducerSn,
-    mm.MotorModuleSn,
+    tm.Sn,
+    td.Sn,
+    mm.Sn,
     1 AS TestCategoryId1, 1 AS TestTypeId1, t1.CreatedDate AS Test1_CreatedDate, t1.Result AS Test1_Result,
     1 AS TestCategoryId2, 2 AS TestTypeId2, t2.CreatedDate AS Test2_CreatedDate, t2.Result AS Test2_Result,
     1 AS TestCategoryId3, 3 AS TestTypeId3, t3.CreatedDate AS Test3_CreatedDate, t3.Result AS Test3_Result,
@@ -128,15 +132,11 @@ WHERE
     p.DataFlag = 1 AND
     (p.CreatedDate >= @StartDate OR @StartDate IS NULL) AND
     (p.CreatedDate <= @EndDate OR @EndDate IS NULL) AND
-    (p.ProbeSn = @ProbeSn OR @ProbeSn IS NULL OR @ProbeSn = '') AND
-    (tm.TransducerModuleSn = @TransducerModuleSn OR @TransducerModuleSn IS NULL OR @TransducerModuleSn = '') AND
-    (td.TransducerSn = @TransducerSn OR @TransducerSn IS NULL OR @TransducerSn = '') AND
-    (mm.MotorModuleSn = @MotorModuleSn OR @MotorModuleSn IS NULL OR @MotorModuleSn = '')
+    (p.Sn = @ProbeSn OR @ProbeSn IS NULL OR @ProbeSn = '') AND
+    (tm.Sn = @TransducerModuleSn OR @TransducerModuleSn IS NULL OR @TransducerModuleSn = '') AND
+    (td.Sn = @TransducerSn OR @TransducerSn IS NULL OR @TransducerSn = '') AND
+    (mm.Sn = @MotorModuleSn OR @MotorModuleSn IS NULL OR @MotorModuleSn = '')
 ";
-
-        public ProbeRepository(MESDbContext context) : base(context)
-        {
-        }
 
         public async Task<List<ProbeTestResult>> GetProbeTestResultAsync2(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
@@ -170,18 +170,18 @@ WHERE
                     p.DataFlag == 1 &&
                     (startDate == null || p.CreatedDate >= startDate) &&
                     (endDate == null || p.CreatedDate <= endDate) &&
-                    (string.IsNullOrEmpty(probeSn) || p.ProbeSn.Contains(probeSn)) &&
-                    (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn)) &&
-                    (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn)) &&
-                    (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
+                    (string.IsNullOrEmpty(probeSn) || p.Sn.Contains(probeSn)) &&
+                    (string.IsNullOrEmpty(transducerModuleSn) || tm.Sn.Contains(transducerModuleSn)) &&
+                    (string.IsNullOrEmpty(transducerSn) || td.Sn.Contains(transducerSn)) &&
+                    (string.IsNullOrEmpty(motorModuleSn) || mm.Sn.Contains(motorModuleSn))
                 select new ProbeTestResult
                 {
                     Id = p.Id,
-                    ProbeSn = p.ProbeSn,
+                    ProbeSn = p.Sn,
                     CreatedDate = p.CreatedDate,
-                    TransducerModuleSn = tm.TransducerModuleSn,
-                    TransducerSn = td.TransducerSn,
-                    MotorModuleSn = mm.MotorModuleSn,
+                    TransducerModuleSn = tm.Sn,
+                    TransducerSn = td.Sn,
+                    MotorModuleSn = mm.Sn,
                     TestCategoryId1 = t1.TestCategoryId,
                     TestTypeId1 = t1.TestTypeId,
                     TestCreatedDate1 = t1.CreatedDate,
@@ -300,18 +300,18 @@ WHERE
                 p.DataFlag == 1 &&
                 (!startDate.HasValue || p.CreatedDate >= startDate) &&
                 (!endDate.HasValue || p.CreatedDate <= endDate) &&
-                (string.IsNullOrEmpty(probeSn) || p.ProbeSn.Contains(probeSn)) &&
-                (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn)) &&
-                (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn)) &&
-                (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
+                (string.IsNullOrEmpty(probeSn) || p.Sn.Contains(probeSn)) &&
+                (string.IsNullOrEmpty(transducerModuleSn) || tm.Sn.Contains(transducerModuleSn)) &&
+                (string.IsNullOrEmpty(transducerSn) || td.Sn.Contains(transducerSn)) &&
+                (string.IsNullOrEmpty(motorModuleSn) || mm.Sn.Contains(motorModuleSn))
             select new ProbeTestResult
             {
                 Id = p.Id,
-                ProbeSn = p.ProbeSn,
+                ProbeSn = p.Sn,
                 CreatedDate = p.CreatedDate,
-                TransducerModuleSn = tm.TransducerModuleSn,
-                TransducerSn = td.TransducerSn,
-                MotorModuleSn = mm.MotorModuleSn,
+                TransducerModuleSn = tm.Sn,
+                TransducerSn = td.Sn,
+                MotorModuleSn = mm.Sn,
                 TestCategoryId1 = t1.TestCategoryId,
                 TestTypeId1 = t1.TestTypeId,
                 TestCreatedDate1 = t1.CreatedDate,
@@ -426,18 +426,18 @@ WHERE
                 where p.DataFlag == 1 &&
                         (!startDate.HasValue || p.CreatedDate >= startDate) &&
                         (!endDate.HasValue || p.CreatedDate <= endDate) &&
-                        (string.IsNullOrEmpty(probeSn) || p.ProbeSn.Contains(probeSn)) &&
-                        (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn)) &&
-                        (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn)) &&
-                        (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
+                        (string.IsNullOrEmpty(probeSn) || p.Sn.Contains(probeSn)) &&
+                        (string.IsNullOrEmpty(transducerModuleSn) || tm.Sn.Contains(transducerModuleSn)) &&
+                        (string.IsNullOrEmpty(transducerSn) || td.Sn.Contains(transducerSn)) &&
+                        (string.IsNullOrEmpty(motorModuleSn) || mm.Sn.Contains(motorModuleSn))
                 select new ProbeTestResult
                 {
                     Id = p.Id,
-                    ProbeSn = p.ProbeSn,
+                    ProbeSn = p.Sn,
                     CreatedDate = p.CreatedDate,
-                    TransducerModuleSn = tm.TransducerModuleSn,
-                    TransducerSn = td.TransducerSn,
-                    MotorModuleSn = mm.MotorModuleSn,
+                    TransducerModuleSn = tm.Sn,
+                    TransducerSn = td.Sn,
+                    MotorModuleSn = mm.Sn,
                     TestCategoryId1 = t1.TestCategoryId,
                     TestTypeId1 = t1.TestTypeId,
                     TestCreatedDate1 = t1.CreatedDate,
@@ -491,18 +491,18 @@ WHERE
                         where p.DataFlag == 1 &&
                               (!startDate.HasValue || p.CreatedDate >= startDate) &&
                               (!endDate.HasValue || p.CreatedDate <= endDate) &&
-                              (string.IsNullOrEmpty(probeSn) || p.ProbeSn.Contains(probeSn)) &&
-                              (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn)) &&
-                              (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn)) &&
-                              (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
+                              (string.IsNullOrEmpty(probeSn) || p.Sn.Contains(probeSn)) &&
+                              (string.IsNullOrEmpty(transducerModuleSn) || tm.Sn.Contains(transducerModuleSn)) &&
+                              (string.IsNullOrEmpty(transducerSn) || td.Sn.Contains(transducerSn)) &&
+                              (string.IsNullOrEmpty(motorModuleSn) || mm.Sn.Contains(motorModuleSn))
                         select new
                         {
                             p.Id,
-                            p.ProbeSn,
+                            p.Sn,
                             p.CreatedDate,
-                            TransducerModuleSn = tm.TransducerModuleSn,
-                            TransducerSn = td.TransducerSn,
-                            MotorModuleSn = mm.MotorModuleSn,
+                            TransducerModuleSn = tm.Sn,
+                            TransducerSn = td.Sn,
+                            MotorModuleSn = mm.Sn,
                             TransducerId = td.Id,
                             TransducerModuleId = tm.Id,
                             ProbeId = p.Id
@@ -513,7 +513,7 @@ WHERE
             var probeTestResults = result.Select(p => new ProbeTestResult
             {
                 Id = p.Id,
-                ProbeSn = p.ProbeSn,
+                ProbeSn = p.Sn,
                 CreatedDate = p.CreatedDate,
                 TransducerModuleSn = p.TransducerModuleSn,
                 TransducerSn = p.TransducerSn,

@@ -38,13 +38,13 @@ namespace SonoCap.MES.Repositories
                  join mm in _context.Set<MotorModule>() on p.MotorModuleId equals mm.Id into mmGroup
                  from mm in mmGroup.DefaultIfEmpty()
                  where t.DataFlag == 1
-                    //&& t.Id < 100000
+                    && t.Id < 100000
                     && (startDate == null || t.CreatedDate >= startDate)
                     && (endDate == null || t.CreatedDate <= endDate)
-                    && (string.IsNullOrEmpty(probeSn) || p.ProbeSn.Contains(probeSn))
-                    && (string.IsNullOrEmpty(transducerModuleSn) || tm.TransducerModuleSn.Contains(transducerModuleSn))
-                    && (string.IsNullOrEmpty(transducerSn) || td.TransducerSn.Contains(transducerSn))
-                    && (string.IsNullOrEmpty(motorModuleSn) || mm.MotorModuleSn.Contains(motorModuleSn))
+                    && (string.IsNullOrEmpty(probeSn) || p.Sn.Contains(probeSn))
+                    && (string.IsNullOrEmpty(transducerModuleSn) || tm.Sn.Contains(transducerModuleSn))
+                    && (string.IsNullOrEmpty(transducerSn) || td.Sn.Contains(transducerSn))
+                    && (string.IsNullOrEmpty(motorModuleSn) || mm.Sn.Contains(motorModuleSn))
                  select new TestProbe
                  {
                      Id = t.Id,

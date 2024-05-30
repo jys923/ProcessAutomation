@@ -1,5 +1,7 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using SonoCap.MES.Models.Base;
 
 namespace SonoCap.MES.Repositories.Base
 {
@@ -39,6 +41,16 @@ namespace SonoCap.MES.Repositories.Base
             return await _dbSet.FindAsync(id);
         }
 
+        public IQueryable<T> GetBySn(string sn)
+        {
+            if (typeof(ISn).IsAssignableFrom(typeof(T)))
+            {
+                return _dbSet.OfType<ISn>().Where(e => e.Sn.Contains(sn)).Cast<T>();
+            }
+
+            throw new InvalidOperationException("T does not implement IHasSn interface.");
+        }
+
         //AsQueryable 메서드는 메모리 내에서 데이터에 대한 쿼리 가능한 개체를 만들기 때문에 비동기 작업이 필요하지 않습니다.
         public IQueryable<T> GetQueryable()
         {
@@ -64,7 +76,7 @@ namespace SonoCap.MES.Repositories.Base
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"BulkInsertAsync 작업 중 오류 발생: {ex.Message}");
+                Log.Information($"BulkInsertAsync 작업 중 오류 발생: {ex.Message}");
                 result = false;
             }
 

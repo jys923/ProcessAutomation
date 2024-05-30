@@ -5,8 +5,8 @@ using SonoCap.MES.Models.Base;
 
 namespace SonoCap.MES.Models
 {
-    [Index(nameof(ProbeSn), IsUnique = true)]
-    public class Probe : ModelBase
+    [Index(nameof(Sn), IsUnique = true)]
+    public class Probe : ModelBase , ISn
     {
         //유니크키
         /// <summary>
@@ -14,7 +14,7 @@ namespace SonoCap.MES.Models
         /// </summary>
         [Required]
         //[StringLength(15)]
-        public required string ProbeSn { get; set; }
+        public required string Sn { get; set; }
 
         [Required]
         public required int TransducerModuleId { get; set; }
