@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models.Enums;
+using SonoCap.MES.Repositories.Interfaces;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -18,7 +19,73 @@ namespace SonoCap.MES.UI.ViewModels
 {
     public partial class TestViewModel : ObservableObject
     {
-        
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IMotorModuleRepository _motorModuleRepository;
+        private readonly IPcRepository _pcRepository;
+        private readonly IProbeRepository _probeRepository;
+        private readonly ITestCategoryRepository _testCategoryRepository;
+        private readonly ITesterRepository _testerRepository;
+        private readonly ITestRepository _testRepository;
+        private readonly ITestTypeRepository _testTypeRepository;
+        private readonly ITransducerRepository _transducerRepository;
+        private readonly ITransducerModuleRepository _transducerModuleRepository;
+        private readonly ITransducerTypeRepository _transducerTypeRepository;
+
+        public TestViewModel(
+            IServiceProvider serviceProvider,
+            IMotorModuleRepository motorModuleRepository,
+            IPcRepository pcRepository,
+            IProbeRepository probeRepository,
+            ITestCategoryRepository testCategoryRepository,
+            ITesterRepository testerRepository,
+            ITestRepository testRepository,
+            ITestTypeRepository testTypeRepository,
+            ITransducerRepository transducerRepository,
+            ITransducerModuleRepository transducerModuleRepository,
+            ITransducerTypeRepository transducerTypeRepository)
+        {
+            _serviceProvider = serviceProvider;
+            _motorModuleRepository = motorModuleRepository;
+            _pcRepository = pcRepository;
+            _probeRepository = probeRepository;
+            _testCategoryRepository = testCategoryRepository;
+            _testerRepository = testerRepository;
+            _testRepository = testRepository;
+            _testTypeRepository = testTypeRepository;
+            _transducerRepository = transducerRepository;
+            _transducerModuleRepository = transducerModuleRepository;
+            _transducerTypeRepository = transducerTypeRepository;
+
+            Title = this.GetType().Name;
+
+            PCs = new ObservableCollection<string>
+            {
+                "Left",
+                "Middle",
+                "Right"
+            };
+
+            PCIndex = 0;
+
+            ResLogs = new ObservableCollection<string>();
+
+            ret = VI.Load(0);
+
+            Title = this.GetType().Name;
+            // 이미지 파일 경로 설정
+            string imagePath = "/Resources/sc_ori_img_512.bmp";
+
+            // 이미지 로드
+            SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+            ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+
+            ProbeSn = "";
+            ProbeSnIsReadOnly = true;
+            MTMdSnIsReadOnly = true;
+            TDMdSnIsReadOnly = true;
+            TDSnIsReadOnly = true;
+        }
+
         [ObservableProperty]
         private string _title = default!;
 
@@ -60,6 +127,12 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private bool _mTMdSnIsReadOnly = default!;
+
+        [RelayCommand]
+        private void FindByMTMdSn(string MTMdSn)
+        {
+            Log.Information("FindByMTMdSn:"+ MTMdSn);
+        }
 
         [ObservableProperty]
         private int _blinkingCellIndex = -1;
@@ -202,36 +275,6 @@ namespace SonoCap.MES.UI.ViewModels
                     MTMdSnIsReadOnly = false;
                     break;
             }
-        }
-
-        public TestViewModel()
-        {
-            PCs = new ObservableCollection<string>
-            {
-                "Left",
-                "Middle",
-                "Right"
-            };
-            PCIndex = 0;
-
-            ResLogs = new ObservableCollection<string>();
-
-            ret = VI.Load(0);
-
-            Title = this.GetType().Name;
-            // 이미지 파일 경로 설정
-            string imagePath = "/Resources/sc_ori_img_512.bmp";
-
-            // 이미지 로드
-            SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-            ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-
-            ProbeSn = "";
-            ProbeSnIsReadOnly = true;
-            MTMdSnIsReadOnly = true;
-            TDMdSnIsReadOnly = true;
-            TDSnIsReadOnly = true;
-
         }
 
         partial void OnPCIndexChanged(int value)

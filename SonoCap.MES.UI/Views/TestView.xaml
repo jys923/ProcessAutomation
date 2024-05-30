@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:models="clr-namespace:SonoCap.MES.Models.Enums;assembly=Sonocap.MES.Models"
         xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
         xmlns:Converter="clr-namespace:SonoCap.MES.UI.Converters"
@@ -105,7 +107,11 @@
                     </DatePicker>
                     <ComboBox Grid.Row="5" Grid.Column="2" FontSize="20" ItemsSource="{Binding PCs}" SelectedIndex="{Binding PCIndex, Mode=TwoWay}"/>
                     <TextBox Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"/>
-                    <TextBox Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn}" IsReadOnly="{Binding MTMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+                    <TextBox Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding MTMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding FindByMTMdSnCommand}" Key="Enter" CommandParameter="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
                 </Grid>
             </StackPanel>
         </StackPanel>

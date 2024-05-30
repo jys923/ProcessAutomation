@@ -153,7 +153,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D6");
-                moterModules.Add(new MotorModule { MotorModuleSn = MotorModuleSn });
+                moterModules.Add(new MotorModule { Sn = MotorModuleSn });
             }
             await _motorModuleRepository.BulkInsertAsync(moterModules);
             #endregion
@@ -200,7 +200,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 int transducerTypeId = random.Next(1, 3);
                 string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D6");
-                transducers.Add(new Transducer { TransducerSn = TransducerSn, TransducerTypeId = transducerTypeId });
+                transducers.Add(new Transducer { Sn = TransducerSn, TransducerTypeId = transducerTypeId });
             }
             await _transducerRepository.BulkInsertAsync(transducers);
             #endregion
@@ -243,7 +243,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
-                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerId = i });
+                transducerModules.Add(new TransducerModule { Sn = TransducerModuleSn, TransducerId = i });
             }
             await _transducerModuleRepository.BulkInsertAsync(transducerModules);
             #endregion
@@ -288,7 +288,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
-                probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
+                probes.Add(new Probe { Sn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
             }
             await _probeRepository.BulkInsertAsync(probes);
             #endregion
@@ -352,7 +352,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D6");
-                moterModules.Add(new MotorModule { MotorModuleSn = MotorModuleSn });
+                moterModules.Add(new MotorModule { Sn = MotorModuleSn });
                 //await _motorModuleRepository.InsertAsync(new MotorModule { MotorModuleSn = MotorModuleSn });
             }
             await _motorModuleRepository.BulkInsertAsync(moterModules);
@@ -393,7 +393,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 int transducerTypeId = random.Next(1, 3);
                 string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D6");
-                transducers.Add(new Transducer { TransducerSn = TransducerSn, TransducerTypeId = transducerTypeId });
+                transducers.Add(new Transducer { Sn = TransducerSn, TransducerTypeId = transducerTypeId });
             }
             await _transducerRepository.BulkInsertAsync(transducers);
             #endregion
@@ -402,7 +402,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
-                transducerModules.Add(new TransducerModule { TransducerModuleSn = TransducerModuleSn, TransducerId = i });
+                transducerModules.Add(new TransducerModule { Sn = TransducerModuleSn, TransducerId = i });
             }
             await _transducerModuleRepository.BulkInsertAsync(transducerModules);
             #endregion
@@ -411,7 +411,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
-                probes.Add(new Probe { ProbeSn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
+                probes.Add(new Probe { Sn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
             }
             await _probeRepository.BulkInsertAsync(probes);
             #endregion
