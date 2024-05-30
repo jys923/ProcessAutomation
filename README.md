@@ -45,10 +45,21 @@ remove-migration
 - [ ] 모터 모듈 s/n 파일 import
 - [ ] 모터 모듈 s/n -> Lot 라고 바꾸기
 - [ ] winform bmp -> wpf bmp 바꾸기
+- [ ] 벨리데이션
+	- https://kaki104.tistory.com/829
 - [ ] 시리얼 검색 버튼
 	- [ ] 없으면 밑에 없다고 출력
 - [ ] TD s/n 파일 import
 - [ ] 유저 컨트롤
+	- [ ] messagebox
+		- https://arong.info/Archive/ContentsView/28
+		- https://github.com/pierre01/MessageBox
+		- https://stackoverflow.com/questions/5644459/show-dialog-with-mvvm-light-toolkit
+		- https://www.codeproject.com/Articles/5332442/Csharp-MVVM-Toolkit-Demo
+		- https://github.com/FantasticFiasco/mvvm-dialogs-integrated-into-windows-community-toolkit/tree/main/src
+	- [ ] RoutedEventHandler
+	- [ ] Action
+	- [ ] 
 - [ ] Datagrid 필터링
 	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
 - [ ] datagrid 60만건 속도 개선

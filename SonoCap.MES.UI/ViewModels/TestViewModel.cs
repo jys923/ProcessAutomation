@@ -9,7 +9,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Input;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using VILib;
@@ -77,8 +77,11 @@ namespace SonoCap.MES.UI.ViewModels
                 oldRow = row;
                 ClearAll();
                 ChangeReadOnly((TestCategories)row);
-            } 
-            
+            }
+
+            SrcImg = default!;
+            ResImg = default!;
+
             switch (position)
             {
                 case CellPositions.Row1_Column1:
@@ -176,6 +179,8 @@ namespace SonoCap.MES.UI.ViewModels
             SrcImg = default!;
             ResImg = default!;
             TestResultTypeIndex = 0;
+            TestIsEnabled = true;
+            NextIsEnabled = true;
         }
 
         private void ChangeReadOnly(TestCategories categories)
@@ -239,6 +244,9 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information(value.ToString());
         }
 
+        [ObservableProperty]
+        private bool _testIsEnabled;
+
         [RelayCommand]
         private void Test()
         {
@@ -297,6 +305,35 @@ namespace SonoCap.MES.UI.ViewModels
 
             resImg = ConvertBitmapToImageSource(m_bmpRes);
             ResImg = (BitmapImage)resImg;
+        }
+
+        [ObservableProperty]
+        private bool _nextIsEnabled;
+
+        [RelayCommand]
+        private void Next() 
+        {
+            MessageBoxResult mbr = MessageBox.Show("Content:save??","Title:save", MessageBoxButton.YesNo);
+
+            switch (mbr)
+            {
+                case MessageBoxResult.None:
+                    break;
+                case MessageBoxResult.OK:
+                    break;
+                case MessageBoxResult.Cancel:
+                    break;
+                case MessageBoxResult.Yes:
+                    Log.Information("mbr yes");
+                    //디비 저장
+                    //화면 클리어
+                    break;
+                case MessageBoxResult.No:
+                    Log.Information("mbr no");
+                    break;
+                default:
+                    break;
+            }
         }
 
         private BitmapImage convertByteArrToBitmap2(byte[] res_data)

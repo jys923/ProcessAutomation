@@ -443,8 +443,8 @@
             </GroupBox>
             <RadioButton Grid.Column="0" Grid.Row="1" GroupName="TestResultTypes" Content="FAIL" IsChecked="{Binding TestResultTypeIndex, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=0}" HorizontalContentAlignment="Center" Background="Tomato"/>
             <RadioButton Grid.Column="1" Grid.Row="1" GroupName="TestResultTypes" Content="PASS" IsChecked="{Binding TestResultTypeIndex, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=1}" HorizontalContentAlignment="Center" Background="LightGreen"/>
-            <Button Grid.Column="2" Grid.Row="1" FontSize="40" Background="LightBlue" Content="검 사" HorizontalAlignment="Stretch" Margin="0,15,15,0" VerticalAlignment="Stretch" Command="{Binding TestCommand}"/>
-            <Button Grid.Column="3" Grid.Row="1" FontSize="40" Background="LightBlue" Content="다 음" HorizontalAlignment="Stretch" Margin="15,15,0,0" VerticalAlignment="Stretch"/>
+            <Button Grid.Column="2" Grid.Row="1" FontSize="40" Background="LightBlue" Content="검 사" HorizontalAlignment="Stretch" Margin="0,15,15,0" VerticalAlignment="Stretch" Command="{Binding TestCommand}" IsEnabled="{Binding TestIsEnabled}"/>
+            <Button Grid.Column="3" Grid.Row="1" FontSize="40" Background="LightBlue" Content="다 음" HorizontalAlignment="Stretch" Margin="15,15,0,0" VerticalAlignment="Stretch" Command="{Binding NextCommand}" IsEnabled="{Binding NextIsEnabled}"/>
         </Grid>
     </Grid>
 </Window>
