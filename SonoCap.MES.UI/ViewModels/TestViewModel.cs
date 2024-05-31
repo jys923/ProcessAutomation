@@ -264,15 +264,15 @@ namespace SonoCap.MES.UI.ViewModels
             //TDSnIsReadOnly = false;
             switch (categories)
             {
-                case TestCategories.Process:
+                case TestCategories.Processing:
                     TDSnIsReadOnly = false;
                     break;
-                case TestCategories.Processing:
+                case TestCategories.Process:
                     TDMdSnIsReadOnly = false;
+                    MTMdSnIsReadOnly = false;
                     break;
                 case TestCategories.Dispatch:
                     ProbeSnIsReadOnly = false;
-                    MTMdSnIsReadOnly = false;
                     break;
             }
         }
