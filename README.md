@@ -46,6 +46,7 @@ remove-migration
 - [ ] 모터 모듈 s/n 파일 import
 - [ ] 모터 모듈 s/n -> Lot 라고 바꾸기
 - [ ] winform bmp -> wpf bmp 바꾸기
+- [X] text placeholder hint
 - [ ] 벨리데이션
 	- https://kaki104.tistory.com/829
 - [ ] 시리얼 검색 버튼
