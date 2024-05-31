@@ -52,13 +52,13 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="0" Grid.Column="1" Content="Probe Sn" FontSize="20"/>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="1" Grid.Column="1" Content="TD Md Sn" FontSize="20"/>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="3" Grid.Column="1" Content="TD Sn" FontSize="20"/>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="4" Grid.Column="1" Content="Date" FontSize="20"/>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="5" Grid.Column="1" Content="PC Name" FontSize="20"/>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="6" Grid.Column="1" Content="Seq No" FontSize="20"/>
-                    <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="7" Grid.Column="1" Content="MT Md Sn" FontSize="20"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="0" Grid.Column="1" Content="Probe Sn"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="1" Grid.Column="1" Content="TD Md Sn"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="3" Grid.Column="1" Content="TD Sn"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="4" Grid.Column="1" Content="Date"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="5" Grid.Column="1" Content="PC Name"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="6" Grid.Column="1" Content="Seq No"/>
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="7" Grid.Column="1" Content="MT Md Sn"/>
 
                     <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="{Binding ProbeSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}">
                         <b:Interaction.Behaviors>

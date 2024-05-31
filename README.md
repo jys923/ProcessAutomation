@@ -47,6 +47,7 @@ remove-migration
 - [ ] 모터 모듈 s/n -> Lot 라고 바꾸기
 - [ ] winform bmp -> wpf bmp 바꾸기
 - [X] text placeholder hint
+	- https://www.youtube.com/watch?v=QUx2gh0PaEc
 - [ ] 벨리데이션
 	- https://kaki104.tistory.com/829
 - [ ] 시리얼 검색 버튼
@@ -81,6 +82,8 @@ remove-migration
 - [X] 윈도우 재시작 에러
 ## Research List
 - [ ] linq
+- [ ] Dependency Property와 Attached Property
+	- https://kaki104.tistory.com/563
 - [X] Microsoft.Extensions.Logging vs <font color='green'>Serilog</font>
 	- logging .net 기본 시간 표기 가능,
 	- serilog 구조화된 로그 추가 복잡할 때 사용
