@@ -6,7 +6,8 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:models="clr-namespace:SonoCap.MES.Models.Enums;assembly=Sonocap.MES.Models"
-        xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
+        xmlns:views="clr-namespace:SonoCap.MES.UI.Views"
+        xmlns:services="clr-namespace:SonoCap.MES.UI.Services"
         xmlns:Converter="clr-namespace:SonoCap.MES.UI.Converters"
         xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
         mc:Ignorable="d"
@@ -58,9 +59,9 @@
                     <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="6" Grid.Column="1" Content="Seq No" FontSize="20"/>
                     <Label Style="{StaticResource LabelLargeStyle}" Grid.Row="7" Grid.Column="1" Content="MT Md Sn" FontSize="20"/>
 
-                    <TextBox Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="{Binding ProbeSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
-                    <TextBox Grid.Row="1" Grid.Column="2" FontSize="20" Text="{Binding TDMdSn}" IsReadOnly="{Binding TDMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
-                    <TextBox Grid.Row="3" Grid.Column="2" FontSize="20" Text="{Binding TDSn}" IsReadOnly="{Binding TDSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+                    <TextBox services:PlaceholderService.Placeholder="psn를 입력하세요" Grid.Row="0" Grid.Column="2" FontSize="20" Text="{Binding ProbeSn}" IsReadOnly="{Binding ProbeSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+                    <TextBox services:PlaceholderService.Placeholder="tdmsn를 입력하세요" Grid.Row="1" Grid.Column="2" FontSize="20" Text="{Binding TDMdSn}" IsReadOnly="{Binding TDMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
+                    <TextBox services:PlaceholderService.Placeholder="tdsn를 입력하세요" Grid.Row="3" Grid.Column="2" FontSize="20" Text="{Binding TDSn}" IsReadOnly="{Binding TDSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}"/>
 
                     <DatePicker Grid.Row="4" Grid.Column="2" SelectedDate="{Binding SelectedDate}" FontSize="20">
                         <DatePicker.Resources>
@@ -80,8 +81,8 @@
                         </DatePicker.Resources>
                     </DatePicker>
                     <ComboBox Grid.Row="5" Grid.Column="2" FontSize="20" ItemsSource="{Binding PCs}" SelectedIndex="{Binding PCIndex, Mode=TwoWay}"/>
-                    <TextBox Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"/>
-                    <TextBox Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding MTMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}">
+                    <TextBox services:PlaceholderService.Placeholder="seq를 입력하세요" Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"/>
+                    <TextBox services:PlaceholderService.Placeholder="모터를 입력하세요" Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="{Binding MTMdSnIsReadOnly}" Style="{StaticResource ReadOnlyTextBoxStyle}">
                         <TextBox.InputBindings>
                             <KeyBinding Command="{Binding FindByMTMdSnCommand}" Key="Enter" CommandParameter="{Binding Path=Text, RelativeSource={RelativeSource AncestorType=TextBox}}"/>
                         </TextBox.InputBindings>

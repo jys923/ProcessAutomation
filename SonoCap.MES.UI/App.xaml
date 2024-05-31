@@ -50,6 +50,30 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style x:Key="HintTextBoxStyle" TargetType="TextBox">
+                <Style.Resources>
+                    <!-- 텍스트가 비었을 때 보이는 힌트 텍스트를 정의합니다. -->
+                    <VisualBrush x:Key="CueBannerBrush" AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                        <VisualBrush.Visual>
+                            <Label Content="검색어를 입력하세요" Foreground="LightGray" />
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </Style.Resources>
+                <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                <Style.Triggers>
+                    <!-- TextBox가 포커스를 받거나 텍스트가 있는 경우 힌트 텍스트를 숨깁니다. -->
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsFocused" Value="true" />
+                            <Condition Property="Text" Value="" />
+                        </MultiTrigger.Conditions>
+                        <Setter Property="Background" Value="White" />
+                    </MultiTrigger>
+                    <Trigger Property="Text" Value="">
+                        <Setter Property="Background" Value="{StaticResource CueBannerBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <!--<ResourceDictionary Source="/Styles/BlinkingButtonStyle.xaml"/>-->
             </ResourceDictionary.MergedDictionaries>
