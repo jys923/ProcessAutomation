@@ -4,6 +4,7 @@ using Serilog;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -17,7 +18,7 @@ using VILib;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class TestViewModel : ObservableObject
+    public partial class TestViewModel : ObservableValidator
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -65,6 +66,11 @@ namespace SonoCap.MES.UI.ViewModels
                 "Right"
             };
 
+            Init();
+        }
+
+        private void Init()
+        {
             PCIndex = 0;
 
             ResLogs = new ObservableCollection<string>();
@@ -80,38 +86,105 @@ namespace SonoCap.MES.UI.ViewModels
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
 
             ProbeSn = "";
-            ProbeSnIsReadOnly = true;
-            MTMdSnIsReadOnly = true;
-            TDMdSnIsReadOnly = true;
-            TDSnIsReadOnly = true;
+            ProbeSnIsEnabled = false;
+            MTMdSnIsEnabled = false;
+            TDMdSnIsEnabled = false;
+            TDSnIsEnabled = false;
         }
 
         [ObservableProperty]
         private string _title = default!;
 
-        [ObservableProperty]
+        //[ObservableProperty]
         private string _probeSn = default!;
 
-        [ObservableProperty]
-        private bool _probeSnIsReadOnly = default!;
+        [Required(ErrorMessage = "ProbeSn is required")]
+        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
+        public string ProbeSn
+        {
+            get => _probeSn;
+            set => SetProperty(ref _probeSn, value, true);
+        }
+
+        public static ValidationResult ValidateSn(object value, ValidationContext context)
+        {
+            //bool isValid = ((TestViewModel)context.ObjectInstance).service.Validate(name);
+            string? propertyName = context.MemberName; // 프로퍼티 이름
+            Log.Information("propertyName:" + propertyName);
+            int resCnt = 0;
+            switch (propertyName)
+            {
+                case nameof(ProbeSn):
+                    resCnt = ((TestViewModel)context.ObjectInstance)._probeRepository.GetBySn(((TestViewModel)context.ObjectInstance).ProbeSn).ToList().Count;
+                    break;
+                case nameof(TDMdSn):
+                    resCnt = ((TestViewModel)context.ObjectInstance)._transducerModuleRepository.GetBySn(((TestViewModel)context.ObjectInstance).TDMdSn).ToList().Count;
+                    break;
+                case nameof(TDSn):
+                    resCnt = ((TestViewModel)context.ObjectInstance)._transducerRepository.GetBySn(((TestViewModel)context.ObjectInstance).TDSn).ToList().Count;
+                    break;
+                case nameof(MTMdSn):
+                    resCnt = ((TestViewModel)context.ObjectInstance)._motorModuleRepository.GetBySn(((TestViewModel)context.ObjectInstance).MTMdSn).ToList().Count;
+                    break;
+                default:
+                    break;
+            }
+
+            Log.Information($"resCnt : {resCnt}");
+
+            if (resCnt == 0)
+            {
+                return new ValidationResult("시리얼 조회 실패");
+            }
+            
+            string? _value = value as string;
+            
+            if (_value!.Length > 5 )
+            {
+                return ValidationResult.Success;
+            }
+            else
+            {
+                return new ValidationResult("The name contains invalid characters");
+            }
+        }
 
         [ObservableProperty]
+        private bool _probeSnIsEnabled = default!;
+
+        //[ObservableProperty]
         private string _tDMdSn = default!;
 
-        [ObservableProperty]
-        private bool _tDMdSnIsReadOnly = default!;
+        [Required(ErrorMessage = "TDMdSn is required")]
+        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
+        public string TDMdSn
+        {
+            get => _tDMdSn;
+            set => SetProperty(ref _tDMdSn, value, true);
+        }
 
         [ObservableProperty]
+        private bool _tDMdSnIsEnabled = default!;
+
+        //[ObservableProperty]
         private string _tDSn = default!;
 
+        [Required(ErrorMessage = "TDSn is required")]
+        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
+        public string TDSn
+        {
+            get => _tDSn;
+            set => SetProperty(ref _tDSn, value, true);
+        }
+
         [ObservableProperty]
-        private bool _tDSnIsReadOnly = default!;
+        private bool _tDSnIsEnabled = default!;
 
         [ObservableProperty]
         private DateTime _selectedDate = DateTime.Now;
 
         [ObservableProperty]
-        private bool _selectedDateIsReadOnly = default!;
+        private bool _selectedDateIsEnabled = default!;
 
         [ObservableProperty]
         private ObservableCollection<string> _pCs;
@@ -122,17 +195,19 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _seqNo = default!;
 
-        [ObservableProperty]
+        //[ObservableProperty]
         private string _mTMdSn = default!;
 
-        [ObservableProperty]
-        private bool _mTMdSnIsReadOnly = default!;
-
-        [RelayCommand]
-        private void FindByMTMdSn(string MTMdSn)
+        [Required(ErrorMessage = "MTMdSn is required")]
+        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
+        public string MTMdSn
         {
-            Log.Information("FindByMTMdSn:"+ MTMdSn);
+            get => _mTMdSn;
+            set => SetProperty(ref _mTMdSn, value);
         }
+
+        [ObservableProperty]
+        private bool _mTMdSnIsEnabled = default!;
 
         [ObservableProperty]
         private int _blinkingCellIndex = -1;
@@ -149,7 +224,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 oldRow = row;
                 ClearAll();
-                ChangeReadOnly((TestCategories)row);
+                ChangeIsEnabled((TestCategories)row);
             }
 
             SrcImg = default!;
@@ -241,38 +316,38 @@ namespace SonoCap.MES.UI.ViewModels
         private void ClearAll()
         {
             ProbeSn = "";
-            ProbeSnIsReadOnly = true;
+            ProbeSnIsEnabled = false;
             TDMdSn = "";
-            TDMdSnIsReadOnly = true;
+            TDMdSnIsEnabled = false;
             TDSn = "";
-            TDSnIsReadOnly = true;
+            TDSnIsEnabled = false;
             SeqNo = "";
             MTMdSn = "";
-            MTMdSnIsReadOnly = true;
+            MTMdSnIsEnabled = false;
             SrcImg = default!;
             ResImg = default!;
             TestResultTypeIndex = 0;
-            TestIsEnabled = true;
-            NextIsEnabled = true;
+            TestIsEnabled = false;
+            NextIsEnabled = false;
         }
 
-        private void ChangeReadOnly(TestCategories categories)
+        private void ChangeIsEnabled(TestCategories categories)
         {
-            //ProbeSnIsReadOnly = false;
-            //MTMdSnIsReadOnly = false;
-            //TDMdSnIsReadOnly = false;
-            //TDSnIsReadOnly = false;
+            //ProbeSnIsEnabled = false;
+            //MTMdSnIsEnabled = false;
+            //TDMdSnIsEnabled = false;
+            //TDSnIsEnabled = false;
             switch (categories)
             {
                 case TestCategories.Processing:
-                    TDSnIsReadOnly = false;
+                    TDSnIsEnabled = true;
                     break;
                 case TestCategories.Process:
-                    TDMdSnIsReadOnly = false;
-                    MTMdSnIsReadOnly = false;
+                    TDMdSnIsEnabled = true;
+                    MTMdSnIsEnabled = true;
                     break;
                 case TestCategories.Dispatch:
-                    ProbeSnIsReadOnly = false;
+                    ProbeSnIsEnabled = true;
                     break;
             }
         }

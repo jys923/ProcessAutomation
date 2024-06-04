@@ -6,6 +6,7 @@ using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -531,10 +532,14 @@ namespace SonoCap.MES.UI.ViewModels
             await _testRepository.BulkInsertAsync(tests);
         }
 
+        [ObservableProperty]
+        private string _query;
+
         [RelayCommand]
         private async Task Select1Async()
         {
-
+            List<Probe> res = _probeRepository.GetBySn(Query).ToList();
+            Log.Information("res:"+ res);
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeTestResult();

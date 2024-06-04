@@ -41,6 +41,8 @@ remove-migration
 - [X] dataflag 0 조회 확인
 - [X] testView 시나리오 확립
 - [ ] datagrid click 세부 내용
+- [ ] 기본 포커스 위치?
+	- why 빨간줄 나옴
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] Dark theme
 - [ ] 모터 모듈 s/n 파일 import
@@ -50,6 +52,10 @@ remove-migration
 	- https://www.youtube.com/watch?v=QUx2gh0PaEc
 - [ ] 벨리데이션
 	- https://kaki104.tistory.com/829
+	- https://kaki104.tistory.com/863
+	- https://stackoverflow.com/questions/75561916/validation-with-observablevalidator-error-on-geterrors-net-maui
+	- [X] https://github.com/CommunityToolkit/WindowsCommunityToolkit/issues/3750
+	- [ ] https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/observablevalidator
 - [ ] 시리얼 검색 버튼
 	- [ ] 없으면 밑에 없다고 출력
 - [ ] TD s/n 파일 import

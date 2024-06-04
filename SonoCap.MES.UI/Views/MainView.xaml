@@ -42,5 +42,6 @@
                 </Style>
             </Button.Style>
         </Button>
+        <TextBox IsEnabled="False" HorizontalAlignment="Left" Margin="400,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="120"/>
     </Grid>
 </Window>
