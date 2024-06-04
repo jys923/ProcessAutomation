@@ -10,6 +10,7 @@
         <ResourceDictionary>
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
             <converters:RowIndexConverter x:Key="RowIndexConverter" />
+            <converters:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
             <Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
             <Style x:Key="IsEnabledTextBoxStyle" TargetType="TextBox">
                 <Style.Triggers>

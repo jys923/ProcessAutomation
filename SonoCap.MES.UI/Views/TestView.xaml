@@ -82,7 +82,7 @@
                         </DatePicker.Resources>
                     </DatePicker>
                     <ComboBox Grid.Row="5" Grid.Column="2" FontSize="20" ItemsSource="{Binding PCs}" SelectedIndex="{Binding PCIndex, Mode=TwoWay}"/>
-                    <TextBox IsError="True"  services:PlaceholderService.Placeholder="seq를 입력하세요" Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"  Style="{StaticResource CustomTextBoxStyle}"/>
+                    <TextBox services:PlaceholderService.Placeholder="seq를 입력하세요" Grid.Row="6" Grid.Column="2" FontSize="20" Text="{Binding SeqNo}"  Style="{StaticResource CustomTextBoxStyle}"/>
                     <TextBox services:PlaceholderService.Placeholder="모터를 입력하세요" Grid.Row="7" Grid.Column="2" FontSize="20" Text="{Binding MTMdSn, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" IsEnabled="{Binding MTMdSnIsEnabled}" Style="{StaticResource CustomTextBoxStyle}"/>
                 </Grid>
             </StackPanel>

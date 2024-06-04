@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
-        xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
+        xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels" 
+        xmlns:controls="clr-namespace:SonoCap.MES.UI.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type vm:MainViewModel}}"
         Title="{Binding Title}" Height="450" Width="800">
@@ -42,6 +43,9 @@
                 </Style>
             </Button.Style>
         </Button>
-        <TextBox IsEnabled="False" HorizontalAlignment="Left" Margin="400,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="120"/>
+
+        <controls:TextBoxControl Validating="True" WaterMarkText="aaaa" IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" VerticalAlignment="Top" Width="120"/>
+
+        <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="400,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="120"/>
     </Grid>
 </Window>

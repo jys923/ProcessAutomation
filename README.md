@@ -68,6 +68,7 @@ remove-migration
 		- https://github.com/FantasticFiasco/mvvm-dialogs-integrated-into-windows-community-toolkit/tree/main/src
 	- [ ] RoutedEventHandler
 	- [ ] Action
+	- [ ] https://forum.dotnetdev.kr/t/mvvm-sample-for-wpf-usercontrol/8919
 	- [ ] 
 - [ ] Datagrid 필터링
 	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
