@@ -14,11 +14,13 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using VILib;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class TestViewModel : ObservableValidator
+    public partial class TestViewModel : ObservableObject
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -95,17 +97,6 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _title = default!;
 
-        //[ObservableProperty]
-        private string _probeSn = default!;
-
-        [Required(ErrorMessage = "ProbeSn is required")]
-        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
-        public string ProbeSn
-        {
-            get => _probeSn;
-            set => SetProperty(ref _probeSn, value, true);
-        }
-
         public static ValidationResult ValidateSn(object value, ValidationContext context)
         {
             //bool isValid = ((TestViewModel)context.ObjectInstance).service.Validate(name);
@@ -149,32 +140,69 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        private bool GetBySn(SnType snType, string sn)
+        {
+            return snType switch
+            {
+                SnType.Probe => _probeRepository.GetBySn(sn).ToList().Count > 0,
+                SnType.Transducer => _transducerRepository.GetBySn(sn).ToList().Count > 0,
+                SnType.MotorModule => _motorModuleRepository.GetBySn(sn).ToList().Count > 0,
+                _ => false
+            };
+        }
+
+        [ObservableProperty]
+        private string _probeSn = default!;
+
+        partial void OnProbeSnChanged(string value)
+        {
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                if (GetBySn(SnType.Probe, value))
+                {
+                    //ProbeSn Is Not Exist
+                    Log.Information($"Probe sn {value}");
+                }
+            }
+        }
+
         [ObservableProperty]
         private bool _probeSnIsEnabled = default!;
 
-        //[ObservableProperty]
+        [ObservableProperty]
         private string _tDMdSn = default!;
 
-        [Required(ErrorMessage = "TDMdSn is required")]
-        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
-        public string TDMdSn
+        partial void OnTDMdSnChanged(string value)
         {
-            get => _tDMdSn;
-            set => SetProperty(ref _tDMdSn, value, true);
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                if (GetBySn(SnType.TransducerModule, value))
+                {
+                    //ProbeSn Is Not Exist
+                    Log.Information($"TransducerModule sn {value}");
+                }
+            }
         }
 
         [ObservableProperty]
         private bool _tDMdSnIsEnabled = default!;
 
-        //[ObservableProperty]
+        [ObservableProperty]
         private string _tDSn = default!;
 
-        [Required(ErrorMessage = "TDSn is required")]
-        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
-        public string TDSn
+        partial void OnTDSnChanged(string value)
         {
-            get => _tDSn;
-            set => SetProperty(ref _tDSn, value, true);
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                if (GetBySn(SnType.Transducer, value))
+                {
+                    //ProbeSn Is Not Exist
+                    Log.Information($"Transducer sn {value}");
+                }
+            }
         }
 
         [ObservableProperty]
@@ -182,6 +210,11 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private DateTime _selectedDate = DateTime.Now;
+
+        partial void OnSelectedDateChanged(DateTime value)
+        {
+            throw new NotImplementedException();
+        }
 
         [ObservableProperty]
         private bool _selectedDateIsEnabled = default!;
@@ -195,15 +228,20 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _seqNo = default!;
 
-        //[ObservableProperty]
+        [ObservableProperty]
         private string _mTMdSn = default!;
 
-        [Required(ErrorMessage = "MTMdSn is required")]
-        [CustomValidation(typeof(TestViewModel), nameof(ValidateSn))]
-        public string MTMdSn
+        partial void OnMTMdSnChanged(string value)
         {
-            get => _mTMdSn;
-            set => SetProperty(ref _mTMdSn, value);
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                if (GetBySn(SnType.MotorModule, value))
+                {
+                    //ProbeSn Is Not Exist
+                    Log.Information($"MotorModule sn {value}");
+                }
+            }
         }
 
         [ObservableProperty]
@@ -431,6 +469,10 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void Next() 
         {
+            if (!IsValidTesting()) return;
+
+            Save();
+
             MessageBoxResult mbr = MessageBox.Show("Content:save??","Title:save", MessageBoxButton.YesNo);
 
             switch (mbr)
@@ -452,6 +494,83 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
+        }
+
+        private void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        private bool IsValidTesting()
+        {
+            var isNullText = delegate (string key, string value)
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    SetValidating(key);
+                    return true;
+                }
+                return false;
+            };
+
+            if (isNullText(nameof(ProbeSn), ProbeSn)) return false;
+
+            throw new NotImplementedException();
+        }
+
+        [ObservableProperty]
+        private string _validationText = "";
+
+        private Dictionary<string, bool> _validatingDict = default!;
+
+        public Dictionary<string, bool> ValidatingDict
+        {
+            get
+            {
+                if (_validatingDict == null)
+                {
+                    _validatingDict = new Dictionary<string, bool>();
+                }
+                return _validatingDict;
+            }
+        }
+
+        private void ClearValidating()
+        {
+            ValidatingDict.Clear();
+            ValidationText = "";
+        }
+
+        private void SetValidating(string key)
+        {
+            ValidatingDict[key] = true;
+            switch (key)
+            {
+                case "Email":
+                    ValidationText = "Email을 입력하세요.";
+                    break;
+                case "ExistEmail":
+                    ValidationText = "이미 존재하는 Email입니다.";
+                    break;
+                case "Nickname":
+                    ValidationText = "닉네임을 입력하세요.";
+                    break;
+                case "CellPhone":
+                    ValidationText = "휴대전화번호를 입력하세요.";
+                    break;
+                case "Password":
+                    ValidationText = "비밀번호를 입력하세요.";
+                    break;
+                case "PasswordConfirm":
+                    ValidationText = "비밀번호 확인를 입력하세요.";
+                    break;
+                case "DifferentPassword":
+                    ValidatingDict["Password"] = true;
+                    ValidatingDict["PasswordConfirm"] = true;
+                    ValidationText = "비밀번호와 재입력 값이 일치하지 않습니다.";
+                    break;
+            }
+            OnPropertyChanged(nameof(ValidatingDict));
         }
 
         private BitmapImage convertByteArrToBitmap2(byte[] res_data)

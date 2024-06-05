@@ -52,10 +52,15 @@
                     </MultiBinding>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
     <Grid>
         <TextBlock/>
-        <TextBox x:Name="txt" TextChanged="txt_TextChanged"/>
+        <TextBox x:Name="txt"/>
     </Grid>
 </UserControl>

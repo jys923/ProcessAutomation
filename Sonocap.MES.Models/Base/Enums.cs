@@ -1,5 +1,13 @@
 ﻿namespace SonoCap.MES.Models.Enums
 {
+    public enum SnType
+    {
+        Probe,
+        TransducerModule,
+        Transducer,
+        MotorModule,
+    }
+
     public enum CellPositions
     {
         Row0_Column0,
