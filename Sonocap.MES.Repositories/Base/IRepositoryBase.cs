@@ -11,5 +11,6 @@
         Task<bool> DeleteAsync(T entity);
         Task<bool> DeleteByIdAsync(int id);
         IQueryable<T> GetBySn(string sn);
+        Task<int> UpsertAsync(T entity);
     }
 }

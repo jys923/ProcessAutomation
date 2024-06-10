@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
+using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
 using System.Collections.ObjectModel;
 
@@ -117,7 +118,7 @@ namespace SonoCap.MES.UI.ViewModels
                 TestCategory.Equals("ALL") ? (int)Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
                 TestType.Equals("ALL") ? (int)Models.Enums.Commons.All : TestTypes.IndexOf(TestType),
                 Tester,
-                Pc.Equals("ALL") ? (int)Models.Enums.Commons.All : Pcs.IndexOf(Pc),
+                Pc.Equals("ALL") ? CommonValues.All : Pcs.IndexOf(Pc),
                 TestResult.Equals("ALL") ? (int)Models.Enums.Commons.All : TestResults.IndexOf(TestResult),
                 null,
                 ProbeSn,

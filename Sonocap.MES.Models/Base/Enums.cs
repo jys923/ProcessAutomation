@@ -1,5 +1,11 @@
 ﻿namespace SonoCap.MES.Models.Enums
 {
+    public static class CommonValues
+    {
+        public static readonly int All = 0;
+        public static readonly int None = -1;
+    }
+
     public enum SnType
     {
         Probe,
@@ -63,6 +69,7 @@
 
     public enum TestCategories
     {
+        All = 0,
         Processing = 1,
         Process,
         Dispatch,
@@ -87,4 +94,6 @@
         Axial,
         Lateral,
     }
+
+
 }

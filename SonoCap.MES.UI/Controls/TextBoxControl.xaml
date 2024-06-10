@@ -40,6 +40,7 @@
                 <Setter.Value>
                     <MultiBinding Converter="{StaticResource ValidatingBorderThicknessConverter}">
                         <Binding Path="Validating" ElementName="root"/>
+                        <Binding Path="IsEnabled" ElementName="root"/>
                         <Binding Path="BorderThickness" ElementName="root"/>
                     </MultiBinding>
                 </Setter.Value>
@@ -48,6 +49,7 @@
                 <Setter.Value>
                     <MultiBinding Converter="{StaticResource ValidatingBorderBrushConverter}">
                         <Binding Path="Validating" ElementName="root"/>
+                        <Binding Path="IsEnabled" ElementName="root"/>
                         <Binding Path="BorderBrush" ElementName="root"/>
                     </MultiBinding>
                 </Setter.Value>

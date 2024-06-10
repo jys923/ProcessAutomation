@@ -13,6 +13,7 @@ using System.Windows;
 using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Context;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.UI.Validation;
 
 namespace SonoCap.MES.UI
 {
@@ -34,6 +35,7 @@ namespace SonoCap.MES.UI
             testView.DataContext = App.Current.Services.GetRequiredService<MainViewModel>(); // 뷰모델을 바인딩
             testView.Show();
 #else
+            SetTestThreshold();
             MainView? mainView = App.Current.Services.GetService<MainView>()!;
             mainView.Show();
 #endif
@@ -43,6 +45,20 @@ namespace SonoCap.MES.UI
         /// Gets the current <see cref="App"/> instance in use
         /// </summary>
         public new static App Current => (App)Application.Current;
+
+        public static int Test11 { get; private set; }
+        public static int Test12 { get; private set; }
+        public static int Test13 { get; private set; }
+
+        public static int Test21 { get; private set; }
+        public static int Test22 { get; private set; }
+        public static int Test23 { get; private set; }
+
+        public static int Test31 { get; private set; }
+        public static int Test32 { get; private set; }
+        public static int Test33 { get; private set; }
+
+        public static Dictionary<int, int> _testThresholdDict { get; private set; } = new Dictionary<int, int>();
 
         /// <summary>
         /// Gets the <see cref="IServiceProvider"/> instance to resolve application services.
@@ -68,42 +84,7 @@ namespace SonoCap.MES.UI
 
             IServiceCollection services = new ServiceCollection();
 
-#if appsettings
-            // IConfiguration을 설정합니다.
-            IConfiguration configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-            // IConfiguration을 서비스 컨테이너에 등록합니다.
-            services.AddSingleton(configuration);
-
-            // appsettings.json 파일에서 연결 문자열을 가져옵니다.
-            string MariaDBConnectionString = configuration.GetConnectionString("MariaDBConnection") ?? throw new InvalidOperationException("MariaDBConnection is null.");
-#else
-            string MariaDBConnectionString = UI.Properties.Settings.Default.MariaDBConnection
-                                             ?? throw new InvalidOperationException("MariaDBConnection is null.");
-#endif
-#if DEBUG
             services.AddDbContext<MESDbContext>();
-#else
-            ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddSerilog(dispose: true); // Serilog를 LoggerFactory에 추가
-                builder.AddFilter((category, level) =>
-                    category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information); // EF Core의 로그를 필터링하여 Serilog에게 전달
-            });
-            // DbContext를 등록합니다.
-            services.AddDbContext<MESDbContext>(options =>
-                options
-#if DEBUG
-                .EnableSensitiveDataLogging(true)
-                //.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
-#endif
-                .UseLoggerFactory(loggerFactory) // Serilog에 EF Core 로그 리디렉션
-                .UseLazyLoadingProxies(true)
-                .UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString)));
-#endif
 
             // Repositories
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
@@ -119,19 +100,19 @@ namespace SonoCap.MES.UI
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
 
             // AspectCore의 동적 프록시 설정을 구성합니다.
-            services.ConfigureDynamicProxy(config =>
-            {
-                // 모든 서비스에 LoggingInterceptor를 적용하도록 설정합니다.
-                config.Interceptors.AddTyped<CallCountInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<ChangeHistoryInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<ExceptionLoggingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForMethod("*"));
-                config.Interceptors.AddTyped<ParameterLoggingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<PerformanceInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<TimingInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<UserActivityInterceptor>(Predicates.ForService("*"));
-                config.Interceptors.AddTyped<UserBehaviorInterceptor>(Predicates.ForService("*"));
-            });
+            //services.ConfigureDynamicProxy(config =>
+            //{
+            //    // 모든 서비스에 LoggingInterceptor를 적용하도록 설정합니다.
+            //    config.Interceptors.AddTyped<CallCountInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<ChangeHistoryInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<ExceptionLoggingInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<LoggingInterceptor>(Predicates.ForMethod("*"));
+            //    config.Interceptors.AddTyped<ParameterLoggingInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<PerformanceInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<TimingInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<UserActivityInterceptor>(Predicates.ForService("*"));
+            //    config.Interceptors.AddTyped<UserBehaviorInterceptor>(Predicates.ForService("*"));
+            //});
 
 #if DataTemplate
             // ViewModels
@@ -173,6 +154,38 @@ namespace SonoCap.MES.UI
             // 응용 프로그램의 서비스 공급자로 설정합니다.
             //return services.BuildServiceProvider();
             return services.BuildDynamicProxyProvider();
+        }
+
+        private async void SetTestThreshold()
+        {
+            // TestTypeRepository를 서비스로부터 가져옵니다.
+            ITestTypeRepository testTypeRepository = App.Current.Services.GetRequiredService<ITestTypeRepository>();
+
+            // TestType 데이터를 가져오기 위한 메서드를 호출합니다. (예: GetAllTestTypesAsync())
+            IEnumerable<Models.TestType> testTypes = await testTypeRepository.GetAllAsync();
+
+            // 가져온 데이터를 처리합니다.
+            foreach (Models.TestType testType in testTypes)
+            {
+                switch (testType.Id)
+                {
+                    case 1:
+                        _testThresholdDict[11] = testType.Threshold;
+                        _testThresholdDict[21] = testType.Threshold;
+                        _testThresholdDict[31] = testType.Threshold;
+                        break;
+                    case 2:
+                        _testThresholdDict[12] = testType.Threshold;
+                        _testThresholdDict[22] = testType.Threshold;
+                        _testThresholdDict[32] = testType.Threshold;
+                        break;
+                    case 3:
+                        _testThresholdDict[13] = testType.Threshold;
+                        _testThresholdDict[23] = testType.Threshold;
+                        _testThresholdDict[33] = testType.Threshold;
+                        break;
+                }
+            }
         }
     }
 }

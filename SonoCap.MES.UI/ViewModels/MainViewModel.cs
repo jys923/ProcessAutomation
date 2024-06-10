@@ -26,6 +26,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITransducerRepository _transducerRepository;
         private readonly ITransducerModuleRepository _transducerModuleRepository;
         private readonly ITransducerTypeRepository _transducerTypeRepository;
+        private readonly IPTRViewRepository _pTRViewRepository;
 
         [ObservableProperty]
         private bool _isBlinking = false;
@@ -44,7 +45,8 @@ namespace SonoCap.MES.UI.ViewModels
             ITestTypeRepository testTypeRepository,
             ITransducerRepository transducerRepository,
             ITransducerModuleRepository transducerModuleRepository,
-            ITransducerTypeRepository transducerTypeRepository)
+            ITransducerTypeRepository transducerTypeRepository,
+            IPTRViewRepository pTRViewRepository)
         {
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
@@ -57,6 +59,7 @@ namespace SonoCap.MES.UI.ViewModels
             _transducerRepository = transducerRepository;
             _transducerModuleRepository = transducerModuleRepository;
             _transducerTypeRepository = transducerTypeRepository;
+            _pTRViewRepository = pTRViewRepository;
             Title = this.GetType().Name;
         }
 
@@ -543,6 +546,20 @@ namespace SonoCap.MES.UI.ViewModels
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeTestResult();
+        }
+
+        [RelayCommand]
+        private async Task PTRViewTest()
+        {
+            PTRView? view = await _probeRepository.GetPTRViewAsync(Query);
+            Log.Information("PTRView:" + view?.ToString() ?? "");
+        }
+
+        [RelayCommand]
+        private async Task TDMdTest()
+        {
+            TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn 240624 001", TransducerId = 100002 };
+            await _transducerModuleRepository.InsertAsync(tdMd);
         }
     }
 }

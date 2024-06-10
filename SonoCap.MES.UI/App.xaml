@@ -8,6 +8,8 @@
              xmlns:Behaviors="clr-namespace:SonoCap.MES.UI.Behaviors">
     <Application.Resources>
         <ResourceDictionary>
+            <converters:TestResultBorderBrushConverter x:Key="TestResultBorderBrushConverter"/>
+            <converters:EnabledToVisibilityConverter x:Key="EnabledToVisibilityConverter"/>
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
             <converters:RowIndexConverter x:Key="RowIndexConverter" />
             <converters:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />

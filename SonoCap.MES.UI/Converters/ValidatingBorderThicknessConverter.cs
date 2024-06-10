@@ -10,14 +10,15 @@ namespace SonoCap.MES.UI.Converters
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             bool? isValidation = values[0] as bool?;
-            if (isValidation != null && isValidation == true)
+            bool? isEnabled = values[1] as bool?;
+            Thickness defaultBrush = (Thickness)values[2];
+
+            if (isEnabled.HasValue && isEnabled == false)
             {
-                return new Thickness(2);
+                return defaultBrush;
             }
-            else
-            {
-                return values[1];
-            }
+
+            return (isValidation.HasValue && isValidation == false) ? new Thickness(2) : defaultBrush;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

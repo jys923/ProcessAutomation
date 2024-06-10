@@ -38,28 +38,32 @@ remove-migration
 - [X] test 삭제까지 보이게
 - [X] test 갯수 가변
 - [ ] 성공 조건 가변
+- [X] 윈도우 생성시 tester 객체에 데이터 삽입 널 체크
+- [X] 검색시 td 객체에 데이터 삽입 널 체크
 - [X] dataflag 0 조회 확인
 - [X] testView 시나리오 확립
 - [ ] datagrid click 세부 내용
-- [ ] 기본 포커스 위치?
+- [X] 기본 포커스 위치?
 	- why 빨간줄 나옴
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] Dark theme
 - [ ] 모터 모듈 s/n 파일 import
 - [ ] 모터 모듈 s/n -> Lot 라고 바꾸기
 - [ ] winform bmp -> wpf bmp 바꾸기
+- [ ] 색상
 - [X] text placeholder hint
 	- https://www.youtube.com/watch?v=QUx2gh0PaEc
-- [ ] 벨리데이션
+- [X] 벨리데이션
+	- 직접 구현 디비 조회는 이 방법이 :crown: :+1:
 	- https://kaki104.tistory.com/829
 	- https://kaki104.tistory.com/863
 	- https://stackoverflow.com/questions/75561916/validation-with-observablevalidator-error-on-geterrors-net-maui
 	- [X] https://github.com/CommunityToolkit/WindowsCommunityToolkit/issues/3750
 	- [ ] https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/observablevalidator
-- [ ] 시리얼 검색 버튼
-	- [ ] 없으면 밑에 없다고 출력
+- [X] 시리얼 체크
+	- [X] 없으면 밑에 없다고 출력
 - [ ] TD s/n 파일 import
-- [ ] 유저 컨트롤
+- [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
 		- https://github.com/pierre01/MessageBox
@@ -87,11 +91,15 @@ remove-migration
 - [X] Tester name,pcNo(외래키 pcId) 검색 대응
 - [X] BulkInsertAsync 원래 로그 못봄
 - [X] 윈도우 재시작 에러
+- [X] IsEnabled = false 일때 style null
+- [ ] test 카테거리 정리
+- [ ] enum에 all 추가
 ## Research List
+- [X] C# 8.0 "switch expression"
 - [ ] linq
 - [ ] Dependency Property와 Attached Property
 	- https://kaki104.tistory.com/563
-- [X] Microsoft.Extensions.Logging vs <font color='green'>Serilog</font>
+- [X] Microsoft.Extensions.Logging vs :sparkles: :crown: Serilog
 	- logging .net 기본 시간 표기 가능,
 	- serilog 구조화된 로그 추가 복잡할 때 사용
 - [ ] TDD mock 객체 vs UseInMemoryDatabase
@@ -102,3 +110,11 @@ remove-migration
 	- TDD 환경 구축 xunit 프로젝트 설정 바꿔야 됨, test 대상 프로젝트 참조
 - [X] EFCore join 시 객체 바인딩 가능?
 	- 가능 편리하게 이용
+- [ ] async await 정리
+- [ ] Property 
+	- https://dh-0501.tistory.com/138
+
+## Scenario List
+- [ ] test,testList,probeList 호출시 tester 테이블에 PCId, userName 추가 로그인 개념
+	- 셋팅에 pcId 필요(디비 정보)
+- [ ] 테스트가 이미 끝난 경우 테스트값을 볼수 있고 재검사 시 수정 되는지 결정

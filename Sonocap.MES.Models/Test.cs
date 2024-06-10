@@ -34,7 +34,7 @@ namespace SonoCap.MES.Models
         public string ChangedImgMetadata { get; set; } = "";
 
         /// <summary>
-        /// true > 0 , false = 0
+        /// true > 0 , false = -1
         /// </summary>
         [Required]
         public int Result { get; set; }

@@ -663,5 +663,50 @@ WHERE
             return await _context.Set<ProbeTestResult>().FromSqlRaw(query, parameters.ToArray()).ToListAsync();
         }
 
+        public async Task<PTRView?> GetPTRViewAsync(string probeSn)
+        {
+            var query = from p in _context.Set<Probe>()
+                        join tm in _context.Set<TransducerModule>().Where(tm => tm.DataFlag == 1) on p.TransducerModuleId equals tm.Id into tmGroup
+                        from tm in tmGroup.DefaultIfEmpty()
+                        join td in _context.Set<Transducer>().Where(td => td.DataFlag == 1) on tm.TransducerId equals td.Id into tdGroup
+                        from td in tdGroup.DefaultIfEmpty()
+                        join mm in _context.Set<MotorModule>().Where(mm => mm.DataFlag == 1) on p.MotorModuleId equals mm.Id into mmGroup
+                        from mm in mmGroup.DefaultIfEmpty()
+                        where p.DataFlag == 1 && p.Sn == probeSn
+                        select new
+                        {
+                            p.Id,
+                            p.Sn,
+                            TransducerModuleSn = tm.Sn,
+                            TransducerSn = td.Sn,
+                            MotorModuleSn = mm.Sn,
+                            TransducerId = td.Id,
+                            TransducerModuleId = tm.Id,
+                        };
+
+            var result = await query.ToListAsync();
+
+            PTRView? _pTRView = result.Select(p => new PTRView
+            {
+                ProbeSn = p.Sn,
+                TransducerModuleSn = p.TransducerModuleSn,
+                TransducerSn = p.TransducerSn,
+                MotorModuleSn = p.MotorModuleSn,
+
+                TestId01 = _context.Set<Test>().Where(t => t.TransducerId == p.TransducerId && t.TestCategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => t.Id).FirstOrDefault(),
+                TestId02 = _context.Set<Test>().Where(t => t.TransducerId == p.TransducerId && t.TestCategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => t.Id).FirstOrDefault(),
+                TestId03 = _context.Set<Test>().Where(t => t.TransducerId == p.TransducerId && t.TestCategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => t.Id).FirstOrDefault(),
+
+                TestId04 = _context.Set<Test>().Where(t => t.TransducerModuleId == p.TransducerModuleId && t.TestCategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => t.Id).FirstOrDefault(),
+                TestId05 = _context.Set<Test>().Where(t => t.TransducerModuleId == p.TransducerModuleId && t.TestCategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => t.Id).FirstOrDefault(),
+                TestId06 = _context.Set<Test>().Where(t => t.TransducerModuleId == p.TransducerModuleId && t.TestCategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => t.Id).FirstOrDefault(),
+
+                TestId07 = _context.Set<Test>().Where(t => t.ProbeId == p.Id && t.TestCategoryId == 3 && t.TestTypeId == 1 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => (int?)t.Id).FirstOrDefault(),
+                TestId08 = _context.Set<Test>().Where(t => t.ProbeId == p.Id && t.TestCategoryId == 3 && t.TestTypeId == 2 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => (int?)t.Id).FirstOrDefault(),
+                TestId09 = _context.Set<Test>().Where(t => t.ProbeId == p.Id && t.TestCategoryId == 3 && t.TestTypeId == 3 && t.DataFlag == 1).OrderByDescending(t => t.Id).Select(t => (int?)t.Id).FirstOrDefault(),
+            }).FirstOrDefault();
+
+            return _pTRView;
+        }
     }
 }

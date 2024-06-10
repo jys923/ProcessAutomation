@@ -6,16 +6,21 @@ namespace SonoCap.Interceptors.Base
     {
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
-            var methodName = context.ImplementationMethod.Name;
-            if (!methodName.Contains("OnProperty"))
-            {
-                await Execute(context, next);
-            }
-            else
-            {
-                await next(context);
-            }
+            await Execute(context, next);
         }
+
+        //public override async Task Invoke(AspectContext context, AspectDelegate next)
+        //{
+        //    var methodName = context.ImplementationMethod.Name;
+        //    if (!methodName.Contains("OnProperty"))
+        //    {
+        //        await Execute(context, next);
+        //    }
+        //    else
+        //    {
+        //        await next(context);
+        //    }
+        //}
 
         protected abstract Task Execute(AspectContext context, AspectDelegate next);
     }

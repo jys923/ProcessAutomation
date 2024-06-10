@@ -44,8 +44,12 @@
             </Button.Style>
         </Button>
 
-        <controls:TextBoxControl Validating="True" WaterMarkText="aaaa" IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" VerticalAlignment="Top" Width="120"/>
+        <controls:TextBoxControl Validating="true" WaterMarkText="aaaa" IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" VerticalAlignment="Top" Width="120"/>
 
         <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="400,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="120"/>
+
+        <Button Content="PTRView" Command="{Binding PTRViewTestCommand}"  HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top"/>
+
+        <Button Content="TDMd" Command="{Binding TDMdTestCommand}"  HorizontalAlignment="Left" Margin="100,250,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>
