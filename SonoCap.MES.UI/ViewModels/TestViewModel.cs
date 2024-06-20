@@ -26,6 +26,87 @@ namespace SonoCap.MES.UI.ViewModels
 {
     public partial class TestViewModel : ObservableObject
     {
+        [ObservableProperty]
+        private string _title = default!;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        private string _probeSn = default!;
+
+        [ObservableProperty]
+        private bool _probeSnIsEnabled = default!;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        private string _tDMdSn = default!;
+
+
+        [ObservableProperty]
+        private bool _tDMdSnIsEnabled = default!;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        private string _tDSn = default!;
+
+        [ObservableProperty]
+        private bool _tDSnIsEnabled = default!;
+
+        [ObservableProperty]
+        private bool _addTDSnIsEnabled = default!;
+
+        [ObservableProperty]
+        private DateTime _selectedDate = DateTime.Now;
+
+        [ObservableProperty]
+        private bool _selectedDateIsEnabled = default!;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        private string _seqNo = default!;
+
+        [ObservableProperty]
+        private bool _seqNoIsEnabled = default!;
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(AddMTMdSnCommand))]
+        private string _mTMdSn = default!;
+
+        [ObservableProperty]
+        private bool _mTMdSnIsEnabled = default!;
+
+        [ObservableProperty]
+        private bool _addMTMdSnIsEnabled = default!;
+
+
+        [ObservableProperty]
+        private int _blinkingCellIndex = -1;
+
+        private int _oldRow = -1;
+
+        [ObservableProperty]
+        private BitmapImage _srcImg = default!;
+
+        [ObservableProperty]
+        private BitmapImage _resImg = default!;
+
+        [ObservableProperty]
+        private string _resTxt = default!;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _resLogs = default!;
+
+        [ObservableProperty]
+        private int _testResult = default!;
+
+        [ObservableProperty]
+        private string _selectedLogItem = default!;
+
+        [ObservableProperty]
+        private bool _nextIsEnabled = false;
+
+        private Dictionary<string, ValidationItem> _validationDict = new();
+        private Dictionary<int, Brush> _borderBackgrounds = new();
         private Probe? _probe { get; set; }
         private TransducerModule? _transducerModule { get; set; }
         private Transducer? _transducer { get; set; }
@@ -82,46 +163,25 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -3;
         }
 
-        private async void LogIn()
+        public Dictionary<string, ValidationItem> ValidationDict
         {
-            Tester tester = new Tester { Name = "yoon",PcId=1 };
-            if (await _testerRepository.InsertAsync(tester))
+            get => _validationDict;
+            set
             {
-                IQueryable<Tester> query = _testerRepository.GetQueryable();
-                query = from testers in query
-                         where testers.PcId == 1 && testers.Name == "yoon"
-                         orderby testers.Id descending
-                         select testers;
+                if (SetProperty(ref _validationDict, value))
+                {
+                    // Notify that individual keys might have changed
+                    foreach (var key in _validationDict.Keys)
+                    {
+                        OnPropertyChanged($"ValidationDict[{key}]");
+                    }
 
-                _tester = query.FirstOrDefault();
+                    // If there are specific properties dependent on ValidationDict, notify them as well
+                    //OnPropertyChanged(nameof(CanTest));
+                    //SubmitCommand.RaiseCanExecuteChanged();
+                }
             }
-            
-            //꺼짐
         }
-
-        private void Init()
-        {
-            ClearAll();
-
-            ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
-            ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
-            ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요." };
-            ValidationDict[nameof(SeqNo)] = new ValidationItem { WaterMarkText = $"{nameof(SeqNo)}을 입력 하세요." };
-            ValidationDict[nameof(MTMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
-
-            ResLogs = new ObservableCollection<string>();
-
-            ret = VI.Load(0);
-
-            // 이미지 파일 경로 설정
-            string imagePath = "/Resources/sc_ori_img_512.bmp";
-
-            // 이미지 로드
-            SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-            ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-        }
-
-        private Dictionary<int, Brush> _borderBackgrounds = new();
 
         public Dictionary<int, Brush> BorderBackgrounds
         {
@@ -139,83 +199,6 @@ namespace SonoCap.MES.UI.ViewModels
                 }
             }
         }
-
-        [ObservableProperty]
-        private string _title = default!;
-
-
-
-        private void SetBySn(SnType snType, string sn)// => snType switch
-        {
-            var query = _pTRViewRepository.GetQueryable();
-            switch (snType)
-            {
-                case SnType.Probe:
-                    _probe = _probeRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
-                    query = from ptr in query
-                            where ptr.ProbeSn == sn
-                            orderby ptr.Id descending
-                            select ptr;
-                    break;
-                case SnType.TransducerModule:
-                    _transducerModule = _transducerModuleRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
-                    query = from ptr in query
-                                where ptr.TransducerModuleSn == sn
-                                orderby ptr.Id descending
-                                select ptr;
-                    break;
-                case SnType.Transducer:
-                    _transducer = _transducerRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
-                    query = from ptr in query
-                            where ptr.TransducerSn == sn
-                            orderby ptr.Id descending
-                            select ptr;
-                    break;
-                case SnType.MotorModule:
-                    _motorModule = _motorModuleRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
-                    break;
-                default:
-                    break;
-            }
-            _pTRView = query.FirstOrDefault();
-        }
-
-        private bool IsExistsBySn(SnType snType, string sn)// => snType switch
-        {
-            return snType switch
-            {
-                SnType.Probe => _probeRepository.GetBySn(sn).Any(),
-                SnType.TransducerModule => _transducerModuleRepository.GetBySn(sn).Any(),
-                SnType.Transducer => _transducerRepository.GetBySn(sn).Any(),
-                SnType.MotorModule => _motorModuleRepository.GetBySn(sn).Any(),
-                _ => false
-            };
-        }
-
-        private async Task<bool> IsExistsBySnAsync(SnType snType, string sn)
-        {
-            switch (snType)
-            {
-                case SnType.Probe:
-                    var probes = await _probeRepository.GetBySn(sn).ToListAsync();
-                    return probes.Any(); // Any() 메서드는 리스트에 요소가 있는지 여부를 반환합니다.
-                case SnType.TransducerModule:
-                    var transducerModules = await _transducerModuleRepository.GetBySn(sn).ToListAsync();
-                    return transducerModules.Any();
-                case SnType.Transducer:
-                    var transducers = await _transducerRepository.GetBySn(sn).ToListAsync();
-                    return transducers.Any();
-                case SnType.MotorModule:
-                    var motorModules = await _motorModuleRepository.GetBySn(sn).ToListAsync();
-                    return motorModules.Any();
-                default:
-                    return false;
-            }
-        }
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private string _probeSn = default!;
 
         partial void OnProbeSnChanged(string value)
         {
@@ -236,7 +219,7 @@ namespace SonoCap.MES.UI.ViewModels
                     //ClearValidating(nameof(ProbeSn));
                     SetBySn(SnType.Probe, value);
                     ValidateField(nameof(ProbeSn));
-                    
+
                     tests = GetTestById(SnType.Probe, _probe!.Id);
                     foreach (var item in tests)
                     {
@@ -265,135 +248,7 @@ namespace SonoCap.MES.UI.ViewModels
                 SetCellBackgrounds(TestCategories.All, Brushes.LightBlue);
             }
         }
-
-        private void SetCellPassFail(Test item, CellPositions cellPosition)
-        {
-            switch (item.TestTypeId)
-            {
-                case 1:
-                    if (item.Result > App._testThresholdDict[11])
-                    {
-                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
-                    }
-                    else
-                    {
-                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
-                    }
-                    break;
-                case 2:
-                    if (item.Result > App._testThresholdDict[12])
-                    {
-                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
-                    }
-                    else
-                    {
-                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
-                    }
-                    break;
-                case 3:
-                    if (item.Result > App._testThresholdDict[13])
-                    {
-                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
-                    }
-                    else
-                    {
-                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// 값이 없을떄 반환 값 체크
-        /// </summary>
-        /// <param name="snType"></param>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        private List<Test> GetTestById(SnType snType, int id)
-        {
-            IQueryable<Test> query = _testRepository.GetQueryable();
-
-            switch (snType)
-            {
-                case SnType.Probe:
-                    query = from test in query
-                            where test.ProbeId == id
-                            orderby test.Id ascending
-                            select test;
-                    break;
-                case SnType.TransducerModule:
-                    query = from test in query
-                            where test.TransducerModuleId == id
-                            orderby test.Id ascending
-                            select test;
-                    break;
-                case SnType.Transducer:
-                    query = from test in query
-                            where test.TransducerId == id
-                            orderby test.Id ascending
-                            select test;
-                    break;
-            }
-            return query.ToList();
-        }
-
-        private void SetCellBackgrounds(Brush brush ,params CellPositions[] cellPositions)
-        {
-            foreach (CellPositions item in cellPositions)
-            {
-                _borderBackgrounds[(int)item] = brush;
-            }
-
-            OnPropertyChanged(nameof(BorderBackgrounds));
-        }
-
-        private void SetCellBackgrounds(TestCategories category, Brush brush )
-        {
-            switch (category)
-            {
-                case TestCategories.All:
-                    BorderBackgrounds[(int)CellPositions.Row1_Column1] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row1_Column2] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row1_Column3] = brush;
-
-                    BorderBackgrounds[(int)CellPositions.Row2_Column1] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row2_Column2] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row2_Column3] = brush;
-                    
-                    BorderBackgrounds[(int)CellPositions.Row3_Column1] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row3_Column2] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row3_Column3] = brush;
-                    break;
-                case TestCategories.Processing:
-                    BorderBackgrounds[(int)CellPositions.Row1_Column1] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row1_Column2] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row1_Column3] = brush;
-                    break;
-                case TestCategories.Process:
-                    BorderBackgrounds[(int)CellPositions.Row2_Column1] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row2_Column2] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row2_Column3] = brush;
-                    break;
-                case TestCategories.Dispatch:
-                    BorderBackgrounds[(int)CellPositions.Row3_Column1] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row3_Column2] = brush;
-                    BorderBackgrounds[(int)CellPositions.Row3_Column3] = brush;
-                    break;
-                default:
-                    break;
-            }
-            OnPropertyChanged(nameof(BorderBackgrounds));
-        }
-
-        [ObservableProperty]
-        private bool _probeSnIsEnabled = default!;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private string _tDMdSn = default!;
-
+        
         partial void OnTDMdSnChanged(string value)
         {
             List<Test> tests;
@@ -461,13 +316,6 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        [ObservableProperty]
-        private bool _tDMdSnIsEnabled = default!;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private string _tDSn = default!;
-
         partial void OnTDSnChanged(string value)
         {
             AddTDSnIsEnabled = false;
@@ -525,9 +373,9 @@ namespace SonoCap.MES.UI.ViewModels
 
                     IQueryable<Probe> queryProbe = _probeRepository.GetQueryable();
                     queryProbe = from probes in queryProbe
-                            where probes.TransducerModuleId == transducerModule.Id
-                            orderby probes.Id descending
-                            select probes;
+                                 where probes.TransducerModuleId == transducerModule.Id
+                                 orderby probes.Id descending
+                                 select probes;
 
                     Probe? probe = queryProbe.FirstOrDefault();
 
@@ -548,109 +396,8 @@ namespace SonoCap.MES.UI.ViewModels
                 SetCellBackgrounds(TestCategories.All, Brushes.LightBlue);
             }
 
-            
+
         }
-
-        [ObservableProperty]
-        private bool _tDSnIsEnabled = default!;
-
-        [ObservableProperty]
-        private bool _addTDSnIsEnabled = default!;
-
-        [ObservableProperty]
-        private DateTime _selectedDate = DateTime.Now;
-
-        [ObservableProperty]
-        private bool _selectedDateIsEnabled = default!;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private string _seqNo = default!;
-
-        partial void OnSeqNoChanged(string value)
-        {
-            string pattern = @"^[0-9]{3}$";
-            bool isMatch = IsMatchReqExr(value, pattern);
-
-            if (!isMatch)
-            {
-                ValidateField(nameof(SeqNo), "SeqNo Need 3 Digit");
-            }
-            else
-            {
-                ValidateField(nameof(SeqNo));
-                switch (_testCategory)
-                {
-                    case TestCategories.Processing:
-                        if (IsExistsBySn(SnType.TransducerModule, $"tdm-sn {SelectedDate.ToString("yyMMdd")} {SeqNo}"))
-                        {
-                            ValidateField(nameof(SeqNo), "SeqNo Need Is Duplicate");
-                        }
-                        break;
-                    case TestCategories.Process:
-                        if (IsExistsBySn(SnType.Probe, $"UPAG1{SelectedDate.ToString("yyMMdd")}{SeqNo}"))
-                        {
-                            ValidateField(nameof(SeqNo), "SeqNo Need Is Duplicate");
-                        }
-                        break;
-                }
-            }
-        }
-
-        [ObservableProperty]
-        private bool _seqNoIsEnabled = default!;
-
-        private static bool IsMatchReqExr(string value, string pattern)
-        {
-            // 정규식 패턴
-            //string pattern = @"^[0-9]{4}$";
-            // 정규식 객체 생성 및 컴파일 옵션 사용
-            Regex regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-            // 패턴 매칭 확인
-            bool isMatch = regex.IsMatch(value);
-            return isMatch;
-        }
-
-        public static string ExtractReqExr(string input, string pattern)
-        {
-            //string pattern = "^.{0,11}([0-9]{3})$";
-            Match match = Regex.Match(input, pattern);
-            return match.Success ? match.Groups[1].Value : string.Empty;
-        }
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(AddMTMdSnCommand))]
-        private string _mTMdSn = default!;
-
-        partial void OnMTMdSnChanged(string value)
-        {
-            //정규 표현식 검증 추가
-            if (value.Length > 10)
-            {
-                Log.Information($"MTMdSn sn {value}");
-                if (!IsExistsBySn(SnType.MotorModule, value))
-                {
-                    ValidateField(nameof(MTMdSn), "MTMdSn Is Not Exist");
-                }
-                else
-                {
-                    SetBySn(SnType.MotorModule, value);
-                    ValidateField(nameof(MTMdSn));
-                }
-            }
-            else
-            {
-                ValidateField(nameof(MTMdSn), "MTMdSn Is Not Valid");
-            }
-        }
-
-        [ObservableProperty]
-        private bool _mTMdSnIsEnabled = default!;
-
-        [ObservableProperty]
-        private bool _addMTMdSnIsEnabled = default!;
 
         private bool CanAddTDSn()
         {
@@ -682,6 +429,58 @@ namespace SonoCap.MES.UI.ViewModels
                     ResLogs.Add($"Succ Add {TDSn}");
                     ValidateField("TDSn");
                 }
+            }
+        }
+        
+        partial void OnSeqNoChanged(string value)
+        {
+            string pattern = @"^[0-9]{3}$";
+            bool isMatch = IsMatchReqExr(value, pattern);
+
+            if (!isMatch)
+            {
+                ValidateField(nameof(SeqNo), "SeqNo Need 3 Digit");
+            }
+            else
+            {
+                ValidateField(nameof(SeqNo));
+                switch (_testCategory)
+                {
+                    case TestCategories.Processing:
+                        if (IsExistsBySn(SnType.TransducerModule, $"tdm-sn {SelectedDate.ToString("yyMMdd")} {SeqNo}"))
+                        {
+                            ValidateField(nameof(SeqNo), "SeqNo Need Is Duplicate");
+                        }
+                        break;
+                    case TestCategories.Process:
+                        if (IsExistsBySn(SnType.Probe, $"UPAG1{SelectedDate.ToString("yyMMdd")}{SeqNo}"))
+                        {
+                            ValidateField(nameof(SeqNo), "SeqNo Need Is Duplicate");
+                        }
+                        break;
+                }
+            }
+        }
+
+        partial void OnMTMdSnChanged(string value)
+        {
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                Log.Information($"MTMdSn sn {value}");
+                if (!IsExistsBySn(SnType.MotorModule, value))
+                {
+                    ValidateField(nameof(MTMdSn), "MTMdSn Is Not Exist");
+                }
+                else
+                {
+                    SetBySn(SnType.MotorModule, value);
+                    ValidateField(nameof(MTMdSn));
+                }
+            }
+            else
+            {
+                ValidateField(nameof(MTMdSn), "MTMdSn Is Not Valid");
             }
         }
 
@@ -721,11 +520,6 @@ namespace SonoCap.MES.UI.ViewModels
                 }
             }
         }
-
-        [ObservableProperty]
-        private int _blinkingCellIndex = -1;
-
-        private int _oldRow = -1;
 
         [RelayCommand]
         private void CellClick(CellPositions position)
@@ -790,135 +584,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        [ObservableProperty]
-        private BitmapImage _srcImg = default!;
-
-        [ObservableProperty]
-        private BitmapImage _resImg = default!;
-
-        [ObservableProperty]
-        private string _resTxt = default!;
-
-        [ObservableProperty]
-        private ObservableCollection<string> _resLogs = default!;
-
-        [ObservableProperty]
-        private int _testResult = default!;
-
-        partial void OnTestResultChanged(int value)
-        {
-            Log.Information($"OnTestResultChanged : {value}");
-        }
-
-        private BitmapImage _loadBmp = default!;
-        private BitmapImage _resultBmp = default!;
-
-        VILibWrapper VI = new VILibWrapper();
-        VIRes vIResults = new VIRes();
-
-        int ret = 0;
-
-        private Bitmap m_OrgBmp = default!;
-        private Bitmap m_bmpRes = default!;
-        private Bitmap m_DispMap = default!;
-
-        private byte[] bmp_data = default!;
-        private byte[] res_data = default!;
-
-        ImageSource srcImg = default!;
-        ImageSource resImg = default!;
-
-        int w = 0;
-        int h = 0;
-        int chs = 4;
-        uint size = 0;
-        int opt = 0;
-        string sModel = "SC-GP5";
-        
-        
-
-        private void ClearAll()
-        {
-            ProbeSn = "";
-            ProbeSnIsEnabled = false;
-            TDMdSn = "";
-            TDMdSnIsEnabled = false;
-            TDSn = "";
-            TDSnIsEnabled = false;
-            AddTDSnIsEnabled = false;
-            SeqNo = "";
-            SeqNoIsEnabled = false;
-            MTMdSn = "";
-            MTMdSnIsEnabled = false;
-            AddMTMdSnIsEnabled = false;
-            SrcImg = default!;
-            ResImg = default!;
-            TestResult = -2;
-            //TestIsEnabled = false;
-            NextIsEnabled = false;
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            _motorModule = null;
-            SetCellBackgrounds(TestCategories.All, Brushes.LightBlue);
-        }
-
-        private void ClearCellBackgrounds()
-        {
-            BorderBackgrounds[11] = Brushes.LightBlue;
-            BorderBackgrounds[12] = Brushes.LightBlue;
-            BorderBackgrounds[13] = Brushes.LightBlue;
-
-            BorderBackgrounds[21] = Brushes.LightBlue;
-            BorderBackgrounds[22] = Brushes.LightBlue;
-            BorderBackgrounds[23] = Brushes.LightBlue;
-
-            BorderBackgrounds[31] = Brushes.LightBlue;
-            BorderBackgrounds[32] = Brushes.LightBlue;
-            BorderBackgrounds[33] = Brushes.LightBlue;
-
-            OnPropertyChanged(nameof(BorderBackgrounds));
-        }
-
-        private void ChangeIsEnabled(TestCategories categories)
-        {
-            //ProbeSnIsEnabled = false;
-            //MTMdSnIsEnabled = false;
-            //TDMdSnIsEnabled = false;
-            //TDSnIsEnabled = false;
-            switch (categories)
-            {
-                case TestCategories.Processing:
-                    TDSnIsEnabled = true;
-                    SeqNoIsEnabled = true;
-                    break;
-                case TestCategories.Process:
-                    TDMdSnIsEnabled = true;
-                    MTMdSnIsEnabled = true;
-                    SeqNoIsEnabled = true;
-                    break;
-                case TestCategories.Dispatch:
-                    ProbeSnIsEnabled = true;
-                    break;
-            }
-        }
-
-        [ObservableProperty]
-        private string _selectedLogItem;
-
-        [RelayCommand]
-        private void CopyLog(string resLog)
-        {
-            Log.Information(nameof(CopyLog));
-            if (!string.IsNullOrEmpty(resLog))
-            {
-                Clipboard.SetText(resLog);
-            }
-        }
-
-        //[ObservableProperty]
-        //private bool _testIsEnabled = true;
-
+        //셀더블클릭
         [RelayCommand]
         private void CellTest(CellPositions position)
         {
@@ -928,6 +594,21 @@ namespace SonoCap.MES.UI.ViewModels
             _testCategory = (TestCategories)row;
             _testType = (TestTypes)col;
             Test();
+        }
+
+        partial void OnTestResultChanged(int value)
+        {
+            Log.Information($"OnTestResultChanged : {value}");
+        }
+
+        [RelayCommand]
+        private void CopyLog(string resLog)
+        {
+            Log.Information(nameof(CopyLog));
+            if (!string.IsNullOrEmpty(resLog))
+            {
+                Clipboard.SetText(resLog);
+            }
         }
 
         private bool CanTest()
@@ -1023,9 +704,6 @@ namespace SonoCap.MES.UI.ViewModels
             resImg = ConvertBitmapToImageSource(m_bmpRes);
             ResImg = (BitmapImage)resImg;
         }
-
-        [ObservableProperty]
-        private bool _nextIsEnabled = false;
 
         //public bool NextIsEnabled
         //{
@@ -1194,6 +872,280 @@ namespace SonoCap.MES.UI.ViewModels
             //}
         }
 
+        //public void UIElement_OnKeyDown(object sender, KeyEventArgs e)
+        [RelayCommand]
+        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
+        {
+            Log.Information(keyEventArgs.Key.ToString());
+            if (keyEventArgs.Key == Key.F10)
+            {
+                await NextAsync();
+            }
+        }
+
+        private void Init()
+        {
+            ClearAll();
+
+            ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
+            ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
+            ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요." };
+            ValidationDict[nameof(SeqNo)] = new ValidationItem { WaterMarkText = $"{nameof(SeqNo)}을 입력 하세요." };
+            ValidationDict[nameof(MTMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
+
+            ResLogs = new ObservableCollection<string>();
+
+            ret = VI.Load(0);
+
+            // 이미지 파일 경로 설정
+            string imagePath = "/Resources/sc_ori_img_512.bmp";
+
+            // 이미지 로드
+            SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+            ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+        }
+
+        private async void LogIn()
+        {
+            Tester tester = new Tester { Name = "yoon", PcId = 1 };
+            if (await _testerRepository.InsertAsync(tester))
+            {
+                IQueryable<Tester> query = _testerRepository.GetQueryable();
+                query = from testers in query
+                        where testers.PcId == 1 && testers.Name == "yoon"
+                        orderby testers.Id descending
+                        select testers;
+
+                _tester = query.FirstOrDefault();
+            }
+
+            //꺼짐
+        }
+
+        // UI
+        private void ChangeIsEnabled(TestCategories categories)
+        {
+            //ProbeSnIsEnabled = false;
+            //MTMdSnIsEnabled = false;
+            //TDMdSnIsEnabled = false;
+            //TDSnIsEnabled = false;
+            switch (categories)
+            {
+                case TestCategories.Processing:
+                    TDSnIsEnabled = true;
+                    SeqNoIsEnabled = true;
+                    break;
+                case TestCategories.Process:
+                    TDMdSnIsEnabled = true;
+                    MTMdSnIsEnabled = true;
+                    SeqNoIsEnabled = true;
+                    break;
+                case TestCategories.Dispatch:
+                    ProbeSnIsEnabled = true;
+                    break;
+            }
+        }
+
+        private void ClearAll()
+        {
+            ProbeSn = "";
+            ProbeSnIsEnabled = false;
+            TDMdSn = "";
+            TDMdSnIsEnabled = false;
+            TDSn = "";
+            TDSnIsEnabled = false;
+            AddTDSnIsEnabled = false;
+            SeqNo = "";
+            SeqNoIsEnabled = false;
+            MTMdSn = "";
+            MTMdSnIsEnabled = false;
+            AddMTMdSnIsEnabled = false;
+            SrcImg = default!;
+            ResImg = default!;
+            TestResult = -2;
+            //TestIsEnabled = false;
+            NextIsEnabled = false;
+            _probe = null;
+            _transducerModule = null;
+            _transducer = null;
+            _motorModule = null;
+            SetCellBackgrounds(TestCategories.All, Brushes.LightBlue);
+        }
+
+        private void ClearCellBackgrounds()
+        {
+            BorderBackgrounds[11] = Brushes.LightBlue;
+            BorderBackgrounds[12] = Brushes.LightBlue;
+            BorderBackgrounds[13] = Brushes.LightBlue;
+
+            BorderBackgrounds[21] = Brushes.LightBlue;
+            BorderBackgrounds[22] = Brushes.LightBlue;
+            BorderBackgrounds[23] = Brushes.LightBlue;
+
+            BorderBackgrounds[31] = Brushes.LightBlue;
+            BorderBackgrounds[32] = Brushes.LightBlue;
+            BorderBackgrounds[33] = Brushes.LightBlue;
+
+            OnPropertyChanged(nameof(BorderBackgrounds));
+        }
+
+        private void SetCellPassFail(Test item, CellPositions cellPosition)
+        {
+            switch (item.TestTypeId)
+            {
+                case 1:
+                    if (item.Result > App._testThresholdDict[11])
+                    {
+                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
+                    }
+                    else
+                    {
+                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
+                    }
+                    break;
+                case 2:
+                    if (item.Result > App._testThresholdDict[12])
+                    {
+                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
+                    }
+                    else
+                    {
+                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
+                    }
+                    break;
+                case 3:
+                    if (item.Result > App._testThresholdDict[13])
+                    {
+                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
+                    }
+                    else
+                    {
+                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void SetCellBackgrounds(Brush brush, params CellPositions[] cellPositions)
+        {
+            foreach (CellPositions item in cellPositions)
+            {
+                _borderBackgrounds[(int)item] = brush;
+            }
+
+            OnPropertyChanged(nameof(BorderBackgrounds));
+        }
+
+        private void SetCellBackgrounds(TestCategories category, Brush brush)
+        {
+            switch (category)
+            {
+                case TestCategories.All:
+                    BorderBackgrounds[(int)CellPositions.Row1_Column1] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row1_Column2] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row1_Column3] = brush;
+
+                    BorderBackgrounds[(int)CellPositions.Row2_Column1] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row2_Column2] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row2_Column3] = brush;
+
+                    BorderBackgrounds[(int)CellPositions.Row3_Column1] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row3_Column2] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row3_Column3] = brush;
+                    break;
+                case TestCategories.Processing:
+                    BorderBackgrounds[(int)CellPositions.Row1_Column1] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row1_Column2] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row1_Column3] = brush;
+                    break;
+                case TestCategories.Process:
+                    BorderBackgrounds[(int)CellPositions.Row2_Column1] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row2_Column2] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row2_Column3] = brush;
+                    break;
+                case TestCategories.Dispatch:
+                    BorderBackgrounds[(int)CellPositions.Row3_Column1] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row3_Column2] = brush;
+                    BorderBackgrounds[(int)CellPositions.Row3_Column3] = brush;
+                    break;
+                default:
+                    break;
+            }
+            OnPropertyChanged(nameof(BorderBackgrounds));
+        }
+
+        // DB 관련
+
+        private void SetBySn(SnType snType, string sn)// => snType switch
+        {
+            var query = _pTRViewRepository.GetQueryable();
+            switch (snType)
+            {
+                case SnType.Probe:
+                    _probe = _probeRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
+                    query = from ptr in query
+                            where ptr.ProbeSn == sn
+                            orderby ptr.Id descending
+                            select ptr;
+                    break;
+                case SnType.TransducerModule:
+                    _transducerModule = _transducerModuleRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
+                    query = from ptr in query
+                            where ptr.TransducerModuleSn == sn
+                            orderby ptr.Id descending
+                            select ptr;
+                    break;
+                case SnType.Transducer:
+                    _transducer = _transducerRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
+                    query = from ptr in query
+                            where ptr.TransducerSn == sn
+                            orderby ptr.Id descending
+                            select ptr;
+                    break;
+                case SnType.MotorModule:
+                    _motorModule = _motorModuleRepository.GetBySn(sn).OrderByDescending(x => x.Id).First();
+                    break;
+                default:
+                    break;
+            }
+            _pTRView = query.FirstOrDefault();
+        }
+
+        private bool IsExistsBySn(SnType snType, string sn)// => snType switch
+        {
+            return snType switch
+            {
+                SnType.Probe => _probeRepository.GetBySn(sn).Any(),
+                SnType.TransducerModule => _transducerModuleRepository.GetBySn(sn).Any(),
+                SnType.Transducer => _transducerRepository.GetBySn(sn).Any(),
+                SnType.MotorModule => _motorModuleRepository.GetBySn(sn).Any(),
+                _ => false
+            };
+        }
+
+        private async Task<bool> IsExistsBySnAsync(SnType snType, string sn)
+        {
+            switch (snType)
+            {
+                case SnType.Probe:
+                    var probes = await _probeRepository.GetBySn(sn).ToListAsync();
+                    return probes.Any(); // Any() 메서드는 리스트에 요소가 있는지 여부를 반환합니다.
+                case SnType.TransducerModule:
+                    var transducerModules = await _transducerModuleRepository.GetBySn(sn).ToListAsync();
+                    return transducerModules.Any();
+                case SnType.Transducer:
+                    var transducers = await _transducerRepository.GetBySn(sn).ToListAsync();
+                    return transducers.Any();
+                case SnType.MotorModule:
+                    var motorModules = await _motorModuleRepository.GetBySn(sn).ToListAsync();
+                    return motorModules.Any();
+                default:
+                    return false;
+            }
+        }
+        
         private int GetBySn(TestCategories testCategory, string sn)
         {
             int res = 0;
@@ -1364,6 +1316,65 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        // Save 메서드
+        private async Task SaveAsync(ITestRepository testRepository, Test insertTest)
+        {
+            await testRepository.InsertAsync(insertTest);
+        }
+
+        /// <summary>
+        /// 값이 없을떄 반환 값 체크
+        /// </summary>
+        /// <param name="snType"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private List<Test> GetTestById(SnType snType, int id)
+        {
+            IQueryable<Test> query = _testRepository.GetQueryable();
+
+            switch (snType)
+            {
+                case SnType.Probe:
+                    query = from test in query
+                            where test.ProbeId == id
+                            orderby test.Id ascending
+                            select test;
+                    break;
+                case SnType.TransducerModule:
+                    query = from test in query
+                            where test.TransducerModuleId == id
+                            orderby test.Id ascending
+                            select test;
+                    break;
+                case SnType.Transducer:
+                    query = from test in query
+                            where test.TransducerId == id
+                            orderby test.Id ascending
+                            select test;
+                    break;
+            }
+            return query.ToList();
+        }
+
+        private static bool IsMatchReqExr(string value, string pattern)
+        {
+            // 정규식 패턴
+            //string pattern = @"^[0-9]{4}$";
+            // 정규식 객체 생성 및 컴파일 옵션 사용
+            Regex regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            // 패턴 매칭 확인
+            bool isMatch = regex.IsMatch(value);
+            return isMatch;
+        }
+
+        private static string ExtractReqExr(string input, string pattern)
+        {
+            //string pattern = "^.{0,11}([0-9]{3})$";
+            Match match = Regex.Match(input, pattern);
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
+
         private void PrepareTest(TestCategories testCategory, Test insertTest)
         {
             switch (testCategory)
@@ -1380,70 +1391,6 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        // Save 메서드
-        private async Task SaveAsync(ITestRepository testRepository, Test insertTest)
-        {
-            await testRepository.InsertAsync(insertTest);
-        }
-
-        private void Save(ITestRepository testRepository, Test insertTest)
-        {
-            testRepository.InsertAsync(insertTest);
-        }
-
-        private void Save(ITestRepository testRepository,TestCategories testCategory, Test insertTest)
-        {
-            switch (testCategory)
-            {
-                case TestCategories.Processing:
-                    insertTest.TransducerId = _transducer!.Id;
-                    break;
-                case TestCategories.Process:
-                    insertTest.TransducerModuleId = _transducerModule!.Id;
-                    break;
-                case TestCategories.Dispatch:
-                    insertTest.ProbeId = _probe!.Id;
-                    break;
-                default:
-                    break;
-            }
-            testRepository.InsertAsync(insertTest);
-            return;
-        }
-
-        private void Save()
-        {
-            Test insertTest = new Test
-            {
-                TestCategoryId = (int)_testCategory,
-                TestTypeId = (int)_testType,
-                TesterId = _tester.Id,
-                OriginalImg = "OriginalImg",
-                ChangedImg = "ChangedImg",
-                ChangedImgMetadata = ResTxt,
-                Result = TestResult,
-                Method = 1,
-                CreatedDate = SelectedDate,
-            };
-
-            switch (_testCategory)
-            {
-                case TestCategories.Processing:
-                    insertTest.TransducerId = _transducer!.Id;
-                    break;
-                case TestCategories.Process:
-                    insertTest.TransducerModuleId = _transducerModule!.Id;
-                    break;
-                case TestCategories.Dispatch:
-                    insertTest.ProbeId = _probe!.Id;
-                    break;
-                default:
-                    break;
-            }
-            _testRepository.InsertAsync(insertTest);
-            return;
-        }
-
         //private bool isNullText(string key, string value)
         //{
         //    if (string.IsNullOrWhiteSpace(value))
@@ -1453,7 +1400,6 @@ namespace SonoCap.MES.UI.ViewModels
         //    }
         //    return false;
         //}
-
         private bool ValidateAll(TestCategories test)
         {
             // 필드 검증 로직 (검증 실패 시 즉시 종료)
@@ -1510,28 +1456,6 @@ namespace SonoCap.MES.UI.ViewModels
 
             // 모든 검증이 통과되었을 때만 true 반환
             return true;
-        }
-
-        private Dictionary<string, ValidationItem> _validationDict = new();
-
-        public Dictionary<string, ValidationItem> ValidationDict
-        {
-            get => _validationDict;
-            set
-            {
-                if (SetProperty(ref _validationDict, value))
-                {
-                    // Notify that individual keys might have changed
-                    foreach (var key in _validationDict.Keys)
-                    {
-                        OnPropertyChanged($"ValidationDict[{key}]");
-                    }
-
-                    // If there are specific properties dependent on ValidationDict, notify them as well
-                    //OnPropertyChanged(nameof(CanTest));
-                    //SubmitCommand.RaiseCanExecuteChanged();
-                }
-            }
         }
 
         private void ClearValidating(string key)
@@ -1630,6 +1554,32 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        // 이미지 프로세싱 관련
+        private BitmapImage _loadBmp = default!;
+        private BitmapImage _resultBmp = default!;
+
+        VILibWrapper VI = new VILibWrapper();
+        VIRes vIResults = new VIRes();
+
+        int ret = 0;
+
+        private Bitmap m_OrgBmp = default!;
+        private Bitmap m_bmpRes = default!;
+        private Bitmap m_DispMap = default!;
+
+        private byte[] bmp_data = default!;
+        private byte[] res_data = default!;
+
+        ImageSource srcImg = default!;
+        ImageSource resImg = default!;
+
+        int w = 0;
+        int h = 0;
+        int chs = 4;
+        uint size = 0;
+        int opt = 0;
+        string sModel = "SC-GP5";
+
         private BitmapImage convertByteArrToBitmap2(byte[] res_data)
         {
             BitmapImage bitmapImage = new BitmapImage();
@@ -1659,7 +1609,7 @@ namespace SonoCap.MES.UI.ViewModels
             return data;
         }
 
-        public ImageSource ConvertBitmapToImageSource(Bitmap bitmap)
+        private ImageSource ConvertBitmapToImageSource(Bitmap bitmap)
         {
             if (bitmap == null)
                 return null;
@@ -1682,7 +1632,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        public int convertBitmapToByteArr(byte[] result, Bitmap bitmap)
+        private int convertBitmapToByteArr(byte[] result, Bitmap bitmap)
         {
             BitmapData bmpData = null;
             try
@@ -1708,7 +1658,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        public int convertByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
+        private int convertByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
         {
             BitmapData bmpData = null;
             try
@@ -1730,17 +1680,6 @@ namespace SonoCap.MES.UI.ViewModels
                 m_bmp.UnlockBits(bmpData);
                 Trace.WriteLine(ex.ToString());
                 return -1;
-            }
-        }
-
-        //public void UIElement_OnKeyDown(object sender, KeyEventArgs e)
-        [RelayCommand]
-        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
-        {
-            Log.Information(keyEventArgs.Key.ToString());
-            if (keyEventArgs.Key == Key.F10)
-            {
-                await NextAsync();
             }
         }
     }
