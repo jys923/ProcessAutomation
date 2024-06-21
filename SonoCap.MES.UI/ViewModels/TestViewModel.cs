@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
@@ -31,6 +32,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _probeSn = default!;
 
         [ObservableProperty]
@@ -38,14 +40,15 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _tDMdSn = default!;
-
 
         [ObservableProperty]
         private bool _tDMdSnIsEnabled = default!;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _tDSn = default!;
 
         [ObservableProperty]
@@ -62,14 +65,16 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _seqNo = default!;
 
         [ObservableProperty]
         private bool _seqNoIsEnabled = default!;
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
         [NotifyCanExecuteChangedFor(nameof(AddMTMdSnCommand))]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _mTMdSn = default!;
 
         [ObservableProperty]
@@ -97,15 +102,17 @@ namespace SonoCap.MES.UI.ViewModels
         private ObservableCollection<string> _resLogs = default!;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private int _testResult = default!;
 
         [ObservableProperty]
         private string _selectedLogItem = default!;
 
         [ObservableProperty]
-        private bool _nextIsEnabled = false;
-
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
         private Dictionary<string, ValidationItem> _validationDict = new();
+
+        [ObservableProperty]
         private Dictionary<int, Brush> _borderBackgrounds = new();
         private Probe? _probe { get; set; }
         private TransducerModule? _transducerModule { get; set; }
@@ -113,6 +120,7 @@ namespace SonoCap.MES.UI.ViewModels
         private MotorModule? _motorModule { get; set; }
         private TestCategories _testCategory { get; set; }
         private TestTypes _testType { get; set; }
+        private Test? _test { get; set; }
         private Tester? _tester { get; set; }
         private PTRView? _pTRView { get; set; }
 
@@ -163,42 +171,42 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -3;
         }
 
-        public Dictionary<string, ValidationItem> ValidationDict
-        {
-            get => _validationDict;
-            set
-            {
-                if (SetProperty(ref _validationDict, value))
-                {
-                    // Notify that individual keys might have changed
-                    foreach (var key in _validationDict.Keys)
-                    {
-                        OnPropertyChanged($"ValidationDict[{key}]");
-                    }
+        //public Dictionary<string, ValidationItem> ValidationDict
+        //{
+        //    get => _validationDict;
+        //    set
+        //    {
+        //        if (SetProperty(ref _validationDict, value))
+        //        {
+        //            // Notify that individual keys might have changed
+        //            foreach (var key in _validationDict.Keys)
+        //            {
+        //                OnPropertyChanged($"ValidationDict[{key}]");
+        //            }
 
-                    // If there are specific properties dependent on ValidationDict, notify them as well
-                    //OnPropertyChanged(nameof(CanTest));
-                    //SubmitCommand.RaiseCanExecuteChanged();
-                }
-            }
-        }
+        //            // If there are specific properties dependent on ValidationDict, notify them as well
+        //            //OnPropertyChanged(nameof(CanTest));
+        //            //SubmitCommand.RaiseCanExecuteChanged();
+        //        }
+        //    }
+        //}
 
-        public Dictionary<int, Brush> BorderBackgrounds
-        {
-            get => _borderBackgrounds;
-            //set => SetProperty(ref _borderBackgrounds, value);
-            set
-            {
-                if(SetProperty(ref _borderBackgrounds, value))
-                {
-                    OnPropertyChanged(nameof(BorderBackgrounds));
-                    //foreach (var key in _borderBackgrounds.Keys)
-                    //{
-                    //    OnPropertyChanged($"BorderBackgrounds[{key}]");
-                    //}
-                }
-            }
-        }
+        //public Dictionary<int, Brush> BorderBackgrounds
+        //{
+        //    get => _borderBackgrounds;
+        //    //set => SetProperty(ref _borderBackgrounds, value);
+        //    set
+        //    {
+        //        if(SetProperty(ref _borderBackgrounds, value))
+        //        {
+        //            OnPropertyChanged(nameof(BorderBackgrounds));
+        //            //foreach (var key in _borderBackgrounds.Keys)
+        //            //{
+        //            //    OnPropertyChanged($"BorderBackgrounds[{key}]");
+        //            //}
+        //        }
+        //    }
+        //}
 
         partial void OnProbeSnChanged(string value)
         {
@@ -319,6 +327,7 @@ namespace SonoCap.MES.UI.ViewModels
         partial void OnTDSnChanged(string value)
         {
             AddTDSnIsEnabled = false;
+            ClearValidatingWaterMark();
             List<Test> tests;
             //정규 표현식 검증 추가
             if (value.Length > 10)
@@ -344,7 +353,7 @@ namespace SonoCap.MES.UI.ViewModels
 
                     IQueryable<TransducerModule> query = _transducerModuleRepository.GetQueryable();
                     query = from transducerModules in query
-                            where transducerModules.Id == _transducer.Id
+                            where transducerModules.TransducerId == _transducer.Id
                             orderby transducerModules.Id descending
                             select transducerModules;
 
@@ -364,7 +373,7 @@ namespace SonoCap.MES.UI.ViewModels
                         ValidateField(nameof(SeqNo));
                     }
 
-                    tests = GetTestById(SnType.TransducerModule, _transducerModule!.Id);
+                    tests = GetTestById(SnType.TransducerModule, transducerModule.Id);
                     foreach (var item in tests)
                     {
                         CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
@@ -388,6 +397,11 @@ namespace SonoCap.MES.UI.ViewModels
                         CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
                         SetCellPassFail(item, cellPosition);
                     }
+
+                    ValidationDict[nameof(ProbeSn)].WaterMarkText = probe.Sn;
+                    ValidationDict[nameof(TDMdSn)].WaterMarkText = transducerModule.Sn;
+                    ValidationDict[nameof(TDSn)].WaterMarkText = value;
+                    ValidationDict[nameof(MTMdSn)].WaterMarkText = probe.MotorModule.Sn;
                 }
             }
             else
@@ -428,6 +442,7 @@ namespace SonoCap.MES.UI.ViewModels
                     AddTDSnIsEnabled = false;
                     ResLogs.Add($"Succ Add {TDSn}");
                     ValidateField("TDSn");
+                    SeqNo = "";
                 }
             }
         }
@@ -535,6 +550,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 _oldRow = row;
                 ClearAll();
+                ClearValidatingWaterMark();
                 ChangeIsEnabled((TestCategories)row);
             }
 
@@ -586,7 +602,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         //셀더블클릭
         [RelayCommand]
-        private void CellTest(CellPositions position)
+        private void CellDoubleClick(CellPositions position)
         {
             int row = (int)position / 10;
             int col = (int)position % 10;
@@ -649,7 +665,7 @@ namespace SonoCap.MES.UI.ViewModels
         {
             //이미지 불러오기
             //이미지 불러오기
-            NextIsEnabled = true;
+            //NextIsEnabled = true;
             m_OrgBmp = new Bitmap(@"img\\4.bmp");
             srcImg = ConvertBitmapToImageSource(m_OrgBmp);
             SrcImg = (BitmapImage)srcImg;
@@ -703,40 +719,50 @@ namespace SonoCap.MES.UI.ViewModels
 
             resImg = ConvertBitmapToImageSource(m_bmpRes);
             ResImg = (BitmapImage)resImg;
+
+            TestResult = -2;
         }
 
-        //public bool NextIsEnabled
-        //{
-        //    get => _nextIsEnabled;
-        //    set
-        //    {
-        //        SetProperty(ref _nextIsEnabled, value);
-        //        if (_nextIsEnabled != value)
-        //        {
-        //            _nextIsEnabled = value;
-        //            OnPropertyChanged(nameof(NextIsEnabled));
-        //        }
-        //    }
-        //}
+        private bool CanNext()
+        {
+            Log.Information(nameof(CanNext));
+            if (TestResult == -2)
+            {
+                return false;
+            }
+            
+            bool res = false;
+            switch (_testCategory)
+            {
+                case TestCategories.Processing:
+                    if (GetValidating(nameof(SeqNo)) &&
+                        GetValidating(nameof(TDSn)))
+                    {
+                        res = true;
+                    }
+                    break;
+                case TestCategories.Process:
 
-        //private bool _isTested = false;
+                    if (GetValidating(nameof(SeqNo)) &&
+                        GetValidating(nameof(TDMdSn)) &&
+                        GetValidating(nameof(MTMdSn)))
+                    {
+                        res = true;
+                    }
+                    break;
+                case TestCategories.Dispatch:
+                    if (GetValidating(nameof(ProbeSn)))
+                    {
+                        res = true;
+                    }
+                    break;
+            }
 
-        //public bool IsTested
-        //{
-        //    get => _isTested;
-        //    set
-        //    {
-        //        SetProperty(ref _isTested, value);
-        //    }
-        //}
+            return res;
+        }
 
-        //private bool CanNext()
-        //{
-        //    return NextIsEnabled;
-        //}
-
-        //[RelayCommand(CanExecute = nameof(CanNext))]
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanNext))]
+        //[RelayCommand]
         private async Task NextAsync() 
         {
             Log.Information($"ValidateAll(_testCategory) : {ValidateAll(_testCategory)}");
@@ -744,11 +770,6 @@ namespace SonoCap.MES.UI.ViewModels
             if (!ValidateAll(_testCategory)) return;
 
             //검사 결과 "" 체크
-            if (!NextIsEnabled)
-            {
-                Log.Information("검사 전");
-                return;
-            }
             
             Test insertTest = new Test
             {
@@ -830,17 +851,16 @@ namespace SonoCap.MES.UI.ViewModels
                     }
                     // todo PTRView 뷰 아이디 조회 해서 추가
                     tmpPTR = await _probeRepository.GetPTRViewAsync(probe.Sn);
-                    if (_pTRView is null)
-                        break;
-                    tmpPTR.Id = _pTRView.Id;
+                    if (_pTRView is not null)
+                        tmpPTR.Id = _pTRView.Id;
                     await _pTRViewRepository.UpsertAsync(tmpPTR);
                     break;
                 case TestCategories.Dispatch:
                     //probeview 삽입 생성
                     tmpPTR = await _probeRepository.GetPTRViewAsync(ProbeSn);
-                    if (_pTRView is null)
-                        break;
-                    tmpPTR.Id = _pTRView.Id;
+                    if (_pTRView is not null)
+                        tmpPTR.Id = _pTRView.Id;
+
                     await _pTRViewRepository.UpsertAsync(tmpPTR);
                     break;
             }
@@ -964,7 +984,7 @@ namespace SonoCap.MES.UI.ViewModels
             ResImg = default!;
             TestResult = -2;
             //TestIsEnabled = false;
-            NextIsEnabled = false;
+            //NextIsEnabled = false;
             _probe = null;
             _transducerModule = null;
             _transducer = null;
@@ -1073,7 +1093,6 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
-            OnPropertyChanged(nameof(BorderBackgrounds));
         }
 
         // DB 관련
@@ -1391,6 +1410,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+
         //private bool isNullText(string key, string value)
         //{
         //    if (string.IsNullOrWhiteSpace(value))
@@ -1400,6 +1420,8 @@ namespace SonoCap.MES.UI.ViewModels
         //    }
         //    return false;
         //}
+
+        // Validate
         private bool ValidateAll(TestCategories test)
         {
             // 필드 검증 로직 (검증 실패 시 즉시 종료)
@@ -1496,6 +1518,15 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 ValidationDict[key] = new ValidationItem { WaterMarkText = waterMarkText };
             }
+        }
+
+        private void ClearValidatingWaterMark()
+        {
+            foreach (var item in ValidationDict)
+            {
+                item.Value.WaterMarkText = $"{item.Key}를 입력하세요.";
+            }
+            OnPropertyChanged(nameof(ValidationDict));
         }
 
         // Example of using the validation methods
