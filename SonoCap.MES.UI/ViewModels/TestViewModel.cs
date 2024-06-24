@@ -99,7 +99,7 @@ namespace SonoCap.MES.UI.ViewModels
         private string _resTxt = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _resLogs = default!;
+        private ObservableCollection<string> _resLogs = new ObservableCollection<string>();
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(NextCommand))]
@@ -363,6 +363,7 @@ namespace SonoCap.MES.UI.ViewModels
                         return;
 
                     //transducerModule.Sn 에서 seqNo 파싱
+                    SelectedDate = transducerModule.CreatedDate;
                     //숫자 3자리로 끝남
                     string pattern = @"^.*(\d{3})$";
                     string getSeq = ExtractReqExr(transducerModule.Sn, pattern);
@@ -714,8 +715,8 @@ namespace SonoCap.MES.UI.ViewModels
             }
 
             ResTxt = sb.ToString();
-
-            ResLogs.Add($"Succ Test {ResTxt}");
+            string newItem = $"Succ Test {ResLogs.Count + 1} {ResTxt}";
+            ResLogs.Add(newItem);
 
             resImg = ConvertBitmapToImageSource(m_bmpRes);
             ResImg = (BitmapImage)resImg;
@@ -910,10 +911,9 @@ namespace SonoCap.MES.UI.ViewModels
             ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
             ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
             ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요." };
+            ValidationDict[nameof(SelectedDate)] = new ValidationItem { IsValid = true };
             ValidationDict[nameof(SeqNo)] = new ValidationItem { WaterMarkText = $"{nameof(SeqNo)}을 입력 하세요." };
             ValidationDict[nameof(MTMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
-
-            ResLogs = new ObservableCollection<string>();
 
             ret = VI.Load(0);
 
@@ -1093,6 +1093,7 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
+            OnPropertyChanged(nameof(BorderBackgrounds));
         }
 
         // DB 관련
