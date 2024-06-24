@@ -6,6 +6,7 @@ using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.UI.Controls;
 using SonoCap.MES.UI.Validation;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -114,6 +115,10 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private Dictionary<int, Brush> _borderBackgrounds = new();
+
+        [ObservableProperty]
+        private string _focusedElement;
+
         private Probe? _probe { get; set; }
         private TransducerModule? _transducerModule { get; set; }
         private Transducer? _transducer { get; set; }
@@ -412,6 +417,12 @@ namespace SonoCap.MES.UI.ViewModels
             }
 
 
+        }
+
+        [RelayCommand]
+        public void TDSnDB()
+        {
+            Log.Information("TDSnDB");
         }
 
         private bool CanAddTDSn()
@@ -897,7 +908,8 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
         {
-            Log.Information(keyEventArgs.Key.ToString());
+            Log.Information($"key : {keyEventArgs.Key} , _focusedElement : {FocusedElement}");
+
             if (keyEventArgs.Key == Key.F10)
             {
                 await NextAsync();

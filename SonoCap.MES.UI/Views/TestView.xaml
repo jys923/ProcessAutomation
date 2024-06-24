@@ -83,7 +83,11 @@
                     <controls:TextBoxControl Grid.Row="2" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDMdSn].IsValid}" Text="{Binding TDMdSn}" IsEnabled="{Binding TDMdSnIsEnabled}" WaterMarkText="{Binding ValidationDict[TDMdSn].WaterMarkText}"/>
                     <TextBlock Grid.Row="3" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDMdSn].Message}" Visibility="{Binding TDMdSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
 
-                    <controls:TextBoxControl Grid.Row="5" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDSn].IsValid}" Text="{Binding TDSn}" IsEnabled="{Binding TDSnIsEnabled}" WaterMarkText="{Binding ValidationDict[TDSn].WaterMarkText}"/>
+                    <controls:TextBoxControl Grid.Row="5" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDSn].IsValid}" Text="{Binding TDSn}" IsEnabled="{Binding TDSnIsEnabled}" WaterMarkText="{Binding ValidationDict[TDSn].WaterMarkText}" >
+                        <controls:TextBoxControl.InputBindings>
+                            <KeyBinding Command="{Binding TDSnDBCommand}" Key="Enter"/>
+                        </controls:TextBoxControl.InputBindings>
+                    </controls:TextBoxControl>
                     <TextBlock Grid.Row="6" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDSn].Message}" Visibility="{Binding TDSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
                     
                     <DatePicker Grid.Row="7" Grid.Column="2" SelectedDate="{Binding SelectedDate}" FontSize="20">

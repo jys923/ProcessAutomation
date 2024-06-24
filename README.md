@@ -92,14 +92,16 @@ remove-migration
 - [X] BulkInsertAsync 원래 로그 못봄
 - [X] 윈도우 재시작 에러
 - [X] IsEnabled = false 일때 style null
-- [ ] test 카테거리 정리
-- [ ] enum에 all 추가
+- :x: test 카테거리 정리
+- :x: enum에 all 추가
+- [X] ListView 자동 마지막 스크롤 
+	:x: ScrollToEndBehavior 사용시 같은 데이터 계속 넣으면 스크롤 안됨 cnt 넣어주기!
 ## Research List
 - [X] C# 8.0 "switch expression"
 - [ ] linq
 - [ ] Dependency Property와 Attached Property
 	- https://kaki104.tistory.com/563
-- [X] Microsoft.Extensions.Logging vs :sparkles: :crown: Serilog
+- [X] Microsoft.Extensions.Logging vs :star: :sparkles: :crown: Serilog
 	- logging .net 기본 시간 표기 가능,
 	- serilog 구조화된 로그 추가 복잡할 때 사용
 - [ ] TDD mock 객체 vs UseInMemoryDatabase
