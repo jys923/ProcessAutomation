@@ -41,7 +41,12 @@ namespace SonoCap.MES.Repositories.Base
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public T? GetById(int id)
+        {
+            return _dbSet.Where(x => x.Id == id).OrderByDescending(x => x.Id).FirstOrDefault();
+        }
+
+        public async Task<T?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }

@@ -77,20 +77,20 @@
                     <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="11" Grid.Column="1" Content="Seq No"/>
                     <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="13" Grid.Column="1" Content="Motor Lot"/>
 
-                    <controls:TextBoxControl Grid.Row="0" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[ProbeSn].IsValid}" Text="{Binding ProbeSn}" IsEnabled="{Binding ProbeSnIsEnabled}" WaterMarkText="{Binding ValidationDict[ProbeSn].WaterMarkText}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[ProbeSn].Message}" Visibility="{Binding ProbeSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+                    <controls:TextBoxControl Grid.Row="0" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[ProbeSn].IsValid}" Text="{Binding ProbeSn}" IsEnabled="{Binding ValidationDict[ProbeSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[ProbeSn].WaterMarkText}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[ProbeSn].Message}" Visibility="{Binding ValidationDict[ProbeSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
 
-                    <controls:TextBoxControl Grid.Row="2" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDMdSn].IsValid}" Text="{Binding TDMdSn}" IsEnabled="{Binding TDMdSnIsEnabled}" WaterMarkText="{Binding ValidationDict[TDMdSn].WaterMarkText}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDMdSn].Message}" Visibility="{Binding TDMdSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+                    <controls:TextBoxControl Grid.Row="2" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDMdSn].IsValid}" Text="{Binding TDMdSn}" IsEnabled="{Binding ValidationDict[TDMdSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[TDMdSn].WaterMarkText}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDMdSn].Message}" Visibility="{Binding ValidationDict[TDMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
 
-                    <controls:TextBoxControl Grid.Row="5" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDSn].IsValid}" Text="{Binding TDSn}" IsEnabled="{Binding TDSnIsEnabled}" WaterMarkText="{Binding ValidationDict[TDSn].WaterMarkText}" >
+                    <controls:TextBoxControl Grid.Row="5" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDSn].IsValid}" Text="{Binding TDSn}" IsEnabled="{Binding ValidationDict[TDSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[TDSn].WaterMarkText}" >
                         <controls:TextBoxControl.InputBindings>
                             <KeyBinding Command="{Binding TDSnDBCommand}" Key="Enter"/>
                         </controls:TextBoxControl.InputBindings>
                     </controls:TextBoxControl>
-                    <TextBlock Grid.Row="6" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDSn].Message}" Visibility="{Binding TDSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
-                    
-                    <DatePicker Grid.Row="7" Grid.Column="2" SelectedDate="{Binding SelectedDate}" FontSize="20">
+                    <TextBlock Grid.Row="6" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDSn].Message}" Visibility="{Binding ValidationDict[TDSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+
+                    <DatePicker IsEnabled="{Binding ValidationDict[SelectedDate].IsEnabled}" Grid.Row="7" Grid.Column="2" SelectedDate="{Binding SelectedDate}" FontSize="20">
                         <DatePicker.Resources>
                             <Style TargetType="ToggleButton">
                                 <Setter Property="FontSize" Value="20"/>
@@ -107,13 +107,13 @@
                             </Style>
                         </DatePicker.Resources>
                     </DatePicker>
-                    <TextBlock Grid.Row="8" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[SelectedDate].Message}" Visibility="{Binding TDSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
-                    
-                    <controls:TextBoxControl Grid.Row="11" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[SeqNo].IsValid}" Text="{Binding SeqNo}" IsEnabled="{Binding SeqNoIsEnabled}" WaterMarkText="{Binding ValidationDict[SeqNo].WaterMarkText}"/>
-                    <TextBlock Grid.Row="12" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[SeqNo].Message}" Visibility="{Binding SeqNoIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
-                    
-                    <controls:TextBoxControl Grid.Row="13" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[MTMdSn].IsValid}" Text="{Binding MTMdSn}" IsEnabled="{Binding MTMdSnIsEnabled}" WaterMarkText="{Binding ValidationDict[MTMdSn].WaterMarkText}"/>
-                    <TextBlock Grid.Row="14" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding MTMdSnIsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+                    <TextBlock Grid.Row="8" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[SelectedDate].Message}" Visibility="{Binding ValidationDict[SelectedDate].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+
+                    <controls:TextBoxControl Grid.Row="11" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[SeqNo].IsValid}" Text="{Binding SeqNo}" IsEnabled="{Binding ValidationDict[SeqNo].IsEnabled}" WaterMarkText="{Binding ValidationDict[SeqNo].WaterMarkText}"/>
+                    <TextBlock Grid.Row="12" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[SeqNo].Message}" Visibility="{Binding ValidationDict[SeqNo].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+
+                    <controls:TextBoxControl Grid.Row="13" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[MTMdSn].IsValid}" Text="{Binding MTMdSn}" IsEnabled="{Binding ValidationDict[MTMdSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[MTMdSn].WaterMarkText}"/>
+                    <TextBlock Grid.Row="14" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding ValidationDict[MTMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
                     <Button Grid.Column="3" Grid.Row="5" FontSize="20" Background="LightBlue" Content="Td 추가" HorizontalAlignment="Stretch" Margin="10,0,10,0" VerticalAlignment="Stretch" Command="{Binding AddTDSnCommand}" CommandParameter="{Binding TDSn}"/>
                     <Button Grid.Column="3" Grid.Row="13" FontSize="20" Background="LightBlue" Content="모터 추가" HorizontalAlignment="Stretch" Margin="10,0,10,0" VerticalAlignment="Stretch" Command="{Binding AddMTMdSnCommand}" CommandParameter="{Binding MTMdSn}"/>
                 </Grid>
@@ -135,43 +135,43 @@
                     <RowDefinition Height="1.5*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Column="0" Grid.Row="0" Background="LightBlue"/>
-                <Border Grid.Column="1" Grid.Row="0" Background="LightBlue">
+                <Border Grid.Column="0" Grid.Row="0" Background="{StaticResource CellHeaderBrush}"/>
+                <Border Grid.Column="1" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="Align" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"/>
                 </Border>
-                <Border Grid.Column="2" Grid.Row="0" Background="LightBlue">
+                <Border Grid.Column="2" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="Axial" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0"/>
                 </Border>
-                <Border Grid.Column="3" Grid.Row="0" Background="LightBlue">
+                <Border Grid.Column="3" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="Leteral" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"/>
                 </Border>
-                <Border Grid.Column="4" Grid.Row="0" Background="LightBlue">
+                <Border Grid.Column="4" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="강제 검수" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="4" Grid.Row="0"/>
                 </Border>
 
-                <Border Grid.Column="0" Grid.Row="1" Background="LightBlue">
+                <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="공정용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
                 </Border>
-                <Border Grid.Column="1" Grid.Row="1" Background="{Binding BorderBackgrounds[11]}"/>
-                <Border Grid.Column="2" Grid.Row="1" Background="{Binding BorderBackgrounds[12]}"/>
-                <Border Grid.Column="3" Grid.Row="1" Background="{Binding BorderBackgrounds[13]}"/>
-                <Border Grid.Column="4" Grid.Row="1" Background="LightBlue"/>
+                <Border Grid.Column="1" Grid.Row="1" Background="{Binding BorderBackgrounds[11].Value}"/>
+                <Border Grid.Column="2" Grid.Row="1" Background="{Binding BorderBackgrounds[12].Value}"/>
+                <Border Grid.Column="3" Grid.Row="1" Background="{Binding BorderBackgrounds[13].Value}"/>
+                <Border Grid.Column="4" Grid.Row="1" Background="{StaticResource CellBodyBrush}"/>
 
-                <Border Grid.Column="0" Grid.Row="2" Background="LightBlue">
+                <Border Grid.Column="0" Grid.Row="2" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="최종용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
                 </Border>
-                <Border Grid.Column="1" Grid.Row="2" Background="{Binding BorderBackgrounds[21]}"/>
-                <Border Grid.Column="2" Grid.Row="2" Background="{Binding BorderBackgrounds[22]}"/>
-                <Border Grid.Column="3" Grid.Row="2" Background="{Binding BorderBackgrounds[23]}"/>
-                <Border Grid.Column="4" Grid.Row="2" Background="LightBlue"/>
+                <Border Grid.Column="1" Grid.Row="2" Background="{Binding BorderBackgrounds[21].Value}"/>
+                <Border Grid.Column="2" Grid.Row="2" Background="{Binding BorderBackgrounds[22].Value}"/>
+                <Border Grid.Column="3" Grid.Row="2" Background="{Binding BorderBackgrounds[23].Value}"/>
+                <Border Grid.Column="4" Grid.Row="2" Background="{StaticResource CellBodyBrush}"/>
 
-                <Border Grid.Column="0" Grid.Row="3" Background="LightBlue">
+                <Border Grid.Column="0" Grid.Row="3" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="출하용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
                 </Border>
-                <Border Grid.Column="1" Grid.Row="3" Background="{Binding BorderBackgrounds[31]}"/>
-                <Border Grid.Column="2" Grid.Row="3" Background="{Binding BorderBackgrounds[32]}"/>
-                <Border Grid.Column="3" Grid.Row="3" Background="{Binding BorderBackgrounds[33]}"/>
-                <Border Grid.Column="4" Grid.Row="3" Background="LightBlue"/>
+                <Border Grid.Column="1" Grid.Row="3" Background="{Binding BorderBackgrounds[31].Value}"/>
+                <Border Grid.Column="2" Grid.Row="3" Background="{Binding BorderBackgrounds[32].Value}"/>
+                <Border Grid.Column="3" Grid.Row="3" Background="{Binding BorderBackgrounds[33].Value}"/>
+                <Border Grid.Column="4" Grid.Row="3" Background="{StaticResource CellBodyBrush}"/>
                 <!-- 버튼 컨트롤 -->
                 <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent" d:IsHidden="True">
                     <Button.Style>
@@ -199,8 +199,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -230,8 +230,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -261,8 +261,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -294,8 +294,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -325,8 +325,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -356,8 +356,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -389,8 +389,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -420,8 +420,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" />
+                        <b:EventTrigger EventName="MouseRightButtonDown">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -451,8 +451,8 @@
                         </Style>
                     </Button.Style>
                     <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseDoubleClick">
-                            <b:InvokeCommandAction Command="{Binding CellDoubleClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" />
+                        <b:EventTrigger EventName="MouseRightClick">
+                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" />
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
@@ -507,8 +507,8 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <RadioButton Style="{StaticResource RadioButtonLargeStyle}" GroupName="TestResultTypes" Content="FAIL" Grid.Column="0" IsChecked="{Binding TestResult, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=-1}" HorizontalContentAlignment="Center" Background="Tomato" Margin="10,0,0,0"/>
-                    <RadioButton Style="{StaticResource RadioButtonLargeStyle}" GroupName="TestResultTypes" Content="PASS" Grid.Column="1" IsChecked="{Binding TestResult, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=100}" HorizontalContentAlignment="Center" Background="LightGreen" Margin="10,0,0,0"/>
+                    <RadioButton Style="{StaticResource RadioButtonLargeStyle}" GroupName="TestResultTypes" Content="FAIL" Grid.Column="0" IsChecked="{Binding TestResult, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=-1}" HorizontalContentAlignment="Center" Background="Tomato" Margin="10,0,0,0" IsEnabled="{Binding IsTested}"/>
+                    <RadioButton Style="{StaticResource RadioButtonLargeStyle}" GroupName="TestResultTypes" Content="PASS" Grid.Column="1" IsChecked="{Binding TestResult, Mode=TwoWay, Converter={StaticResource RadioButtonIndexConverter}, ConverterParameter=100}" HorizontalContentAlignment="Center" Background="LightGreen" Margin="10,0,0,0" IsEnabled="{Binding IsTested}"/>
                 </Grid>
             </GroupBox>
             <Button Grid.Column="2" Grid.Row="1" FontSize="40" Background="LightBlue" Content="검 사" HorizontalAlignment="Stretch" Margin="0,15,15,0" VerticalAlignment="Stretch" Command="{Binding TestCommand}"/>

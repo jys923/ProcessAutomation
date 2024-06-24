@@ -8,6 +8,8 @@
              xmlns:Behaviors="clr-namespace:SonoCap.MES.UI.Behaviors">
     <Application.Resources>
         <ResourceDictionary>
+            <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue"/>
+            <SolidColorBrush x:Key="CellBodyBrush" Color="LightGray"/>
             <converters:TestResultBorderBrushConverter x:Key="TestResultBorderBrushConverter"/>
             <converters:EnabledToVisibilityConverter x:Key="EnabledToVisibilityConverter"/>
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
