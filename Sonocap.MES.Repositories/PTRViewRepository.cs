@@ -9,9 +9,8 @@ namespace SonoCap.MES.Repositories
 {
     public class PTRViewRepository : RepositoryBase<PTRView>, IPTRViewRepository
     {
-        public PTRViewRepository(MESDbContext context) : base(context)
+        public PTRViewRepository(MESDbContextFactory contextFactory) : base(contextFactory)
         {
-
         }
 
         private string PTRViewQuery =

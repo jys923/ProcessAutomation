@@ -6,25 +6,28 @@
         xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
         xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels" 
         xmlns:controls="clr-namespace:SonoCap.MES.UI.Controls"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type={x:Type vm:MainViewModel}}"
         Title="{Binding Title}" Height="450" Width="800">
     <Grid>
-        <Button x:Name="TestBtn" Content="Test" Command="{Binding ToTestCommand}" HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="ListBtn" Content="ProbeList" Command="{Binding ToListCommand}"  HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top"/>
-        <Button Content="Master" Command="{Binding MasterCommand}" HorizontalAlignment="Left" Margin="300,50,0,0" VerticalAlignment="Top"/>
-        <Button Content="Select1" Command="{Binding Select1Command}" HorizontalAlignment="Left" Margin="400,50,0,0" VerticalAlignment="Top" RenderTransformOrigin="2.734,0.41"/>
-        <Button x:Name="TestListBtn" Content="TestList" Command="{Binding ToTestListCommand}"  HorizontalAlignment="Left" Margin="100,150,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="TestBtn" Content="Test" Command="{Binding ToTestCommand}" HorizontalAlignment="Left" Margin="100,50,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button x:Name="TestListBtn" Content="TestList" Command="{Binding ToTestListCommand}"  HorizontalAlignment="Left" Margin="100,100,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="PTRView" Command="{Binding PTRViewTestCommand}"  HorizontalAlignment="Left" Margin="100,150,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="TDMd" Command="{Binding TDMdTestCommand}"  HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="Excel Import" Command="{Binding ImportExcelFileCommand}"  HorizontalAlignment="Left" Margin="100,250,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="SeqNoTest" Command="{Binding SeqNoTestCommand}"  HorizontalAlignment="Left" Margin="100,300,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button x:Name="ListBtn" Content="ProbeList" Command="{Binding ToListCommand}"  HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top" Width="100"/>
         <Button x:Name="BlinkBtn" Content="BlinkToggle" Command="{Binding ToBlinkCommand}" 
-        HorizontalAlignment="Left" Margin="200,150,0,0" VerticalAlignment="Top">
+        HorizontalAlignment="Left" Margin="200,100,0,0" VerticalAlignment="Top" Width="100">
             <Button.Style>
-                <Style TargetType="Button">
+                <Style TargetType="{x:Type Button}">
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsBlinking}" Value="True">
                             <DataTrigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard RepeatBehavior="Forever">
-                                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                        <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)"
                                                 To="Red" Duration="0:0:0.5" AutoReverse="True"/>
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -34,7 +37,7 @@
                                     <Storyboard>
                                         <!--<ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
                                                 To="{Binding RelativeSource={RelativeSource self}, Path=Background}" Duration="0:0:0"/>-->
-                                        <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
+                                        <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </DataTrigger.ExitActions>
@@ -43,13 +46,38 @@
                 </Style>
             </Button.Style>
         </Button>
+        <TextBox x:Name="AutoCompleteTextBox"
+                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                 VerticalAlignment="Top" 
+                 Margin="300,50,400,0" RenderTransformOrigin="0.5,-0.777" Width="100">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="PreviewKeyDown">
+                    <i:InvokeCommandAction Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+        <Popup PlacementTarget="{Binding ElementName=AutoCompleteTextBox}"
+               Placement="Bottom"
+               StaysOpen="False"
+               IsOpen="{Binding IsPopupOpen}">
+            <ListBox x:Name="FilteredListBox"
+                     ItemsSource="{Binding FilteredItems}"
+                     IsSynchronizedWithCurrentItem="True"
+                     SelectedIndex="{Binding SelectedIndex}"
+                     KeyboardNavigation.DirectionalNavigation="Contained">
+                <ListBox.Style>
+                    <Style TargetType="ListBox">
+                        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+                    </Style>
+                </ListBox.Style>
+            </ListBox>
+        </Popup>
+        <Button Content="Master" Command="{Binding MasterCommand}" HorizontalAlignment="Left" Margin="100,350,0,0" VerticalAlignment="Top" Width="100"/>
+        <controls:TextBoxControl Validating="true" WaterMarkText="aaaa" IsEnabled="True" HorizontalAlignment="Left" Margin="300,100,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="Select1" Command="{Binding Select1Command}" HorizontalAlignment="Left" Margin="200,150,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="SetPTRView" Command="{Binding SetPTRViewCommand}" HorizontalAlignment="Left" Margin="200,200,0,0" VerticalAlignment="Top" Width="100"/>
 
-        <controls:TextBoxControl Validating="true" WaterMarkText="aaaa" IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" VerticalAlignment="Top" Width="120"/>
-
-        <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="400,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="120"/>
-
-        <Button Content="PTRView" Command="{Binding PTRViewTestCommand}"  HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top"/>
-
-        <Button Content="TDMd" Command="{Binding TDMdTestCommand}"  HorizontalAlignment="Left" Margin="100,250,0,0" VerticalAlignment="Top"/>
+        <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="100"/>
+        <Button Content="GetSns" Command="{Binding GetSnsCommand}" HorizontalAlignment="Left" Margin="200,250,0,0" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </Window>

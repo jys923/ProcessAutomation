@@ -9,7 +9,7 @@ namespace SonoCap.MES.Repositories
 {
     public class ProbeRepository : RepositoryBase<Probe>, IProbeRepository
     {
-        public ProbeRepository(MESDbContext context) : base(context)
+        public ProbeRepository(MESDbContextFactory contextFactory) : base(contextFactory)
         {
         }
 
@@ -707,6 +707,91 @@ WHERE
             }).FirstOrDefault();
 
             return _pTRView;
+        }
+
+        public async Task<int> SetPTRViewsAsync()
+        {
+            string query = 
+@"
+INSERT INTO PTRViews (ProbeSn, TransducerModuleSn, TransducerSn, MotorModuleSn, DataFlag, CreatedDate, TestId01, TestId02, TestId03, TestId04, TestId05, TestId06, TestId07, TestId08, TestId09)
+SELECT
+    p.Sn AS ProbeSn,
+    tm.Sn AS TransducerModuleSn,
+    td.Sn AS TransducerSn,
+    mm.Sn AS MotorModuleSn,
+    1 as DataFlag,
+    NOW() as CreatedDate,  
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE TransducerId = td.Id AND TestCategoryId = 1 AND TestTypeId = 1 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId01,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE TransducerId = td.Id AND TestCategoryId = 1 AND TestTypeId = 2 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId02,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE TransducerId = td.Id AND TestCategoryId = 1 AND TestTypeId = 3 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId03,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE TransducerModuleId = tm.Id AND TestCategoryId = 2 AND TestTypeId = 1 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId04,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE TransducerModuleId = tm.Id AND TestCategoryId = 2 AND TestTypeId = 2 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId05,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE TransducerModuleId = tm.Id AND TestCategoryId = 2 AND TestTypeId = 3 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId06,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE ProbeId = p.Id AND TestCategoryId = 3 AND TestTypeId = 1 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId07,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE ProbeId = p.Id AND TestCategoryId = 3 AND TestTypeId = 2 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId08,
+    (
+        SELECT Id 
+        FROM Tests 
+        WHERE ProbeId = p.Id AND TestCategoryId = 3 AND TestTypeId = 3 AND DataFlag = 1 
+        ORDER BY Id DESC
+        LIMIT 1
+    ) AS TestId09
+FROM 
+    Probes p
+    LEFT JOIN TransducerModules tm ON p.TransducerModuleId = tm.Id AND tm.DataFlag = 1
+    LEFT JOIN Transducers td ON tm.TransducerId = td.Id AND td.DataFlag = 1
+    LEFT JOIN MotorModules mm ON p.MotorModuleId = mm.Id AND mm.DataFlag = 1;
+";
+            return await _context.Database.ExecuteSqlRawAsync(query);
+
         }
     }
 }

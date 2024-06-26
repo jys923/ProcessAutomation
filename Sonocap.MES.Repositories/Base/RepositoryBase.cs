@@ -2,10 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SonoCap.MES.Models.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using SonoCap.MES.Repositories.Context;
 
 namespace SonoCap.MES.Repositories.Base
 {
@@ -14,10 +11,16 @@ namespace SonoCap.MES.Repositories.Base
         protected readonly DbContext _context;
         protected readonly DbSet<T> _dbSet;
 
-        public RepositoryBase(DbContext context)
+        //public RepositoryBase(DbContext context)
+        //{
+        //    _context = context;
+        //    _dbSet = context.Set<T>();
+        //}
+
+        public RepositoryBase(IDbContextFactory<MESDbContext> contextFactory)
         {
-            _context = context;
-            _dbSet = context.Set<T>();
+            _context = contextFactory.CreateDbContext();
+            _dbSet = _context.Set<T>();
         }
 
         public async Task<bool> DeleteAsync(T entity)
@@ -29,7 +32,7 @@ namespace SonoCap.MES.Repositories.Base
 
         public async Task<bool> DeleteByIdAsync(int id)
         {
-            T entity = await _dbSet.FindAsync(id);
+            T? entity = await _dbSet.FindAsync(id);
             if (entity == null)
                 return false;
 
@@ -56,6 +59,21 @@ namespace SonoCap.MES.Repositories.Base
             if (typeof(ISn).IsAssignableFrom(typeof(T)))
             {
                 return _dbSet.OfType<ISn>().Where(e => e.Sn.Equals(sn)).Cast<T>();
+            }
+
+            throw new InvalidOperationException("T does not implement ISn interface.");
+        }
+
+        public IQueryable<T> GetFilterItems(string sn, int limit = 10)
+        {
+            if (typeof(ISn).IsAssignableFrom(typeof(T)))
+            {
+                return _dbSet.OfType<ISn>()
+                    .Where(e => e.Sn.ToLower().Contains(sn.ToLower()))
+                    .Cast<ModelBase>() // ModelBase로 캐스팅
+                    .OrderByDescending(e => e.Id)
+                    .Take(limit)
+                    .Cast<T>();
             }
 
             throw new InvalidOperationException("T does not implement ISn interface.");

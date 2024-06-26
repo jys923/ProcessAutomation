@@ -4,7 +4,7 @@ using SonoCap.MES.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Castle.Core.Resource;
+using SonoCap.MES.Models.Base;
 
 namespace SonoCap.MES.Repositories.Context
 {
@@ -13,20 +13,19 @@ namespace SonoCap.MES.Repositories.Context
         public DbSet<MotorModule> MotorModules { get; set; }
         public DbSet<Pc> Pcs { get; set; }
         public DbSet<Probe> Probes { get; set; }
-        
-        public DbSet<ProbeTestReport> ProbeTestReports { get; set; }
-        public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
-        //public DbSet<ProbeTestResultView> ProbeTestResultViews { get; set; }
         public DbSet<PTRView> PTRViews { get; set; }
-        public DbSet<Test> Tests { get; set; }
+        public DbSet<SharedSeqNo> SharedSeqNos { get; set; }
         public DbSet<TestCategory> TestCategories { get; set; }
         public DbSet<Tester> Testers { get; set; }
-
-        public DbSet<TestProbe> TestProbes { get; set; }
+        public DbSet<Test> Tests { get; set; }
         public DbSet<TestType> TestTypes { get; set; }
-        public DbSet<Transducer> Transducers { get; set; }
         public DbSet<TransducerModule> TransducerModules { get; set; }
+        public DbSet<Transducer> Transducers { get; set; }
         public DbSet<TransducerType> TransducerTypes { get; set; }
+        
+        //public DbSet<TestProbe> TestProbes { get; set; }
+        //public DbSet<ProbeTestReport> ProbeTestReports { get; set; }
+        //public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
 
         public MESDbContext()
         {
@@ -39,10 +38,24 @@ namespace SonoCap.MES.Repositories.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // ProbeTestResult 엔터티를 모델에서 제외합니다.
-            modelBuilder.Ignore<ProbeTestReport>();
+            //modelBuilder.Ignore<ProbeTestReport>();
             //modelBuilder.Ignore<ProbeTestResult>();
             //modelBuilder.Ignore<ProbeTestResultView>();
-            modelBuilder.Ignore<TestProbe>();
+            //modelBuilder.Ignore<TestProbe>();
+
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(ModelBase).IsAssignableFrom(entityType.ClrType))
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property("CreatedDate")
+                        .HasDefaultValueSql("NOW()");
+
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property("DataFlag")
+                        .HasDefaultValue(1);
+                }
+            }
 
             modelBuilder.Entity<Test>()
                 .ToTable(t => t.HasCheckConstraint("CK_Tests_Only_One_Not_Null",
@@ -119,11 +132,11 @@ namespace SonoCap.MES.Repositories.Context
 #if DEBUG
             optionsBuilder.EnableSensitiveDataLogging(true);
 #endif
-            optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+            //optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
             optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
             
-            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_4; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_6; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString), options => options.CommandTimeout(120));
         }
 #endif

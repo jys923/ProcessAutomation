@@ -7,7 +7,7 @@ namespace SonoCap.MES.Repositories
 {
     public class TransducerModuleRepository : RepositoryBase<TransducerModule>, ITransducerModuleRepository
     {
-        public TransducerModuleRepository(MESDbContext context) : base(context)
+        public TransducerModuleRepository(MESDbContextFactory contextFactory) : base(contextFactory)
         {
         }
     }

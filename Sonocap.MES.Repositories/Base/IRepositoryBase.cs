@@ -13,5 +13,6 @@
         IQueryable<T> GetBySn(string sn);
         Task<int> UpsertAsync(T entity);
         T? GetById(int id);
+        IQueryable<T> GetFilterItems(string sn, int limit = 10);
     }
 }

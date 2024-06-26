@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MiniExcel" Version="1.32.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SonoCap.Commons\SonoCap.Commons.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
   </ItemGroup>
 

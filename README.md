@@ -14,6 +14,10 @@ remove-migration
 ```
 
 ## Todo List
+- [ ] 자동 완성, 예측 텍스트
+- [ ] Mini Excel study 특히 자료형
+- [ ] seqNo 삭제
+- [ ] 서버에서 seqNo 내리기
 - [X] show hide
 - [X] readonly gray
 - [X] blinking
@@ -31,13 +35,14 @@ remove-migration
                 query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
             }
 - [X] enums 추가 네임스페이스만 필요. 클래스 필요없음
+- [ ] 처음에 마우스 키보드로 선택하고 sn 입력 후 F9는 시험 F10은 저장 test결과는 자동화. 마우스 키보드 안만지고 발판 2개 버튼으로 시험 종료
 - [ ] 윈도우 생명주기 필요! 화면 최상단 일때 사진 로드
 - [ ] 윈도우 간 파라미터 전달
 	- https://kaki104.tistory.com/869
 - [X] 실패 점수 기록
 - [X] test 삭제까지 보이게
 - [X] test 갯수 가변
-- [ ] 성공 조건 가변
+- [X] 성공 조건 가변
 - [X] 윈도우 생성시 tester 객체에 데이터 삽입 널 체크
 - [X] 검색시 td 객체에 데이터 삽입 널 체크
 - [X] dataflag 0 조회 확인
@@ -48,9 +53,9 @@ remove-migration
 - [ ] 한소노 lib에서 영상 직접 받기
 - [ ] Dark theme
 - [ ] 모터 모듈 s/n 파일 import
-- [ ] 모터 모듈 s/n -> Lot 라고 바꾸기
+- [ ] TD s/n 파일 import
+- [X] 모터 모듈 s/n -> Lot 라고 바꾸기
 - [ ] winform bmp -> wpf bmp 바꾸기
-- [ ] 색상
 - [X] text placeholder hint
 	- https://www.youtube.com/watch?v=QUx2gh0PaEc
 - [X] 벨리데이션
@@ -62,7 +67,6 @@ remove-migration
 	- [ ] https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/observablevalidator
 - [X] 시리얼 체크
 	- [X] 없으면 밑에 없다고 출력
-- [ ] TD s/n 파일 import
 - [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
@@ -92,7 +96,7 @@ remove-migration
 - [X] BulkInsertAsync 원래 로그 못봄
 - [X] 윈도우 재시작 에러
 - [X] IsEnabled = false 일때 style null
-- :x: test 카테거리 정리
+- :x: test 카테고리 정리
 - :x: enum에 all 추가
 - [X] ListView 자동 마지막 스크롤 
 	:x: ScrollToEndBehavior 사용시 같은 데이터 계속 넣으면 스크롤 안됨 cnt 넣어주기!

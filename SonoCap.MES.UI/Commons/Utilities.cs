@@ -1,10 +1,19 @@
-﻿using System.Security.Cryptography;
+﻿using SonoCap.MES.Models;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SonoCap.MES.UI.Commons
 {
     public class Utilities
     {
+        public static void RemoveDuplicateSnDates(ref List<SnDate> snDates)
+        {
+            snDates = snDates
+                .GroupBy(snDate => snDate.Sn)
+                .Select(group => group.First())
+                .ToList();
+        }
+
         public static string MKRandom(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

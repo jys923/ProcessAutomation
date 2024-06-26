@@ -7,7 +7,7 @@ namespace SonoCap.MES.Repositories
 {
     public class TesterRepository : RepositoryBase<Tester>, ITesterRepository
     {
-        public TesterRepository(MESDbContext context) : base(context)
+        public TesterRepository(MESDbContextFactory contextFactory) : base(contextFactory)
         {
         }
     }

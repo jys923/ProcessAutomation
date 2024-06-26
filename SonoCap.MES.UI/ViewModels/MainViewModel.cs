@@ -7,18 +7,26 @@ using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Microsoft.Win32;
+using SonoCap.MES.Services;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using SonoCap.Interceptors;
+using Microsoft.EntityFrameworkCore;
 
 namespace SonoCap.MES.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        private ProbeListView? _probeListView;
-        private TestListView? _testListView;
-        private TestView? _testView;
+        private ProbeListView? _probeListView = default!;
+        private TestListView? _testListView = default!;
+        private TestView? _testView = default!;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
         private readonly IProbeRepository _probeRepository;
+        private readonly IPTRViewRepository _pTRViewRepository;
+        private readonly ISharedSeqNoRepository _sharedSeqNoRepository;
         private readonly ITestCategoryRepository _testCategoryRepository;
         private readonly ITesterRepository _testerRepository;
         private readonly ITestRepository _testRepository;
@@ -26,7 +34,6 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITransducerRepository _transducerRepository;
         private readonly ITransducerModuleRepository _transducerModuleRepository;
         private readonly ITransducerTypeRepository _transducerTypeRepository;
-        private readonly IPTRViewRepository _pTRViewRepository;
 
         [ObservableProperty]
         private bool _isBlinking = false;
@@ -39,19 +46,22 @@ namespace SonoCap.MES.UI.ViewModels
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
             IProbeRepository probeRepository,
+            IPTRViewRepository pTRViewRepository,
+            ISharedSeqNoRepository sharedSeqNoRepository,
             ITestCategoryRepository testCategoryRepository,
             ITesterRepository testerRepository,
             ITestRepository testRepository,
             ITestTypeRepository testTypeRepository,
             ITransducerRepository transducerRepository,
             ITransducerModuleRepository transducerModuleRepository,
-            ITransducerTypeRepository transducerTypeRepository,
-            IPTRViewRepository pTRViewRepository)
+            ITransducerTypeRepository transducerTypeRepository)
         {
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
             _probeRepository = probeRepository;
+            _pTRViewRepository = pTRViewRepository;
+            _sharedSeqNoRepository = sharedSeqNoRepository; 
             _testCategoryRepository = testCategoryRepository;
             _testerRepository = testerRepository;
             _testRepository = testRepository;
@@ -59,8 +69,20 @@ namespace SonoCap.MES.UI.ViewModels
             _transducerRepository = transducerRepository;
             _transducerModuleRepository = transducerModuleRepository;
             _transducerTypeRepository = transducerTypeRepository;
-            _pTRViewRepository = pTRViewRepository;
             Title = this.GetType().Name;
+
+            Items = new ObservableCollection<string>
+            {
+                "Apple", "Banana", "Cherry", "Date", "Elderberry",
+                "Fig", "Grape", "Honeydew", "Ice Cream Bean", "Jackfruit",
+                "Kiwi", "Lemon", "Mango", "Nectarine", "Orange",
+                "Papaya", "Quince", "Raspberry", "Strawberry", "Tomato",
+                "Ugli Fruit", "Vanilla", "Watermelon", "Xigua", "Yellow Passionfruit",
+                "Zucchini"
+            };
+
+            FilteredItems = new ObservableCollection<string>(Items);
+            KeyDownCommand = new RelayCommand<KeyEventArgs>(OnKeyDown);
         }
 
         [RelayCommand]
@@ -103,7 +125,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
             else
             {
-                if(_probeListView.WindowState == System.Windows.WindowState.Minimized)
+                if (_probeListView.WindowState == System.Windows.WindowState.Minimized)
                 {
                     _probeListView.WindowState = System.Windows.WindowState.Normal;
                 }
@@ -131,7 +153,23 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        //[RelayCommand]
+        [RelayCommand]
+        private async Task Master()
+        {
+            await _pcRepository.InsertAsync(new Pc { Name = "left" });
+            await _pcRepository.InsertAsync(new Pc { Name = "middle" });
+            await _pcRepository.InsertAsync(new Pc { Name = "right" });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
+        }
+
+        [RelayCommand]
         private async Task Master2()
         {
             int maxCnt = 100000;
@@ -188,10 +226,10 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" }); 
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
 
-           // #region TestsTDs
-            for (int i = 1; i <= 100 ; ++i)
+            // #region TestsTDs
+            for (int i = 1; i <= 100; ++i)
             {
                 testerIds.AddRange(Enumerable.Range(1, 3000));
             }
@@ -333,10 +371,9 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private async Task Master()
+        private async Task Master3()
         {
             int maxCnt = 100000;
-            int resultCnt = 5;
 
             string currentDate = DateTime.Now.ToString("yyMMdd");
 
@@ -355,7 +392,7 @@ namespace SonoCap.MES.UI.ViewModels
             #region MotorModules
             for (int i = 1; i <= maxCnt; ++i)
             {
-                string MotorModuleSn = "mtm-sn " + currentDate + " " + i.ToString("D6");
+                string MotorModuleSn = "mtm" + currentDate + i.ToString("D3");
                 moterModules.Add(new MotorModule { Sn = MotorModuleSn });
                 //await _motorModuleRepository.InsertAsync(new MotorModule { MotorModuleSn = MotorModuleSn });
             }
@@ -396,7 +433,7 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt; ++i)
             {
                 int transducerTypeId = random.Next(1, 3);
-                string TransducerSn = "td-sn " + currentDate + " " + i.ToString("D6");
+                string TransducerSn = "td-sn" + currentDate + i.ToString("D3");
                 transducers.Add(new Transducer { Sn = TransducerSn, TransducerTypeId = transducerTypeId });
             }
             await _transducerRepository.BulkInsertAsync(transducers);
@@ -405,7 +442,7 @@ namespace SonoCap.MES.UI.ViewModels
             #region TransducerModules
             for (int i = 1; i <= maxCnt; ++i)
             {
-                string TransducerModuleSn = "tdm-sn " + currentDate + " " + i.ToString("D6");
+                string TransducerModuleSn = "tdm-sn" + currentDate + i.ToString("D3");
                 transducerModules.Add(new TransducerModule { Sn = TransducerModuleSn, TransducerId = i });
             }
             await _transducerModuleRepository.BulkInsertAsync(transducerModules);
@@ -414,7 +451,7 @@ namespace SonoCap.MES.UI.ViewModels
             #region Probes
             for (int i = 1; i <= maxCnt; ++i)
             {
-                string ProbeSn = "SCGP01" + currentDate + " " + i.ToString("D6");
+                string ProbeSn = "SCGP01" + currentDate + i.ToString("D3");
                 probes.Add(new Probe { Sn = ProbeSn, TransducerModuleId = i, MotorModuleId = i });
             }
             await _probeRepository.BulkInsertAsync(probes);
@@ -536,13 +573,13 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [ObservableProperty]
-        private string _query;
+        private string _query = default!;
 
         [RelayCommand]
         private async Task Select1Async()
         {
-            List<Probe> res = _probeRepository.GetBySn(Query).ToList();
-            Log.Information("res:"+ res);
+            List<Probe> res = await _probeRepository.GetBySn(Query).ToListAsync();
+            Log.Information("res:" + res);
             //IEnumerable<Models.Test> enumerable = await _testRepository.GetAllAsync();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeSNSql();
             //List<ProbeTestResult> enumerable = _probeRepository.GetProbeTestResult();
@@ -560,6 +597,194 @@ namespace SonoCap.MES.UI.ViewModels
         {
             TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn 240624 001", TransducerId = 100002 };
             await _transducerModuleRepository.InsertAsync(tdMd);
+        }
+
+        [RelayCommand]
+        private async Task ImportExcelFile()
+        {
+            IEnumerable<Transducer> tds = await _transducerRepository.GetAllAsync();
+            IEnumerable<MotorModule> mtMds = await _motorModuleRepository.GetAllAsync();
+            var openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string filePath = openFileDialog.FileName;
+                // 이제 filePath를 사용하여 파일을 열 수 있습니다.
+                Log.Information($"Import {filePath}");
+
+                ExcelService excel = new ExcelService();
+
+                //IDictionary<string, List<object>> data = excel.ImportExcel(filePath, "TDSn", "TDSnDate", "MtMdSn", "MtMdSnDate");
+                var data = excel.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn", "TDSnDate", "MTLot", "MTLotDate" });
+
+                // 결과 출력
+                foreach (var kvp in data)
+                {
+                    Log.Information($"헤더: {kvp.Key}");
+                    Log.Information("값:");
+                    foreach (var value in kvp.Value)
+                    {
+                        Log.Information(value.ToString()??"");
+                    }
+                    Log.Information("\n");
+                }
+
+                Log.Information($"Import {data}");
+
+                if (data.Count > 0)
+                {
+                    //List<string?> tdSns = data.ContainsKey("TDSn") ? data["TDSn"].ConvertAll(obj => obj.ToString()) : new List<string?>();
+                    //List<DateTime> tdSnDates = data.ContainsKey("TDSnDate") ? data["TDSnDate"].ConvertAll(obj => DateTime.Parse(obj.ToString())) : new List<DateTime>();
+                    List<SnDate> tdSns = data.ContainsKey("TDSn") ? data["TDSn"] : new List<SnDate>();
+
+                    Utilities.RemoveDuplicateSnDates(ref tdSns);
+
+                    tdSns.RemoveAll(tdSn => tds.Any(td => td.Sn == tdSn.Sn));
+
+                    List<Transducer> transducers = new List<Transducer>();
+
+                    for (int i = 0; i < tdSns.Count; i++)
+                    {
+                        Transducer transducer = new()
+                        {
+                            Sn = tdSns[i].Sn,
+                            TransducerTypeId = 1,
+                            CreatedDate = tdSns[i].Date,
+                        };
+                        transducers.Add(transducer);
+                    }
+
+                    if(transducers.Count > 0)
+                    {
+                        await _transducerRepository.BulkInsertAsync(transducers);
+                    }
+
+                    List<SnDate> mtMdSns = data.ContainsKey("MTLot") ? data["MTLot"] : new List<SnDate>();
+
+                    Utilities.RemoveDuplicateSnDates(ref mtMdSns);
+                    mtMdSns.RemoveAll(mtMd => mtMds.Any(mt => mt.Sn == mtMd.Sn));
+
+                    List<MotorModule> motorModules = new List<MotorModule>();
+
+                    for (int i = 0; i < mtMdSns.Count; i++)
+                    {
+                        MotorModule motor = new()
+                        {
+                            Sn = mtMdSns[i].Sn,
+                            CreatedDate = mtMdSns[i].Date,
+                        };
+                        motorModules.Add(motor);
+                    }
+
+                    if (motorModules.Count > 0)
+                    {
+                        await _motorModuleRepository.BulkInsertAsync(motorModules);
+                    }
+                    
+                }
+            }
+        }
+
+        [RelayCommand]
+        private void SeqNoTest()
+        {
+            _sharedSeqNoRepository.UpsertSeqNoAsync(SnType.Probe);
+        }
+
+        [RelayCommand]
+        private async Task SetPTRViewAsync()
+        {
+            int cnt = await _probeRepository.SetPTRViewsAsync();
+            Log.Information($"cnt: {cnt}");
+        }
+
+        private string _searchText;
+        private ObservableCollection<string> _filteredItems;
+        private bool _isPopupOpen;
+        private int _selectedIndex;
+
+        public ObservableCollection<string> Items { get; }
+
+        public ObservableCollection<string> FilteredItems
+        {
+            get => _filteredItems;
+            private set => SetProperty(ref _filteredItems, value);
+        }
+        
+        public string SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (SetProperty(ref _searchText, value))
+                {
+                    FilterItems();
+                    IsPopupOpen = !string.IsNullOrEmpty(_searchText) && FilteredItems.Any();
+                }
+            }
+        }
+
+        public int SelectedIndex
+        {
+            get => _selectedIndex;
+            set => SetProperty(ref _selectedIndex, value);
+        }
+
+        public bool IsPopupOpen
+        {
+            get => _isPopupOpen;
+            set => SetProperty(ref _isPopupOpen, value);
+        }
+
+        public ICommand KeyDownCommand { get; }
+
+        [Logging]
+        public void FilterItems()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                FilteredItems = new ObservableCollection<string>(Items);
+            }
+            else
+            {
+                FilteredItems = new ObservableCollection<string>(
+                    Items.Where(item => item.ToLower().Contains(SearchText.ToLower())));
+            }
+        }
+
+        private void OnKeyDown(KeyEventArgs e)
+        {
+            if (e == null) return;
+
+            Log.Information($"OnKeyDown : {e.Key}");
+            if (e.Key == Key.Down)
+            {
+                if (FilteredItems.Count > 0)
+                {
+                    SelectedIndex = (SelectedIndex + 1) % FilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (FilteredItems.Count > 0)
+                {
+                    SelectedIndex = (SelectedIndex - 1 + FilteredItems.Count) % FilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (SelectedIndex >= 0 && SelectedIndex < FilteredItems.Count)
+                {
+                    SearchText = FilteredItems[SelectedIndex];
+                    IsPopupOpen = false;
+                }
+            }
+        }
+
+        [RelayCommand]
+        private async Task GetSnsAsync()
+        {
+            List<Transducer> aa = await _transducerRepository.GetFilterItems(Query).ToListAsync();
+            Log.Information($"Count: {aa.Count}, \nItems: {string.Join("\n", aa)}");
         }
     }
 }
