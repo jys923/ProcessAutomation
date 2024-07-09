@@ -1090,8 +1090,6 @@ namespace SonoCap.MES.UI.ViewModels
             ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
             ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
             ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요." };
-            //ValidationDict[nameof(SelectedDate)] = new ValidationItem { IsValid = true };
-            //ValidationDict[nameof(SeqNo)] = new ValidationItem { WaterMarkText = $"{nameof(SeqNo)}을 입력 하세요." };
             ValidationDict[nameof(MTMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
             ValidationDict[nameof(TestResult)] = new ValidationItem { };
 
@@ -1105,11 +1103,7 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-
-            // PropertyChanged 이벤트 핸들러 추가
-            //PropertyChanged += OnDateSeqNoChanged;
         }
-
         private async void LogIn()
         {
             Tester tester = new Tester { Name = "yoon", PcId = 1 };
@@ -2035,26 +2029,105 @@ namespace SonoCap.MES.UI.ViewModels
             }
 
         private ImageSource BitmapToImageSource(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                return null;
+
+            using (MemoryStream stream = new MemoryStream())
             {
-                if (bitmap == null)
-                    return null;
+                // 비트맵을 MemoryStream에 복사합니다.
+                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
+
+                // 비트맵 이미지를 생성하고 반환합니다.
+                BitmapImage imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                imageSource.StreamSource = stream;
+                imageSource.EndInit();
+
+                return imageSource;
+            }
+        }
+
+        private byte[] ImageSourceToByteArray(ImageSource imageSource)
+        {
+            if (imageSource == null)
+                throw new ArgumentNullException(nameof(imageSource));
+
+            try
+            {
+                BitmapSource bitmapSource = imageSource as BitmapSource;
+                if (bitmapSource == null)
+                    throw new ArgumentException("Invalid ImageSource type.");
+
+                byte[] bytes;
+                BitmapEncoder encoder = new BmpBitmapEncoder(); // You can choose other encoders like PngBitmapEncoder, JpegBitmapEncoder, etc.
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
 
                 using (MemoryStream stream = new MemoryStream())
                 {
-                    // 비트맵을 MemoryStream에 복사합니다.
-                    bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                    encoder.Save(stream);
+                    bytes = stream.ToArray();
+                }
 
-                    stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
+                return bytes;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as needed
+                Console.WriteLine(ex.ToString());
+                return null;
+            }
+        }
 
-                    // 비트맵 이미지를 생성하고 반환합니다.
-                    BitmapImage imageSource = new BitmapImage();
-                    imageSource.BeginInit();
-                    imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                    imageSource.StreamSource = stream;
-                    imageSource.EndInit();
+        private byte[] BitmapImageToByteArray(BitmapImage bitmapImage)
+        {
+            if (bitmapImage == null)
+                throw new ArgumentNullException(nameof(bitmapImage));
 
-                    return imageSource;
+            try
+            {
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    BitmapEncoder encoder = new BmpBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
+                    encoder.Save(stream);
+
+                    return stream.ToArray();
                 }
             }
-     }
+            catch (Exception ex)
+            {
+                Log.Information(ex.ToString());
+                return null;
+            }
+        }
+        
+        private BitmapImage LoadBitmapImage(string filePath)
+        {
+            try
+            {
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException($"The file {filePath} does not exist.");
+                }
+
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.UriSource = new Uri(filePath, UriKind.RelativeOrAbsolute);
+                bitmap.EndInit();
+                bitmap.Freeze(); // Freezing the image to make it cross-thread accessible
+
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                Log.Information(ex.ToString());
+                return null;
+            }
+        }
+    }
 }
