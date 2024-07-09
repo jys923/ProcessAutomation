@@ -33,43 +33,14 @@ namespace SonoCap.MES.UI.ViewModels
         private string _title = default!;
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        private string _probeSn = default!;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        private string _tDMdSn = default!;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        private string _tDSn = default!;
-
-        //[ObservableProperty]
-        //private bool _addTDSnIsEnabled = default!;
-
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        private DateTime _selectedDate = DateTime.Now;
-
-        [ObservableProperty]
         private string _currentTime = DateTime.Today.ToString("yyyy-MM-dd");
 
-        //[ObservableProperty]
-        //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        //[NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        //private string _seqNo = default!;
-
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        private string _mTMdSn = default!;
+        private ObservableDictionary<string, ValidationItem> _validationDict = new();
 
-        [ObservableProperty] 
-        private bool _addMTMdSnIsEnabled = default!;
+        [ObservableProperty]
+        private ObservableDictionary<int, ObservableBrush> _borderBackgrounds = new();
 
         [ObservableProperty]
         private int _blinkingCellIndex = -1;
@@ -78,6 +49,262 @@ namespace SonoCap.MES.UI.ViewModels
         private int _oldCol = -1;
         private CellPositions _oldCell = (CellPositions)(-1);
 
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        private string _tDSn = default!;
+        
+        [ObservableProperty]
+        private bool _tDSnIsPopupOpen;
+
+        [ObservableProperty]
+        private int _tDSnSelectedIndex;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _tDSnFilteredItems;
+
+        private void TDSnFilterItems()
+        {
+            if (string.IsNullOrWhiteSpace(TDSn))
+            {
+
+                TDSnFilteredItems = new ObservableCollection<string>();
+            }
+            else
+            {
+                List<string> items = _transducerRepository.GetFilterItems(TDSn).Select(m => m.Sn).ToList();
+
+                TDSnFilteredItems = new ObservableCollection<string>(items);
+            }
+        }
+
+        [RelayCommand]
+        private void TDSnKeyDown(KeyEventArgs e)
+        {
+            if (e == null) return;
+
+            Log.Information($"TDSnKeyDown : {e.Key}");
+            if (e.Key == Key.Down)
+            {
+                if (TDSnFilteredItems.Count > 0)
+                {
+                    TDSnSelectedIndex = (TDSnSelectedIndex + 1) % TDSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (TDSnFilteredItems.Count > 0)
+                {
+                    TDSnSelectedIndex = (TDSnSelectedIndex - 1 + TDSnFilteredItems.Count) % TDSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (TDSnSelectedIndex >= 0 && TDSnSelectedIndex < TDSnFilteredItems.Count)
+                {
+                    TDSn = TDSnFilteredItems[TDSnSelectedIndex];
+                    TDSnIsPopupOpen = false;
+                }
+            }
+            else if (e.Key == Key.Tab)
+            {
+                TDSnIsPopupOpen = false;
+            }
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        private string _tDMdSn = default!;
+
+        [ObservableProperty]
+        private bool _tDMdSnIsPopupOpen;
+
+        [ObservableProperty]
+        private int _tDMdSnSelectedIndex;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _tDMdSnFilteredItems;
+
+        private void TDMdSnFilterItems()
+        {
+            if (string.IsNullOrWhiteSpace(TDMdSn))
+            {
+
+                TDMdSnFilteredItems = new ObservableCollection<string>();
+            }
+            else
+            {
+                List<string> items = _transducerModuleRepository.GetFilterItems(TDMdSn).Select(m => m.Sn).ToList();
+
+                TDMdSnFilteredItems = new ObservableCollection<string>(items);
+            }
+        }
+
+        [RelayCommand]
+        private void TDMdSnKeyDown(KeyEventArgs e)
+        {
+            if (e == null) return;
+
+            Log.Information($"TDMdSnKeyDown : {e.Key}");
+            if (e.Key == Key.Down)
+            {
+                if (TDMdSnFilteredItems.Count > 0)
+                {
+                    TDMdSnSelectedIndex = (TDMdSnSelectedIndex + 1) % TDMdSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (TDMdSnFilteredItems.Count > 0)
+                {
+                    TDMdSnSelectedIndex = (TDMdSnSelectedIndex - 1 + TDMdSnFilteredItems.Count) % TDSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (TDMdSnSelectedIndex >= 0 && TDMdSnSelectedIndex < TDMdSnFilteredItems.Count)
+                {
+                    TDMdSn = TDMdSnFilteredItems[TDMdSnSelectedIndex];
+                    TDMdSnIsPopupOpen = false;
+                }
+            }
+            else if (e.Key == Key.Tab)
+            {
+                TDMdSnIsPopupOpen = false;
+            }
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        private string _mTMdSn = default!;
+
+        [ObservableProperty]
+        private bool _mTMdSnIsPopupOpen;
+
+        [ObservableProperty]
+        private int _mTMdSnSelectedIndex;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _mTMdSnFilteredItems;
+        
+        private void MTMdSnFilterItems()
+        {
+            if (string.IsNullOrWhiteSpace(MTMdSn))
+            {
+
+                MTMdSnFilteredItems = new ObservableCollection<string>();
+            }
+            else
+            {
+                List<string> items = _motorModuleRepository.GetFilterItems(MTMdSn).Select(m => m.Sn).ToList();
+
+                MTMdSnFilteredItems = new ObservableCollection<string>(items);
+            }
+        }
+
+        [RelayCommand]
+        private void MTMdSnKeyDown(KeyEventArgs e)
+        {
+            if (e == null) return;
+
+            Log.Information($"MTMdSnOnKeyDown : {e.Key}");
+            if (e.Key == Key.Down)
+            {
+                if (MTMdSnFilteredItems.Count > 0)
+                {
+                    MTMdSnSelectedIndex = (MTMdSnSelectedIndex + 1) % MTMdSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (MTMdSnFilteredItems.Count > 0)
+                {
+                    MTMdSnSelectedIndex = (MTMdSnSelectedIndex - 1 + MTMdSnFilteredItems.Count) % MTMdSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (MTMdSnSelectedIndex >= 0 && MTMdSnSelectedIndex < MTMdSnFilteredItems.Count)
+                {
+                    MTMdSn = MTMdSnFilteredItems[MTMdSnSelectedIndex];
+                    MTMdSnIsPopupOpen = false;
+                }
+            }
+            else if (e.Key == Key.Tab)
+            {
+                MTMdSnIsPopupOpen = false;
+            }
+        }
+        
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        private string _probeSn = default!;
+
+        [ObservableProperty]
+        private bool _probeSnIsPopupOpen;
+
+        [ObservableProperty]
+        private int _probeSnSelectedIndex;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _probeSnFilteredItems;
+
+        private void ProbeSnFilterItems()
+        {
+            if (string.IsNullOrWhiteSpace(ProbeSn))
+            {
+
+                ProbeSnFilteredItems = new ObservableCollection<string>();
+            }
+            else
+            {
+                List<string> items = _probeRepository.GetFilterItems(ProbeSn).Select(m => m.Sn).ToList();
+
+                ProbeSnFilteredItems = new ObservableCollection<string>(items);
+            }
+        }
+
+        [RelayCommand]
+        private void ProbeSnKeyDown(KeyEventArgs e)
+        {
+            if (e == null) return;
+
+            Log.Information($"ProbeSnKeyDown : {e.Key}");
+            if (e.Key == Key.Down)
+            {
+                if (ProbeSnFilteredItems.Count > 0)
+                {
+                    ProbeSnSelectedIndex = (ProbeSnSelectedIndex + 1) % ProbeSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (ProbeSnFilteredItems.Count > 0)
+                {
+                    ProbeSnSelectedIndex = (ProbeSnSelectedIndex - 1 + ProbeSnFilteredItems.Count) % ProbeSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (ProbeSnSelectedIndex >= 0 && ProbeSnSelectedIndex < ProbeSnFilteredItems.Count)
+                {
+                    ProbeSn = ProbeSnFilteredItems[ProbeSnSelectedIndex];
+                    ProbeSnIsPopupOpen = false;
+                }
+            }
+            else if (e.Key == Key.Tab)
+            {
+                ProbeSnIsPopupOpen = false;
+            }
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        private int _testResult = default!;
+        
         [ObservableProperty]
         private BitmapImage _srcImg = default!;
 
@@ -91,28 +318,17 @@ namespace SonoCap.MES.UI.ViewModels
         private ObservableCollection<string> _resLogs = new ObservableCollection<string>();
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-        private int _testResult = default!;
-
-        [ObservableProperty]
         private string _selectedLogItem = default!;
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private ObservableDictionary<string, ValidationItem> _validationDict = new();
-
-        [ObservableProperty]
-        private ObservableDictionary<int, ObservableBrush> _borderBackgrounds = new();
-
-        private Probe? _probe { get; set; }
-        private TransducerModule? _transducerModule { get; set; }
         private Transducer? _transducer { get; set; }
+        private TransducerModule? _transducerModule { get; set; }
         private MotorModule? _motorModule { get; set; }
-        private TestCategories _testCategory { get; set; }
-        private TestTypes _testType { get; set; }
+        private Probe? _probe { get; set; }
+        private PTRView? _pTRView { get; set; }
+        private TestCategories _testCategory { get; set; } = default!;
+        private TestTypes _testType { get; set; } = default!;
         private Test? _test { get; set; }
         private Tester? _tester { get; set; }
-        private PTRView? _pTRView { get; set; }
 
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -165,349 +381,22 @@ namespace SonoCap.MES.UI.ViewModels
 
         }
 
-        partial void OnProbeSnChanged(string value)
-        {
-            ProbeSnFilterItems();
-            ProbeSnIsPopupOpen = !string.IsNullOrEmpty(value) && ProbeSnFilteredItems.Any();
-            ChangeIsEnabled(TestCategories.Dispatch);
-            ClearValidatingWaterMark();
-
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            _motorModule = null;
-            _pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
-
-            List<Test> tests;
-            //정규 표현식 검증 추가
-            if (value.Length > 10)
-            {
-                Log.Information($"Probe sn {value}");
-                if (!IsExistsBySn(SnType.Probe, value))
-                {
-                    //ProbeSn Is Not Exist
-                    //SetValidating(nameof(ProbeSn), "ProbeSn Is Not Exist");
-                    ValidateField(nameof(ProbeSn), "ProbeSn Is Not Exist");
-                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-                }
-                else
-                {
-                    //ClearValidating(nameof(ProbeSn));
-                    SetBySn(SnType.Probe, value);
-                    ValidateField(nameof(ProbeSn));
-                    ValidationDict[nameof(TDMdSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDMdSn)].WaterMarkText = _probe.TransducerModule.Sn;
-                    ValidationDict[nameof(MTMdSn)].IsEnabled = false;
-                    ValidationDict[nameof(MTMdSn)].WaterMarkText = _probe.MotorModule.Sn;
-                    ValidationDict[nameof(TDSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDSn)].WaterMarkText = _probe.TransducerModule.Transducer.Sn;
-
-                    tests = GetTestById(SnType.Probe, _probe.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    tests = GetTestById(SnType.TransducerModule, _probe.TransducerModule.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    tests = GetTestById(SnType.Transducer, _probe.TransducerModule.Transducer.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-                }
-            }
-            else
-            {
-                ValidateField(nameof(ProbeSn), "ProbeSn Is Not Valid");
-                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-            }
-        }
-        
-        partial void OnTDMdSnChanged(string value)
-        {
-            TDMdSnFilterItems();
-            TDMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && TDMdSnFilteredItems.Any();
-
-            ChangeIsEnabled(TestCategories.Process);
-            ClearValidatingWaterMark();
-
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            _motorModule = null;
-            _pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
-
-            List<Test> tests;
-            //정규 표현식 검증 추가
-            if (value.Length > 10)
-            {
-                Log.Information($"TransducerModule sn {value}");
-                if (!IsExistsBySn(SnType.TransducerModule, value))
-                {
-                    ValidateField(nameof(TDMdSn), "TDMdSn Is Not Exist");
-                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-                }
-                else
-                {
-                    SetBySn(SnType.TransducerModule, value);
-                    ValidateField(nameof(TDMdSn));
-                    ValidationDict[nameof(TDSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDSn)].WaterMarkText = _transducerModule.Transducer.Sn;
-
-                    tests = GetTestById(SnType.TransducerModule, _transducerModule.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    tests = GetTestById(SnType.Transducer, _transducerModule.Transducer.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    IQueryable<Probe> query = _probeRepository.GetQueryable();
-                    query = from probes in query
-                            where probes.TransducerModuleId == _transducerModule.Id
-                            orderby probes.Id descending
-                            select probes;
-
-                    _probe = query.FirstOrDefault();
-
-                    if (_probe is null)
-                        return;
-
-                    _motorModule = _probe.MotorModule;
-                    ////probe.Sn UPAG1240625005 에서 seqNo 파싱
-                    ////string pattern = @"^.{5}(2[0-9]|19|20)(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([0-9]{3})$";
-                    //string pattern = @"^.{11}([0-9]{3})$";
-                    //string getSeq = ExtractReqExr(_probe.Sn, pattern);
-                    ////int seq = !string.IsNullOrEmpty(getSeq) ? int.Parse(getSeq) : 0;
-                    //if (!string.IsNullOrEmpty(getSeq))
-                    //{
-                    //    SeqNo = getSeq;
-                    //    ValidateField(nameof(SeqNo));
-                    //}
-                    //SelectedDate = _probe.CreatedDate;
-                    //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].WaterMarkText = SeqNo;
-                    ValidationDict[nameof(ProbeSn)].IsEnabled = false;
-                    ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
-
-                    tests = GetTestById(SnType.Probe, _probe.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-                }
-            }
-            else
-            {
-                ValidateField(nameof(TDMdSn), "TDMdSn Is Not Valid");
-                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-            }
-        }
-
-        partial void OnTDSnChanged(string value)
-        {
-            TDSnFilterItems();
-            TDSnIsPopupOpen = !string.IsNullOrEmpty(value) && TDSnFilteredItems.Any();
-
-            ChangeIsEnabled(TestCategories.Processing);
-            ClearValidatingWaterMark();
-            
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            _motorModule = null;
-            _pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
-
-            List<Test> tests;
-            //정규 표현식 검증 추가
-            if (value.Length > 10)
-            {
-                Log.Information($"Transducer sn {value}");
-                if (!IsExistsBySn(SnType.Transducer, value))
-                {
-                    ValidateField(nameof(TDSn), "TDSn Is Not Exist");
-                    //AddTDSnIsEnabled = true;
-                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-                }
-                else
-                {
-                    SetBySn(SnType.Transducer, value);
-                    ValidateField(nameof(TDSn));
-
-                    tests = GetTestById(SnType.Transducer, _transducer!.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    IQueryable<TransducerModule> query = _transducerModuleRepository.GetQueryable();
-                    query = from transducerModules in query
-                            where transducerModules.TransducerId == _transducer.Id
-                            orderby transducerModules.Id descending
-                            select transducerModules;
-
-                    _transducerModule = query.FirstOrDefault();
-
-                    if (_transducerModule is null)
-                        return;
-                    
-                    ValidationDict[nameof(TDMdSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDMdSn)].WaterMarkText = _transducerModule.Sn;
-
-                    //transducerModule.Sn 에서 seqNo 파싱
-                    //숫자 3자리로 끝남
-                    //string pattern = @"^.*(\d{3})$";
-                    //string getSeq = ExtractReqExr(_transducerModule.Sn, pattern);
-                    ////int seq = !string.IsNullOrEmpty(getSeq) ? int.Parse(getSeq) : 0;
-                    //if (!string.IsNullOrEmpty(getSeq))
-                    //{
-                    //    SeqNo = getSeq;
-                    //    ValidateField(nameof(SeqNo));
-                    //}  
-                    //SelectedDate = _transducerModule.CreatedDate;
-                    //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].WaterMarkText = SeqNo;
-
-                    tests = GetTestById(SnType.TransducerModule, _transducerModule.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    IQueryable<Probe> queryProbe = _probeRepository.GetQueryable();
-                    queryProbe = from probes in queryProbe
-                                 where probes.TransducerModuleId == _transducerModule.Id
-                                 orderby probes.Id descending
-                                 select probes;
-
-                    _probe = queryProbe.FirstOrDefault();
-
-                    if (_probe is null)
-                        return;
-                    
-                    ValidationDict[nameof(ProbeSn)].IsEnabled = false;
-                    ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
-                    ValidationDict[nameof(MTMdSn)].WaterMarkText = _probe.MotorModule.Sn;
-
-                    tests = GetTestById(SnType.Probe, _probe.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-                }
-            }
-            else
-            {
-                ValidateField(nameof(TDSn), "TDSn Is Not Valid");
-                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-            }
-
-
-        }
-
+        //public void UIElement_OnKeyDown(object sender, KeyEventArgs e)
         [RelayCommand]
-        public void TDSnDB()
+        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
         {
-            Log.Information("TDSnDB");
-        }
-
-        partial void OnSelectedDateChanged(DateTime value)
-        {
-            //throw new NotImplementedException();
-        }
-
-        //private void OnDateSeqNoChanged(object? sender, PropertyChangedEventArgs e)
-        //{
-        //    if (e.PropertyName == nameof(SelectedDate) || e.PropertyName == nameof(SeqNo))
-        //    {
-        //        OnDateSeqNoChanged();
-        //    }
-        //}
-
-        //private void OnDateSeqNoChanged()
-        //{
-        //    string pattern = @"^[0-9]{3}$";
-        //    bool isMatch = IsMatchReqExr(SeqNo, pattern);
-
-        //    if (!isMatch)
-        //    {
-        //        ValidateField(nameof(SeqNo), "SeqNo Need 3 Digit");
-        //    }
-        //    else
-        //    {
-        //        ValidateField(nameof(SeqNo));
-        //        switch (_testCategory)
-        //        {
-        //            case TestCategories.Processing:
-        //                if (IsExistsBySn(SnType.TransducerModule, $"tdm-sn{SelectedDate.ToString("yyMMdd")}{SeqNo}"))
-        //                {
-        //                    ValidateField(nameof(SeqNo), "SeqNo Is Duplicate");
-        //                }
-        //                break;
-        //            case TestCategories.Process:
-        //                if (IsExistsBySn(SnType.Probe, $"UPAG1{SelectedDate.ToString("yyMMdd")}{SeqNo}"))
-        //                {
-        //                    ValidateField(nameof(SeqNo), "SeqNo Is Duplicate");
-        //                }
-        //                break;
-        //        }
-        //    }
-        //}
-
-        partial void OnMTMdSnChanged(string value)
-        {
-            MTMdSnFilterItems();
-            MTMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && MTMdSnFilteredItems.Any();
-            //_probe = null;
-            //_transducerModule = null;
-            //_transducer = null;
-            //_motorModule = null;
-            //_pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
-            //정규 표현식 검증 추가
-            if (value.Length > 5)
+            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
+            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
+            if (key == Key.F10)
             {
-                Log.Information($"MTMdSn sn {value}");
-                if (!IsExistsBySn(SnType.MotorModule, value))
+                // NextCommand CanExecute 상태를 갱신합니다.
+                (NextCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+
+                // Next 메서드를 호출합니다.
+                if (NextCommand.CanExecute(null))
                 {
-                    ValidateField(nameof(MTMdSn), "MTMdSn Is Not Exist");
+                    await NextCommand.ExecuteAsync(null);
                 }
-                else
-                {
-                    SetBySn(SnType.MotorModule, value);
-                    ValidateField(nameof(MTMdSn));
-                }
-            }
-            else
-            {
-                ValidateField(nameof(MTMdSn), "MTMdSn Is Not Valid");
             }
         }
 
@@ -634,6 +523,303 @@ namespace SonoCap.MES.UI.ViewModels
             if (TestCommand.CanExecute(null))
             {
                 TestCommand.Execute(null);
+            }
+        }
+
+        partial void OnTDSnChanged(string value)
+        {
+            TDSnFilterItems();
+            TDSnIsPopupOpen = !string.IsNullOrEmpty(value) && TDSnFilteredItems.Any();
+
+            ChangeIsEnabled(TestCategories.Processing);
+            ClearValidatingWaterMark();
+            
+            _probe = null;
+            _transducerModule = null;
+            _transducer = null;
+            _motorModule = null;
+            _pTRView = null;
+            //SelectedDate = DateTime.Now;
+            //SeqNo = "";
+
+            List<Test> tests;
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                Log.Information($"Transducer sn {value}");
+                if (!IsExistsBySn(SnType.Transducer, value))
+                {
+                    ValidateField(nameof(TDSn), "TDSn Is Not Exist");
+                    //AddTDSnIsEnabled = true;
+                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                }
+                else
+                {
+                    SetBySn(SnType.Transducer, value);
+                    ValidateField(nameof(TDSn));
+
+                    tests = GetTestById(SnType.Transducer, _transducer!.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+
+                    IQueryable<TransducerModule> query = _transducerModuleRepository.GetQueryable();
+                    query = from transducerModules in query
+                            where transducerModules.TransducerId == _transducer.Id
+                            orderby transducerModules.Id descending
+                            select transducerModules;
+
+                    _transducerModule = query.FirstOrDefault();
+
+                    if (_transducerModule is null)
+                        return;
+                    
+                    ValidationDict[nameof(TDMdSn)].IsEnabled = false;
+                    ValidationDict[nameof(TDMdSn)].WaterMarkText = _transducerModule.Sn;
+
+                    //transducerModule.Sn 에서 seqNo 파싱
+                    //숫자 3자리로 끝남
+                    //string pattern = @"^.*(\d{3})$";
+                    //string getSeq = ExtractReqExr(_transducerModule.Sn, pattern);
+                    ////int seq = !string.IsNullOrEmpty(getSeq) ? int.Parse(getSeq) : 0;
+                    //if (!string.IsNullOrEmpty(getSeq))
+                    //{
+                    //    SeqNo = getSeq;
+                    //    ValidateField(nameof(SeqNo));
+                    //}  
+                    //SelectedDate = _transducerModule.CreatedDate;
+                    //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
+                    //ValidationDict[nameof(SeqNo)].IsEnabled = false;
+                    //ValidationDict[nameof(SeqNo)].WaterMarkText = SeqNo;
+
+                    tests = GetTestById(SnType.TransducerModule, _transducerModule.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+
+                    IQueryable<Probe> queryProbe = _probeRepository.GetQueryable();
+                    queryProbe = from probes in queryProbe
+                                 where probes.TransducerModuleId == _transducerModule.Id
+                                 orderby probes.Id descending
+                                 select probes;
+
+                    _probe = queryProbe.FirstOrDefault();
+
+                    if (_probe is null)
+                        return;
+                    
+                    ValidationDict[nameof(ProbeSn)].IsEnabled = false;
+                    ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
+                    ValidationDict[nameof(MTMdSn)].WaterMarkText = _probe.MotorModule.Sn;
+
+                    tests = GetTestById(SnType.Probe, _probe.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+                }
+            }
+            else
+            {
+                ValidateField(nameof(TDSn), "TDSn Is Not Valid");
+                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+            }
+
+
+        }
+        
+        partial void OnTDMdSnChanged(string value)
+        {
+            TDMdSnFilterItems();
+            TDMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && TDMdSnFilteredItems.Any();
+
+            ChangeIsEnabled(TestCategories.Process);
+            ClearValidatingWaterMark();
+
+            _probe = null;
+            _transducerModule = null;
+            _transducer = null;
+            _motorModule = null;
+            _pTRView = null;
+            //SelectedDate = DateTime.Now;
+            //SeqNo = "";
+
+            List<Test> tests;
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                Log.Information($"TransducerModule sn {value}");
+                if (!IsExistsBySn(SnType.TransducerModule, value))
+                {
+                    ValidateField(nameof(TDMdSn), "TDMdSn Is Not Exist");
+                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                }
+                else
+                {
+                    SetBySn(SnType.TransducerModule, value);
+                    ValidateField(nameof(TDMdSn));
+                    ValidationDict[nameof(TDSn)].IsEnabled = false;
+                    ValidationDict[nameof(TDSn)].WaterMarkText = _transducerModule.Transducer.Sn;
+
+                    tests = GetTestById(SnType.TransducerModule, _transducerModule.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+
+                    tests = GetTestById(SnType.Transducer, _transducerModule.Transducer.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+
+                    IQueryable<Probe> query = _probeRepository.GetQueryable();
+                    query = from probes in query
+                            where probes.TransducerModuleId == _transducerModule.Id
+                            orderby probes.Id descending
+                            select probes;
+
+                    _probe = query.FirstOrDefault();
+
+                    if (_probe is null)
+                        return;
+
+                    _motorModule = _probe.MotorModule;
+                    ////probe.Sn UPAG1240625005 에서 seqNo 파싱
+                    ////string pattern = @"^.{5}(2[0-9]|19|20)(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([0-9]{3})$";
+                    //string pattern = @"^.{11}([0-9]{3})$";
+                    //string getSeq = ExtractReqExr(_probe.Sn, pattern);
+                    ////int seq = !string.IsNullOrEmpty(getSeq) ? int.Parse(getSeq) : 0;
+                    //if (!string.IsNullOrEmpty(getSeq))
+                    //{
+                    //    SeqNo = getSeq;
+                    //    ValidateField(nameof(SeqNo));
+                    //}
+                    //SelectedDate = _probe.CreatedDate;
+                    //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
+                    //ValidationDict[nameof(SeqNo)].IsEnabled = false;
+                    //ValidationDict[nameof(SeqNo)].WaterMarkText = SeqNo;
+                    ValidationDict[nameof(ProbeSn)].IsEnabled = false;
+                    ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
+
+                    tests = GetTestById(SnType.Probe, _probe.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+                }
+            }
+            else
+            {
+                ValidateField(nameof(TDMdSn), "TDMdSn Is Not Valid");
+                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+            }
+        }
+
+        partial void OnMTMdSnChanged(string value)
+        {
+            MTMdSnFilterItems();
+            MTMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && MTMdSnFilteredItems.Any();
+            //_probe = null;
+            //_transducerModule = null;
+            //_transducer = null;
+            //_motorModule = null;
+            //_pTRView = null;
+            //SelectedDate = DateTime.Now;
+            //SeqNo = "";
+            //정규 표현식 검증 추가
+            if (value.Length > 5)
+            {
+                Log.Information($"MTMdSn sn {value}");
+                if (!IsExistsBySn(SnType.MotorModule, value))
+                {
+                    ValidateField(nameof(MTMdSn), "MTMdSn Is Not Exist");
+                }
+                else
+                {
+                    SetBySn(SnType.MotorModule, value);
+                    ValidateField(nameof(MTMdSn));
+                }
+            }
+            else
+            {
+                ValidateField(nameof(MTMdSn), "MTMdSn Is Not Valid");
+            }
+        }
+        
+        partial void OnProbeSnChanged(string value)
+        {
+            ProbeSnFilterItems();
+            ProbeSnIsPopupOpen = !string.IsNullOrEmpty(value) && ProbeSnFilteredItems.Any();
+            ChangeIsEnabled(TestCategories.Dispatch);
+            ClearValidatingWaterMark();
+
+            _probe = null;
+            _transducerModule = null;
+            _transducer = null;
+            _motorModule = null;
+            _pTRView = null;
+            //SelectedDate = DateTime.Now;
+            //SeqNo = "";
+
+            List<Test> tests;
+            //정규 표현식 검증 추가
+            if (value.Length > 10)
+            {
+                Log.Information($"Probe sn {value}");
+                if (!IsExistsBySn(SnType.Probe, value))
+                {
+                    //ProbeSn Is Not Exist
+                    //SetValidating(nameof(ProbeSn), "ProbeSn Is Not Exist");
+                    ValidateField(nameof(ProbeSn), "ProbeSn Is Not Exist");
+                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                }
+                else
+                {
+                    //ClearValidating(nameof(ProbeSn));
+                    SetBySn(SnType.Probe, value);
+                    ValidateField(nameof(ProbeSn));
+                    ValidationDict[nameof(TDMdSn)].IsEnabled = false;
+                    ValidationDict[nameof(TDMdSn)].WaterMarkText = _probe.TransducerModule.Sn;
+                    ValidationDict[nameof(MTMdSn)].IsEnabled = false;
+                    ValidationDict[nameof(MTMdSn)].WaterMarkText = _probe.MotorModule.Sn;
+                    ValidationDict[nameof(TDSn)].IsEnabled = false;
+                    ValidationDict[nameof(TDSn)].WaterMarkText = _probe.TransducerModule.Transducer.Sn;
+
+                    tests = GetTestById(SnType.Probe, _probe.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+
+                    tests = GetTestById(SnType.TransducerModule, _probe.TransducerModule.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+
+                    tests = GetTestById(SnType.Transducer, _probe.TransducerModule.Transducer.Id);
+                    foreach (var item in tests)
+                    {
+                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                        SetCellPassFail(item, cellPosition);
+                    }
+                }
+            }
+            else
+            {
+                ValidateField(nameof(ProbeSn), "ProbeSn Is Not Valid");
+                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
             }
         }
 
@@ -950,25 +1136,6 @@ namespace SonoCap.MES.UI.ViewModels
             
         }
 
-        //public void UIElement_OnKeyDown(object sender, KeyEventArgs e)
-        [RelayCommand]
-        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
-        {
-            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
-            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
-            if (key == Key.F10)
-            {
-                // NextCommand CanExecute 상태를 갱신합니다.
-                (NextCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-
-                // Next 메서드를 호출합니다.
-                if (NextCommand.CanExecute(null))
-                {
-                    await NextCommand.ExecuteAsync(null);
-                }
-            }
-        }
-
         private void Init()
         {
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -1050,13 +1217,8 @@ namespace SonoCap.MES.UI.ViewModels
             ValidationDict[nameof(TDMdSn)].IsEnabled = false;
             TDSn = "";
             ValidationDict[nameof(TDSn)].IsEnabled = false;
-            //AddTDSnIsEnabled = false;
-            //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
-            //SeqNo = "";
-            //ValidationDict[nameof(SeqNo)].IsEnabled = false;
             MTMdSn = "";
             ValidationDict[nameof(MTMdSn)].IsEnabled = false;
-            AddMTMdSnIsEnabled = false;
             SrcImg = default!;
             ResImg = default!;
             TestResult = -2;
@@ -1077,38 +1239,24 @@ namespace SonoCap.MES.UI.ViewModels
                     ProbeSn = "";
                     TDMdSn = "";
                     MTMdSn = "";
-                    //TDSn = "";
                     break;
                 case TestCategories.Process:
                     ProbeSn = "";
-                    //TDMdSn = "";
-                    //MTMdSn = "";
                     TDSn = "";
                     break;
                 case TestCategories.Dispatch:
-                    //ProbeSn = "";
                     TDMdSn = "";
                     MTMdSn = "";
                     TDSn = "";
                     break;
             }
-            //ProbeSn = "";
             ValidationDict[nameof(ProbeSn)].IsEnabled = false;
-            //TDMdSn = "";
             ValidationDict[nameof(TDMdSn)].IsEnabled = false;
-            //TDSn = "";
             ValidationDict[nameof(TDSn)].IsEnabled = false;
-            //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
-            //SeqNo = "";
-            //ValidationDict[nameof(SeqNo)].IsEnabled = false;
-            //MTMdSn = "";
             ValidationDict[nameof(MTMdSn)].IsEnabled = false;
-            AddMTMdSnIsEnabled = false;
             SrcImg = default!;
             ResImg = default!;
             TestResult = -2;
-            //TestIsEnabled = false;
-            //NextIsEnabled = false;
             _probe = null;
             _transducerModule = null;
             _transducer = null;
@@ -1942,236 +2090,5 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        [ObservableProperty]
-        private bool _mTMdSnIsPopupOpen;
-
-        [ObservableProperty]
-        private int _mTMdSnSelectedIndex;
-
-        [ObservableProperty]
-        private ObservableCollection<string> _mTMdSnFilteredItems;
-
-        private void MTMdSnFilterItems()
-        {
-            if (string.IsNullOrWhiteSpace(MTMdSn))
-            {
-
-                MTMdSnFilteredItems = new ObservableCollection<string>();
-            }
-            else
-            {
-                List<string> items = _motorModuleRepository.GetFilterItems(MTMdSn).Select(m => m.Sn).ToList();
-
-                MTMdSnFilteredItems = new ObservableCollection<string>(items);
-            }
-        }
-
-        [RelayCommand]
-        private void MTMdSnKeyDown(KeyEventArgs e)
-        {
-            if (e == null) return;
-
-            Log.Information($"MTMdSnOnKeyDown : {e.Key}");
-            if (e.Key == Key.Down)
-            {
-                if (MTMdSnFilteredItems.Count > 0)
-                {
-                    MTMdSnSelectedIndex = (MTMdSnSelectedIndex + 1) % MTMdSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (MTMdSnFilteredItems.Count > 0)
-                {
-                    MTMdSnSelectedIndex = (MTMdSnSelectedIndex - 1 + MTMdSnFilteredItems.Count) % MTMdSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (MTMdSnSelectedIndex >= 0 && MTMdSnSelectedIndex < MTMdSnFilteredItems.Count)
-                {
-                    MTMdSn = MTMdSnFilteredItems[MTMdSnSelectedIndex];
-                    MTMdSnIsPopupOpen = false;
-                }
-            }
-            else if (e.Key == Key.Tab)
-            {
-                MTMdSnIsPopupOpen = false;
-            }
-        }
-
-        [ObservableProperty]
-        private bool _tDSnIsPopupOpen;
-
-        [ObservableProperty]
-        private int _tDSnSelectedIndex;
-
-        [ObservableProperty]
-        private ObservableCollection<string> _tDSnFilteredItems;
-
-        private void TDSnFilterItems()
-        {
-            if (string.IsNullOrWhiteSpace(TDSn))
-            {
-
-                TDSnFilteredItems = new ObservableCollection<string>();
-            }
-            else
-            {
-                List<string> items = _transducerRepository.GetFilterItems(TDSn).Select(m => m.Sn).ToList();
-
-                TDSnFilteredItems = new ObservableCollection<string>(items);
-            }
-        }
-
-        [RelayCommand]
-        private void TDSnKeyDown(KeyEventArgs e)
-        {
-            if (e == null) return;
-
-            Log.Information($"TDSnKeyDown : {e.Key}");
-            if (e.Key == Key.Down)
-            {
-                if (TDSnFilteredItems.Count > 0)
-                {
-                    TDSnSelectedIndex = (TDSnSelectedIndex + 1) % TDSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (TDSnFilteredItems.Count > 0)
-                {
-                    TDSnSelectedIndex = (TDSnSelectedIndex - 1 + TDSnFilteredItems.Count) % TDSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (TDSnSelectedIndex >= 0 && TDSnSelectedIndex < TDSnFilteredItems.Count)
-                {
-                    TDSn = TDSnFilteredItems[TDSnSelectedIndex];
-                    TDSnIsPopupOpen = false;
-                }
-            }
-            else if (e.Key == Key.Tab)
-            {
-                TDSnIsPopupOpen = false;
-            }
-        }
-
-        [ObservableProperty]
-        private bool _tDMdSnIsPopupOpen;
-
-        [ObservableProperty]
-        private int _tDMdSnSelectedIndex;
-
-        [ObservableProperty]
-        private ObservableCollection<string> _tDMdSnFilteredItems;
-
-        private void TDMdSnFilterItems()
-        {
-            if (string.IsNullOrWhiteSpace(TDMdSn))
-            {
-
-                TDMdSnFilteredItems = new ObservableCollection<string>();
-            }
-            else
-            {
-                List<string> items = _transducerModuleRepository.GetFilterItems(TDMdSn).Select(m => m.Sn).ToList();
-
-                TDMdSnFilteredItems = new ObservableCollection<string>(items);
-            }
-        }
-
-        [RelayCommand]
-        private void TDMdSnKeyDown(KeyEventArgs e)
-        {
-            if (e == null) return;
-
-            Log.Information($"TDMdSnKeyDown : {e.Key}");
-            if (e.Key == Key.Down)
-            {
-                if (TDMdSnFilteredItems.Count > 0)
-                {
-                    TDMdSnSelectedIndex = (TDMdSnSelectedIndex + 1) % TDMdSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (TDMdSnFilteredItems.Count > 0)
-                {
-                    TDMdSnSelectedIndex = (TDMdSnSelectedIndex - 1 + TDMdSnFilteredItems.Count) % TDSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (TDMdSnSelectedIndex >= 0 && TDMdSnSelectedIndex < TDMdSnFilteredItems.Count)
-                {
-                    TDMdSn = TDMdSnFilteredItems[TDMdSnSelectedIndex];
-                    TDMdSnIsPopupOpen = false;
-                }
-            }
-            else if (e.Key == Key.Tab)
-            {
-                TDMdSnIsPopupOpen = false;
-            }
-        }
-
-        [ObservableProperty]
-        private bool _probeSnIsPopupOpen;
-
-        [ObservableProperty]
-        private int _probeSnSelectedIndex;
-
-        [ObservableProperty]
-        private ObservableCollection<string> _probeSnFilteredItems;
-
-        private void ProbeSnFilterItems()
-        {
-            if (string.IsNullOrWhiteSpace(ProbeSn))
-            {
-
-                ProbeSnFilteredItems = new ObservableCollection<string>();
-            }
-            else
-            {
-                List<string> items = _probeRepository.GetFilterItems(ProbeSn).Select(m => m.Sn).ToList();
-
-                ProbeSnFilteredItems = new ObservableCollection<string>(items);
-            }
-        }
-
-        [RelayCommand]
-        private void ProbeSnKeyDown(KeyEventArgs e)
-        {
-            if (e == null) return;
-
-            Log.Information($"ProbeSnKeyDown : {e.Key}");
-            if (e.Key == Key.Down)
-            {
-                if (ProbeSnFilteredItems.Count > 0)
-                {
-                    ProbeSnSelectedIndex = (ProbeSnSelectedIndex + 1) % ProbeSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Up)
-            {
-                if (ProbeSnFilteredItems.Count > 0)
-                {
-                    ProbeSnSelectedIndex = (ProbeSnSelectedIndex - 1 + ProbeSnFilteredItems.Count) % ProbeSnFilteredItems.Count;
-                }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                if (ProbeSnSelectedIndex >= 0 && ProbeSnSelectedIndex < ProbeSnFilteredItems.Count)
-                {
-                    ProbeSn = ProbeSnFilteredItems[ProbeSnSelectedIndex];
-                    ProbeSnIsPopupOpen = false;
-                }
-            }
-            else if (e.Key == Key.Tab)
-            {
-                ProbeSnIsPopupOpen = false;
-            }
-        }
     }
 }
