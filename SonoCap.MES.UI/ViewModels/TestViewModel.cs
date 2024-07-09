@@ -28,7 +28,7 @@ using Brushes = System.Windows.Media.Brushes;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class TestViewModel : ObservableObject
+    public partial class TestViewModel : ObservableObject, IParameterReceiver
     {
         [ObservableProperty]
         private string _title = default!;
@@ -2128,6 +2128,19 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Information(ex.ToString());
                 return null;
             }
+        }
+
+        public SubData SubData { get; set; } = default!;
+
+        public void ReceiveParameter(object parameter)
+        {
+            if(parameter is SubData subData)
+            {
+                SubData = subData;
+
+                Log.Information($"Received parameter {SubData.stringData}");
+            }
+            
         }
     }
 }

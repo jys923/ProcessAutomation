@@ -1,4 +1,5 @@
-﻿using SonoCap.MES.UI.ViewModels;
+﻿using SonoCap.MES.Models;
+using SonoCap.MES.UI.ViewModels;
 using SonoCap.MES.UI.Views;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,7 @@ namespace SonoCap.MES.UI.Services
             where TViewModel : INotifyPropertyChanged;
 
         void ShowMainView();
+
+        void ShowTestView(SubData subData);
     }
 }

@@ -13,6 +13,8 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using SonoCap.Interceptors;
 using Microsoft.EntityFrameworkCore;
+using System.Windows;
+using SonoCap.MES.UI.Services;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -21,6 +23,7 @@ namespace SonoCap.MES.UI.ViewModels
         private ProbeListView? _probeListView = default!;
         private TestListView? _testListView = default!;
         private TestView? _testView = default!;
+        private readonly IViewService _viewService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -42,6 +45,7 @@ namespace SonoCap.MES.UI.ViewModels
         private string _title = default!;
 
         public MainViewModel(
+            IViewService viewService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
@@ -56,6 +60,7 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerModuleRepository transducerModuleRepository,
             ITransducerTypeRepository transducerTypeRepository)
         {
+            _viewService = viewService;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
@@ -95,24 +100,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void ToTest()
         {
-            // 이미 열려 있는 창이 있는지 확인
-            if (_testView == null || !_testView.IsLoaded)
-            {
-                _testView = _serviceProvider.GetRequiredService<TestView>();
-                //_testView.DataContext = _serviceProvider.GetRequiredService<TestViewModel>();
-                _testView.Show();
-            }
-            else
-            {
-                // 창이 최소화되어 있으면 최상위로 올리기
-                if (_testView.WindowState == System.Windows.WindowState.Minimized)
-                {
-                    _testView.WindowState = System.Windows.WindowState.Normal;
-                }
-
-                // 창을 최상위로 가져오기
-                _testView.Activate();
-            }
+            _viewService.ShowTestView(new SubData { stringData = "test" , intData = 123});
         }
 
         [RelayCommand]
