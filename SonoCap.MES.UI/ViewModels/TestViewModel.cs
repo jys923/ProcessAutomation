@@ -21,6 +21,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using VILib;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -61,14 +62,14 @@ namespace SonoCap.MES.UI.ViewModels
         private int _tDSnSelectedIndex;
 
         [ObservableProperty]
-        private ObservableCollection<string> _tDSnFilteredItems;
+        private ObservableCollection<string> _tDSnFilteredItems = new();
 
         private void TDSnFilterItems()
         {
             if (string.IsNullOrWhiteSpace(TDSn))
             {
 
-                TDSnFilteredItems = new ObservableCollection<string>();
+                TDSnFilteredItems.Clear();
             }
             else
             {
@@ -124,14 +125,14 @@ namespace SonoCap.MES.UI.ViewModels
         private int _tDMdSnSelectedIndex;
 
         [ObservableProperty]
-        private ObservableCollection<string> _tDMdSnFilteredItems;
+        private ObservableCollection<string> _tDMdSnFilteredItems = new();
 
         private void TDMdSnFilterItems()
         {
             if (string.IsNullOrWhiteSpace(TDMdSn))
             {
 
-                TDMdSnFilteredItems = new ObservableCollection<string>();
+                TDMdSnFilteredItems.Clear();
             }
             else
             {
@@ -187,14 +188,14 @@ namespace SonoCap.MES.UI.ViewModels
         private int _mTMdSnSelectedIndex;
 
         [ObservableProperty]
-        private ObservableCollection<string> _mTMdSnFilteredItems;
-        
+        private ObservableCollection<string> _mTMdSnFilteredItems = new();
+
         private void MTMdSnFilterItems()
         {
             if (string.IsNullOrWhiteSpace(MTMdSn))
             {
 
-                MTMdSnFilteredItems = new ObservableCollection<string>();
+                MTMdSnFilteredItems.Clear();
             }
             else
             {
@@ -250,14 +251,14 @@ namespace SonoCap.MES.UI.ViewModels
         private int _probeSnSelectedIndex;
 
         [ObservableProperty]
-        private ObservableCollection<string> _probeSnFilteredItems;
+        private ObservableCollection<string> _probeSnFilteredItems = new();
 
         private void ProbeSnFilterItems()
         {
             if (string.IsNullOrWhiteSpace(ProbeSn))
             {
 
-                ProbeSnFilteredItems = new ObservableCollection<string>();
+                ProbeSnFilteredItems.Clear();
             }
             else
             {
@@ -306,10 +307,10 @@ namespace SonoCap.MES.UI.ViewModels
         private int _testResult = default!;
         
         [ObservableProperty]
-        private BitmapImage _srcImg = default!;
+        private ImageSource _srcImg = default!;
 
         [ObservableProperty]
-        private BitmapImage _resImg = default!;
+        private ImageSource _resImg = default!;
 
         [ObservableProperty]
         private string _resTxt = default!;
@@ -539,8 +540,6 @@ namespace SonoCap.MES.UI.ViewModels
             _transducer = null;
             _motorModule = null;
             _pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
 
             List<Test> tests;
             //정규 표현식 검증 추가
@@ -550,7 +549,6 @@ namespace SonoCap.MES.UI.ViewModels
                 if (!IsExistsBySn(SnType.Transducer, value))
                 {
                     ValidateField(nameof(TDSn), "TDSn Is Not Exist");
-                    //AddTDSnIsEnabled = true;
                     SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
                 }
                 else
@@ -578,21 +576,6 @@ namespace SonoCap.MES.UI.ViewModels
                     
                     ValidationDict[nameof(TDMdSn)].IsEnabled = false;
                     ValidationDict[nameof(TDMdSn)].WaterMarkText = _transducerModule.Sn;
-
-                    //transducerModule.Sn 에서 seqNo 파싱
-                    //숫자 3자리로 끝남
-                    //string pattern = @"^.*(\d{3})$";
-                    //string getSeq = ExtractReqExr(_transducerModule.Sn, pattern);
-                    ////int seq = !string.IsNullOrEmpty(getSeq) ? int.Parse(getSeq) : 0;
-                    //if (!string.IsNullOrEmpty(getSeq))
-                    //{
-                    //    SeqNo = getSeq;
-                    //    ValidateField(nameof(SeqNo));
-                    //}  
-                    //SelectedDate = _transducerModule.CreatedDate;
-                    //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].WaterMarkText = SeqNo;
 
                     tests = GetTestById(SnType.TransducerModule, _transducerModule.Id);
                     foreach (var item in tests)
@@ -646,8 +629,6 @@ namespace SonoCap.MES.UI.ViewModels
             _transducer = null;
             _motorModule = null;
             _pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
 
             List<Test> tests;
             //정규 표현식 검증 추가
@@ -692,20 +673,6 @@ namespace SonoCap.MES.UI.ViewModels
                         return;
 
                     _motorModule = _probe.MotorModule;
-                    ////probe.Sn UPAG1240625005 에서 seqNo 파싱
-                    ////string pattern = @"^.{5}(2[0-9]|19|20)(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([0-9]{3})$";
-                    //string pattern = @"^.{11}([0-9]{3})$";
-                    //string getSeq = ExtractReqExr(_probe.Sn, pattern);
-                    ////int seq = !string.IsNullOrEmpty(getSeq) ? int.Parse(getSeq) : 0;
-                    //if (!string.IsNullOrEmpty(getSeq))
-                    //{
-                    //    SeqNo = getSeq;
-                    //    ValidateField(nameof(SeqNo));
-                    //}
-                    //SelectedDate = _probe.CreatedDate;
-                    //ValidationDict[nameof(SelectedDate)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].IsEnabled = false;
-                    //ValidationDict[nameof(SeqNo)].WaterMarkText = SeqNo;
                     ValidationDict[nameof(ProbeSn)].IsEnabled = false;
                     ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
 
@@ -728,13 +695,6 @@ namespace SonoCap.MES.UI.ViewModels
         {
             MTMdSnFilterItems();
             MTMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && MTMdSnFilteredItems.Any();
-            //_probe = null;
-            //_transducerModule = null;
-            //_transducer = null;
-            //_motorModule = null;
-            //_pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
             //정규 표현식 검증 추가
             if (value.Length > 5)
             {
@@ -767,8 +727,6 @@ namespace SonoCap.MES.UI.ViewModels
             _transducer = null;
             _motorModule = null;
             _pTRView = null;
-            //SelectedDate = DateTime.Now;
-            //SeqNo = "";
 
             List<Test> tests;
             //정규 표현식 검증 추가
@@ -777,14 +735,11 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Information($"Probe sn {value}");
                 if (!IsExistsBySn(SnType.Probe, value))
                 {
-                    //ProbeSn Is Not Exist
-                    //SetValidating(nameof(ProbeSn), "ProbeSn Is Not Exist");
                     ValidateField(nameof(ProbeSn), "ProbeSn Is Not Exist");
                     SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
                 }
                 else
                 {
-                    //ClearValidating(nameof(ProbeSn));
                     SetBySn(SnType.Probe, value);
                     ValidateField(nameof(ProbeSn));
                     ValidationDict[nameof(TDMdSn)].IsEnabled = false;
@@ -845,7 +800,6 @@ namespace SonoCap.MES.UI.ViewModels
             switch (_testCategory)
             {
                 case TestCategories.Processing:
-                    //if (GetValidating(nameof(SeqNo)) &&
                     if (GetValidating(nameof(TDSn)))
                     {
                         res = true;
@@ -853,7 +807,6 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case TestCategories.Process:
 
-                    //if (GetValidating(nameof(SeqNo)) &&
                     if (GetValidating(nameof(TDMdSn)) &&
                         GetValidating(nameof(MTMdSn)))
                     {
@@ -875,10 +828,8 @@ namespace SonoCap.MES.UI.ViewModels
         private void Test()
         {
             //이미지 불러오기
-            //이미지 불러오기
-            //NextIsEnabled = true;
             m_OrgBmp = new Bitmap(@"img\\4.bmp");
-            srcImg = ConvertBitmapToImageSource(m_OrgBmp);
+            srcImg = BitmapToImageSource(m_OrgBmp);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -898,12 +849,11 @@ namespace SonoCap.MES.UI.ViewModels
             Array.Clear(bmp_data, 0, (int)size);
             Array.Clear(res_data, 0, (int)size);
 
-            convertBitmapToByteArr(bmp_data, m_OrgBmp);
+            BitmapToByteArr(bmp_data, m_OrgBmp);
 
             vIResults = new VIRes();
             //ret 1 성공
             ret = VI.DoInspection(sModel, bmp_data, w, h, chs, res_data, ref vIResults, opt);
-            convertByteArrToBitmap(res_data, m_bmpRes);
 
             StringBuilder sb = new StringBuilder();
 
@@ -934,7 +884,11 @@ namespace SonoCap.MES.UI.ViewModels
             string newItem = $"Succ Test";
             ResLogs.Add(newItem);
 
-            resImg = ConvertBitmapToImageSource(m_bmpRes);
+            //resImg = ByteArrToImageSource(res_data);
+
+            ByteArrToBitmap(res_data, m_bmpRes);
+            resImg = BitmapToImageSource(m_bmpRes);
+
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -942,7 +896,6 @@ namespace SonoCap.MES.UI.ViewModels
             });
 
             TestResult = -2;
-            //IsTested = true;
             ValidationDict[nameof(TestResult)].IsEnabled = true;
         }
 
@@ -958,15 +911,12 @@ namespace SonoCap.MES.UI.ViewModels
             switch (_testCategory)
             {
                 case TestCategories.Processing:
-                    //if (GetValidating(nameof(SeqNo)) &&
                     if (GetValidating(nameof(TDSn)))
                     {
                         res = true;
                     }
                     break;
                 case TestCategories.Process:
-
-                    //if (GetValidating(nameof(SeqNo)) &&
                     if (GetValidating(nameof(TDMdSn)) &&
                         GetValidating(nameof(MTMdSn)))
                     {
@@ -1003,7 +953,6 @@ namespace SonoCap.MES.UI.ViewModels
                 ChangedImgMetadata = ResTxt,
                 Result = TestResult,
                 Method = 1,
-                //CreatedDate = SelectedDate,
             };
 
             PrepareTest(_testCategory, insertTest);
@@ -1023,7 +972,6 @@ namespace SonoCap.MES.UI.ViewModels
 
             bool existNext = false;
             bool passAll = false;
-            //다음 공정에서 생성 할 sn 있는지 만 조회 하위 모듈 재사용 가능성 있음
 
             //sn으로 id 가져오기
             int id = 0;
@@ -1032,8 +980,6 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 case TestCategories.Processing:
                     id = await GetBySnAsync(_testCategory, TDSn);
-                    //td의 id
-                    //existNext = IsIdUsed(SnType.Transducer, id);
                     existNext = _transducerModule is not null ? true : false; 
                     if (existNext)
                     {
@@ -1987,59 +1933,7 @@ namespace SonoCap.MES.UI.ViewModels
         int opt = 0;
         string sModel = "SC-GP5";
 
-        private BitmapImage convertByteArrToBitmap2(byte[] res_data)
-        {
-            BitmapImage bitmapImage = new BitmapImage();
-
-            using (MemoryStream stream = new MemoryStream(res_data))
-            {
-                bitmapImage.BeginInit();
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.StreamSource = stream;
-                bitmapImage.EndInit();
-            }
-
-            return bitmapImage;
-        }
-
-        private byte[] ConvertBitmapToImageSource2(BitmapImage bitmapImage)
-        {
-            byte[] data;
-            BitmapEncoder encoder = new BmpBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
-            using (MemoryStream ms = new MemoryStream())
-            {
-                encoder.Save(ms);
-                data = ms.ToArray();
-            }
-
-            return data;
-        }
-
-        private ImageSource ConvertBitmapToImageSource(Bitmap bitmap)
-        {
-            if (bitmap == null)
-                return null;
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                // 비트맵을 MemoryStream에 복사합니다.
-                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-
-                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
-
-                // 비트맵 이미지를 생성하고 반환합니다.
-                BitmapImage imageSource = new BitmapImage();
-                imageSource.BeginInit();
-                imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                imageSource.StreamSource = stream;
-                imageSource.EndInit();
-
-                return imageSource;
-            }
-        }
-
-        private int convertBitmapToByteArr(byte[] result, Bitmap bitmap)
+        private int BitmapToByteArr(byte[] result, Bitmap bitmap)
         {
             BitmapData bmpData = null;
             try
@@ -2065,9 +1959,40 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private int convertByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
+        private ImageSource ByteArrToImageSource(byte[] imageData)
         {
-            BitmapData bmpData = null;
+            if (imageData == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                // 1. BitmapImage 객체 생성
+                BitmapImage imageSource = new BitmapImage();
+
+                // 2. byte[] 데이터를 메모리 스트림에 로드
+                using (MemoryStream ms = new MemoryStream(imageData))
+                {
+                    imageSource.BeginInit();
+                    imageSource.StreamSource = ms;
+                    imageSource.EndInit();
+                }
+
+                // 5. ImageSource 객체 반환
+                return imageSource;
+            }
+            catch (Exception ex)
+            {
+                // 오류 처리
+                Console.WriteLine(ex.ToString());
+                return null;
+            }
+        }
+
+        private int ByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
+        {
+            BitmapData? bmpData = null;
             try
             {
                 bmpData = m_bmp.LockBits(new Rectangle(0, 0,
@@ -2090,5 +2015,27 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        private ImageSource BitmapToImageSource(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                return null;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                // 비트맵을 MemoryStream에 복사합니다.
+                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
+
+                // 비트맵 이미지를 생성하고 반환합니다.
+                BitmapImage imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                imageSource.StreamSource = stream;
+                imageSource.EndInit();
+
+                return imageSource;
+            }
+        }
     }
 }
