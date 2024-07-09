@@ -8,6 +8,7 @@ using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Validation;
+using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -28,7 +29,7 @@ using Brushes = System.Windows.Media.Brushes;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class TestViewModel : ObservableObject, IParameterReceiver
+    public partial class TestViewModel : ViewModelBase, IParameterReceiver
     {
         [ObservableProperty]
         private string _title = default!;
@@ -1104,6 +1105,7 @@ namespace SonoCap.MES.UI.ViewModels
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
         }
+        
         private async void LogIn()
         {
             Tester tester = new Tester { Name = "yoon", PcId = 1 };
@@ -2141,6 +2143,18 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Information($"Received parameter {SubData.stringData}");
             }
             
+        }
+
+        protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            //base.OnWindowLoaded(sender, e);
+            MessageBox.Show("TestWindow Loaded");
+        }
+
+        protected override void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            //base.OnWindowClosing(sender, e);
+            MessageBox.Show("TestWindow Closing");
         }
     }
 }

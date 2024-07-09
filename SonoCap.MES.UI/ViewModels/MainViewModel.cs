@@ -13,12 +13,14 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using SonoCap.Interceptors;
 using Microsoft.EntityFrameworkCore;
-using System.Windows;
 using SonoCap.MES.UI.Services;
+using SonoCap.MES.UI.ViewModels.Base;
+using System.Windows;
+using System.ComponentModel;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainViewModel : ViewModelBase
     {
         private ProbeListView? _probeListView = default!;
         private TestListView? _testListView = default!;
@@ -773,6 +775,18 @@ namespace SonoCap.MES.UI.ViewModels
         {
             List<Transducer> aa = await _transducerRepository.GetFilterItems(Query).ToListAsync();
             Log.Information($"Count: {aa.Count}, \nItems: {string.Join("\n", aa)}");
+        }
+
+        protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            //base.OnWindowLoaded(sender, e);
+            MessageBox.Show("MainWindow Loaded");
+        }
+
+        protected override void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            //base.OnWindowClosing(sender, e);
+            MessageBox.Show("MainWindow Closing");
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using SonoCap.MES.Models;
 using SonoCap.MES.UI.ViewModels;
+using SonoCap.MES.UI.ViewModels.Base;
 using SonoCap.MES.UI.Views;
-using System.ComponentModel;
 using System.Windows;
 
 namespace SonoCap.MES.UI.Services
@@ -17,12 +17,13 @@ namespace SonoCap.MES.UI.Services
 
         public void ShowView<TView, TViewModel>(object? parameter = null)
             where TView : Window
-            where TViewModel : INotifyPropertyChanged
+            where TViewModel : ViewModelBase
         {
-            INotifyPropertyChanged viewModel = (INotifyPropertyChanged)_serviceProvider.GetService(typeof(TViewModel))!;
+            ViewModelBase viewModel = (ViewModelBase)_serviceProvider.GetService(typeof(TViewModel))!;
             Window view = (Window)_serviceProvider.GetService(typeof(TView))!;
 
-            if(parameter != null && viewModel is IParameterReceiver parameterReceiver)
+            viewModel.SetWindow(view);
+            if (parameter != null && viewModel is IParameterReceiver parameterReceiver)
             {
                 parameterReceiver.ReceiveParameter(parameter);
             }
