@@ -885,10 +885,8 @@ namespace SonoCap.MES.UI.ViewModels
             ResLogs.Add(newItem);
 
             //resImg = ByteArrToImageSource(res_data);
-
             ByteArrToBitmap(res_data, m_bmpRes);
             resImg = BitmapToImageSource(m_bmpRes);
-
 
             Application.Current.Dispatcher.Invoke(() =>
             {
@@ -1959,83 +1957,104 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private ImageSource ByteArrToImageSource(byte[] imageData)
+        private ImageSource ByteArrToImageSource(byte[] img)
         {
-            if (imageData == null)
-            {
+            if (img == null || img.Length == 0)
                 return null;
-            }
 
             try
             {
-                // 1. BitmapImage 객체 생성
-                BitmapImage imageSource = new BitmapImage();
-
-                // 2. byte[] 데이터를 메모리 스트림에 로드
-                using (MemoryStream ms = new MemoryStream(imageData))
+                MemoryStream stream = new MemoryStream(img);
+                if (IsValidImageFormat(stream))
                 {
+                    BitmapImage imageSource = new BitmapImage();
                     imageSource.BeginInit();
-                    imageSource.StreamSource = ms;
+                    imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                    imageSource.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                    imageSource.StreamSource = stream;
                     imageSource.EndInit();
+                    imageSource.Freeze();
+                    return imageSource;
                 }
-
-                // 5. ImageSource 객체 반환
-                return imageSource;
+                else
+                {
+                    Log.Information("Invalid image format.");
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                // 오류 처리
-                Console.WriteLine(ex.ToString());
+                Log.Information(ex.ToString());
                 return null;
+            }
+        }
+
+        private bool IsValidImageFormat(Stream stream)
+        {
+            try
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                BitmapImage tempImage = new BitmapImage();
+                tempImage.BeginInit();
+                tempImage.CacheOption = BitmapCacheOption.None;
+                tempImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                tempImage.StreamSource = stream;
+                tempImage.EndInit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Information(ex.ToString());
+                return false;
             }
         }
 
         private int ByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
-        {
-            BitmapData? bmpData = null;
-            try
             {
-                bmpData = m_bmp.LockBits(new Rectangle(0, 0,
-                                                    m_bmp.Width,
-                                                    m_bmp.Height),
-                                                    ImageLockMode.WriteOnly,
-                                                    m_bmp.PixelFormat);
+                BitmapData? bmpData = null;
+                try
+                {
+                    bmpData = m_bmp.LockBits(new Rectangle(0, 0,
+                                                        m_bmp.Width,
+                                                        m_bmp.Height),
+                                                        ImageLockMode.WriteOnly,
+                                                        m_bmp.PixelFormat);
 
-                IntPtr pNative = bmpData.Scan0;
-                Marshal.Copy(raw_img, 0, pNative, raw_img.Length);
-                m_bmp.UnlockBits(bmpData);
+                    IntPtr pNative = bmpData.Scan0;
+                    Marshal.Copy(raw_img, 0, pNative, raw_img.Length);
+                    m_bmp.UnlockBits(bmpData);
 
-                return 1;
+                    return 1;
+                }
+                catch (Exception ex)
+                {
+                    m_bmp.UnlockBits(bmpData);
+                    Trace.WriteLine(ex.ToString());
+                    return -1;
+                }
             }
-            catch (Exception ex)
-            {
-                m_bmp.UnlockBits(bmpData);
-                Trace.WriteLine(ex.ToString());
-                return -1;
-            }
-        }
 
         private ImageSource BitmapToImageSource(Bitmap bitmap)
-        {
-            if (bitmap == null)
-                return null;
-
-            using (MemoryStream stream = new MemoryStream())
             {
-                // 비트맵을 MemoryStream에 복사합니다.
-                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                if (bitmap == null)
+                    return null;
 
-                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    // 비트맵을 MemoryStream에 복사합니다.
+                    bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
 
-                // 비트맵 이미지를 생성하고 반환합니다.
-                BitmapImage imageSource = new BitmapImage();
-                imageSource.BeginInit();
-                imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                imageSource.StreamSource = stream;
-                imageSource.EndInit();
+                    stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
 
-                return imageSource;
+                    // 비트맵 이미지를 생성하고 반환합니다.
+                    BitmapImage imageSource = new BitmapImage();
+                    imageSource.BeginInit();
+                    imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                    imageSource.StreamSource = stream;
+                    imageSource.EndInit();
+
+                    return imageSource;
+                }
             }
-        }
-    }
+     }
 }
