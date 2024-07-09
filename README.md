@@ -14,10 +14,9 @@ remove-migration
 ```
 
 ## Todo List
-- [ ] 자동 완성, 예측 텍스트
-- [ ] Mini Excel study 특히 자료형
-- [ ] seqNo 삭제
-- [ ] 서버에서 seqNo 내리기
+- [X] 자동 완성, 예측 텍스트
+- [X] seqNo 삭제
+- [X] 서버에서 seqNo 내리기
 - [X] show hide
 - [X] readonly gray
 - [X] blinking
@@ -35,7 +34,8 @@ remove-migration
                 query = query.Where(tp => tp.DataFlagProbe == dataFlagProbe);
             }
 - [X] enums 추가 네임스페이스만 필요. 클래스 필요없음
-- [ ] 처음에 마우스 키보드로 선택하고 sn 입력 후 F9는 시험 F10은 저장 test결과는 자동화. 마우스 키보드 안만지고 발판 2개 버튼으로 시험 종료
+- [X] 처음에 마우스 키보드로 선택하고 sn 입력 후 F9는 시험 F10은 저장 test결과는 자동화. 마우스 키보드 안만지고 발판 2개 버튼으로 시험 종료
+- [ ] Dark theme
 - [ ] 윈도우 생명주기 필요! 화면 최상단 일때 사진 로드
 - [ ] 윈도우 간 파라미터 전달
 	- https://kaki104.tistory.com/869
@@ -51,9 +51,8 @@ remove-migration
 - [X] 기본 포커스 위치?
 	- why 빨간줄 나옴
 - [ ] 한소노 lib에서 영상 직접 받기
-- [ ] Dark theme
-- [ ] 모터 모듈 s/n 파일 import
-- [ ] TD s/n 파일 import
+- [X] 모터 모듈 s/n 파일 import
+- [X] TD s/n 파일 import
 - [X] 모터 모듈 s/n -> Lot 라고 바꾸기
 - [ ] winform bmp -> wpf bmp 바꾸기
 - [X] text placeholder hint
@@ -102,6 +101,7 @@ remove-migration
 	:x: ScrollToEndBehavior 사용시 같은 데이터 계속 넣으면 스크롤 안됨 cnt 넣어주기!
 ## Research List
 - [X] C# 8.0 "switch expression"
+- [ ] Mini Excel study 특히 자료형
 - [ ] linq
 - [ ] Dependency Property와 Attached Property
 	- https://kaki104.tistory.com/563
