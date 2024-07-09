@@ -10,6 +10,7 @@ using SonoCap.Commons;
 using System.Windows.Threading;
 using AspectCore.Configuration;
 using SonoCap.Interceptors;
+using SonoCap.MES.UI.Services;
 
 namespace SonoCap.MES.UI
 {
@@ -42,6 +43,7 @@ namespace SonoCap.MES.UI
             RegisterViewModels(services);
             RegisterViews(services);
             RegisterDynamicProxies(services);
+            services.AddSingleton<IViewService, ViewService>();
 
             return services.BuildServiceProvider();
         }
@@ -132,8 +134,10 @@ namespace SonoCap.MES.UI
 
         private void ShowMainView()
         {
-            MainView? mainView = App.Current.Services.GetService<MainView>()!;
-            mainView.Show();
+            //MainView? mainView = App.Current.Services.GetService<MainView>()!;
+            //mainView.Show();
+            IViewService viewService = Services.GetService<IViewService>()!;
+            viewService.ShowMainView();
         }
     }
 }
