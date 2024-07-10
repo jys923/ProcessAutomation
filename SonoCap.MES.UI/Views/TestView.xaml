@@ -409,7 +409,6 @@
                 </Grid.RowDefinitions>
                 <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="0" Grid.Column="1" Content="TD Sn"/>
                 <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="2" Grid.Column="1" Content="TD Md Sn"/>
-                <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="5" Grid.Column="1" Content="Motor Lot"/>
                 <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="13" Grid.Column="1" Content="Probe Sn"/>
 
                 <controls:TextBoxControl x:Name="TDSn" Grid.Row="0" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDSn].IsValid}" Text="{Binding TDSn}" IsEnabled="{Binding ValidationDict[TDSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[TDSn].WaterMarkText}" >
@@ -460,32 +459,6 @@
                     </ListBox>
                 </Popup>
                 <TextBlock Grid.Row="3" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDMdSn].Message}" Visibility="{Binding ValidationDict[TDMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
-
-
-                <controls:TextBoxControl x:Name="MTMdSn" Grid.Row="5" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[MTMdSn].IsValid}" Text="{Binding MTMdSn, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ValidationDict[MTMdSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[MTMdSn].WaterMarkText}">
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="PreviewKeyDown">
-                            <b:InvokeCommandAction Command="{Binding MTMdSnKeyDownCommand}" PassEventArgsToCommand="True"/>
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                </controls:TextBoxControl>
-                <Popup PlacementTarget="{Binding ElementName=MTMdSn}"
-                       Placement="Bottom"
-                       StaysOpen="False"
-                       IsOpen="{Binding MTMdSnIsPopupOpen}">
-                    <ListBox x:Name="FilteredListBox"
-                             ItemsSource="{Binding MTMdSnFilteredItems}"
-                             IsSynchronizedWithCurrentItem="True"
-                             SelectedIndex="{Binding MTMdSnSelectedIndex}"
-                             KeyboardNavigation.DirectionalNavigation="Contained">
-                        <ListBox.Style>
-                            <Style TargetType="ListBox">
-                                <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
-                            </Style>
-                        </ListBox.Style>
-                    </ListBox>
-                </Popup>
-                <TextBlock Grid.Row="6" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding ValidationDict[MTMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
 
 
                 <controls:TextBoxControl x:Name="ProbeSn" Grid.Row="13" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[ProbeSn].IsValid}" Text="{Binding ProbeSn}" IsEnabled="{Binding ValidationDict[ProbeSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[ProbeSn].WaterMarkText}">
