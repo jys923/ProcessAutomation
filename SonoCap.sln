@@ -30,7 +30,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonoCap.Interceptors", "Son
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonoCap.MES.Services", "SonoCap.MES.Services\SonoCap.MES.Services.csproj", "{F11BF8A2-D91E-477D-B987-578B6F30ED6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonoCap.Commons", "SonoCap.Commons\SonoCap.Commons.csproj", "{6B81245E-D2D0-4434-8FB1-E039C2C5BE5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonoCap.Commons", "SonoCap.Commons\SonoCap.Commons.csproj", "{6B81245E-D2D0-4434-8FB1-E039C2C5BE5A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "솔루션 항목", "솔루션 항목", "{E8F80BC3-F20F-4600-B088-756676FE237A}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

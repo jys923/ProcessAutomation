@@ -14,6 +14,18 @@ remove-migration
 ```
 
 ## Todo List
+- [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
+- [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
+- [ ] 모달 https://www.youtube.com/watch?v=uBMMvPG7zn4 
+- [ ] 뷰모델간 데이터 전달 https://www.youtube.com/watch?v=_KXr5dGGS3s
+- [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
+- [ ] 윈도우 생명주기
+	- https://www.youtube.com/watch?v=SJIhnpb0rM0
+	- 화면 최상단 일때 사진 로드
+- [ ] 윈도우 간 파라미터 전달
+	- https://www.youtube.com/watch?v=zDNFFJKW-KE 이거씀 이미 생성되어 있는데 전달
+	- https://www.youtube.com/watch?v=_KXr5dGGS3s 생성시 주입
+	- https://kaki104.tistory.com/869
 - [X] 자동 완성, 예측 텍스트
 - [X] seqNo 삭제
 - [X] 서버에서 seqNo 내리기
@@ -35,10 +47,6 @@ remove-migration
             }
 - [X] enums 추가 네임스페이스만 필요. 클래스 필요없음
 - [X] 처음에 마우스 키보드로 선택하고 sn 입력 후 F9는 시험 F10은 저장 test결과는 자동화. 마우스 키보드 안만지고 발판 2개 버튼으로 시험 종료
-- [ ] Dark theme
-- [ ] 윈도우 생명주기 필요! 화면 최상단 일때 사진 로드
-- [ ] 윈도우 간 파라미터 전달
-	- https://kaki104.tistory.com/869
 - [X] 실패 점수 기록
 - [X] test 삭제까지 보이게
 - [X] test 갯수 가변
