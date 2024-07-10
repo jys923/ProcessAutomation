@@ -780,13 +780,27 @@ namespace SonoCap.MES.UI.ViewModels
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             //base.OnWindowLoaded(sender, e);
-            MessageBox.Show("MainWindow Loaded");
+            //MessageBox.Show("MainWindow Loaded");
         }
 
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
         {
             //base.OnWindowClosing(sender, e);
-            MessageBox.Show("MainWindow Closing");
+            //MessageBox.Show("MainWindow Closing");
+        }
+
+        [RelayCommand]
+        private void InputBox()
+        {
+            string? result = Controls.InputBox.Show("아무말 메세지", "아무말이나 적어보세요 ^^");
+            if (result == null)
+            {
+                MessageBox.Show("취소됨");
+            }
+            else
+            {
+                MessageBox.Show(result);
+            }
         }
     }
 }

@@ -79,5 +79,6 @@
 
         <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="100"/>
         <Button Content="GetSns" Command="{Binding GetSnsCommand}" HorizontalAlignment="Left" Margin="200,250,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="InputBox" Command="{Binding InputBoxCommand}" HorizontalAlignment="Left" Margin="200,300,0,0" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </Window>
