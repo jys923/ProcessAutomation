@@ -11,6 +11,7 @@ using System.Windows.Threading;
 using AspectCore.Configuration;
 using SonoCap.Interceptors;
 using SonoCap.MES.UI.Services;
+using VILib;
 
 namespace SonoCap.MES.UI
 {
@@ -44,6 +45,7 @@ namespace SonoCap.MES.UI
             RegisterViews(services);
             RegisterDynamicProxies(services);
             services.AddSingleton<IViewService, ViewService>();
+            services.AddSingleton<VILibWrapper>();
 
             return services.BuildServiceProvider();
         }

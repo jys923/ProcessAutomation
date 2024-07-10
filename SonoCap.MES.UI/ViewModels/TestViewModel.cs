@@ -332,6 +332,7 @@ namespace SonoCap.MES.UI.ViewModels
         private Test? _test { get; set; }
         private Tester? _tester { get; set; }
 
+        private readonly VILibWrapper VI;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -347,6 +348,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IPTRViewRepository _pTRViewRepository;
 
         public TestViewModel(
+            VILibWrapper VILibWrapper,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
@@ -361,6 +363,7 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository,
             IPTRViewRepository pTRViewRepository)
         {
+            VI = VILibWrapper;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
@@ -1905,7 +1908,7 @@ namespace SonoCap.MES.UI.ViewModels
         private BitmapImage _loadBmp = default!;
         private BitmapImage _resultBmp = default!;
 
-        VILibWrapper VI = new VILibWrapper();
+        //VILibWrapper VI = new VILibWrapper();
         VIRes vIResults = new VIRes();
 
         int ret = 0;
@@ -2133,7 +2136,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         public SubData SubData { get; set; } = default!;
-
+        
         public void ReceiveParameter(object parameter)
         {
             if(parameter is SubData subData)
