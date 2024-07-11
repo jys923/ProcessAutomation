@@ -15,8 +15,10 @@ remove-migration
 
 ## Todo List
 - [ ] 한소노 lib에서 영상 직접 받기
+- [ ] 결과 이미지에 원그리기
 - [ ] winform bmp -> wpf bmp 바꾸기
-- [ ] WPF에서 bmp 파일 저장.
+- [X] WPF에서 bmp 파일 저장.
+- [X] excel import
 - [ ] excel export
 - [ ] WPF -> MFC : save 명령 req , MFC : img 저장 , MFC -> WPF : 파일패스 res
 - [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw

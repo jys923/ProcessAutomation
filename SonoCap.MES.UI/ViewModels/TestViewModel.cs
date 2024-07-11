@@ -6,6 +6,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
@@ -819,7 +820,8 @@ namespace SonoCap.MES.UI.ViewModels
             string newItem = $"Succ Test";
             ResLogs.Add(newItem);
 
-            //resImg = ByteArrToImageSource(res_data);
+            //resImg = ByteArrToBitmapImage(res_data,780,780);
+
             ByteArrToBitmap(res_data, m_bmpRes);
             resImg = BitmapToImageSource(m_bmpRes);
 
@@ -1017,6 +1019,8 @@ namespace SonoCap.MES.UI.ViewModels
                     }
                     break;
             }
+
+            Utilities.SaveImageSourceToFile(resImg, $"{Utilities.MKSHA256()}.bmp");
 
             SrcImg = default!;
             ResImg = default!;
@@ -1911,6 +1915,48 @@ namespace SonoCap.MES.UI.ViewModels
         int opt = 0;
         string sModel = "SC-GP5";
 
+        public static BitmapImage ByteArrToBitmapImage(byte[] imageData, int width, int height)
+        {
+            try
+            {
+                // 이미지 포맷 지정 (예: Bmp, Jpeg, Png 등)
+                //ImageFormat format = ImageFormat.Bmp;
+                System.Drawing.Imaging.PixelFormat format = System.Drawing.Imaging.PixelFormat.Format24bppRgb;
+
+                // 바이트 배열을 Bitmap으로 변환
+                using (MemoryStream stream = new MemoryStream(imageData))
+                {
+                    Bitmap bitmap = new Bitmap(width, height, format);
+                    Rectangle rect = new Rectangle(0, 0, width, height);
+                    BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.WriteOnly, format);
+                    IntPtr ptr = bmpData.Scan0;
+                    Marshal.Copy(imageData, 0, ptr, imageData.Length);
+                    bitmap.UnlockBits(bmpData);
+
+                    // Convert Bitmap to BitmapImage
+                    BitmapImage imageSource = new BitmapImage();
+                    using (MemoryStream bmpStream = new MemoryStream())
+                    {
+                        bitmap.Save(bmpStream, ImageFormat.Bmp);
+                        bmpStream.Position = 0;
+
+                        imageSource.BeginInit();
+                        imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                        imageSource.StreamSource = bmpStream;
+                        imageSource.EndInit();
+                    }
+
+                    return imageSource;
+                }
+            }
+            catch (Exception ex)
+            {
+                // 예외 처리 (예: 로그 출력)
+                Console.WriteLine($"바이트 배열을 BitmapImage로 변환하는 중 오류 발생: {ex.Message}");
+                return null;
+            }
+        }
+
         private int BitmapToByteArr(byte[] result, Bitmap bitmap)
         {
             BitmapData bmpData = null;
@@ -1935,6 +1981,24 @@ namespace SonoCap.MES.UI.ViewModels
                 Trace.WriteLine(ex.ToString());
                 return -1;
             }
+        }
+
+        private BitmapImage ByteArrToBitmapImage(byte[] imageData)
+        {
+            if (imageData == null || imageData.Length == 0) return null;
+            var image = new BitmapImage();
+            using (var mem = new MemoryStream(imageData))
+            {
+                mem.Position = 0;
+                image.BeginInit();
+                image.CreateOptions = BitmapCreateOptions.None;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = null;
+                image.StreamSource = mem;
+                image.EndInit();
+            }
+            image.Freeze();
+            return image;
         }
 
         private ImageSource ByteArrToImageSource(byte[] img)

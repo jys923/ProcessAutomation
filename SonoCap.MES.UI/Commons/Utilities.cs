@@ -1,27 +1,106 @@
-﻿using SonoCap.MES.Models;
+﻿using Serilog;
+using SonoCap.MES.Models;
+using System.Drawing.Imaging;
+using System.Drawing;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace SonoCap.MES.UI.Commons
 {
     public class Utilities
     {
-        public static bool SaveBitmapToFile(BitmapSource bitmap, string filePath)
+        public static bool SaveImageSourceToFile(ImageSource imageSource, string filePath)
         {
             try
             {
-                // Create a 32-bit per pixel (32bpp) format BMP encoder
-                BitmapEncoder encoder = new BmpBitmapEncoder();
+                // Convert ImageSource to Bitmap
+                Bitmap bitmap = ConvertImageSourceToBitmap(imageSource);
 
-                // Add the bitmap frame to the encoder
-                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                // Save the bitmap to the specified file path
+                bitmap.Save(filePath, ImageFormat.Bmp);
 
-                // Save the encoded image to the specified file path
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                // Dispose the bitmap
+                bitmap.Dispose();
+
+                // Return success (true)
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions (e.g., file access errors)
+                Log.Information($"Error saving bitmap: {ex.Message}");
+
+                // Return failure (false)
+                return false;
+            }
+        }
+
+        private static Bitmap ConvertImageSourceToBitmap(ImageSource imageSource)
+        {
+            var bitmapSource = imageSource as BitmapSource;
+            if (bitmapSource == null)
+                throw new ArgumentException("Invalid ImageSource type. Expected BitmapSource.");
+
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = width * ((bitmapSource.Format.BitsPerPixel + 7) / 8);
+            byte[] bits = new byte[height * stride];
+            bitmapSource.CopyPixels(bits, stride, 0);
+
+            unsafe
+            {
+                fixed (byte* pB = bits)
                 {
-                    encoder.Save(fileStream);
+                    IntPtr ptr = new IntPtr(pB);
+                    return new Bitmap(width, height, stride, System.Drawing.Imaging.PixelFormat.Format32bppArgb, ptr);
+                }
+            }
+        }
+
+        public static bool SaveBitmapToFile(Bitmap bitmap, string filePath)
+        {
+            try
+            {
+                // Save the bitmap to the specified file path
+                bitmap.Save(filePath, ImageFormat.Bmp);
+
+                // Return success (true)
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions (e.g., file access errors)
+                Log.Information($"Error saving bitmap: {ex.Message}");
+
+                // Return failure (false)
+                return false;
+            }
+        }
+
+        public static bool SaveBitmapToFile(byte[] bitmap, string filePath)
+        {
+            try
+            {
+                // Create a BitmapDecoder from the byte array
+                using (var stream = new MemoryStream(bitmap))
+                {
+                    var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.Default);
+                    var frame = decoder.Frames[0]; // Assuming a single frame
+
+                    // Create a BitmapEncoder (e.g., PNG or JPEG)
+                    BitmapEncoder encoder = new BmpBitmapEncoder(); // You can choose other formats like JpegBitmapEncoder
+
+                    // Add the bitmap frame to the encoder
+                    encoder.Frames.Add(frame);
+
+                    // Save the encoded image to the specified file path
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        encoder.Save(fileStream);
+                    }
                 }
 
                 // Return success (true)
@@ -30,9 +109,8 @@ namespace SonoCap.MES.UI.Commons
             catch (Exception ex)
             {
                 // Handle any exceptions (e.g., file access errors)
-                Console.WriteLine($"Error saving bitmap: {ex.Message}");
+                Log.Information($"Error saving bitmap: {ex.Message}");
 
-                // Return failure (false)
                 return false;
             }
         }
