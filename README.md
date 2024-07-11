@@ -14,15 +14,20 @@ remove-migration
 ```
 
 ## Todo List
+- [ ] 한소노 lib에서 영상 직접 받기
+- [ ] winform bmp -> wpf bmp 바꾸기
+- [ ] WPF에서 bmp 파일 저장.
+- [ ] excel export
+- [ ] WPF -> MFC : save 명령 req , MFC : img 저장 , MFC -> WPF : 파일패스 res
 - [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
 - [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
-- [ ] 모달 https://www.youtube.com/watch?v=uBMMvPG7zn4 
-- [ ] 뷰모델간 데이터 전달 https://www.youtube.com/watch?v=_KXr5dGGS3s
 - [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
-- [ ] 윈도우 생명주기
+- [X] 모달 https://www.youtube.com/watch?v=uBMMvPG7zn4 
+- [X] 윈도우 생명주기
 	- https://www.youtube.com/watch?v=SJIhnpb0rM0
 	- 화면 최상단 일때 사진 로드
-- [ ] 윈도우 간 파라미터 전달
+- [X] 뷰모델간 데이터 전달 https://www.youtube.com/watch?v=_KXr5dGGS3s
+- [X] 윈도우 간 파라미터 전달
 	- https://www.youtube.com/watch?v=zDNFFJKW-KE 이거씀 이미 생성되어 있는데 전달
 	- https://www.youtube.com/watch?v=_KXr5dGGS3s 생성시 주입
 	- https://kaki104.tistory.com/869
@@ -58,11 +63,9 @@ remove-migration
 - [ ] datagrid click 세부 내용
 - [X] 기본 포커스 위치?
 	- why 빨간줄 나옴
-- [ ] 한소노 lib에서 영상 직접 받기
 - [X] 모터 모듈 s/n 파일 import
 - [X] TD s/n 파일 import
 - [X] 모터 모듈 s/n -> Lot 라고 바꾸기
-- [ ] winform bmp -> wpf bmp 바꾸기
 - [X] text placeholder hint
 	- https://www.youtube.com/watch?v=QUx2gh0PaEc
 - [X] 벨리데이션
@@ -91,9 +94,9 @@ remove-migration
 	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
 - [X] db crud
 - [X] db 만건 1초 튜닝
-	- [ ] lazy 로딩 끄기 
-	- [ ] join 튜닝, 안쓰기
-	- [X] 뷰 테이블 생성 
+	- [X] 뷰 테이블 생성
+	:x: lazy 로딩
+	:x: join 튜닝
 - [X] model, repo 등 dll 로 빼기
 - [X] mvvm 성능 측정 샘플 추가
 - [X] AOP 로깅 이름,속도

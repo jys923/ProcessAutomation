@@ -1,11 +1,42 @@
 ﻿using SonoCap.MES.Models;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows.Media.Imaging;
 
 namespace SonoCap.MES.UI.Commons
 {
     public class Utilities
     {
+        public static bool SaveBitmapToFile(BitmapSource bitmap, string filePath)
+        {
+            try
+            {
+                // Create a 32-bit per pixel (32bpp) format BMP encoder
+                BitmapEncoder encoder = new BmpBitmapEncoder();
+
+                // Add the bitmap frame to the encoder
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+
+                // Save the encoded image to the specified file path
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    encoder.Save(fileStream);
+                }
+
+                // Return success (true)
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions (e.g., file access errors)
+                Console.WriteLine($"Error saving bitmap: {ex.Message}");
+
+                // Return failure (false)
+                return false;
+            }
+        }
+
         public static void RemoveDuplicateSnDates(ref List<SnDate> snDates)
         {
             snDates = snDates

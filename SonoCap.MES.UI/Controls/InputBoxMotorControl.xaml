@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SonoCap.MES.UI.Controls"
+             xmlns:local="clr-namespace:SonoCap.MES.UI.Controls" xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              Loaded="UserControl_Loaded"
              d:DesignHeight="200" d:DesignWidth="500">
@@ -32,8 +32,33 @@
 
         <Label Grid.Row="0" Content="{Binding Prompt}" Margin="5 5"/>
 
-        <TextBox x:Name="txtInput" Grid.Row="1" Margin="5" 
-             Text="{Binding Response}"/>
+        <!--<TextBox x:Name="txtInput" Grid.Row="1" Margin="5" 
+             Text="{Binding Response}"/>-->
+
+        <local:TextBoxControl x:Name="MTMdSn" Grid.Row="1" Margin="5" FontSize="20" Validating="{Binding ValidationDict[MTMdSn].IsValid}" Text="{Binding MTMdSn, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ValidationDict[MTMdSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[MTMdSn].WaterMarkText}">
+            <b:Interaction.Triggers>
+                <b:EventTrigger EventName="PreviewKeyDown">
+                    <b:InvokeCommandAction Command="{Binding MTMdSnKeyDownCommand}" PassEventArgsToCommand="True"/>
+                </b:EventTrigger>
+            </b:Interaction.Triggers>
+        </local:TextBoxControl>
+        <Popup PlacementTarget="{Binding ElementName=MTMdSn}"
+           Placement="Bottom"
+           StaysOpen="False"
+           IsOpen="{Binding MTMdSnIsPopupOpen}">
+            <ListBox x:Name="FilteredListBox"
+             ItemsSource="{Binding MTMdSnFilteredItems}"
+             IsSynchronizedWithCurrentItem="True"
+             SelectedIndex="{Binding MTMdSnSelectedIndex}"
+             KeyboardNavigation.DirectionalNavigation="Contained">
+                <ListBox.Style>
+                    <Style TargetType="ListBox">
+                        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+                    </Style>
+                </ListBox.Style>
+            </ListBox>
+        </Popup>
+        <TextBlock Grid.Row="6" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding ValidationDict[MTMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
 
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
@@ -44,7 +69,7 @@
               Content="확인"
               FontSize="15"
               Margin="5" 
-              IsDefault="True"
+              IsDefault="False"
               Cursor="Hand"
               Style="{StaticResource MetroBlueButtonStyle}" 
               Command="{Binding OkCommand}"

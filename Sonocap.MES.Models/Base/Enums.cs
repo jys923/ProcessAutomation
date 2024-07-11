@@ -75,14 +75,17 @@
 
     public enum TestCategories
     {
-        All = 0,
+        All = -1,
+        None = 0,
         Processing = 1,
-        Process,
-        Dispatch,
+        Process = 2,
+        Dispatch = 3,
     }
 
     public enum TestCategoriesKor
     {
+        All = -1,
+        None = 0,
         공정용 = 1,
         최종용,
         출하용,
@@ -96,6 +99,7 @@
 
     public enum TestTypes
     {
+        None = 0,
         Align = 1,
         Axial,
         Lateral,

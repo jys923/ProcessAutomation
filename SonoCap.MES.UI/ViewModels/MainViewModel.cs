@@ -792,7 +792,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void InputBox()
         {
-            var result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^");
+            var result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^",_motorModuleRepository);
             if (result == null)
             {
                 MessageBox.Show("취소됨");

@@ -97,7 +97,7 @@
                     <Border Grid.Column="3" Grid.Row="3" Background="{Binding BorderBackgrounds[33].Value}"/>
                     <Border Grid.Column="4" Grid.Row="3" Background="{StaticResource CellBodyBrush}"/>
                     <!-- 버튼 컨트롤 -->
-                    <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent">
+                    <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -128,7 +128,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" Background="Transparent">
+                    <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -159,7 +159,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" Background="Transparent">
+                    <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -190,9 +190,9 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent"/>
+                    <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}"/>
 
-                    <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent">
+                    <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -223,7 +223,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" Background="Transparent">
+                    <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -254,7 +254,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" Background="Transparent">
+                    <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -285,9 +285,9 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent"/>
+                    <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}"/>
 
-                    <Button Grid.Row="3" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" Background="Transparent">
+                    <Button Grid.Row="3" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -318,7 +318,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="3" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" Background="Transparent">
+                    <Button Grid.Row="3" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -349,7 +349,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="3" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" Background="Transparent">
+                    <Button Grid.Row="3" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
                         <Button.Style>
                             <Style TargetType="{x:Type Button}">
                                 <Style.Triggers>
@@ -380,7 +380,7 @@
                             </b:EventTrigger>
                         </b:Interaction.Triggers>
                     </Button>
-                    <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent"/>
+                    <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}"/>
                 </Grid>
             </GroupBox>
             <Grid Grid.Row="1" Margin="0">

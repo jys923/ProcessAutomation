@@ -15,7 +15,7 @@ namespace SonoCap.MES.UI.Controls
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            txtInput.Focus();
+            MTMdSn.Focus();
         }
     }
 }

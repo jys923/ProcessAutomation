@@ -10,7 +10,7 @@ namespace SonoCap.MES.UI.ViewModels
         private Dictionary<TKey, TValue> _internalDictionary = new Dictionary<TKey, TValue>();
 
         // PropertyChanged 이벤트는 속성이 변경될 때 발생합니다.
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         // 인덱서는 키에 대한 값을 가져오거나 설정합니다.
         // 값이 설정될 때마다 PropertyChanged 이벤트를 발생시킵니다.
