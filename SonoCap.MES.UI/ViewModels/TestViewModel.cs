@@ -286,7 +286,7 @@ namespace SonoCap.MES.UI.ViewModels
         private Test? _test { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
 
-        //private readonly ISocketService _socketService;
+        private readonly ISocketService _socketService;
         private readonly VILibWrapper _VI;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -303,7 +303,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IPTRViewRepository _pTRViewRepository;
 
         public TestViewModel(
-            //ISocketService socketService,
+            ISocketService socketService,
             VILibWrapper VILibWrapper,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
@@ -319,7 +319,7 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository,
             IPTRViewRepository pTRViewRepository)
         {
-            //_socketService = socketService;
+            _socketService = socketService;
             _VI = VILibWrapper;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
@@ -1129,7 +1129,6 @@ namespace SonoCap.MES.UI.ViewModels
             //    }
             //});
 
-            _socketService = new SocketService();
             Task.Run(async () =>
             {
                 try
@@ -1183,11 +1182,11 @@ namespace SonoCap.MES.UI.ViewModels
             ByteArrToBitmap(buffer, m_bmpRes);
             string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
             m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
-            ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                SrcImg = (BitmapImage)tmpImg;
-            });
+            //ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
+            //App.Current.Dispatcher.Invoke(() =>
+            //{
+            //    SrcImg = (BitmapImage)tmpImg;
+            //});
         }
 
         private async void LogIn()
@@ -2043,7 +2042,6 @@ namespace SonoCap.MES.UI.ViewModels
         uint size = 0;
         int opt = 0;
         string sModel = "SC-GP5";
-        private SocketService _socketService;
 
         public static BitmapImage ByteArrToBitmapImage(byte[] imageData, int width, int height)
         {

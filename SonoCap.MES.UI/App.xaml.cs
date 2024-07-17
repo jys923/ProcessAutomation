@@ -79,7 +79,7 @@ namespace SonoCap.MES.UI
             services.AddTransient<ITransducerRepository, TransducerRepository>();
             services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
-            //services.AddSingleton<ISocketService, SocketService>();
+            services.AddTransient<ISocketService, SocketService>();
         }
 
         private static void RegisterViewModels(IServiceCollection services)
