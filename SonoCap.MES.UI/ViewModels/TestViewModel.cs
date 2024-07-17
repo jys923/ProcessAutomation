@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Operation.Buffer;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
@@ -1026,9 +1027,10 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SendAsync()
         {
-            NetworkStream stream = _client.GetStream();
-            byte[] msgBuffer = Encoding.UTF8.GetBytes("1");
-            await stream.WriteAsync(msgBuffer);
+            //NetworkStream stream = _client.GetStream();
+            //byte[] msgBuffer = Encoding.UTF8.GetBytes("1");
+            //await stream.WriteAsync(msgBuffer);
+            await _socketService.SendDataAsync("1");
         }
 
         private TcpClient _client = default!;
@@ -1100,16 +1102,15 @@ namespace SonoCap.MES.UI.ViewModels
         private void Init()
         {
             //_socketService.DataReceived += OnDataReceived;
-            _client = new TcpClient();
+            //_client = new TcpClient();
 
-            // 서버 IP 주소와 포트 번호
+            //// 서버 IP 주소와 포트 번호
             string serverIP = "127.0.0.1";
             int port = 9999;
 
             // 서버에 연결
-            _client.Connect(IPAddress.Parse(serverIP), port);
-
-            Task.Run(async () => await ReceiveDataAsync());
+            //_client.Connect(IPAddress.Parse(serverIP), port);
+            //Task.Run(async () => await ReceiveDataAsync());
 
             //Task.Run(async () => await _socketService.ConnectAsync(serverIP, port));
             //Task.Run(async () => await _socketService.ReceiveDataAsync());
@@ -1127,6 +1128,24 @@ namespace SonoCap.MES.UI.ViewModels
             //        Log.Information($"연결 및 데이터 수신 오류: {ex.Message}");
             //    }
             //});
+
+            _socketService = new SocketService();
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await _socketService.ConnectAsync(serverIP, port);
+                    await _socketService.ReceiveDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    // 예외 처리 필요
+                    Log.Information($"연결 및 데이터 수신 오류: {ex.Message}");
+                }
+            });
+
+            _socketService.DataReceived += OnDataReceived;
+
 
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var timer = new System.Timers.Timer(1000);//1시간 마다
@@ -1156,6 +1175,19 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+        }
+
+        private void OnDataReceived(object? sender, byte[] buffer)
+        {
+            Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            ByteArrToBitmap(buffer, m_bmpRes);
+            string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
+            m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
+            ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                SrcImg = (BitmapImage)tmpImg;
+            });
         }
 
         private async void LogIn()
@@ -2011,6 +2043,7 @@ namespace SonoCap.MES.UI.ViewModels
         uint size = 0;
         int opt = 0;
         string sModel = "SC-GP5";
+        private SocketService _socketService;
 
         public static BitmapImage ByteArrToBitmapImage(byte[] imageData, int width, int height)
         {

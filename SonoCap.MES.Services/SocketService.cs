@@ -59,10 +59,10 @@ namespace SonoCap.MES.Services
                 {
                     Log.Information("ReceiveDataAsync");
                     // 헤더를 읽어 데이터 크기를 가져옵니다.
-                    byte[] headerBuffer = new byte[4];
-                    await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
-                    int dataSize = BitConverter.ToInt32(headerBuffer, 0);
-                    dataSize = 1048576;
+                    //byte[] headerBuffer = new byte[4];
+                    //await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
+                    //int dataSize = BitConverter.ToInt32(headerBuffer, 0);
+                    int dataSize = 1048576;
                     // 데이터를 받을 버퍼를 초기화합니다.
                     byte[] buffer = new byte[dataSize];
                     int totalBytesRead = 0;
