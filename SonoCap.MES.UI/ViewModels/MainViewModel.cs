@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -52,7 +53,7 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _title = default!;
 
-        private TcpClient _client;
+        private TcpClient _client = default!;
 
         public MainViewModel(
             IViewService viewService,
@@ -99,16 +100,16 @@ namespace SonoCap.MES.UI.ViewModels
             FilteredItems = new ObservableCollection<string>(Items);
             KeyDownCommand = new RelayCommand<System.Windows.Input.KeyEventArgs>(OnKeyDown);
 
-            _client = new TcpClient();
+            //_client = new TcpClient();
 
-            // 서버 IP 주소와 포트 번호
-            string serverIP = "127.0.0.1";
-            int port = 9999;
+            //// 서버 IP 주소와 포트 번호
+            //string serverIP = "127.0.0.1";
+            //int port = 9999;
 
-            // 서버에 연결
-            _client.Connect(IPAddress.Parse(serverIP), port);
+            //// 서버에 연결
+            //_client.Connect(IPAddress.Parse(serverIP), port);
 
-            Task.Run(async () => await ReceiveDataAsync());
+            //Task.Run(async () => await ReceiveDataAsync());
         }
 
         [RelayCommand]
@@ -872,7 +873,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private async Task ReceiveDataAsync()
+        private async Task ReceiveDataAsync3()
         {
             NetworkStream stream = _client.GetStream();
 
@@ -896,6 +897,52 @@ namespace SonoCap.MES.UI.ViewModels
             ByteArrToBitmap(buffer, m_bmpRes);
             m_bmpRes.Save("test.bmp", ImageFormat.Bmp);
         }
+
+        public async Task ReceiveDataAsync()
+        {
+            try
+            {
+                NetworkStream stream = _client.GetStream();
+
+                while (_client.Connected)
+                {
+                    // 헤더를 읽어 데이터 크기를 가져옵니다.
+                    //byte[] headerBuffer = new byte[4];
+                    //await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
+                    //int dataSize = BitConverter.ToInt32(headerBuffer, 0);
+                    int dataSize = 1048576;
+                    // 데이터를 받을 버퍼를 초기화합니다.
+                    byte[] buffer = new byte[dataSize];
+                    int totalBytesRead = 0;
+
+                    // 데이터를 전부 받을 때까지 반복해서 읽습니다.
+                    while (totalBytesRead < dataSize)
+                    {
+                        int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, dataSize - totalBytesRead);
+                        if (bytesRead == 0)
+                        {
+                            // 연결이 끊겼거나 EOF
+                            throw new IOException("Connection closed prematurely.");
+                        }
+                        totalBytesRead += bytesRead;
+                    }
+
+                    Log.Information($"Total bytes read: {totalBytesRead}");
+                    Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    ByteArrToBitmap(buffer, m_bmpRes);
+                    string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
+                    m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
+                    // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
+                    //OnDataReceived(buffer);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 예외 처리 필요
+                Log.Information($"수신 오류: {ex.Message}");
+            }
+        }
+
 
         [RelayCommand]
         private void ReceiveSoc()

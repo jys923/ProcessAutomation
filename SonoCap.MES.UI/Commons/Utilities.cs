@@ -12,6 +12,12 @@ namespace SonoCap.MES.UI.Commons
 {
     public class Utilities
     {
+        public static long GetCurrentUnixTimestampSeconds()
+        {
+            DateTimeOffset epochTime = DateTimeOffset.UtcNow;
+            return epochTime.ToUnixTimeSeconds();
+        }
+
         public static bool SaveImageSourceToFile(ImageSource imageSource, string filePath)
         {
             try

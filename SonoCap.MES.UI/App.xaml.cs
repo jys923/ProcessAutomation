@@ -12,6 +12,8 @@ using AspectCore.Configuration;
 using SonoCap.Interceptors;
 using SonoCap.MES.UI.Services;
 using VILib;
+using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.Services;
 
 namespace SonoCap.MES.UI
 {
@@ -77,6 +79,7 @@ namespace SonoCap.MES.UI
             services.AddTransient<ITransducerRepository, TransducerRepository>();
             services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
+            //services.AddSingleton<ISocketService, SocketService>();
         }
 
         private static void RegisterViewModels(IServiceCollection services)
