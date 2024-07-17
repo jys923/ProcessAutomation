@@ -80,5 +80,8 @@
         <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="100"/>
         <Button Content="GetSns" Command="{Binding GetSnsCommand}" HorizontalAlignment="Left" Margin="200,250,0,0" VerticalAlignment="Top" Width="100"/>
         <Button Content="InputBox" Command="{Binding InputBoxCommand}" HorizontalAlignment="Left" Margin="200,300,0,0" VerticalAlignment="Top" Width="100"/>
+        <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,200,0,0" TextWrapping="Wrap" Text="{Binding Send}" VerticalAlignment="Top" Width="100"/>
+        <Button Content="send" Command="{Binding SendSocCommand}" HorizontalAlignment="Left" Margin="300,250,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="receive" Command="{Binding ReceiveSocCommand}" HorizontalAlignment="Left" Margin="300,300,0,0" VerticalAlignment="Top" Width="100"/>
     </Grid>
 </Window>

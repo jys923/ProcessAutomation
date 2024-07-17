@@ -7,7 +7,6 @@ using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Microsoft.Win32;
 using SonoCap.MES.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -17,6 +16,13 @@ using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows;
 using System.ComponentModel;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
+using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -45,6 +51,8 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private string _title = default!;
+
+        private TcpClient _client;
 
         public MainViewModel(
             IViewService viewService,
@@ -89,7 +97,18 @@ namespace SonoCap.MES.UI.ViewModels
             };
 
             FilteredItems = new ObservableCollection<string>(Items);
-            KeyDownCommand = new RelayCommand<KeyEventArgs>(OnKeyDown);
+            KeyDownCommand = new RelayCommand<System.Windows.Input.KeyEventArgs>(OnKeyDown);
+
+            _client = new TcpClient();
+
+            // 서버 IP 주소와 포트 번호
+            string serverIP = "127.0.0.1";
+            int port = 9999;
+
+            // 서버에 연결
+            _client.Connect(IPAddress.Parse(serverIP), port);
+
+            Task.Run(async () => await ReceiveDataAsync());
         }
 
         [RelayCommand]
@@ -594,7 +613,7 @@ namespace SonoCap.MES.UI.ViewModels
         {
             IEnumerable<Transducer> tds = await _transducerRepository.GetAllAsync();
             IEnumerable<MotorModule> mtMds = await _motorModuleRepository.GetAllAsync();
-            var openFileDialog = new OpenFileDialog();
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog();
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
@@ -741,7 +760,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private void OnKeyDown(KeyEventArgs e)
+        private void OnKeyDown(System.Windows.Input.KeyEventArgs e)
         {
             if (e == null) return;
 
@@ -795,11 +814,11 @@ namespace SonoCap.MES.UI.ViewModels
             var result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^",_motorModuleRepository);
             if (result == null)
             {
-                MessageBox.Show("취소됨");
+                System.Windows.MessageBox.Show("취소됨");
             }
             else
             {
-                MessageBox.Show(result.Sn);
+                System.Windows.MessageBox.Show(result.Sn);
             }
 
             //MotorModule? result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^");
@@ -811,6 +830,101 @@ namespace SonoCap.MES.UI.ViewModels
             //{
             //    MessageBox.Show(result.Sn);
             //}
+        }
+
+        [ObservableProperty]
+        private string _send = default!;
+
+        [RelayCommand]
+        private async Task SendSocAsync()
+        {
+            //_client.Send(Send);
+            NetworkStream stream =_client.GetStream();
+            byte[] msgBuffer = Encoding.UTF8.GetBytes(Send);
+            await stream.WriteAsync(msgBuffer);
+
+            //var buffer = new byte[1024];
+            //int read = await stream.ReadAsync(buffer, 0, buffer.Length);
+            //string msg = Encoding.UTF8.GetString(buffer,0,read);
+
+            //Log.Information($"Received {msg}");
+        }
+
+        private async Task ReceiveDataAsync2()
+        {
+            NetworkStream stream = _client.GetStream();
+            byte[] buffer = new byte[1024];
+
+            while (true)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
+                {
+                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    // 여기서 받은 데이터를 처리하면 됩니다.
+                    Log.Information($"Received data: {receivedData}");
+                }
+                else
+                {
+                    // 서버가 연결을 끊었을 때 처리할 로직을 추가하세요.
+                    break;
+                }
+            }
+        }
+
+        private async Task ReceiveDataAsync()
+        {
+            NetworkStream stream = _client.GetStream();
+
+            byte[] buffer = new byte[1048576];
+            int totalBytesRead = 0;
+
+            while (totalBytesRead < buffer.Length)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, buffer.Length - totalBytesRead);
+                if (bytesRead == 0)
+                {
+                    // 연결이 끊겼거나 EOF
+                    break;
+                }
+                totalBytesRead += bytesRead;
+            }
+            // totalBytesRead는 실제로 읽힌 바이트 수를 나타냅니다.
+            Log.Information($"Total bytes read: {totalBytesRead}");
+
+            Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            ByteArrToBitmap(buffer, m_bmpRes);
+            m_bmpRes.Save("test.bmp", ImageFormat.Bmp);
+        }
+
+        [RelayCommand]
+        private void ReceiveSoc()
+        {
+        }
+
+        private int ByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
+        {
+            BitmapData? bmpData = null;
+            try
+            {
+                bmpData = m_bmp.LockBits(new Rectangle(0, 0,
+                                                    m_bmp.Width,
+                                                    m_bmp.Height),
+                                                    ImageLockMode.WriteOnly,
+                                                    m_bmp.PixelFormat);
+
+                IntPtr pNative = bmpData.Scan0;
+                Marshal.Copy(raw_img, 0, pNative, raw_img.Length);
+                m_bmp.UnlockBits(bmpData);
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                m_bmp.UnlockBits(bmpData);
+                Trace.WriteLine(ex.ToString());
+                return -1;
+            }
         }
     }
 }

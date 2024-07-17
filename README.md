@@ -15,6 +15,13 @@ remove-migration
 
 ## Todo List
 - [ ] 한소노 lib에서 영상 직접 받기
+- [ ] 이벤트 핸들러, 콜백 쓰는 방법
+- [ ] mfc, wpf 통신 방법 소켓
+	- <a href="https://petra.tistory.com/613">cpp 소켓 프로그래밍</a>
+	- <a href="https://learn.microsoft.com/ko-kr/windows/win32/winsock/finished-server-and-client-code">cpp 소켓 프로그래밍</a>
+	- <a href="https://velog.io/@blanca/C-winsock2%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%86%8C%EC%BC%93-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84">cpp 소켓 프로그래밍</a>
+	- <a href="https://www.youtube.com/playlist?list=PLlrfTSXS0LLL8dHVmURJiaf1ggZSFZV6u">cs 소켓 프로그래밍</a>
+	- :star: <a href="https://zadd.tistory.com/32">mfc 소켓 프로그래밍</a>
 - [ ] 결과 이미지에 원그리기
 - [ ] winform bmp -> wpf bmp 바꾸기
 - [X] WPF에서 bmp 파일 저장.
