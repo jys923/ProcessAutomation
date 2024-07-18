@@ -782,40 +782,20 @@ namespace SonoCap.MES.UI.ViewModels
 
             //    App.Current.Dispatcher.Invoke(() =>
             //    {
-            //        SrcImg = (BitmapImage)srcImg;
+            //        SrcImg = BitmapToImageSource(m_bmpRes);
             //    });
 
             //    //draw circle
-
-            //    // 원본 Bitmap의 픽셀 형식과 크기로 새로운 Bitmap 객체를 생성
-            //    Bitmap newBitmap = new Bitmap(m_bmpRes.Width, m_bmpRes.Height, m_bmpRes.PixelFormat);
-
-            //    // Graphics 객체를 사용하여 원본 Bitmap의 이미지를 새로운 Bitmap에 그립니다.
-            //    using (Graphics g = Graphics.FromImage(newBitmap))
-            //    {
-            //        g.DrawImage(m_bmpRes, 0, 0);
-            //    }
-
-            //    // 원본 Bitmap 객체를 해제합니다.
-            //    m_bmpRes.Dispose();
-
-            //    resImg = BitmapToImageSource(newBitmap);
-            //    DrawCircleOutline(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 5);
-
-            //    ByteArrToBitmap(data, m_bmpRes);
-
-            //    //m_bmpRes.Save("test.bmp", ImageFormat.Bmp);
+            //    DrawCircle(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 5);
 
             //    App.Current.Dispatcher.Invoke(() =>
             //    {
-            //        ResImg = (BitmapImage)resImg;
+            //        ResImg = BitmapToImageSource(m_bmpRes);
+            //        ResTxt = "draw cicle";
+            //        ResLogs.Add($"Succ Test");
+            //        TestResult = -2;
             //    });
 
-            //    ResTxt = "draw cicle";
-            //    //string newItem = $"Succ Test {ResLogs.Count + 1} {ResTxt}";
-            //    string newItem = $"Succ Test";
-            //    ResLogs.Add(newItem);
-            //    TestResult = -2;
             //    ValidationDict[nameof(TestResult)].IsEnabled = true;
 
             //    // TaskCompletionSource를 완료시킵니다.
@@ -827,6 +807,44 @@ namespace SonoCap.MES.UI.ViewModels
 
             //// 응답을 기다립니다.
             //await responseReceived.Task;
+            
+            // 데이터 전송
+            await _socketService.SendDataAsync("1");
+
+            // 응답을 기다립니다.
+            byte[]? response = await _socketService.WaitForResponseAsync();
+            // 응답 처리
+            if (response != null)
+            {
+                Log.Information($"response");
+                // 응답을 받았을 때의 로직
+                // 데이터를 받으면 응답 완료
+                Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                ByteArrToBitmap(response, m_bmpRes);
+                m_bmpRes.Save($"{Utilities.GetCurrentUnixTimestampSeconds}.bmp", ImageFormat.Bmp);
+
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    SrcImg = BitmapToImageSource(m_bmpRes);
+                });
+
+                //draw circle
+                DrawCircle(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 5);
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    ResImg = BitmapToImageSource(m_bmpRes);
+                    ResTxt = "draw cicle";
+                    ResLogs.Add($"Succ Test");
+                    TestResult = -2;
+                });
+
+                ValidationDict[nameof(TestResult)].IsEnabled = true;
+            }
+            else
+            {
+                // 응답을 받지 못했을 때의 로직
+                // 예: 타임아웃 처리 등
+            }
         }
 
         private bool CanNext()
@@ -1030,6 +1048,8 @@ namespace SonoCap.MES.UI.ViewModels
             //NetworkStream stream = _client.GetStream();
             //byte[] msgBuffer = Encoding.UTF8.GetBytes("1");
             //await stream.WriteAsync(msgBuffer);
+            Log.Information($"Send");
+            ResLogs.Add("123");
             await _socketService.SendDataAsync("1");
         }
 
@@ -1101,34 +1121,9 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
-            //_socketService.DataReceived += OnDataReceived;
-            //_client = new TcpClient();
-
             //// 서버 IP 주소와 포트 번호
             string serverIP = "127.0.0.1";
             int port = 9999;
-
-            // 서버에 연결
-            //_client.Connect(IPAddress.Parse(serverIP), port);
-            //Task.Run(async () => await ReceiveDataAsync());
-
-            //Task.Run(async () => await _socketService.ConnectAsync(serverIP, port));
-            //Task.Run(async () => await _socketService.ReceiveDataAsync());
-
-            //Task.Run(async () =>
-            //{
-            //    try
-            //    {
-            //        await _socketService.ConnectAsync(serverIP, port);
-            //        await _socketService.ReceiveDataAsync();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        // 예외 처리 필요
-            //        Log.Information($"연결 및 데이터 수신 오류: {ex.Message}");
-            //    }
-            //});
-
             Task.Run(async () =>
             {
                 try
@@ -1143,7 +1138,7 @@ namespace SonoCap.MES.UI.ViewModels
                 }
             });
 
-            _socketService.DataReceived += OnDataReceived;
+            //_socketService.DataReceived += OnDataReceived;
 
 
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -1174,19 +1169,6 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-        }
-
-        private void OnDataReceived(object? sender, byte[] buffer)
-        {
-            Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            ByteArrToBitmap(buffer, m_bmpRes);
-            string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
-            m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
-            //ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
-            //App.Current.Dispatcher.Invoke(() =>
-            //{
-            //    SrcImg = (BitmapImage)tmpImg;
-            //});
         }
 
         private async void LogIn()
@@ -2334,7 +2316,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         // 원의 외곽선을 그리는 함수
-        public void DrawCircleOutline(Bitmap bitmap, int centerX, int centerY, int radius, System.Drawing.Color color, int thickness)
+        public void DrawCircle(Bitmap bitmap, int centerX, int centerY, int radius, System.Drawing.Color color, int thickness)
         {
             // Graphics 객체 생성
             using (Graphics graphics = Graphics.FromImage(bitmap))

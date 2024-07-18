@@ -8,7 +8,9 @@ namespace SonoCap.MES.Services
 {
     public class SocketService : ISocketService
     {
+        private byte[]? receivedData;
         private TcpClient _client;
+        private TaskCompletionSource<bool> _responseReceived = new TaskCompletionSource<bool>();
 
         public event EventHandler<byte[]>? DataReceived;
 
@@ -29,25 +31,6 @@ namespace SonoCap.MES.Services
                 Console.WriteLine($"연결 오류: {ex.Message}");
             }
         }
-
-        //public async Task ReceiveDataAsync2()
-        //{
-        //    try
-        //    {
-        //        byte[] buffer = new byte[1024];
-        //        while (true)
-        //        {
-        //            int bytesRead = await _client.GetStream().ReadAsync(buffer, 0, buffer.Length);
-        //            string dataReceived = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-        //            OnDataReceived(dataReceived);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // 예외 처리 필요
-        //        Console.WriteLine($"수신 오류: {ex.Message}");
-        //    }
-        //}
 
         public async Task ReceiveDataAsync()
         {
@@ -81,8 +64,12 @@ namespace SonoCap.MES.Services
 
                     Log.Information($"Total bytes read: {totalBytesRead}");
 
-                    // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
+                    // 응답을 기다리는 작업이 완료됨을 알립니다.
+                    receivedData = buffer;
                     OnDataReceived(buffer);
+                    OnResponseReceived();
+
+                    // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
                 }
             }
             catch (Exception ex)
@@ -110,6 +97,18 @@ namespace SonoCap.MES.Services
         protected virtual void OnDataReceived(byte[] data)
         {
             DataReceived?.Invoke(this, data);
+        }
+
+        public async Task<byte[]?> WaitForResponseAsync()
+        {
+            await _responseReceived.Task;
+            return receivedData;
+        }
+
+        // 응답을 받았을 때 호출하는 메서드
+        private void OnResponseReceived()
+        {
+            _responseReceived.TrySetResult(true);
         }
     }
 }

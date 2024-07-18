@@ -7,5 +7,6 @@
         Task ConnectAsync(string serverIP, int port);
         Task ReceiveDataAsync();
         Task SendDataAsync(string data);
+        Task<byte[]?> WaitForResponseAsync();
     }
 }

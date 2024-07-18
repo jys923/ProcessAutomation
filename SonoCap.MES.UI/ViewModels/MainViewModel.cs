@@ -24,6 +24,8 @@ using System.Drawing.Imaging;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -836,6 +838,9 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _send = default!;
 
+        [ObservableProperty]
+        private ImageSource _srcImg = default!;
+
         [RelayCommand]
         private async Task SendSocAsync()
         {
@@ -849,6 +854,59 @@ namespace SonoCap.MES.UI.ViewModels
             //string msg = Encoding.UTF8.GetString(buffer,0,read);
 
             //Log.Information($"Received {msg}");
+
+            int dataSize = 1048576;
+            // 데이터를 받을 버퍼를 초기화합니다.
+            byte[] buffer = new byte[dataSize];
+            int totalBytesRead = 0;
+
+            // 데이터를 전부 받을 때까지 반복해서 읽습니다.
+            while (totalBytesRead < dataSize)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, dataSize - totalBytesRead);
+                if (bytesRead == 0)
+                {
+                    // 연결이 끊겼거나 EOF
+                    throw new IOException("Connection closed prematurely.");
+                }
+                totalBytesRead += bytesRead;
+            }
+
+            Log.Information($"Total bytes read: {totalBytesRead}");
+            Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            ByteArrToBitmap(buffer, m_bmpRes);
+            string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
+            m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
+            ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
+            SrcImg = (BitmapImage)tmpImg;
+            //await App.Current.Dispatcher.InvokeAsync(() =>
+            //{
+            //    SrcImg = (BitmapImage)tmpImg;
+            //});
+
+        }
+
+        private ImageSource BitmapToImageSource(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                return null;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                // 비트맵을 MemoryStream에 복사합니다.
+                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
+
+                // 비트맵 이미지를 생성하고 반환합니다.
+                BitmapImage imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                imageSource.StreamSource = stream;
+                imageSource.EndInit();
+
+                return imageSource;
+            }
         }
 
         private async Task ReceiveDataAsync2()
