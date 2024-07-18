@@ -7,11 +7,98 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace SonoCap.MES.UI.Commons
 {
     public class Utilities
     {
+        public static bool IsValidImageFormat(Stream stream)
+        {
+            try
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                BitmapImage tempImage = new BitmapImage();
+                tempImage.BeginInit();
+                tempImage.CacheOption = BitmapCacheOption.None;
+                tempImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                tempImage.StreamSource = stream;
+                tempImage.EndInit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Information(ex.ToString());
+                return false;
+            }
+        }
+
+        public static int ByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
+        {
+            BitmapData? bmpData = null;
+            try
+            {
+                bmpData = m_bmp.LockBits(new Rectangle(0, 0,
+                                                    m_bmp.Width,
+                                                    m_bmp.Height),
+                                                    ImageLockMode.WriteOnly,
+                                                    m_bmp.PixelFormat);
+
+                IntPtr pNative = bmpData.Scan0;
+                Marshal.Copy(raw_img, 0, pNative, raw_img.Length);
+                m_bmp.UnlockBits(bmpData);
+
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                m_bmp.UnlockBits(bmpData);
+                Trace.WriteLine(ex.ToString());
+                return -1;
+            }
+        }
+
+        public static ImageSource BitmapToImageSource(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                return null;
+
+            using (MemoryStream stream = new MemoryStream())
+            {
+                // 비트맵을 MemoryStream에 복사합니다.
+                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
+
+                // 비트맵 이미지를 생성하고 반환합니다.
+                BitmapImage imageSource = new BitmapImage();
+                imageSource.BeginInit();
+                imageSource.CacheOption = BitmapCacheOption.OnLoad;
+                imageSource.StreamSource = stream;
+                imageSource.EndInit();
+
+                return imageSource;
+            }
+        }
+
+        // 원의 외곽선을 그리는 함수
+        public static void DrawCircle(Bitmap bitmap, int centerX, int centerY, int radius, System.Drawing.Color color, int thickness)
+        {
+            // Graphics 객체 생성
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                // 원을 그리기 위한 사각형 영역 계산
+                Rectangle rectangle = new Rectangle(centerX - radius, centerY - radius, radius * 2, radius * 2);
+
+                // 원 외곽선 그리기
+                using (System.Drawing.Pen pen = new System.Drawing.Pen(color, thickness))
+                {
+                    graphics.DrawEllipse(pen, rectangle);
+                }
+            }
+        }
+
         public static long GetCurrentUnixTimestampSeconds()
         {
             DateTimeOffset epochTime = DateTimeOffset.UtcNow;

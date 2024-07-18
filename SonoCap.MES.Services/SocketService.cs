@@ -37,7 +37,6 @@ namespace SonoCap.MES.Services
             try
             {
                 NetworkStream stream = _client.GetStream();
-
                 while (_client.Connected)
                 {
                     Log.Information("ReceiveDataAsync");
@@ -109,6 +108,7 @@ namespace SonoCap.MES.Services
         private void OnResponseReceived()
         {
             _responseReceived.TrySetResult(true);
+            _responseReceived = new TaskCompletionSource<bool>(); // 새로운 TaskCompletionSource 생성
         }
     }
 }

@@ -287,7 +287,6 @@ namespace SonoCap.MES.UI.ViewModels
         private Tester? _tester { get; set; } = default!;
 
         private readonly ISocketService _socketService;
-        private readonly VILibWrapper _VI;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -304,7 +303,6 @@ namespace SonoCap.MES.UI.ViewModels
 
         public TestViewModel(
             ISocketService socketService,
-            VILibWrapper VILibWrapper,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
@@ -320,7 +318,6 @@ namespace SonoCap.MES.UI.ViewModels
             IPTRViewRepository pTRViewRepository)
         {
             _socketService = socketService;
-            _VI = VILibWrapper;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
@@ -377,46 +374,6 @@ namespace SonoCap.MES.UI.ViewModels
                 _oldRow = row;
                 _oldCol = col;
                 // 로직
-            }
-
-            if (false)
-            {
-                switch (_testCategory)
-                {
-                    case TestCategories.Processing:
-                        TDSn = _transducer?.Sn ?? TDSn;
-                        break;
-                    case TestCategories.Process:
-                        TDMdSn = _transducerModule?.Sn ?? TDMdSn;
-                        break;
-                    case TestCategories.Dispatch:
-                        ProbeSn = _probe?.Sn ?? ProbeSn;
-                        break;
-                }
-                
-                ClearAll(_testCategory);
-                ClearValidatingWaterMark();
-                //ChangeIsEnabled(_testCategory);
-
-                _probe = null;
-                _transducerModule = null;
-                _transducer = null;
-                //_motorModule = null;
-                _pTRView = null;
-                TestResult = -2;
-
-                switch (_testCategory)
-                {
-                    case TestCategories.Processing:
-                        OnTDSnChanged(TDSn);
-                        break;
-                    case TestCategories.Process:
-                        OnTDMdSnChanged(TDMdSn);
-                        break;
-                    case TestCategories.Dispatch:
-                        OnProbeSnChanged(ProbeSn);
-                        break;
-                }
             }
 
             SrcImg = default!;
@@ -772,42 +729,6 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand(CanExecute = nameof(CanTest))]
         private async Task TestAsync()
         {
-            //TaskCompletionSource<bool> responseReceived = new TaskCompletionSource<bool>();
-            //_socketService.DataReceived += (sender, data) =>
-            //{
-            //    // 데이터를 받으면 응답 완료
-            //    Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            //    ByteArrToBitmap(data, m_bmpRes);
-            //    //m_bmpRes.Save("test.bmp", ImageFormat.Bmp);
-
-            //    App.Current.Dispatcher.Invoke(() =>
-            //    {
-            //        SrcImg = BitmapToImageSource(m_bmpRes);
-            //    });
-
-            //    //draw circle
-            //    DrawCircle(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 5);
-
-            //    App.Current.Dispatcher.Invoke(() =>
-            //    {
-            //        ResImg = BitmapToImageSource(m_bmpRes);
-            //        ResTxt = "draw cicle";
-            //        ResLogs.Add($"Succ Test");
-            //        TestResult = -2;
-            //    });
-
-            //    ValidationDict[nameof(TestResult)].IsEnabled = true;
-
-            //    // TaskCompletionSource를 완료시킵니다.
-            //    responseReceived.TrySetResult(true);
-            //};
-
-            //// 데이터 전송
-            //await _socketService.SendDataAsync("1");
-
-            //// 응답을 기다립니다.
-            //await responseReceived.Task;
-            
             // 데이터 전송
             await _socketService.SendDataAsync("1");
 
@@ -816,23 +737,22 @@ namespace SonoCap.MES.UI.ViewModels
             // 응답 처리
             if (response != null)
             {
-                Log.Information($"response");
+                Log.Information($"TestAsync response");
                 // 응답을 받았을 때의 로직
                 // 데이터를 받으면 응답 완료
                 Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                ByteArrToBitmap(response, m_bmpRes);
-                m_bmpRes.Save($"{Utilities.GetCurrentUnixTimestampSeconds}.bmp", ImageFormat.Bmp);
+                Utilities.ByteArrToBitmap(response, m_bmpRes);
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    SrcImg = BitmapToImageSource(m_bmpRes);
+                    SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
                 });
 
                 //draw circle
-                DrawCircle(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 5);
+                Utilities.DrawCircle(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 3);
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    ResImg = BitmapToImageSource(m_bmpRes);
+                    ResImg = Utilities.BitmapToImageSource(m_bmpRes);
                     ResTxt = "draw cicle";
                     ResLogs.Add($"Succ Test");
                     TestResult = -2;
@@ -1033,84 +953,11 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
             }
 
-            Utilities.SaveImageSourceToFile(resImg, $"{Utilities.MKSHA256()}.bmp");
-
             SrcImg = default!;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
-        }
-
-        [RelayCommand]
-        private async Task SendAsync()
-        {
-            //NetworkStream stream = _client.GetStream();
-            //byte[] msgBuffer = Encoding.UTF8.GetBytes("1");
-            //await stream.WriteAsync(msgBuffer);
-            Log.Information($"Send");
-            ResLogs.Add("123");
-            await _socketService.SendDataAsync("1");
-        }
-
-        private TcpClient _client = default!;
-
-        private void UpdateImageOnUIThread(BitmapImage tmpImg)
-        {
-            App.Current.Dispatcher.Invoke(() =>
-            {
-                SrcImg = tmpImg;
-            });
-        }
-
-        public async Task ReceiveDataAsync()
-        {
-            try
-            {
-                NetworkStream stream = _client.GetStream();
-
-                while (_client.Connected)
-                {
-                    // 헤더를 읽어 데이터 크기를 가져옵니다.
-                    //byte[] headerBuffer = new byte[4];
-                    //await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
-                    //int dataSize = BitConverter.ToInt32(headerBuffer, 0);
-                    int dataSize = 1048576;
-                    // 데이터를 받을 버퍼를 초기화합니다.
-                    byte[] buffer = new byte[dataSize];
-                    int totalBytesRead = 0;
-
-                    // 데이터를 전부 받을 때까지 반복해서 읽습니다.
-                    while (totalBytesRead < dataSize)
-                    {
-                        int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, dataSize - totalBytesRead);
-                        if (bytesRead == 0)
-                        {
-                            // 연결이 끊겼거나 EOF
-                            throw new IOException("Connection closed prematurely.");
-                        }
-                        totalBytesRead += bytesRead;
-                    }
-
-                    Log.Information($"Total bytes read: {totalBytesRead}");
-                    Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    ByteArrToBitmap(buffer, m_bmpRes);
-                    string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
-                    m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
-                    // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
-                    //OnDataReceived(buffer);
-                    ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
-                    await App.Current.Dispatcher.InvokeAsync(() =>
-                    {
-                        SrcImg = (BitmapImage)tmpImg;
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                // 예외 처리 필요
-                Log.Information($"수신 오류: {ex.Message}");
-            }
         }
 
         public long GetCurrentUnixTimestampSeconds()
@@ -1138,9 +985,6 @@ namespace SonoCap.MES.UI.ViewModels
                 }
             });
 
-            //_socketService.DataReceived += OnDataReceived;
-
-
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var timer = new System.Timers.Timer(1000);//1시간 마다
             timer.Elapsed += (s, e) => CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -1150,18 +994,8 @@ namespace SonoCap.MES.UI.ViewModels
             ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
             ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
             ValidationDict[nameof(TestResult)] = new ValidationItem { };
-            //SrcImg = default!;
-            //ResImg = default!;
             TestResult = -2;
-            //_probe = null;
-            //_transducerModule = null;
-            //_transducer = null;
-            //_motorModule = null;
             SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-
-            //ClearAll();
-
-            ret = _VI.Load(0);
 
             // 이미지 파일 경로 설정
             string imagePath = "/Resources/sc_ori_img_512.bmp";
@@ -1999,297 +1833,6 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        // 이미지 프로세싱 관련
-        private BitmapImage _loadBmp = default!;
-        private BitmapImage _resultBmp = default!;
-
-        //VILibWrapper VI = new VILibWrapper();
-        VIRes vIResults = new VIRes();
-
-        int ret = 0;
-
-        private Bitmap m_OrgBmp = default!;
-        private Bitmap m_bmpRes = default!;
-        private Bitmap m_DispMap = default!;
-
-        private byte[] bmp_data = default!;
-        private byte[] res_data = default!;
-
-        ImageSource srcImg = default!;
-        ImageSource resImg = default!;
-
-        int w = 0;
-        int h = 0;
-        int chs = 4;
-        uint size = 0;
-        int opt = 0;
-        string sModel = "SC-GP5";
-
-        public static BitmapImage ByteArrToBitmapImage(byte[] imageData, int width, int height)
-        {
-            try
-            {
-                // 이미지 포맷 지정 (예: Bmp, Jpeg, Png 등)
-                //ImageFormat format = ImageFormat.Bmp;
-                System.Drawing.Imaging.PixelFormat format = System.Drawing.Imaging.PixelFormat.Format24bppRgb;
-
-                // 바이트 배열을 Bitmap으로 변환
-                using (MemoryStream stream = new MemoryStream(imageData))
-                {
-                    Bitmap bitmap = new Bitmap(width, height, format);
-                    Rectangle rect = new Rectangle(0, 0, width, height);
-                    BitmapData bmpData = bitmap.LockBits(rect, ImageLockMode.WriteOnly, format);
-                    IntPtr ptr = bmpData.Scan0;
-                    Marshal.Copy(imageData, 0, ptr, imageData.Length);
-                    bitmap.UnlockBits(bmpData);
-
-                    // Convert Bitmap to BitmapImage
-                    BitmapImage imageSource = new BitmapImage();
-                    using (MemoryStream bmpStream = new MemoryStream())
-                    {
-                        bitmap.Save(bmpStream, ImageFormat.Bmp);
-                        bmpStream.Position = 0;
-
-                        imageSource.BeginInit();
-                        imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                        imageSource.StreamSource = bmpStream;
-                        imageSource.EndInit();
-                    }
-
-                    return imageSource;
-                }
-            }
-            catch (Exception ex)
-            {
-                // 예외 처리 (예: 로그 출력)
-                Console.WriteLine($"바이트 배열을 BitmapImage로 변환하는 중 오류 발생: {ex.Message}");
-                return null;
-            }
-        }
-
-        private int BitmapToByteArr(byte[] result, Bitmap bitmap)
-        {
-            BitmapData bmpData = null;
-            try
-            {
-                bmpData = bitmap.LockBits(new Rectangle(0, 0,
-                                                    bitmap.Width,
-                                                    bitmap.Height),
-                                                    ImageLockMode.ReadOnly,
-                                                    bitmap.PixelFormat);
-
-                IntPtr pNative = bmpData.Scan0;
-                int numbytes = bmpData.Stride * bitmap.Height;
-                Marshal.Copy(pNative, result, 0, numbytes);
-                bitmap.UnlockBits(bmpData);
-
-                return 1;
-            }
-            catch (Exception ex)
-            {
-                bitmap.UnlockBits(bmpData);
-                Trace.WriteLine(ex.ToString());
-                return -1;
-            }
-        }
-
-        private BitmapImage ByteArrToBitmapImage(byte[] imageData)
-        {
-            if (imageData == null || imageData.Length == 0) return null;
-            var image = new BitmapImage();
-            using (var mem = new MemoryStream(imageData))
-            {
-                mem.Position = 0;
-                image.BeginInit();
-                image.CreateOptions = BitmapCreateOptions.None;
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = null;
-                image.StreamSource = mem;
-                image.EndInit();
-            }
-            image.Freeze();
-            return image;
-        }
-
-        private ImageSource ByteArrToImageSource(byte[] img)
-        {
-            if (img == null || img.Length == 0)
-                return null;
-
-            try
-            {
-                MemoryStream stream = new MemoryStream(img);
-                if (IsValidImageFormat(stream))
-                {
-                    BitmapImage imageSource = new BitmapImage();
-                    imageSource.BeginInit();
-                    imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                    imageSource.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
-                    imageSource.StreamSource = stream;
-                    imageSource.EndInit();
-                    imageSource.Freeze();
-                    return imageSource;
-                }
-                else
-                {
-                    Log.Information("Invalid image format.");
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Information(ex.ToString());
-                return null;
-            }
-        }
-
-        private bool IsValidImageFormat(Stream stream)
-        {
-            try
-            {
-                stream.Seek(0, SeekOrigin.Begin);
-                BitmapImage tempImage = new BitmapImage();
-                tempImage.BeginInit();
-                tempImage.CacheOption = BitmapCacheOption.None;
-                tempImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                tempImage.StreamSource = stream;
-                tempImage.EndInit();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Log.Information(ex.ToString());
-                return false;
-            }
-        }
-
-        private int ByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
-            {
-                BitmapData? bmpData = null;
-                try
-                {
-                    bmpData = m_bmp.LockBits(new Rectangle(0, 0,
-                                                        m_bmp.Width,
-                                                        m_bmp.Height),
-                                                        ImageLockMode.WriteOnly,
-                                                        m_bmp.PixelFormat);
-
-                    IntPtr pNative = bmpData.Scan0;
-                    Marshal.Copy(raw_img, 0, pNative, raw_img.Length);
-                    m_bmp.UnlockBits(bmpData);
-
-                    return 1;
-                }
-                catch (Exception ex)
-                {
-                    m_bmp.UnlockBits(bmpData);
-                    Trace.WriteLine(ex.ToString());
-                    return -1;
-                }
-            }
-
-        private ImageSource BitmapToImageSource(Bitmap bitmap)
-        {
-            if (bitmap == null)
-                return null;
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                // 비트맵을 MemoryStream에 복사합니다.
-                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-
-                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
-
-                // 비트맵 이미지를 생성하고 반환합니다.
-                BitmapImage imageSource = new BitmapImage();
-                imageSource.BeginInit();
-                imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                imageSource.StreamSource = stream;
-                imageSource.EndInit();
-
-                return imageSource;
-            }
-        }
-
-        private byte[] ImageSourceToByteArray(ImageSource imageSource)
-        {
-            if (imageSource == null)
-                throw new ArgumentNullException(nameof(imageSource));
-
-            try
-            {
-                BitmapSource bitmapSource = imageSource as BitmapSource;
-                if (bitmapSource == null)
-                    throw new ArgumentException("Invalid ImageSource type.");
-
-                byte[] bytes;
-                BitmapEncoder encoder = new BmpBitmapEncoder(); // You can choose other encoders like PngBitmapEncoder, JpegBitmapEncoder, etc.
-                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    encoder.Save(stream);
-                    bytes = stream.ToArray();
-                }
-
-                return bytes;
-            }
-            catch (Exception ex)
-            {
-                // Log the exception or handle it as needed
-                Console.WriteLine(ex.ToString());
-                return null;
-            }
-        }
-
-        private byte[] BitmapImageToByteArray(BitmapImage bitmapImage)
-        {
-            if (bitmapImage == null)
-                throw new ArgumentNullException(nameof(bitmapImage));
-
-            try
-            {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    BitmapEncoder encoder = new BmpBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(bitmapImage));
-                    encoder.Save(stream);
-
-                    return stream.ToArray();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Information(ex.ToString());
-                return null;
-            }
-        }
-        
-        private BitmapImage LoadBitmapImage(string filePath)
-        {
-            try
-            {
-                if (!File.Exists(filePath))
-                {
-                    throw new FileNotFoundException($"The file {filePath} does not exist.");
-                }
-
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.UriSource = new Uri(filePath, UriKind.RelativeOrAbsolute);
-                bitmap.EndInit();
-                bitmap.Freeze(); // Freezing the image to make it cross-thread accessible
-
-                return bitmap;
-            }
-            catch (Exception ex)
-            {
-                Log.Information(ex.ToString());
-                return null;
-            }
-        }
-
         public SubData SubData { get; set; } = default!;
         
         public void ReceiveParameter(object parameter)
@@ -2314,31 +1857,5 @@ namespace SonoCap.MES.UI.ViewModels
             //base.OnWindowClosing(sender, e);
             //MessageBox.Show("TestWindow Closing");
         }
-
-        // 원의 외곽선을 그리는 함수
-        public void DrawCircle(Bitmap bitmap, int centerX, int centerY, int radius, System.Drawing.Color color, int thickness)
-        {
-            // Graphics 객체 생성
-            using (Graphics graphics = Graphics.FromImage(bitmap))
-            {
-                // 원을 그리기 위한 사각형 영역 계산
-                Rectangle rectangle = new Rectangle(centerX - radius, centerY - radius, radius * 2, radius * 2);
-
-                // 원 외곽선 그리기
-                using (System.Drawing.Pen pen = new System.Drawing.Pen(color, thickness))
-                {
-                    graphics.DrawEllipse(pen, rectangle);
-                }
-            }
-        }
-
-        //private void OnDataReceived(object sender, string data)
-        //{
-        //    // UI 스레드에서 데이터 업데이트
-        //    App.Current.Dispatcher.Invoke(() =>
-        //    {
-        //        //ReceivedData = data;
-        //    });
-        //}
     }
 }
