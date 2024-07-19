@@ -16,6 +16,12 @@
             <converters:RowIndexConverter x:Key="RowIndexConverter" />
             <converters:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
             <Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
+
+            <Style x:Key="RemoveGroupBoxBorder" TargetType="GroupBox">
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+            </Style>
+
             <Style x:Key="IsEnabledTextBoxStyle" TargetType="TextBox">
                 <Style.Triggers>
                     <Trigger Property="IsEnabled" Value="False">
