@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace SonoCap.MES.Models.Base
 {
@@ -28,6 +29,19 @@ namespace SonoCap.MES.Models.Base
                 .Select(p => new { Name = p.Name, Value = p.GetValue(this, null) });
 
             return string.Join(", ", properties.Select(p => $"{p.Name}: {p.Value}"));
+        }
+
+        public string ToJson()
+        {
+            try
+            {
+                return JsonSerializer.Serialize(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error converting to JSON: {ex.Message}");
+                return string.Empty;
+            }
         }
     }
 }

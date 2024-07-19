@@ -9,11 +9,71 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace SonoCap.MES.UI.Commons
 {
     public class Utilities
     {
+        public static bool IsMatchReqExr(string value, string pattern)
+        {
+            // 정규식 패턴
+            //string pattern = @"^[0-9]{4}$";
+            // 정규식 객체 생성 및 컴파일 옵션 사용
+            Regex regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            // 패턴 매칭 확인
+            bool isMatch = regex.IsMatch(value);
+            return isMatch;
+        }
+
+        public static string ExtractReqExr(string input, string pattern)
+        {
+            //string pattern = "^.{0,11}([0-9]{3})$";
+            Match match = Regex.Match(input, pattern);
+            return match.Success ? match.Groups[1].Value : string.Empty;
+        }
+
+        public static string[]? ExtractReqExrSn(string input)
+        {
+            string pattern = @"^.{5}(2[0-9]|19|20)(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([0-9]{3})$";
+            Match match = Regex.Match(input, pattern);
+            if (match.Success)
+            {
+                string extractedDate = match.Groups[2].Value + match.Groups[3].Value + match.Groups[4].Value;
+                string extractedNumber = match.Groups[5].Value;
+                return new string[] { extractedDate, extractedNumber };
+            }
+
+            return null;
+        }
+
+
+        public static bool ImageSourceToBitmapFile(ImageSource imageSource, string fileName)
+        {
+            try
+            {
+                var bitmapSource = imageSource as BitmapSource;
+                if (bitmapSource == null)
+                    throw new ArgumentException("ImageSource must be of type BitmapSource", nameof(imageSource));
+
+                var encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                using (var stream = new FileStream(fileName, FileMode.Create))
+                {
+                    encoder.Save(stream);
+                }
+
+                return true; // 성공
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving image: {ex.Message}");
+                return false; // 실패
+            }
+        }
+
         public static bool IsValidImageFormat(Stream stream)
         {
             try
@@ -98,7 +158,10 @@ namespace SonoCap.MES.UI.Commons
                 }
             }
         }
-
+        /// <summary>
+        /// epoch
+        /// </summary>
+        /// <returns></returns>
         public static long GetCurrentUnixTimestampSeconds()
         {
             DateTimeOffset epochTime = DateTimeOffset.UtcNow;

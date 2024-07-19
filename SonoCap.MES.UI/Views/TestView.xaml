@@ -419,6 +419,7 @@
                     </b:Interaction.Triggers>
                 </controls:TextBoxControl>
                 <Popup PlacementTarget="{Binding ElementName=TDSn}"
+                       IsEnabled="True"
                        Placement="Bottom"
                        StaysOpen="False"
                        IsOpen="{Binding TDSnIsPopupOpen}">
@@ -426,9 +427,16 @@
                              IsSynchronizedWithCurrentItem="True"
                              SelectedIndex="{Binding TDSnSelectedIndex}"
                              KeyboardNavigation.DirectionalNavigation="Contained">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="MouseDoubleClick">
+                                <b:InvokeCommandAction Command="{Binding TDSnFilteredItemsMouseDoubleClickCommand}"
+CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}}" PassEventArgsToCommand="True"/>
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
                         <ListBox.Style>
                             <Style TargetType="ListBox">
                                 <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+                                <Setter Property="FontSize" Value="20"/>
                             </Style>
                         </ListBox.Style>
                     </ListBox>
@@ -449,7 +457,7 @@
                        IsOpen="{Binding TDMdSnIsPopupOpen}">
                     <ListBox ItemsSource="{Binding TDMdSnFilteredItems}"
                              IsSynchronizedWithCurrentItem="True"
-                             SelectedIndex="{Binding TDMdSnSelectedIndex}"
+                             SelectedIndex="{Binding TDMdSnSelectedIndex, Mode=TwoWay}"
                              KeyboardNavigation.DirectionalNavigation="Contained">
                         <ListBox.Style>
                             <Style TargetType="ListBox">

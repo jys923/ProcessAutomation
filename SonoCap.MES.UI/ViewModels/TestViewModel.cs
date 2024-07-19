@@ -25,6 +25,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -129,6 +130,14 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 TDSnIsPopupOpen = false;
             }
+        }
+
+        [RelayCommand]
+        private void TDSnFilteredItemsMouseDoubleClick(string selectedItem)
+        {
+            Log.Information($"TDSnFilteredItemsMouseDoubleClick : {selectedItem}");
+            TDSn = selectedItem;
+            TDSnIsPopupOpen = false;
         }
 
         [ObservableProperty]
@@ -420,6 +429,9 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
+
+            // TestCommand의 CanExecute 상태를 갱신합니다.
+            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
         }
 
         [RelayCommand]
@@ -835,13 +847,21 @@ namespace SonoCap.MES.UI.ViewModels
             }
             PTRView? tmpPTR = null;
 
+            var epoch = Utilities.GetCurrentUnixTimestampSeconds();
+
+            string OriginalImgName = $"({epoch}_O.bmp)";
+            string ChangedImgName = $"({epoch}_C.bmp)";
+
+            Utilities.ImageSourceToBitmapFile(SrcImg, OriginalImgName);
+            Utilities.ImageSourceToBitmapFile(ResImg, ChangedImgName);
+
             Test insertTest = new Test
             {
                 TestCategoryId = (int)_testCategory,
                 TestTypeId = (int)_testType,
                 TesterId = _tester.Id,
-                OriginalImg = "오리지널 이미지",
-                ChangedImg = "체인지 이미지",
+                OriginalImg = OriginalImgName,
+                ChangedImg = ChangedImgName,
                 ChangedImgMetadata = ResTxt,
                 Result = TestResult,
                 Method = 1,
@@ -851,7 +871,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             if(await SaveAsync(_testRepository, insertTest))
             {
-                ResLogs.Add($"{ResLogs.Count} Add test : {insertTest}");
+                ResLogs.Add($"Add test : {insertTest.ToJson}");
             }
             
             //검사 결과 삭제
@@ -958,12 +978,6 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
-        }
-
-        public long GetCurrentUnixTimestampSeconds()
-        {
-            DateTimeOffset epochTime = DateTimeOffset.UtcNow;
-            return epochTime.ToUnixTimeSeconds();
         }
 
         private void Init()
@@ -1623,40 +1637,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             return query.FirstOrDefault() as T;
         }
-
-        private static bool IsMatchReqExr(string value, string pattern)
-        {
-            // 정규식 패턴
-            //string pattern = @"^[0-9]{4}$";
-            // 정규식 객체 생성 및 컴파일 옵션 사용
-            Regex regex = new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-            // 패턴 매칭 확인
-            bool isMatch = regex.IsMatch(value);
-            return isMatch;
-        }
-
-        private static string ExtractReqExr(string input, string pattern)
-        {
-            //string pattern = "^.{0,11}([0-9]{3})$";
-            Match match = Regex.Match(input, pattern);
-            return match.Success ? match.Groups[1].Value : string.Empty;
-        }
-
-        private static string[]? ExtractReqExrSn(string input)
-        {
-            string pattern = @"^.{5}(2[0-9]|19|20)(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([0-9]{3})$";
-            Match match = Regex.Match(input, pattern);
-            if (match.Success)
-            {
-                string extractedDate = match.Groups[2].Value + match.Groups[3].Value + match.Groups[4].Value;
-                string extractedNumber = match.Groups[5].Value;
-                return new string[] { extractedDate, extractedNumber };
-            }
-
-            return null;
-        }
-
+        
         private void PrepareTest(TestCategories testCategory, Test insertTest)
         {
             switch (testCategory)
