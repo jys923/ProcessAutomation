@@ -849,8 +849,8 @@ namespace SonoCap.MES.UI.ViewModels
 
             var epoch = Utilities.GetCurrentUnixTimestampSeconds();
 
-            string OriginalImgName = $"({epoch}_O.bmp)";
-            string ChangedImgName = $"({epoch}_C.bmp)";
+            string OriginalImgName = $"{epoch}_O.bmp";
+            string ChangedImgName = $"{epoch}_C.bmp";
 
             Utilities.ImageSourceToBitmapFile(SrcImg, OriginalImgName);
             Utilities.ImageSourceToBitmapFile(ResImg, ChangedImgName);
@@ -871,7 +871,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             if(await SaveAsync(_testRepository, insertTest))
             {
-                ResLogs.Add($"Add test : {insertTest.ToJson}");
+                ResLogs.Add($"Add test : {insertTest.ToJson()}");
             }
             
             //검사 결과 삭제
@@ -908,7 +908,7 @@ namespace SonoCap.MES.UI.ViewModels
                     else if (existNext)
                     {
                         //조회 해서 넣을까?
-                        ResLogs.Add($"Exist TDMd Sn: {_transducerModule.Sn}");
+                        //ResLogs.Add($"Exist TDMd Sn: {_transducerModule.Sn}");
                     }
 
                     if (_probe is not null)
@@ -941,7 +941,7 @@ namespace SonoCap.MES.UI.ViewModels
                         }
                     } else if (existNext)
                     {
-                        ResLogs.Add($"Exist Probe Sn: {_probe.Sn}");
+                        //ResLogs.Add($"Exist Probe Sn: {_probe.Sn}");
                     }
 
                     if (_probe is not null)
