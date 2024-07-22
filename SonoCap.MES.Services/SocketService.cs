@@ -3,6 +3,10 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using Serilog;
+using System.Runtime.InteropServices;
+using System.Runtime;
+using System.Text.Json;
+using SonoCap.MES.Models;
 
 namespace SonoCap.MES.Services
 {
@@ -32,6 +36,14 @@ namespace SonoCap.MES.Services
             }
         }
 
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        struct SocketHeader
+        {
+            public byte CMD;
+            public int ImgSize;
+            public int DataSize;
+        }
+
         public async Task ReceiveDataAsync()
         {
             try
@@ -41,18 +53,27 @@ namespace SonoCap.MES.Services
                 {
                     Log.Information("ReceiveDataAsync");
                     // 헤더를 읽어 데이터 크기를 가져옵니다.
-                    //byte[] headerBuffer = new byte[4];
-                    //await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
-                    //int dataSize = BitConverter.ToInt32(headerBuffer, 0);
-                    int dataSize = 1048576;
+                    byte[] headerBuffer = new byte[Marshal.SizeOf<SocketHeader>()];
+                    await stream.ReadAsync(headerBuffer, 0, headerBuffer.Length);
+
+                    // 헤더를 구조체로 변환
+                    SocketHeader header;
+                    using (MemoryStream headerStream = new MemoryStream(headerBuffer))
+                    using (BinaryReader headerReader = new BinaryReader(headerStream))
+                    {
+                        header.CMD = headerReader.ReadByte();
+                        header.ImgSize = headerReader.ReadInt32();
+                        header.DataSize = headerReader.ReadInt32();
+                    }
+
                     // 데이터를 받을 버퍼를 초기화합니다.
-                    byte[] buffer = new byte[dataSize];
+                    byte[] buffer = new byte[header.ImgSize];
                     int totalBytesRead = 0;
 
                     // 데이터를 전부 받을 때까지 반복해서 읽습니다.
-                    while (totalBytesRead < dataSize)
+                    while (totalBytesRead < header.ImgSize)
                     {
-                        int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, dataSize - totalBytesRead);
+                        int bytesRead = await stream.ReadAsync(buffer, totalBytesRead, header.ImgSize - totalBytesRead);
                         if (bytesRead == 0)
                         {
                             // 연결이 끊겼거나 EOF
@@ -61,7 +82,28 @@ namespace SonoCap.MES.Services
                         totalBytesRead += bytesRead;
                     }
 
-                    Log.Information($"Total bytes read: {totalBytesRead}");
+                    Log.Information($"Total Image bytes read: {totalBytesRead}");
+
+                    byte[] bufferMeta = new byte[header.DataSize];
+                    totalBytesRead = 0;
+
+                    // 데이터를 전부 받을 때까지 반복해서 읽습니다.
+                    while (totalBytesRead < header.DataSize)
+                    {
+                        int bytesRead = await stream.ReadAsync(bufferMeta, totalBytesRead, header.DataSize - totalBytesRead);
+                        if (bytesRead == 0)
+                        {
+                            // 연결이 끊겼거나 EOF
+                            throw new IOException("Connection closed prematurely.");
+                        }
+                        totalBytesRead += bytesRead;
+                    }
+
+                    string metaJson = System.Text.Encoding.UTF8.GetString(bufferMeta);
+                    HansonoSettings? settings = JsonSerializer.Deserialize<HansonoSettings>(metaJson);
+
+                    Log.Information($"Total Meta bytes read: {totalBytesRead}");
+                    Log.Information($"metaString: {settings?.ToJson() ?? string.Empty}");
 
                     // 응답을 기다리는 작업이 완료됨을 알립니다.
                     receivedData = buffer;

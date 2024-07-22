@@ -10,6 +10,7 @@
         <ResourceDictionary>
             <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue"/>
             <SolidColorBrush x:Key="CellBodyBrush" Color="LightGray"/>
+            <converters:HeightConverter x:Key="HeightConverter "/>
             <converters:TestResultBorderBrushConverter x:Key="TestResultBorderBrushConverter"/>
             <converters:EnabledToVisibilityConverter x:Key="EnabledToVisibilityConverter"/>
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />

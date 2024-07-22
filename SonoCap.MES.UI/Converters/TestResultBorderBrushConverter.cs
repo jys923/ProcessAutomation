@@ -6,10 +6,19 @@ namespace SonoCap.MES.UI.Converters
 {
     public class TestResultBorderBrushConverter : IValueConverter
     {
+        //public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        //{
+        //    int testResult = (int)value;
+        //    if (testResult == -2)
+        //    {
+        //        return Brushes.Tomato;
+        //    }
+        //    return new SolidColorBrush(Color.FromArgb(0xFF, 0xD5, 0xDF, 0xE5));
+        //}
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int testResult = (int)value;
-            if (testResult == -2)
+            bool testResult = (bool)value;
+            if (testResult)
             {
                 return Brushes.Tomato;
             }

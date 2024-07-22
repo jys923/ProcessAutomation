@@ -528,10 +528,16 @@ namespace SonoCap.MES.UI.ViewModels
                                  orderby probes.Id descending
                                  select probes;
 
-                    _probe = queryProbe.FirstOrDefault();
+                    //_probe = queryProbe.FirstOrDefault();
+
+                    _probe = queryProbe.Include(p => p.MotorModule)
+                                       .FirstOrDefault();
 
                     if (_probe is null)
                         return;
+
+                    _motorModule = _probe.MotorModule;
+
                     ProbeCellIsEnabled = true;
                     ValidationDict[nameof(ProbeSn)].IsEnabled = false;
                     ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
@@ -839,7 +845,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             if (_testCategory == TestCategories.Process &&
                 TestResult > App.TestThresholdDict[20 + (int)_testType] &&
-                (PassTestCategoryCnt(_testRepository, _testCategory, _transducerModule.Id) == 2))
+                (PassTestCategoryCnt(_testRepository, _testCategory, _transducerModule.Id) > 1))
             {
                 _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
 
@@ -1335,6 +1341,8 @@ namespace SonoCap.MES.UI.ViewModels
         {
             int res = 0;
 
+            HashSet<int> processedTestTypes = new HashSet<int>(); // Track processed test types
+
             IQueryable<Test> query;
 
             switch (testCategory)
@@ -1350,9 +1358,10 @@ namespace SonoCap.MES.UI.ViewModels
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (query.Any())
+                        if (query.Any() && !processedTestTypes.Contains(i))
                         {
                             res++;
+                            processedTestTypes.Add(i); // Mark test type as processed
                         }
                     }
                     break;
@@ -1368,9 +1377,10 @@ namespace SonoCap.MES.UI.ViewModels
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (query.Any())
+                        if (query.Any() && !processedTestTypes.Contains(i))
                         {
                             res++;
+                            processedTestTypes.Add(i); // Mark test type as processed
                         }
                     }
                     break;
@@ -1386,9 +1396,10 @@ namespace SonoCap.MES.UI.ViewModels
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (query.Any())
+                        if (query.Any() && !processedTestTypes.Contains(i))
                         {
                             res++;
+                            processedTestTypes.Add(i); // Mark test type as processed
                         }
                     }
                     break;
