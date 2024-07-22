@@ -12,11 +12,12 @@ namespace SonoCap.MES.Services
 {
     public class SocketService : ISocketService
     {
-        private byte[]? receivedData;
+        //private byte[]? receivedData;
+        private ImgAndMeta? receivedData;
         private TcpClient _client;
         private TaskCompletionSource<bool> _responseReceived = new TaskCompletionSource<bool>();
 
-        public event EventHandler<byte[]>? DataReceived;
+        public event EventHandler<ImgAndMeta>? DataReceived;
 
         public SocketService()
         {
@@ -100,14 +101,12 @@ namespace SonoCap.MES.Services
                     }
 
                     string metaJson = System.Text.Encoding.UTF8.GetString(bufferMeta);
-                    HansonoSettings? settings = JsonSerializer.Deserialize<HansonoSettings>(metaJson);
-
+                    
                     Log.Information($"Total Meta bytes read: {totalBytesRead}");
-                    Log.Information($"metaString: {settings?.ToJson() ?? string.Empty}");
 
                     // 응답을 기다리는 작업이 완료됨을 알립니다.
-                    receivedData = buffer;
-                    OnDataReceived(buffer);
+                    receivedData = new ImgAndMeta(buffer, metaJson);
+                    OnDataReceived(receivedData);
                     OnResponseReceived();
 
                     // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
@@ -135,12 +134,12 @@ namespace SonoCap.MES.Services
             }
         }
 
-        protected virtual void OnDataReceived(byte[] data)
+        protected virtual void OnDataReceived(ImgAndMeta data)
         {
             DataReceived?.Invoke(this, data);
         }
 
-        public async Task<byte[]?> WaitForResponseAsync()
+        public async Task<ImgAndMeta?> WaitForResponseAsync()
         {
             await _responseReceived.Task;
             return receivedData;

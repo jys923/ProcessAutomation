@@ -23,6 +23,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -753,7 +754,7 @@ namespace SonoCap.MES.UI.ViewModels
             await _socketService.SendDataAsync("1");
 
             // 응답을 기다립니다.
-            byte[]? response = await _socketService.WaitForResponseAsync();
+            ImgAndMeta? response = await _socketService.WaitForResponseAsync();
             // 응답 처리
             if (response != null)
             {
@@ -761,20 +762,45 @@ namespace SonoCap.MES.UI.ViewModels
                 // 응답을 받았을 때의 로직
                 // 데이터를 받으면 응답 완료
                 Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                Utilities.ByteArrToBitmap(response, m_bmpRes);
+                Utilities.ByteArrToBitmap(response.Img, m_bmpRes);
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
                 });
 
+                HansonoSettings? settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta);
+
+                int radius = 150;
+                int tmp = 13;
+
+                switch (settings.depth_in_cm)
+                {
+                    case 3:
+                        radius = radius + tmp * 5;
+                        break;
+                    case 4:
+                        radius = radius + tmp * 4;
+                        break;
+                    case 5:
+                        radius = radius + tmp * 3;
+                        break;
+                    case 6:
+                        radius = radius + tmp * 2;
+                        break;
+                    case 7:
+                        radius = radius + tmp;
+                        break;
+                    default:
+                        break;
+                }
                 //draw circle
-                Utilities.DrawCircle(m_bmpRes, 512 / 2, 512 / 2, 150, System.Drawing.Color.Red, 3);
+                Utilities.DrawCircle(m_bmpRes, 512 / 2, 512 / 2, radius, System.Drawing.Color.Red, 3);
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     ResImg = Utilities.BitmapToImageSource(m_bmpRes);
-                    ResTxt = "draw cicle";
-                    ResLogs.Add($"Succ Test");
+                    ResTxt = settings.ToJson();
+                    ResLogs.Add($"시간 공정 시험 등등");
                     TestResult = -2;
                 });
 
