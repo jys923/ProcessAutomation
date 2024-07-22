@@ -387,6 +387,8 @@ namespace SonoCap.MES.UI.ViewModels
 
             SrcImg = default!;
             ResImg = default!;
+            TestResult = -2;
+            ValidationDict[nameof(TestResult)].IsEnabled = false;
 
             switch (position)
             {
