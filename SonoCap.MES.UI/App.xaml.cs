@@ -13,14 +13,19 @@ using SonoCap.Interceptors;
 using SonoCap.MES.UI.Services;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.Services;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace SonoCap.MES.UI
 {
     public partial class App : Application
     {
-        private DispatcherTimer _timer = default!;
-
         public new static App Current => (App)Application.Current;
+
+        private DispatcherTimer _timer = default!;
 
         public static Dictionary<int, int> TestThresholdDict { get; private set; } = new Dictionary<int, int>();
 
@@ -34,11 +39,39 @@ namespace SonoCap.MES.UI
 
         private static IServiceProvider ConfigureServices()
         {
+            // Configuration 객체 생성
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            // AppSettings 클래스로 설정값 매핑
+            AppSettings? appSettings = new AppSettings();
+            configuration.Bind(appSettings);
+
             LoggingConfigurator.Configure();
 
             IServiceCollection services = new ServiceCollection();
 
-            services.AddDbContext<MESDbContext>();
+            //services.AddDbContext<MESDbContext>();
+            // DbContext 등록 및 구성
+            services.AddDbContext<MESDbContext>((serviceProvider, options) =>
+            {
+                ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder.AddSerilog(dispose: true); // Serilog를 LoggerFactory에 추가
+                    builder.AddFilter((category, level) =>
+                        category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information); // EF Core의 로그를 필터링하여 Serilog에게 전달
+                });
+
+                //optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
+                options.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
+                options.UseLazyLoadingProxies(true);
+                options.EnableSensitiveDataLogging(true);
+
+                options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(120));
+                options.UseLazyLoadingProxies(true);
+            });
             services.AddScoped<MESDbContextFactory>();
 
             RegisterRepositories(services);

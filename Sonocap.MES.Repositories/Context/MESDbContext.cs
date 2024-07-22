@@ -2,9 +2,9 @@
 
 using SonoCap.MES.Models;
 using Microsoft.EntityFrameworkCore;
+using SonoCap.MES.Models.Base;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SonoCap.MES.Models.Base;
 
 namespace SonoCap.MES.Repositories.Context
 {
@@ -23,10 +23,6 @@ namespace SonoCap.MES.Repositories.Context
         public DbSet<Transducer> Transducers { get; set; }
         public DbSet<TransducerType> TransducerTypes { get; set; }
         
-        //public DbSet<TestProbe> TestProbes { get; set; }
-        //public DbSet<ProbeTestReport> ProbeTestReports { get; set; }
-        //public DbSet<ProbeTestResult> ProbeTestResults { get; set; }
-
         public MESDbContext()
         {
         }
@@ -37,12 +33,6 @@ namespace SonoCap.MES.Repositories.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // ProbeTestResult 엔터티를 모델에서 제외합니다.
-            //modelBuilder.Ignore<ProbeTestReport>();
-            //modelBuilder.Ignore<ProbeTestResult>();
-            //modelBuilder.Ignore<ProbeTestResultView>();
-            //modelBuilder.Ignore<TestProbe>();
-
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(ModelBase).IsAssignableFrom(entityType.ClrType))
@@ -129,14 +119,16 @@ namespace SonoCap.MES.Repositories.Context
                 builder.AddFilter((category, level) =>
                     category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information); // EF Core의 로그를 필터링하여 Serilog에게 전달
             });
-#if DEBUG
-            optionsBuilder.EnableSensitiveDataLogging(true);
-#endif
+
             //optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
             optionsBuilder.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
             optionsBuilder.UseLazyLoadingProxies(true);
-            
-            string MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_6; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+
+            string MariaDBConnectionString = string.Empty;
+#if DEBUG
+            optionsBuilder.EnableSensitiveDataLogging(true);
+            MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_6; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+#endif
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString), options => options.CommandTimeout(120));
         }
 #endif

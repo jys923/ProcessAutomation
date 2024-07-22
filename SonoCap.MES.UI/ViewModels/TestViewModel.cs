@@ -772,24 +772,24 @@ namespace SonoCap.MES.UI.ViewModels
                 HansonoSettings? settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta);
 
                 int radius = 150;
-                int tmp = 13;
+                int increment = 13;
 
                 switch (settings.depth_in_cm)
                 {
                     case 3:
-                        radius = radius + tmp * 5;
+                        radius = radius + increment * 5;
                         break;
                     case 4:
-                        radius = radius + tmp * 4;
+                        radius = radius + increment * 4;
                         break;
                     case 5:
-                        radius = radius + tmp * 3;
+                        radius = radius + increment * 3;
                         break;
                     case 6:
-                        radius = radius + tmp * 2;
+                        radius = radius + increment * 2;
                         break;
                     case 7:
-                        radius = radius + tmp;
+                        radius = radius + increment;
                         break;
                     default:
                         break;

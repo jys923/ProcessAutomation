@@ -67,6 +67,13 @@ namespace SonoCap.MES.Services
                         header.DataSize = headerReader.ReadInt32();
                     }
 
+                    // 유효성 검사 예시: CMD 값이 특정 범위를 벗어나면 무시
+                    if (header.CMD != (byte)'A' || header.ImgSize < 0 || header.DataSize < 0)
+                    {
+                        Log.Information($"유효하지 않은 CMD 값: {header.CMD}, 데이터 무시");
+                        return;
+                    }
+
                     // 데이터를 받을 버퍼를 초기화합니다.
                     byte[] buffer = new byte[header.ImgSize];
                     int totalBytesRead = 0;
