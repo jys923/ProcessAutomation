@@ -1,14 +1,19 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.VisualBasic.Logging;
+using Serilog;
 using SonoCap.MES.Models;
+using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.UI.Commons;
+using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class ProbeListViewModel : ObservableObject
+    public partial class ProbeListViewModel : ViewModelBase
     {
+        private readonly IExcelService _excelService;
         private readonly IProbeRepository _probeRepository;
         private readonly IPTRViewRepository _pTRViewRepository;
 
@@ -97,33 +102,42 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private ObservableCollection<ProbeTestResult> _probes = default!;
 
+        private List<PTRView> probes = [];
+
         [ObservableProperty]
         private int _resultCnt;
 
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<ProbeTestResult> probes = await _pTRViewRepository.GetProbeTestResultLinqAsync(
+            probes = await _pTRViewRepository.GetProbeTestResultLinqAsync2(
                 StartDate,
                 EndDate,
                 ProbeSn,
                 TDMdSn,
                 TDSn,
                 MTMdSn);
-            Probes = new ObservableCollection<ProbeTestResult>(probes);
-            ResultCnt = probes.Count;
+            //Probes = new ObservableCollection<ProbeTestResult>(probes);
+            List<ProbeTestResult> tmp = PTRViewToProbeTestResultConverter.ToList(probes).ToList();
+            Probes = new ObservableCollection<ProbeTestResult>(tmp);
+            ResultCnt = Probes.Count;
         }
 
         [RelayCommand]
         private void Export()
         {
+            Log.Information("Export");
+            _excelService.ExportToExcel(probes, $"{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx");
+
         }
 
         public ProbeListViewModel(
+            IExcelService excelService,
             IProbeRepository probeRepository,
             IPTRViewRepository pTRViewRepository)
         {
             Title = this.GetType().Name;
+            _excelService = excelService;
             _probeRepository = probeRepository;
             _pTRViewRepository = pTRViewRepository;
             //TestCategories = new ObservableCollection<string>

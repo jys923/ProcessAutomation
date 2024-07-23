@@ -116,7 +116,7 @@ Title="{Binding Title}" Height="1080" Width="1920">
                 <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.Sn}"/>
                 <DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
                 <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
-                <DataGridTextColumn Header="ChangedImgMetadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>
+                <DataGridTextColumn Header="Metadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>
             </DataGrid.Columns>
         </DataGrid>
         <!-- Status Bar -->

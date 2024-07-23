@@ -102,6 +102,43 @@ WHERE
             return pTRViews;
         }
 
+        public async Task<List<PTRView>> GetProbeTestResultLinqAsync2(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        {
+            IQueryable<PTRView> query =
+                from ptrv in _context.Set<PTRView>()
+                join t1 in _context.Set<Test>() on ptrv.TestId01 equals t1.Id into t1Group
+                from t1 in t1Group.DefaultIfEmpty()
+                join t2 in _context.Set<Test>() on ptrv.TestId02 equals t2.Id into t2Group
+                from t2 in t2Group.DefaultIfEmpty()
+                join t3 in _context.Set<Test>() on ptrv.TestId03 equals t3.Id into t3Group
+                from t3 in t3Group.DefaultIfEmpty()
+                join t4 in _context.Set<Test>() on ptrv.TestId04 equals t4.Id into t4Group
+                from t4 in t4Group.DefaultIfEmpty()
+                join t5 in _context.Set<Test>() on ptrv.TestId05 equals t5.Id into t5Group
+                from t5 in t5Group.DefaultIfEmpty()
+                join t6 in _context.Set<Test>() on ptrv.TestId06 equals t6.Id into t6Group
+                from t6 in t6Group.DefaultIfEmpty()
+                join t7 in _context.Set<Test>() on ptrv.TestId07 equals t7.Id into t7Group
+                from t7 in t7Group.DefaultIfEmpty()
+                join t8 in _context.Set<Test>() on ptrv.TestId08 equals t8.Id into t8Group
+                from t8 in t8Group.DefaultIfEmpty()
+                join t9 in _context.Set<Test>() on ptrv.TestId09 equals t9.Id into t9Group
+                from t9 in t9Group.DefaultIfEmpty()
+                where
+                    ptrv.DataFlag == 1 &&
+                    (startDate == null || ptrv.CreatedDate >= startDate) &&
+                    (endDate == null || ptrv.CreatedDate <= endDate) &&
+                    (string.IsNullOrEmpty(probeSn) || ptrv.ProbeSn.Contains(probeSn)) &&
+                    (string.IsNullOrEmpty(transducerModuleSn) || ptrv.TransducerModuleSn.Contains(transducerModuleSn)) &&
+                    (string.IsNullOrEmpty(transducerSn) || ptrv.TransducerSn.Contains(transducerSn)) &&
+                    (string.IsNullOrEmpty(motorModuleSn) || ptrv.MotorModuleSn.Contains(motorModuleSn))
+                select ptrv;
+
+            List<PTRView> pTRViews = await query.ToListAsync();
+            return pTRViews;
+        }
+
+
         public async Task<List<ProbeTestResult>> GetProbeTestResultLinqAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             IQueryable<ProbeTestResult> query = 

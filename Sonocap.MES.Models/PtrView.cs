@@ -41,30 +41,30 @@ namespace SonoCap.MES.Models
         public int? TestId09 { get; set; }
 
         [ForeignKey(nameof(TestId01))]
-        public virtual Test Test01 { get; set; }
+        public virtual Test Test01 { get; set; } = default!;
 
         [ForeignKey(nameof(TestId02))]
-        public virtual Test Test02 { get; set; }
+        public virtual Test Test02 { get; set; } = default!;
 
         [ForeignKey(nameof(TestId03))]
-        public virtual Test Test03 { get; set; }
+        public virtual Test Test03 { get; set; } = default!;
 
         [ForeignKey(nameof(TestId04))]
-        public virtual Test Test04 { get; set; }
+        public virtual Test Test04 { get; set; } = default!;
 
         [ForeignKey(nameof(TestId05))]
-        public virtual Test Test05 { get; set; }
+        public virtual Test Test05 { get; set; } = default!;
 
         [ForeignKey(nameof(TestId06))]
-        public virtual Test Test06 { get; set; }
+        public virtual Test Test06 { get; set; } = default!;
 
         [ForeignKey(nameof(TestId07))]
-        public virtual Test Test07 { get; set; }
+        public virtual Test? Test07 { get; set; }
 
         [ForeignKey(nameof(TestId08))]
-        public virtual Test Test08 { get; set; }
+        public virtual Test? Test08 { get; set; }
 
         [ForeignKey(nameof(TestId09))]
-        public virtual Test Test09 { get; set; }
+        public virtual Test? Test09 { get; set; }
     }
 }

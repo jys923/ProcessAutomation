@@ -18,6 +18,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace SonoCap.MES.UI
 {
@@ -74,6 +75,7 @@ namespace SonoCap.MES.UI
             });
             services.AddScoped<MESDbContextFactory>();
 
+            RegisterServices(services);
             RegisterRepositories(services);
             RegisterViewModels(services);
             RegisterViews(services);
@@ -96,6 +98,12 @@ namespace SonoCap.MES.UI
             await Services.GetRequiredService<ISharedSeqNoRepository>().InitializeAsync();
         }
 
+        private static void RegisterServices(IServiceCollection services)
+        {
+            services.AddTransient<ISocketService, SocketService>();
+            services.AddTransient<IExcelService, ExcelService>();
+        }
+
         private static void RegisterRepositories(IServiceCollection services)
         {
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
@@ -110,7 +118,6 @@ namespace SonoCap.MES.UI
             services.AddTransient<ITransducerRepository, TransducerRepository>();
             services.AddTransient<ITransducerModuleRepository, TransducerModuleRepository>();
             services.AddTransient<ITransducerTypeRepository, TransducerTypeRepository>();
-            services.AddTransient<ISocketService, SocketService>();
         }
 
         private static void RegisterViewModels(IServiceCollection services)

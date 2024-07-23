@@ -1,12 +1,23 @@
 ﻿using MiniExcelLibs;
 using Serilog;
 using SonoCap.MES.Models;
+using SonoCap.MES.Models.Converts;
+using SonoCap.MES.Services.Interfaces;
 
 namespace SonoCap.MES.Services
 {
-    public class ExcelService
+    public class ExcelService : IExcelService
     {
-        public IDictionary<string, List<object>> ImportExcel(string filePath, params string[] header)
+        public void ExportToExcel(List<PTRView> data, string filePath)
+        {
+            if (data.Count() < 1)
+                throw new ArgumentNullException(nameof(data));
+
+            IEnumerable<IDictionary<string, object>> probes = PTRViewToExportProbe.ToDictionaryList(data);
+            MiniExcel.SaveAs(filePath, probes);
+        }
+
+        private IDictionary<string, List<object>> ImportExcel(string filePath, params string[] header)
         {
             List<dynamic> rows = MiniExcel.Query(filePath).ToList();
             Dictionary<string, List<object>> columnData = new Dictionary<string, List<object>>();
@@ -87,7 +98,7 @@ namespace SonoCap.MES.Services
                             {
                                 columnData.Add(new SnDate
                                 {
-                                    Sn = snValue.ToString()??"",
+                                    Sn = snValue.ToString() ?? "",
                                     Date = date
                                 });
                             }
@@ -109,7 +120,7 @@ namespace SonoCap.MES.Services
             return result;
         }
 
-        public Dictionary<string, List<SnDate>> ReadColumnsDataByHeaders2(string filePath, List<string> headersToFind)
+        private IDictionary<string, List<SnDate>> ReadColumnsDataByHeaders3(string filePath, List<string> headersToFind)
         {
             var result = new Dictionary<string, List<SnDate>>();
 
@@ -164,7 +175,7 @@ namespace SonoCap.MES.Services
             return result;
         }
 
-        public Dictionary<string, List<object>> ReadColumnsDataByHeaders22(string filePath, List<string> headersToFind)
+        private IDictionary<string, List<object>> ReadColumnsDataByHeaders2(string filePath, List<string> headersToFind)
         {
             var result = new Dictionary<string, List<object>>();
 
@@ -222,16 +233,5 @@ namespace SonoCap.MES.Services
             return result;
         }
 
-
-
-
-        public void ExportExcel(string filePath)
-        {
-            // Repository를 사용하여 데이터베이스에서 데이터를 검색합니다.
-            //var data = _repository.GetAll();
-
-            // MiniExcel을 사용하여 데이터를 엑셀 파일에 씁니다.
-            //data.SaveAsExcel(filePath);
-        }
     }
 }

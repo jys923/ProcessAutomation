@@ -881,7 +881,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
             PTRView? tmpPTR = null;
 
-            var epoch = Utilities.GetCurrentUnixTimestampSeconds();
+            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
 
             string OriginalImgName = $"{epoch}_O.bmp";
             string ChangedImgName = $"{epoch}_C.bmp";

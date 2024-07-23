@@ -26,6 +26,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
+using SonoCap.MES.Services.Interfaces;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -34,6 +35,7 @@ namespace SonoCap.MES.UI.ViewModels
         private ProbeListView? _probeListView = default!;
         private TestListView? _testListView = default!;
         private TestView? _testView = default!;
+        private readonly IExcelService _excelService;
         private readonly IViewService _viewService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -58,6 +60,7 @@ namespace SonoCap.MES.UI.ViewModels
         private TcpClient _client = default!;
 
         public MainViewModel(
+            IExcelService excelService,
             IViewService viewService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
@@ -73,6 +76,7 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerModuleRepository transducerModuleRepository,
             ITransducerTypeRepository transducerTypeRepository)
         {
+            _excelService = excelService;
             _viewService = viewService;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
@@ -623,10 +627,8 @@ namespace SonoCap.MES.UI.ViewModels
                 // 이제 filePath를 사용하여 파일을 열 수 있습니다.
                 Log.Information($"Import {filePath}");
 
-                ExcelService excel = new ExcelService();
-
                 //IDictionary<string, List<object>> data = excel.ImportExcel(filePath, "TDSn", "TDSnDate", "MtMdSn", "MtMdSnDate");
-                var data = excel.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn", "TDSnDate", "MTLot", "MTLotDate" });
+                var data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn", "TDSnDate", "MTLot", "MTLotDate" });
 
                 // 결과 출력
                 foreach (var kvp in data)
@@ -875,7 +877,7 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"Total bytes read: {totalBytesRead}");
             Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
             ByteArrToBitmap(buffer, m_bmpRes);
-            string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
+            string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampMilliseconds()}.bmp");
             m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
             ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
             SrcImg = (BitmapImage)tmpImg;
@@ -988,7 +990,7 @@ namespace SonoCap.MES.UI.ViewModels
                     Log.Information($"Total bytes read: {totalBytesRead}");
                     Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     ByteArrToBitmap(buffer, m_bmpRes);
-                    string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampSeconds()}.bmp");
+                    string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampMilliseconds()}.bmp");
                     m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
                     // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
                     //OnDataReceived(buffer);
