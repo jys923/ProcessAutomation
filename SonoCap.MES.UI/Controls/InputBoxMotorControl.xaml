@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:SonoCap.MES.UI.Controls" xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              Loaded="UserControl_Loaded"
-             d:DesignHeight="200" d:DesignWidth="500">
+             d:DesignHeight="200" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -51,9 +51,16 @@
              IsSynchronizedWithCurrentItem="True"
              SelectedIndex="{Binding MTMdSnSelectedIndex}"
              KeyboardNavigation.DirectionalNavigation="Contained">
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="MouseDoubleClick">
+                        <b:InvokeCommandAction Command="{Binding MTMdSnFilteredItemsMouseDoubleClickCommand}"
+CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBox}}}" PassEventArgsToCommand="True"/>
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
                 <ListBox.Style>
                     <Style TargetType="ListBox">
                         <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+                        <Setter Property="FontSize" Value="20"/>
                     </Style>
                 </ListBox.Style>
             </ListBox>

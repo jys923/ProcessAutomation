@@ -87,6 +87,14 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void MTMdSnFilteredItemsMouseDoubleClick(string selectedItem)
+        {
+            Log.Information($"TDSnFilteredItemsMouseDoubleClick : {selectedItem}");
+            MTMdSn = selectedItem;
+            MTMdSnIsPopupOpen = false;
+        }
+
         [ObservableProperty]
         private MotorModule? _response;
         
