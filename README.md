@@ -14,22 +14,34 @@ remove-migration
 ```
 
 ## Todo List
+- [X] 유저 컨트롤
+	- [ ] messagebox
+		- https://arong.info/Archive/ContentsView/28
+		- https://github.com/pierre01/MessageBox
+		- https://stackoverflow.com/questions/5644459/show-dialog-with-mvvm-light-toolkit
+		- https://www.codeproject.com/Articles/5332442/Csharp-MVVM-Toolkit-Demo
+		- https://github.com/FantasticFiasco/mvvm-dialogs-integrated-into-windows-community-toolkit/tree/main/src
+	- [ ] RoutedEventHandler
+	- [ ] Action
+	- [ ] https://forum.dotnetdev.kr/t/mvvm-sample-for-wpf-usercontrol/8919
+	- [ ] UserControl https://kaki104.tistory.com/851
+	- [ ] UserControl https://narup.tistory.com/68
+- [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
+- [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
 - [ ] 한소노 lib에서 영상 직접 받기
-- [ ] 이벤트 핸들러, 콜백 쓰는 방법
-- [ ] mfc, wpf 통신 방법 소켓
+- [X] 이벤트 핸들러, 콜백 쓰는 방법
+- [X] mfc, wpf 통신 방법 소켓
 	- <a href="https://petra.tistory.com/613">cpp 소켓 프로그래밍</a>
 	- <a href="https://learn.microsoft.com/ko-kr/windows/win32/winsock/finished-server-and-client-code">cpp 소켓 프로그래밍</a>
 	- <a href="https://velog.io/@blanca/C-winsock2%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EC%86%8C%EC%BC%93-%ED%86%B5%EC%8B%A0-%EA%B5%AC%ED%98%84">cpp 소켓 프로그래밍</a>
 	- <a href="https://www.youtube.com/playlist?list=PLlrfTSXS0LLL8dHVmURJiaf1ggZSFZV6u">cs 소켓 프로그래밍</a>
 	- :star: <a href="https://zadd.tistory.com/32">mfc 소켓 프로그래밍</a>
-- [ ] 결과 이미지에 원그리기
-- [ ] winform bmp -> wpf bmp 바꾸기
+- [X] 결과 이미지에 원그리기
+- [X] winform bmp -> wpf bmp 바꾸기
 - [X] WPF에서 bmp 파일 저장.
 - [X] excel import
-- [ ] excel export
-- [ ] WPF -> MFC : save 명령 req , MFC : img 저장 , MFC -> WPF : 파일패스 res
-- [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
-- [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
+- [X] excel export
+- [X] WPF -> MFC : save 명령 req , MFC : img 저장 , MFC -> WPF : 파일패스 res
 - [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
 - [X] 모달 https://www.youtube.com/watch?v=uBMMvPG7zn4 
 - [X] 윈도우 생명주기
@@ -86,17 +98,6 @@ remove-migration
 	- [ ] https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/observablevalidator
 - [X] 시리얼 체크
 	- [X] 없으면 밑에 없다고 출력
-- [X] 유저 컨트롤
-	- [ ] messagebox
-		- https://arong.info/Archive/ContentsView/28
-		- https://github.com/pierre01/MessageBox
-		- https://stackoverflow.com/questions/5644459/show-dialog-with-mvvm-light-toolkit
-		- https://www.codeproject.com/Articles/5332442/Csharp-MVVM-Toolkit-Demo
-		- https://github.com/FantasticFiasco/mvvm-dialogs-integrated-into-windows-community-toolkit/tree/main/src
-	- [ ] RoutedEventHandler
-	- [ ] Action
-	- [ ] https://forum.dotnetdev.kr/t/mvvm-sample-for-wpf-usercontrol/8919
-	- [ ] 
 - [ ] Datagrid 필터링
 	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
 - [ ] datagrid 60만건 속도 개선

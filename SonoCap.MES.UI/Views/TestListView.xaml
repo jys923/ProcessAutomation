@@ -27,9 +27,9 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <RowDefinition Height="11*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="AntiqueWhite" VerticalAlignment="Center">
+        <Grid Grid.Row="0" Background="AntiqueWhite" VerticalAlignment="Center" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2.1*"/>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
@@ -39,13 +39,13 @@ Title="{Binding Title}" Height="1080" Width="1920">
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width=".9*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.RowSpan="2" Grid.Row="0" VerticalAlignment="Top">
+            <Grid Grid.RowSpan="2" Grid.Row="0" Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width=".2*"/>
@@ -94,29 +94,29 @@ Title="{Binding Title}" Height="1080" Width="1920">
             <Label Grid.Column="9" Content="" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Label Grid.Column="10" Content="etc" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Button Grid.Column="10" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
-            <Button Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
+            <Button Margin="0,0,10,0" Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
         </Grid>
-        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding TestProbes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" EnableColumnVirtualization="True" EnableRowVirtualization="True">
+        <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding TestProbes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" EnableColumnVirtualization="True" EnableRowVirtualization="True" ScrollViewer.HorizontalScrollBarVisibility="Auto">
             <!--  생성한 Behavior 연결  -->
             <b:Interaction.Behaviors>
-                <Behavior:DataGridBehavior ShowRowNumber="True" RowHeaderWidth="90"/>
+                <Behavior:DataGridBehavior ShowRowNumber="True" RowHeaderWidth="50"/>
             </b:Interaction.Behaviors>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="&#13;ID" Width="1*" Binding="{Binding Id}"/>
-                <DataGridTextColumn Header="생성날짜" Width="1*" Binding="{Binding CreatedDate}"/>
-                <DataGridTextColumn Header="Detail" Width="1*" Binding="{Binding Detail}"/>
-                <DataGridTextColumn Header="Category" Width="1*" Binding="{Binding Category.Name}"/>
-                <DataGridTextColumn Header="TestType" Width="1*" Binding="{Binding TestType.Name}"/>
-                <DataGridTextColumn Header="Result" Width="1*" Binding="{Binding Result}"/>
-                <DataGridTextColumn Header="Pc" Width="1*" Binding="{Binding Pc.Name}"/>
-                <DataGridTextColumn Header="Tester" Width="1*" Binding="{Binding Tester}"/>
+                <DataGridTextColumn Header="ID" Width=".3*" Binding="{Binding Id}"/>
+                <DataGridTextColumn Header="생성날짜" Width=".5*" Binding="{Binding CreatedDate}"/>
+                <DataGridTextColumn Header="Detail" Width=".1*" Binding="{Binding Detail}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="Category" Width=".5*" Binding="{Binding Category.Name}"/>
+                <DataGridTextColumn Header="TestType" Width=".5*" Binding="{Binding TestType.Name}"/>
+                <DataGridTextColumn Header="Result" Width=".3*" Binding="{Binding Result}"/>
+                <DataGridTextColumn Header="Pc" Width=".3*" Binding="{Binding Pc.Name}"/>
+                <DataGridTextColumn Header="Tester" Width=".3*" Binding="{Binding Tester}"/>
                 <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding Probe.Sn}"/>
                 <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.Sn}"/>
                 <DataGridTextColumn Header="Transducer" Width="1*" Binding="{Binding Transducer.Sn}"/>
                 <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.Sn}"/>
                 <DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
                 <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
-                <DataGridTextColumn Header="Metadata" Width="1*" Binding="{Binding ChangedImgMetadata}"/>
+                <DataGridTextColumn Header="Metadata" Width="200" Binding="{Binding ChangedImgMetadata}"/>
             </DataGrid.Columns>
         </DataGrid>
         <!-- Status Bar -->
