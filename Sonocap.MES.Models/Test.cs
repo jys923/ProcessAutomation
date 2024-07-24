@@ -1,10 +1,11 @@
 ﻿using SonoCap.MES.Models.Base;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 namespace SonoCap.MES.Models
 {
-    public class Test : ModelBase
+    public class Test : ModelBase, IToJson
     {
         [Required]
         public int TestCategoryId { get; set; }
@@ -41,7 +42,8 @@ namespace SonoCap.MES.Models
 
         /// <summary>
         /// mode????
-        /// auto = 0, manual = 1 검사 방법
+        /// auto = 0, manual = 1, force = 2 
+        /// 검사 방법
         /// </summary>
         [Required]
         public int Method { get; set; }
@@ -71,5 +73,19 @@ namespace SonoCap.MES.Models
         public virtual ICollection<PTRView> PTRViewT07 { get; set; }
         public virtual ICollection<PTRView> PTRViewT08 { get; set; }
         public virtual ICollection<PTRView> PTRViewT09 { get; set; }
+
+
+        public string ToJson()
+        {
+            try
+            {
+                return JsonSerializer.Serialize(this);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error converting to JSON: {ex.Message}");
+                return string.Empty;
+            }
+        }
     }
 }

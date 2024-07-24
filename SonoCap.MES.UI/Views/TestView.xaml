@@ -38,6 +38,24 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
+        <!-- 중앙에 표시될 Popup -->
+        <Popup x:Name="popupMessage"
+               Width="200"
+               Height="100"
+               AllowsTransparency="True"
+               PopupAnimation="Fade"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Placement="Center"
+               PlacementTarget="{Binding ElementName=MainGrid}"
+               IsOpen="{Binding MessageIsPopupOpen}">
+            <Grid Background="Transparent">
+                <!-- 배경을 투명으로 설정 -->
+                <Border Background="LightGray" CornerRadius="50" Opacity="0.5">
+                    <TextBlock Text="{Binding Path=Message}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+                </Border>
+            </Grid>
+        </Popup>
         <GroupBox Style="{StaticResource RemoveGroupBoxBorder}" Header="" Grid.Row="0">
             <Grid Margin="0,20,0,0">
                 <Grid.ColumnDefinitions>

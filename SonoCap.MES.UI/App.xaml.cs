@@ -18,7 +18,6 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace SonoCap.MES.UI
 {
@@ -31,6 +30,8 @@ namespace SonoCap.MES.UI
         public static Dictionary<int, int> TestThresholdDict { get; private set; } = new Dictionary<int, int>();
 
         public IServiceProvider Services { get; }
+
+        public static AppSettings appSettings { get; set; } = default!;
 
         public App()
         {
@@ -47,7 +48,7 @@ namespace SonoCap.MES.UI
                 .Build();
 
             // AppSettings 클래스로 설정값 매핑
-            AppSettings? appSettings = new AppSettings();
+            appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
             LoggingConfigurator.Configure();

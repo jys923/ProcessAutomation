@@ -1,36 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Operation.Buffer;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.Services;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using VILib;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 
@@ -38,8 +25,31 @@ namespace SonoCap.MES.UI.ViewModels
 {
     public partial class TestViewModel : ViewModelBase, IParameterReceiver
     {
+        // 메시지를 표시할 메서드 예시
+        public async Task ShowMessageAsync(string message)
+        {
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                Message = message;
+                MessageIsPopupOpen = true; // Popup을 열어 메시지를 표시합니다.
+            });
+
+            await Task.Delay(3000); // 3초 대기
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                MessageIsPopupOpen = false; // Popup을 닫습니다.
+            });
+        }
+
         [ObservableProperty]
         private string _title = default!;
+        
+        [ObservableProperty]
+        private string _message = default!;
+
+        [ObservableProperty]
+        private bool _messageIsPopupOpen = false;
 
         [ObservableProperty]
         private string _currentTime = DateTime.Today.ToString("yyyy-MM-dd");
@@ -281,7 +291,7 @@ namespace SonoCap.MES.UI.ViewModels
         private string _resTxt = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _resLogs = new ObservableCollection<string>();
+        private TimeStampedObservableCollection<string> _resLogs = new TimeStampedObservableCollection<string>();
 
         [ObservableProperty]
         private string _selectedLogItem = default!;
@@ -368,7 +378,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private void CellClick(CellPositions position)
+        private async Task CellClickAsync(CellPositions position)
         {
             _oldCell = position;
             int row = (int)position / 10;
@@ -404,6 +414,15 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row1_Column4:
                     Log.Information($"click {CellPositions.Row1_Column4}");
+                    if(_transducer != null)
+                    {
+                        await ForceAllPassAsync(_testCategory);
+                    }
+                    else
+                    {
+                        ResLogs.Add("TD Sn 없음");
+                        //await ShowMessageAsync("TD Sn 없음");
+                    }
                     break;
                 case CellPositions.Row2_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column1;
@@ -416,6 +435,14 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row2_Column4:
                     Log.Information($"click {CellPositions.Row2_Column4}");
+                    if (_transducerModule != null)
+                    {
+                        await ForceAllPassAsync(_testCategory);
+                    }
+                    else
+                    {
+                        ResLogs.Add("TDMd Sn 없음");
+                    }
                     break;
                 case CellPositions.Row3_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column1;
@@ -428,6 +455,14 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row3_Column4:
                     Log.Information($"click {CellPositions.Row3_Column4}");
+                    if (_probe != null)
+                    {
+                        await ForceAllPassAsync(_testCategory);
+                    }
+                    else
+                    {
+                        ResLogs.Add("Probe Sn 없음");
+                    }
                     break;
                 default:
                     break;
@@ -435,6 +470,31 @@ namespace SonoCap.MES.UI.ViewModels
 
             // TestCommand의 CanExecute 상태를 갱신합니다.
             (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+        }
+
+        private async Task ForceAllPassAsync(TestCategories testCategory)
+        {
+            //throw new NotImplementedException();
+            Test insertTest = new Test
+            {
+                TestCategoryId = (int)_testCategory,
+                TesterId = _tester.Id,
+                ChangedImgMetadata = "Force Pass",
+                Result = 100,
+                Method = 2,
+            };
+
+            PrepareTest(_testCategory, insertTest);
+
+            for (int i = 1; i <4; i++) 
+            {
+                insertTest.TestTypeId = i;
+
+                if (await SaveAsync(_testRepository, insertTest))
+                {
+                    ResLogs.Add($"Add test : {insertTest.ToJson()}");
+                }
+            }
         }
 
         [RelayCommand]
@@ -769,27 +829,26 @@ namespace SonoCap.MES.UI.ViewModels
                     SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
                 });
 
-                HansonoSettings? settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta);
+                HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
 
                 int radius = 150;
-                int increment = 13;
 
                 switch (settings.depth_in_cm)
                 {
                     case 3:
-                        radius = radius + increment * 5;
+                        radius = App.appSettings.Circle.Depth3;
                         break;
                     case 4:
-                        radius = radius + increment * 4;
+                        radius = App.appSettings.Circle.Depth4;
                         break;
                     case 5:
-                        radius = radius + increment * 3;
+                        radius = App.appSettings.Circle.Depth5;
                         break;
                     case 6:
-                        radius = radius + increment * 2;
+                        radius = App.appSettings.Circle.Depth6;
                         break;
                     case 7:
-                        radius = radius + increment;
+                        radius = App.appSettings.Circle.Depth7;
                         break;
                     default:
                         break;
@@ -800,7 +859,7 @@ namespace SonoCap.MES.UI.ViewModels
                 {
                     ResImg = Utilities.BitmapToImageSource(m_bmpRes);
                     ResTxt = settings.ToJson();
-                    ResLogs.Add($"시간 공정 시험 등등");
+                    ResLogs.Add($"PASS {(TestCategoriesKor)_testCategory} {(TestTypes)_testType}");
                     TestResult = -2;
                 });
 
@@ -818,51 +877,6 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information(nameof(CanNext));
 
             return (TestResult != -2 && GetValidating(nameof(TDSn)));
-
-
-            //if (TestResult == -2)
-            //{
-            //    return false;
-            //}
-
-            //bool res = false;
-
-            //if (GetValidating(nameof(TDSn)))
-            //{
-            //    res = true;
-            //}
-
-            //return res;
-
-            //if (TestResult == -2)
-            //{
-            //    return false;
-            //}
-
-            //bool res = false;
-            //switch (_testCategory)
-            //{
-            //    case TestCategories.Processing:
-            //        if (GetValidating(nameof(TDSn)))
-            //        {
-            //            res = true;
-            //        }
-            //        break;
-            //    case TestCategories.Process:
-            //        if (GetValidating(nameof(TDMdSn)))
-            //        {
-            //            res = true;
-            //        }
-            //        break;
-            //    case TestCategories.Dispatch:
-            //        if (GetValidating(nameof(ProbeSn)))
-            //        {
-            //            res = true;
-            //        }
-            //        break;
-            //}
-
-            //return res;
         }
 
         [RelayCommand(CanExecute = nameof(CanNext))]
@@ -873,7 +887,8 @@ namespace SonoCap.MES.UI.ViewModels
 
             if (_testCategory == TestCategories.Process &&
                 TestResult > App.TestThresholdDict[20 + (int)_testType] &&
-                (PassTestCategoryCnt(_testRepository, _testCategory, _transducerModule.Id) > 1))
+                (PassTestCategoryCnt(_testRepository, _testCategory, _transducerModule.Id) > 1) &&
+                _motorModule == null)
             {
                 _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
 
@@ -905,7 +920,9 @@ namespace SonoCap.MES.UI.ViewModels
 
             if(await SaveAsync(_testRepository, insertTest))
             {
-                ResLogs.Add($"Add test : {insertTest.ToJson()}");
+                string tmp = insertTest.ToJson();
+                Log.Information(insertTest.ToJson());
+                ResLogs.Add($"Add test : {tmp}");
             }
             
             //검사 결과 삭제
@@ -969,7 +986,7 @@ namespace SonoCap.MES.UI.ViewModels
                         Probe probe = new Probe { Sn = $"UPAG1{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
                         if (await _probeRepository.InsertAsync(probe))
                         {
-                            _motorModule = null;
+                            //_motorModule = null;
                             await _sharedSeqNoRepository.SetSeqNoAsync(SnType.Probe);
                             ResLogs.Add($"Add Probe Sn : {probe.Sn}");
                         }
@@ -977,11 +994,11 @@ namespace SonoCap.MES.UI.ViewModels
                     {
                         //ResLogs.Add($"Exist Probe Sn: {_probe.Sn}");
                     }
-
                     if (_probe is not null)
                     {
                         tmpPTR = await _probeRepository.GetPTRViewAsync(_probe.Sn);
                         if (tmpPTR is not null)
+
                         {
                             if (_pTRView is not null)
                                 tmpPTR.Id = _pTRView.Id;
@@ -1012,6 +1029,7 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
+            TDSnIsPopupOpen = false;
         }
 
         private void Init()
@@ -1034,7 +1052,7 @@ namespace SonoCap.MES.UI.ViewModels
             });
 
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            var timer = new System.Timers.Timer(1000);//1시간 마다
+            var timer = new System.Timers.Timer(1000);//1s
             timer.Elapsed += (s, e) => CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             timer.Start();
 
@@ -1055,12 +1073,14 @@ namespace SonoCap.MES.UI.ViewModels
 
         private async void LogIn()
         {
-            Tester tester = new Tester { Name = "yoon", PcId = 1 };
+            string name = App.appSettings.TesterName;
+            int pcId = App.appSettings.PcId;
+            Tester tester = new Tester { Name = name, PcId = pcId };
             if (await _testerRepository.InsertAsync(tester))
             {
                 IQueryable<Tester> query = _testerRepository.GetQueryable();
                 query = from testers in query
-                        where testers.PcId == 1 && testers.Name == "yoon"
+                        where testers.PcId == pcId && testers.Name == name
                         orderby testers.Id descending
                         select testers;
 
