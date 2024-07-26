@@ -51,9 +51,9 @@ namespace SonoCap.MES.UI.Services
 
         public void ShowTestView(SubData subData)
         {
-            if (!ActivateView<TestView>())
+            if (!ActivateView<TestingView>())
             {
-                ShowView<TestView, TestViewModel>(subData);
+                ShowView<TestingView, TestingViewModel>(subData);
             }
         }
     }

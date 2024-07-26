@@ -23,7 +23,7 @@ using Brushes = System.Windows.Media.Brushes;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class TestViewModel : ViewModelBase, IParameterReceiver
+    public partial class TestingViewModel : ViewModelBase, IParameterReceiver
     {
         // 메시지를 표시할 메서드 예시
         public async Task ShowMessageAsync(string message)
@@ -321,7 +321,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITransducerTypeRepository _transducerTypeRepository;
         private readonly IPTRViewRepository _pTRViewRepository;
 
-        public TestViewModel(
+        public TestingViewModel(
             ISocketService socketService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,

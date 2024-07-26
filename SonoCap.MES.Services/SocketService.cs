@@ -4,9 +4,8 @@ using System.Net;
 using System.Text;
 using Serilog;
 using System.Runtime.InteropServices;
-using System.Runtime;
-using System.Text.Json;
 using SonoCap.MES.Models;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SonoCap.MES.Services
 {
@@ -33,7 +32,10 @@ namespace SonoCap.MES.Services
             catch (Exception ex)
             {
                 // 예외 처리 필요
-                Console.WriteLine($"연결 오류: {ex.Message}");
+                Log.Error($"연결 오류: {ex.Message}");
+
+                // 프로그램 종료
+                Environment.Exit(1); // 또는 Application.Current.Shutdown()
             }
         }
 
@@ -122,7 +124,7 @@ namespace SonoCap.MES.Services
             catch (Exception ex)
             {
                 // 예외 처리 필요
-                Log.Information($"수신 오류: {ex.Message}");
+                Log.Error($"수신 오류: {ex.Message}");
             }
         }
 
@@ -137,7 +139,7 @@ namespace SonoCap.MES.Services
             catch (Exception ex)
             {
                 // 예외 처리 필요
-                Log.Information($"송신 오류: {ex.Message}");
+                Log.Error($"송신 오류: {ex.Message}");
             }
         }
 

@@ -34,7 +34,7 @@ namespace SonoCap.MES.UI.ViewModels
     {
         private ProbeListView? _probeListView = default!;
         private TestListView? _testListView = default!;
-        private TestView? _testView = default!;
+        private TestingView? _testingView = default!;
         private readonly IExcelService _excelService;
         private readonly IViewService _viewService;
         private readonly IServiceProvider _serviceProvider;
