@@ -116,7 +116,7 @@ namespace SonoCap.MES.UI.ViewModels
             //_client.Connect(IPAddress.Parse(serverIP), port);
 
             //Task.Run(async () => await ReceiveDataAsync());
-            init();
+            //init();
         }
 
         [RelayCommand]

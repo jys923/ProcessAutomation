@@ -1,6 +1,6 @@
 ﻿namespace SonoCap.MES.Models.Converts
 {
-    public class PTRViewToProbeTestResultConverter
+    public class PTRViewToProbeTestResult
     {
         private static ProbeTestResult Convert(PTRView ptrView)
         {
@@ -52,6 +52,15 @@
                 TestCreatedDate9 = ptrView.Test09?.CreatedDate,
                 TestResult9 = ptrView.Test09?.Result,
             };
+        }
+
+        public static IEnumerable<ProbeTestResult> ToList(IEnumerable<PTRView> ptrViews)
+        {
+            if (ptrViews == null)
+                return new List<ProbeTestResult>();
+
+            return ptrViews.Select(ptrView => Convert(ptrView));
+
         }
 
         public IEnumerable<ProbeTestResult> ToList(List<PTRView> ptrViews)
@@ -113,15 +122,6 @@
             }
 
             return probeTestResults;
-        }
-
-        public static IEnumerable<ProbeTestResult> ToList(IEnumerable<PTRView> ptrViews)
-        {
-            if (ptrViews == null)
-                return new List<ProbeTestResult>();
-
-            return ptrViews.Select(ptrView => Convert(ptrView));
-
         }
     }
 }

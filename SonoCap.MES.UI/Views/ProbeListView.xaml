@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Background="AntiqueWhite" VerticalAlignment="Center">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2.15*"/>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
@@ -68,9 +68,9 @@
                     <Button Content="전체"  Margin="3,0,0,3" Command="{Binding AllCommand}"/>
                     <Separator Margin="3,0,0,3"/>
                 </StackPanel>
-                <DatePicker Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150" SelectedDate="{Binding StartDate}"/>
-                <Label Grid.Row="1" Grid.Column="1" Content="~" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <DatePicker Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Width="150" SelectedDate="{Binding EndDate}"/>
+                <DatePicker Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Width="150" SelectedDate="{Binding StartDate}"/>
+                <Label Grid.Row="1" Grid.Column="1" Content="~" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+                <DatePicker Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="150" SelectedDate="{Binding EndDate}"/>
             </Grid>
             <!--<Label Grid.Column="1" Content="검사 유형" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ComboBox Grid.Column="1" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Width="120" ItemsSource="{Binding TestCategories}" SelectedItem="{Binding TestCategory, Mode=TwoWay}"/>
@@ -83,17 +83,17 @@
             <Label Grid.Column="5" Content="Tester" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <TextBox Grid.Column="5" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding Tester}"/>-->
             <Label Grid.Column="6" Content="Probe S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding ProbeSn}"/>
+            <TextBox Grid.Column="6" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Stretch" Text="{Binding ProbeSn}"/>
             <Label Grid.Column="7" Content="TD Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding TDMdSn}"/>
+            <TextBox Grid.Column="7" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Stretch" Text="{Binding TDMdSn}"/>
             <Label Grid.Column="8" Content="TD S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="8" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Text="{Binding TDSn}"/>
+            <TextBox Grid.Column="8" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Stretch" Text="{Binding TDSn}"/>
             <Label Grid.Column="9" Content="MT Md S/N" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="9" HorizontalAlignment="Left" VerticalAlignment="Top" Text="{Binding MTMdSn}" Grid.Row="2"/>
+            <TextBox Grid.Column="9" HorizontalAlignment="Left" VerticalAlignment="Stretch" Text="{Binding MTMdSn}" Grid.Row="2"/>
             <Label Grid.Column="9" Content="" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Label Grid.Column="10" Content="etc" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Button Grid.Column="10" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Top" Command="{Binding SearchCommand}"/>
-            <Button Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Top" Command="{Binding ExportCommand}"/>
+            <Button Grid.Column="10" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Stretch" Command="{Binding SearchCommand}"/>
+            <Button Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Stretch" Command="{Binding ExportCommand}" Margin="0,0,10,0"/>
         </Grid>
         <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding Probes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90">
             <b:Interaction.Behaviors>

@@ -118,7 +118,7 @@ namespace SonoCap.MES.UI.ViewModels
                 TDSn,
                 MTMdSn);
             //Probes = new ObservableCollection<ProbeTestResult>(probes);
-            List<ProbeTestResult> tmp = PTRViewToProbeTestResultConverter.ToList(probes).ToList();
+            List<ProbeTestResult> tmp = PTRViewToProbeTestResult.ToList(probes).ToList();
             Probes = new ObservableCollection<ProbeTestResult>(tmp);
             ResultCnt = Probes.Count;
         }

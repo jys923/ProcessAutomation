@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
+using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
 using System.Collections.ObjectModel;
@@ -24,7 +25,6 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void Day()
         {
-
             //StartDate = DateTime.Now.AddDays(-1);
             StartDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0);
             EndDate = DateTime.Now;
@@ -109,10 +109,31 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private int _resultCnt = 0000001;
 
+        //[RelayCommand]
+        //private async Task SearchAsync()
+        //{
+        //    List<TestProbe> testProbes = await _testRepository.GetTestProbeLinqAsync(
+        //        StartDate,
+        //        EndDate,
+        //        TestCategory.Equals("ALL") ? (int)Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
+        //        TestType.Equals("ALL") ? (int)Models.Enums.Commons.All : TestTypes.IndexOf(TestType),
+        //        Tester,
+        //        Pc.Equals("ALL") ? CommonValues.All : Pcs.IndexOf(Pc),
+        //        TestResult.Equals("ALL") ? (int)Models.Enums.Commons.All : TestResults.IndexOf(TestResult),
+        //        null,
+        //        ProbeSn,
+        //        TDMdSn,
+        //        TDSn,
+        //        MTMdSn,
+        //        null);
+        //    TestProbes = new ObservableCollection<TestProbe>(testProbes);
+        //    ResultCnt = TestProbes.Count;
+        //}
+
         [RelayCommand]
         private async Task SearchAsync()
         {
-            List<TestProbe> testProbes = await _testRepository.GetTestProbeLinqAsync(
+            IEnumerable<Test> tests = await _testRepository.GetTestAsync(
                 StartDate,
                 EndDate,
                 TestCategory.Equals("ALL") ? (int)Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
@@ -126,7 +147,8 @@ namespace SonoCap.MES.UI.ViewModels
                 TDSn,
                 MTMdSn,
                 null);
-            TestProbes = new ObservableCollection<TestProbe>(testProbes);
+
+            TestProbes = new ObservableCollection<TestProbe>(TestToTestProbe.ToList(tests));
             ResultCnt = TestProbes.Count;
         }
 
