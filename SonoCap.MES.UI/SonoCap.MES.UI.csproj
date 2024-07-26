@@ -49,7 +49,6 @@
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Repositories\SonoCap.MES.Repositories.csproj" />
     <ProjectReference Include="..\SonoCap.MES.Services\SonoCap.MES.Services.csproj" />
-    <ProjectReference Include="..\VILib\VILib.vcxproj" />
   </ItemGroup>
 
   <ItemGroup>

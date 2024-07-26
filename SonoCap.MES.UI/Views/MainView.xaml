@@ -82,7 +82,9 @@
         <Button Content="InputBox" Command="{Binding InputBoxCommand}" HorizontalAlignment="Left" Margin="200,300,0,0" VerticalAlignment="Top" Width="100"/>
         <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,200,0,0" TextWrapping="Wrap" Text="{Binding Send}" VerticalAlignment="Top" Width="100"/>
         <Button Content="send" Command="{Binding SendSocCommand}" HorizontalAlignment="Left" Margin="300,250,0,0" VerticalAlignment="Top" Width="100"/>
-        <Button Content="receive" Command="{Binding ReceiveSocCommand}" HorizontalAlignment="Left" Margin="300,300,0,0" VerticalAlignment="Top" Width="100"/>
-        <Image HorizontalAlignment="Left" Height="100" Margin="660,43,0,0" VerticalAlignment="Top" Width="100" Stretch="Uniform" Source="{Binding SrcImg}"/>
+        <Button Content="receive" Command="{Binding ReceiveCommand}" HorizontalAlignment="Left" Margin="300,300,0,0" VerticalAlignment="Top" Width="100"/>
+        <GroupBox  Margin="660,40,0,0" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" >
+            <Image Stretch="Uniform" Source="{Binding SrcImg}"/>
+        </GroupBox>
     </Grid>
 </Window>

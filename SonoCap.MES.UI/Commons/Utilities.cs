@@ -13,8 +13,25 @@ using System.Text.RegularExpressions;
 
 namespace SonoCap.MES.UI.Commons
 {
-    public class Utilities
+    public static class Utilities
     {
+        public static bool EnsureFolderExists(string folderName)
+        {
+            try
+            {
+                if (!Directory.Exists(folderName))
+                {
+                    Directory.CreateDirectory(folderName);
+                }
+                return true; // 폴더 생성 성공
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.Message);
+                return false; // 폴더 생성 실패
+            }
+        }
+
         public static bool IsMatchReqExr(string value, string pattern)
         {
             // 정규식 패턴

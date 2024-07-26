@@ -898,8 +898,12 @@ namespace SonoCap.MES.UI.ViewModels
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
 
-            string OriginalImgName = $"{epoch}_O.bmp";
-            string ChangedImgName = $"{epoch}_C.bmp";
+            if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
+                return;
+            
+            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_O.bmp";
+            string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_C.bmp";
+
 
             Utilities.ImageSourceToBitmapFile(SrcImg, OriginalImgName);
             Utilities.ImageSourceToBitmapFile(ResImg, ChangedImgName);

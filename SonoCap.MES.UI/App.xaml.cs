@@ -18,6 +18,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using SonoCap.MES.UI.Commons;
 
 namespace SonoCap.MES.UI
 {
@@ -38,16 +39,18 @@ namespace SonoCap.MES.UI
             Services = ConfigureServices();
             Startup += App_Startup;
         }
+        private void App_Startup(object sender, StartupEventArgs e)
+        {
+            Task.Run(() => InitializeAsync());
+            SetMidnightTimer();
+            SetTestThreshold();
+            SetPath();
+            ShowMainView();
+        }
 
         private static IServiceProvider ConfigureServices()
         {
-            // Configuration 객체 생성
-            IConfiguration configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .Build();
-
-            // AppSettings 클래스로 설정값 매핑
+            IConfiguration configuration = ConfigureAppSettings();
             appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
@@ -55,25 +58,8 @@ namespace SonoCap.MES.UI
 
             IServiceCollection services = new ServiceCollection();
 
-            //services.AddDbContext<MESDbContext>();
-            // DbContext 등록 및 구성
-            services.AddDbContext<MESDbContext>((serviceProvider, options) =>
-            {
-                ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
-                {
-                    builder.AddSerilog(dispose: true); // Serilog를 LoggerFactory에 추가
-                    builder.AddFilter((category, level) =>
-                        category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information); // EF Core의 로그를 필터링하여 Serilog에게 전달
-                });
-
-                //optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
-                options.UseLoggerFactory(loggerFactory); // Serilog에 EF Core 로그 리디렉션
-                options.UseLazyLoadingProxies(true);
-                options.EnableSensitiveDataLogging(true);
-
-                options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(120));
-                options.UseLazyLoadingProxies(true);
-            });
+            ConfigureDbContext(services, appSettings);
+            
             services.AddScoped<MESDbContextFactory>();
 
             RegisterServices(services);
@@ -85,15 +71,35 @@ namespace SonoCap.MES.UI
 
             return services.BuildServiceProvider();
         }
-        
-        private void App_Startup(object sender, StartupEventArgs e)
+
+        private static IConfiguration ConfigureAppSettings()
         {
-            Task.Run(() => InitializeAsync());
-            SetMidnightTimer();
-            SetTestThreshold();
-            ShowMainView();
+            return new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
         }
-        
+
+        private static void ConfigureDbContext(IServiceCollection services, AppSettings appSettings)
+        {
+            services.AddDbContext<MESDbContext>((serviceProvider, options) =>
+            {
+                ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder.AddSerilog(dispose: true);
+                    builder.AddFilter((category, level) =>
+                        category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information);
+                });
+
+                options.UseLoggerFactory(loggerFactory);
+                options.UseLazyLoadingProxies(true);
+                options.EnableSensitiveDataLogging(true);
+
+                options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(120));
+                options.UseLazyLoadingProxies(true);
+            });
+        }
+
         private async Task InitializeAsync()
         {
             await Services.GetRequiredService<ISharedSeqNoRepository>().InitializeAsync();
@@ -173,6 +179,13 @@ namespace SonoCap.MES.UI
                 TestThresholdDict[testType.Id * 10 + 2] = testType.Threshold;
                 TestThresholdDict[testType.Id * 10 + 3] = testType.Threshold;
             }
+        }
+
+        private void SetPath()
+        {
+            Utilities.EnsureFolderExists(appSettings.Path.ImportExcel);
+            Utilities.EnsureFolderExists(appSettings.Path.ExportExcel);
+            Utilities.EnsureFolderExists(appSettings.Path.ExportImg);
         }
 
         private void ShowMainView()

@@ -127,8 +127,10 @@ namespace SonoCap.MES.UI.ViewModels
         private void Export()
         {
             Log.Information("Export");
-            _excelService.ExportToExcel(probes, $"{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx");
-
+            if (Utilities.EnsureFolderExists(App.appSettings.Path.ExportExcel))
+            {
+                _excelService.ExportToExcel(probes, $"{App.appSettings.Path.ExportExcel}{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx");
+            }
         }
 
         public ProbeListViewModel(

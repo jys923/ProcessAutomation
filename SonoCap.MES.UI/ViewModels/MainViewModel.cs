@@ -116,6 +116,7 @@ namespace SonoCap.MES.UI.ViewModels
             //_client.Connect(IPAddress.Parse(serverIP), port);
 
             //Task.Run(async () => await ReceiveDataAsync());
+            init();
         }
 
         [RelayCommand]
@@ -711,8 +712,8 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"cnt: {cnt}");
         }
 
-        private string _searchText;
-        private ObservableCollection<string> _filteredItems;
+        private string _searchText = default!;
+        private ObservableCollection<string> _filteredItems = [];
         private bool _isPopupOpen;
         private int _selectedIndex;
 
@@ -876,39 +877,16 @@ namespace SonoCap.MES.UI.ViewModels
 
             Log.Information($"Total bytes read: {totalBytesRead}");
             Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            ByteArrToBitmap(buffer, m_bmpRes);
+            Utilities.ByteArrToBitmap(buffer, m_bmpRes);
             string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampMilliseconds()}.bmp");
             m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
-            ImageSource tmpImg = BitmapToImageSource(m_bmpRes);
+            ImageSource tmpImg = Utilities.BitmapToImageSource(m_bmpRes);
             SrcImg = (BitmapImage)tmpImg;
             //await App.Current.Dispatcher.InvokeAsync(() =>
             //{
             //    SrcImg = (BitmapImage)tmpImg;
             //});
 
-        }
-
-        private ImageSource BitmapToImageSource(Bitmap bitmap)
-        {
-            if (bitmap == null)
-                return null;
-
-            using (MemoryStream stream = new MemoryStream())
-            {
-                // 비트맵을 MemoryStream에 복사합니다.
-                bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-
-                stream.Position = 0; // 스트림 포지션을 처음으로 되돌립니다.
-
-                // 비트맵 이미지를 생성하고 반환합니다.
-                BitmapImage imageSource = new BitmapImage();
-                imageSource.BeginInit();
-                imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                imageSource.StreamSource = stream;
-                imageSource.EndInit();
-
-                return imageSource;
-            }
         }
 
         private async Task ReceiveDataAsync2()
@@ -954,7 +932,7 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"Total bytes read: {totalBytesRead}");
 
             Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            ByteArrToBitmap(buffer, m_bmpRes);
+            Utilities.ByteArrToBitmap(buffer, m_bmpRes);
             m_bmpRes.Save("test.bmp", ImageFormat.Bmp);
         }
 
@@ -989,7 +967,7 @@ namespace SonoCap.MES.UI.ViewModels
 
                     Log.Information($"Total bytes read: {totalBytesRead}");
                     Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    ByteArrToBitmap(buffer, m_bmpRes);
+                    Utilities.ByteArrToBitmap(buffer, m_bmpRes);
                     string bmpFileName = String.Format($"{Utilities.GetCurrentUnixTimestampMilliseconds()}.bmp");
                     m_bmpRes.Save(bmpFileName, ImageFormat.Bmp);
                     // 데이터 수신 완료 후 이벤트를 통해 데이터 전달
@@ -1003,35 +981,126 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-
         [RelayCommand]
-        private void ReceiveSoc()
+        private void Receive()
         {
+            Log.Information("Receive");
+            // 예시: 메서드 호출
+            IntPtr outputFinalImageBuf = new IntPtr();// = /* final image buffer */;
+            int finalImageBufLength = 512 * 512 * 4;// = /* length of final image buffer */;
+            IntPtr outputRawDataBuf = new IntPtr(); // = /* raw data buffer */;
+
+            int byte_per_sample = 2;
+            int max_no_sample = 512;
+            int max_scanline = 960;
+            int rawDataBufLength = max_scanline * max_no_sample * byte_per_sample;
+            string outputMetadata;
+
+            ulong result = HsnLibraryService.ipRenderWithCapture(outputFinalImageBuf, finalImageBufLength, outputRawDataBuf, rawDataBufLength, out outputMetadata);
+
+            //if (result != IntPtr.Zero)
+            if (result > 0)
+            {
+                // 성공적으로 호출되었을 때의 처리
+                // outputMetadata를 사용하세요
+                Log.Information("Pass");
+            }
+            else
+            {
+                // 호출 실패 시의 처리
+                Log.Information("Fail");
+            }
         }
 
-        private int ByteArrToBitmap(byte[] raw_img, Bitmap m_bmp)
+        private static void init()
         {
-            BitmapData? bmpData = null;
+            registerCallbackBeforeInitialize();
+
+            if (!HsnLibraryService.initialize())
+            {
+                Log.Information("initialize Fail");
+                return;
+            }
+
+            registerCallbackAfterInitialize();
+
             try
             {
-                bmpData = m_bmp.LockBits(new Rectangle(0, 0,
-                                                    m_bmp.Width,
-                                                    m_bmp.Height),
-                                                    ImageLockMode.WriteOnly,
-                                                    m_bmp.PixelFormat);
-
-                IntPtr pNative = bmpData.Scan0;
-                Marshal.Copy(raw_img, 0, pNative, raw_img.Length);
-                m_bmp.UnlockBits(bmpData);
-
-                return 1;
+                HsnLibraryService.startProbeDetection();
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                m_bmp.UnlockBits(bmpData);
-                Trace.WriteLine(ex.ToString());
-                return -1;
+                Log.Information($"{e.Message}");
+                throw;
             }
+            //HsnLibraryService.startProbeDetection();
+
+            //if (!HsnLibraryService.startProbeDetection())
+            //{
+            //    Log.Information("startProbeDetection Fail");
+            //    return;
+            //}
+
+
+            if (!HsnLibraryService.ipInitialize())
+            {
+                Log.Information("ipInitialize Fail");
+                return;
+            }
+
+            int width = 512;
+            int height = 512;
+            if (!HsnLibraryService.ipResize(width, height))
+            {
+                //exception
+                Log.Information("ipResize Fail");
+                return;
+            }
+        }
+
+
+        private static void registerCallbackBeforeInitialize()
+        {
+            HsnLibraryService.registerCallback_Loading(mLoadingCallback); //loading_status
+            HsnLibraryService.registerCallback_Error(myErrorCallback); //error
+        }
+
+        private static void mLoadingCallback(bool value)
+        {
+            Log.Information($"Loading {value}");
+        }
+
+        private static void myErrorCallback(string value, int value2)
+        {
+            Log.Information($"Error {value} {value2}");
+        }
+
+        private static void registerCallbackAfterInitialize()
+        {
+            HsnLibraryService.registerCallback_DeviceAttached(mDeviceAttachedCallback);
+            HsnLibraryService.registerCallback_DeviceRemoved(mDeviceRemovedCallback);
+            HsnLibraryService.registerCallback_ENDMotorSpeed(mMotorSpeedCallback);
+            HsnLibraryService.registerCallback_ProbeState(mProbeStateCallback);//probe state
+        }
+
+        private static void mProbeStateCallback(int value)
+        {
+            Log.Information($"ProbeState {value}");
+        }
+
+        private static void mMotorSpeedCallback(int value, int value2)
+        {
+            Log.Information($"MotorSpeed prf_hz : {value}, density : {value2}");
+        }
+
+        private static void mDeviceRemovedCallback()
+        {
+            HsnLibraryService.disactivateProbe();
+        }
+
+        private static void mDeviceAttachedCallback()
+        {
+            HsnLibraryService.activateProbe();
         }
     }
 }

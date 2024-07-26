@@ -6,6 +6,7 @@
         public Circle Circle { get; set; } = default!;
         public string TesterName { get; set; } = @"No Name";
         public int PcId { get; set; } = 1;
+        public Path Path { get; set; } = default!;
     }
 
     public class ConnectionStrings
@@ -20,5 +21,12 @@
         public int Depth5 { get; set; } = 150;
         public int Depth6 { get; set; } = 140;
         public int Depth7 { get; set; } = 130;
+    }
+
+    public class Path
+    {
+        public string ImportExcel { get; set; } = @"./report/";
+        public string ExportExcel { get; set; } = @"./report/";
+        public string ExportImg { get; set; } = @"./img/";
     }
 }
