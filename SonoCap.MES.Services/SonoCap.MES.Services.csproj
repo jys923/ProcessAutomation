@@ -15,4 +15,19 @@
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="lib\x64\Hsnlibrary_END.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="lib\x64\Hsnlibrary_END.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="lib\x64\Hsnlibrary_ENDd.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="lib\x64\Hsnlibrary_ENDd.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
