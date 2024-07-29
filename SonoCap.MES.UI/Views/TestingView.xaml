@@ -13,6 +13,7 @@
         xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels" 
         xmlns:controls="clr-namespace:SonoCap.MES.UI.Controls"
         mc:Ignorable="d"
+        WindowState="Maximized"
         d:DataContext="{d:DesignInstance Type={x:Type vm:TestingViewModel}}"
         Title="{Binding Title}" Height="1080" Width="1920">
     <Window.Resources>

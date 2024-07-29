@@ -133,6 +133,8 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(ProbeListViewModel));
             services.AddTransient(typeof(TestListViewModel));
             services.AddTransient(typeof(TestingViewModel));
+            services.AddTransient(typeof(TestViewModel));
+            services.AddTransient(typeof(ProbeViewModel));
         }
 
         private static void RegisterViews(IServiceCollection services)
@@ -141,6 +143,8 @@ namespace SonoCap.MES.UI
             services.AddTransient(s => new ProbeListView() { DataContext = s.GetRequiredService<ProbeListViewModel>() });
             services.AddTransient(s => new TestListView() { DataContext = s.GetRequiredService<TestListViewModel>() });
             services.AddTransient(s => new TestingView() { DataContext = s.GetRequiredService<TestingViewModel>() });
+            services.AddTransient(s => new TestView() { DataContext = s.GetRequiredService<TestViewModel>() });
+            services.AddTransient(s => new ProbeView() { DataContext = s.GetRequiredService<ProbeViewModel>() });
         }
 
         private static void RegisterDynamicProxies(IServiceCollection services)

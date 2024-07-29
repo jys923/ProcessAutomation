@@ -348,29 +348,4 @@ namespace SonoCap.MES.Services
         [DllImport(DllPath, CallingConvention = CallingConvention.Cdecl)]
         public static extern void setIpCapsuleIsInnerVisible(bool value);
     }
-
-    // 구조체 정의
-    [StructLayout(LayoutKind.Sequential)]
-    public struct ApplicationTuple
-    {
-        public int Id;
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string Name;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct PresetTuple
-    {
-        public int Id;
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string Name;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct SubSettingTuple
-    {
-        public int Id;
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string Name;
-    }
 }

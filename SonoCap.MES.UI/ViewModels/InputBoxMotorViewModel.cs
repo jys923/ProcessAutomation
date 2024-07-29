@@ -90,7 +90,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void MTMdSnFilteredItemsMouseDoubleClick(string selectedItem)
         {
-            Log.Information($"TDSnFilteredItemsMouseDoubleClick : {selectedItem}");
+            Log.Information($"MTMdSnFilteredItemsMouseDoubleClick : {selectedItem}");
             MTMdSn = selectedItem;
             MTMdSnIsPopupOpen = false;
         }

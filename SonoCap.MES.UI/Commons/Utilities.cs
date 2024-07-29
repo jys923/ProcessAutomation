@@ -191,6 +191,30 @@ namespace SonoCap.MES.UI.Commons
             return epochTime.ToUnixTimeMilliseconds();
         }
 
+        public static ImageSource? GetFileToImageSource(string? filePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    return null;
+                }
+
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(filePath, UriKind.RelativeOrAbsolute);
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.EndInit();
+                return image;
+            }
+            catch (Exception ex)
+            {
+                // 예외 처리: 파일 로드 실패 시 null 반환 또는 로그 작성
+                Log.Information($"Error loading image from file: {ex.Message}");
+                return null;
+            }
+        }
+
         public static bool SaveImageSourceToFile(ImageSource imageSource, string filePath)
         {
             try

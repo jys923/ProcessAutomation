@@ -4,12 +4,14 @@ using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Models.Enums;
+using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class TestListViewModel : ObservableObject
+    public partial class TestListViewModel : ViewModelBase
     {
         private readonly ITestRepository _testRepository;
 
@@ -109,6 +111,8 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private int _resultCnt = 0000001;
 
+        private IEnumerable<Test> tests = default!;
+
         //[RelayCommand]
         //private async Task SearchAsync()
         //{
@@ -133,7 +137,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            IEnumerable<Test> tests = await _testRepository.GetTestAsync(
+            tests = await _testRepository.GetTestAsync(
                 StartDate,
                 EndDate,
                 TestCategory.Equals("ALL") ? (int)Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
@@ -156,6 +160,19 @@ namespace SonoCap.MES.UI.ViewModels
         private void Export()
         {
             Log.Information("Export");
+        }
+
+        [RelayCommand]
+        private void ListDoubleClick(object parameter)
+        {
+            if (parameter is int selectedIndex)
+            {
+                // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
+                Log.Information($"{selectedIndex}:{tests.ElementAt(selectedIndex).ToString()}");
+                // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
+                Controls.TestView.Show("Motor Module", tests.ElementAt(selectedIndex));
+                //Controls.InputBox.Show("aaa", "aaa");
+            }
         }
 
         public TestListViewModel(ITestRepository testRepository)

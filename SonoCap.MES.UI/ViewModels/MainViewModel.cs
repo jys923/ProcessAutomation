@@ -17,12 +17,9 @@ using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows;
 using System.ComponentModel;
 using System.Net.Sockets;
-using System.Net;
 using System.Text;
-using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
@@ -116,20 +113,25 @@ namespace SonoCap.MES.UI.ViewModels
             //_client.Connect(IPAddress.Parse(serverIP), port);
 
             //Task.Run(async () => await ReceiveDataAsync());
-            //init();
+            Init();
         }
 
         [RelayCommand]
         private void ToBlink()
         {
-            IsBlinking = !IsBlinking;
-            //Task.Run(() => DoBackgroundWork());
+            //IsBlinking = !IsBlinking;
+            //var mainView = App.Current.Services.GetService<TestView>()!;
+            //mainView.Show();//Task.Run(() => DoBackgroundWork());
+            _viewService.ShowTestListView();
         }
 
         [RelayCommand]
         private void ToTest()
         {
-            _viewService.ShowTestView(new SubData { stringData = "test" , intData = 123});
+            _viewService.ShowTestingView(new SubData { stringData = "test" , intData = 123});
+            //var mainView = App.Current.Services.GetService<ProbeView>()!;
+            //mainView.Show();//Task.Run(() => DoBackgroundWork());
+            //_viewService.ShowProbeListView();
         }
 
         [RelayCommand]
@@ -817,15 +819,20 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void InputBox()
         {
-            var result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^",_motorModuleRepository);
-            if (result == null)
-            {
-                System.Windows.MessageBox.Show("취소됨");
-            }
-            else
-            {
-                System.Windows.MessageBox.Show(result.Sn);
-            }
+            //Test test = new Test { 
+
+            //}
+            //Controls.TestView.Show("아무말 메세지",);
+
+            //var result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^",_motorModuleRepository);
+            //if (result == null)
+            //{
+            //    System.Windows.MessageBox.Show("취소됨");
+            //}
+            //else
+            //{
+            //    System.Windows.MessageBox.Show(result.Sn);
+            //}
 
             //MotorModule? result = Controls.InputBoxMotor.Show("아무말 메세지", "아무말이나 적어보세요 ^^");
             //if (result == null)
@@ -1012,7 +1019,126 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private static void init()
+        private static void Init()
+        {
+            registerCallbackBeforeInitialize();
+
+            if (!SonoCapUsImgService.Initialize())
+            {
+                Log.Information("initialize Fail");
+                return;
+            }
+
+            registerCallbackAfterInitialize();
+
+            try
+            {
+                SonoCapUsImgService.StartProbeDetection();
+            }
+            catch (Exception e)
+            {
+                Log.Error($"{e.Message}");
+                throw;
+            }
+
+            //if (!SonoCapUsImgService.IpInitialize())
+            //{
+            //    Log.Information("ipInitialize Fail");
+            //    return;
+            //}
+
+            //int width = 512;
+            //int height = 512;
+            //if (!SonoCapUsImgService.IpResize(width, height))
+            //{
+            //    //exception
+            //    Log.Information("ipResize Fail");
+            //    return;
+            //}
+        }
+
+        private static void registerCallbackBeforeInitialize()
+        {
+            Loading loading = () =>
+            {
+                Log.Information("Loading callback executed!");
+            };
+
+            Error error = (string message, int value) => 
+            {
+                Log.Error(message, value);
+            };
+
+            bool result = SonoCapUsImgService.RegisterCallbackLoading(loading); //loading_status
+            result = SonoCapUsImgService.RegisterCallbackError(error); //error
+        }
+
+        private static void mLoadingCallback(bool value)
+        {
+            Log.Information($"Loading {value}");
+        }
+
+        private static void myErrorCallback(string value, int value2)
+        {
+            Log.Error($"Error {value} {value2}");
+        }
+
+        private static void registerCallbackAfterInitialize()
+        {
+            DeviceAttached deviceAttached = () =>
+            {
+                Log.Information("DeviceAttached callback executed!");
+                SonoCapUsImgService.ActivateProbe();
+            };
+
+            DeviceRemoved deviceRemoved = () => 
+            { 
+                Log.Information("DeviceRemoved callback executed!");
+                SonoCapUsImgService.DeactivateProbe();
+            };
+
+            MotorSpeed motorSpeed = (int value, int value2) =>
+            {
+                Log.Information($"{value} {value2}");
+            };
+
+            ProbeState probeState = (int value) =>
+            {
+                Log.Information($"{value}");
+            };
+
+            SonoCapUsImgService.RegisterCallbackDeviceAttached(deviceAttached);
+            SonoCapUsImgService.RegisterCallbackDeviceRemoved(deviceRemoved);
+            SonoCapUsImgService.RegisterCallbackMotorSpeed(motorSpeed);
+            SonoCapUsImgService.RegisterCallbackProbeState(probeState);
+        }
+
+        private static void DeviceAttachedCallback()
+        {
+            SonoCapUsImgService.ActivateProbe();
+        }
+
+        private static void mDeviceAttachedCallback()
+        {
+            HsnLibraryService.activateProbe();
+        }
+
+        private static void mDeviceRemovedCallback()
+        {
+            HsnLibraryService.disactivateProbe();
+        }
+        
+        private static void mMotorSpeedCallback(int value, int value2)
+        {
+            Log.Information($"MotorSpeed prf_hz : {value}, density : {value2}");
+        }
+
+        private static void mProbeStateCallback(int value)
+        {
+            Log.Information($"ProbeState {value}");
+        }
+        
+        private static void init2()
         {
             registerCallbackBeforeInitialize();
 
@@ -1058,47 +1184,46 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-
-        private static void registerCallbackBeforeInitialize()
+        private static void registerCallbackBeforeInitialize2()
         {
-            HsnLibraryService.registerCallback_Loading(mLoadingCallback); //loading_status
-            HsnLibraryService.registerCallback_Error(myErrorCallback); //error
+            HsnLibraryService.registerCallback_Loading(mLoadingCallback2); //loading_status
+            HsnLibraryService.registerCallback_Error(myErrorCallback2); //error
         }
 
-        private static void mLoadingCallback(bool value)
+        private static void mLoadingCallback2(bool value)
         {
             Log.Information($"Loading {value}");
         }
 
-        private static void myErrorCallback(string value, int value2)
+        private static void myErrorCallback2(string value, int value2)
         {
             Log.Information($"Error {value} {value2}");
         }
 
-        private static void registerCallbackAfterInitialize()
+        private static void registerCallbackAfterInitialize2()
         {
-            HsnLibraryService.registerCallback_DeviceAttached(mDeviceAttachedCallback);
-            HsnLibraryService.registerCallback_DeviceRemoved(mDeviceRemovedCallback);
-            HsnLibraryService.registerCallback_ENDMotorSpeed(mMotorSpeedCallback);
-            HsnLibraryService.registerCallback_ProbeState(mProbeStateCallback);//probe state
+            HsnLibraryService.registerCallback_DeviceAttached(mDeviceAttachedCallback2);
+            HsnLibraryService.registerCallback_DeviceRemoved(mDeviceRemovedCallback2);
+            HsnLibraryService.registerCallback_ENDMotorSpeed(mMotorSpeedCallback2);
+            HsnLibraryService.registerCallback_ProbeState(mProbeStateCallback2);//probe state
         }
 
-        private static void mProbeStateCallback(int value)
+        private static void mProbeStateCallback2(int value)
         {
             Log.Information($"ProbeState {value}");
         }
 
-        private static void mMotorSpeedCallback(int value, int value2)
+        private static void mMotorSpeedCallback2(int value, int value2)
         {
             Log.Information($"MotorSpeed prf_hz : {value}, density : {value2}");
         }
 
-        private static void mDeviceRemovedCallback()
+        private static void mDeviceRemovedCallback2()
         {
             HsnLibraryService.disactivateProbe();
         }
 
-        private static void mDeviceAttachedCallback()
+        private static void mDeviceAttachedCallback2()
         {
             HsnLibraryService.activateProbe();
         }

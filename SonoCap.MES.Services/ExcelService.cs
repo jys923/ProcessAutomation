@@ -8,7 +8,7 @@ namespace SonoCap.MES.Services
 {
     public class ExcelService : IExcelService
     {
-        public void ExportToExcel(List<PTRView> data, string filePath)
+        public void ExportToExcel(IEnumerable<PTRView> data, string filePath)
         {
             if (data.Count() < 1)
                 throw new ArgumentNullException(nameof(data));

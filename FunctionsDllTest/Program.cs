@@ -4,7 +4,7 @@ namespace FunctionsDllTest
 {
     class Program
     {
-        [DllImport("FunctionsDll.dll")]
+        [DllImport("FunctionsDllD.dll")]
         public static extern double ForTest(int length);
 
         static void Main(string[] args)

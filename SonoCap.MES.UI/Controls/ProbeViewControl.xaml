@@ -1,0 +1,292 @@
+﻿<UserControl x:Class="SonoCap.MES.UI.Controls.ProbeViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SonoCap.MES.UI.Controls"
+             mc:Ignorable="d" 
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             Loaded="UserControl_Loaded"
+             d:DesignHeight="960" d:DesignWidth="1400">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style TargetType="{x:Type Label}" BasedOn="{StaticResource BaseFontStyle}">
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="FontSize" Value="15"/>
+            </Style>
+            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource MetroTextBoxStyle}">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="KeyDown">
+            <b:InvokeCommandAction Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True">
+            </b:InvokeCommandAction>
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".2*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height=".1*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="검사 시간"/>
+            <Label Content="Probe Sn" Grid.Row="1"/>
+            <Label Content="TD Sn" Grid.Row="2"/>
+            <Label Content="TDMd Sn" Grid.Row="3"/>
+            <TextBlock Text="{Binding PTRView.CreatedDate, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}" Grid.Row="0" Grid.Column="1"/>
+            <TextBlock Text="{Binding PTRView.ProbeSn}" Grid.Row="1" Grid.Column="1"/>
+            <TextBlock Text="{Binding PTRView.TransducerSn}" Grid.Row="2" Grid.Column="1"/>
+            <TextBlock Text="{Binding PTRView.TransducerModuleSn}" Grid.Row="3" Grid.Column="1"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="1*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg00}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg00}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg00}">
+                    <Image.ToolTip>
+                        <ToolTip>
+                                <Image Source="{Binding ResImg00}" Stretch="UniformToFill" Width="500" Height="500"/>
+                        </ToolTip>
+                    </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="0" Grid.Column="1" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg01}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg01}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg01}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg01}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="0" Grid.Column="2" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg02}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg02}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg02}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg02}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="0" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg10}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg10}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg10}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg10}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="1" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg11}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg11}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg11}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg11}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="2" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg12}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg12}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg12}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg12}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="2" Grid.Column="0" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg20}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg20}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg20}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg20}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="2" Grid.Column="1" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg21}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg21}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg21}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg21}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+            <Grid Grid.Row="2" Grid.Column="2" Margin="0 0 0 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Grid.Column="0" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding SrcImg22}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding SrcImg22}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
+                    <Image Stretch="UniformToFill" Source="{Binding ResImg22}">
+                        <Image.ToolTip>
+                            <ToolTip>
+                                <Image Source="{Binding ResImg22}" Stretch="UniformToFill" Width="500" Height="500"/>
+                            </ToolTip>
+                        </Image.ToolTip>
+                    </Image>
+                </Viewbox>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0 0 -10 0" >
+            <Button Width="100" Content="Close" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="30" IsCancel="True" Cursor="Hand" Style="{StaticResource MetroPinkButtonStyle}"/>
+        </Grid>
+    </Grid>
+</UserControl>

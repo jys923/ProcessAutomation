@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SonoCapUsImgTest": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
