@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SonoCap.MES.Services": {
-      "commandName": "Project",
-      "nativeDebugging": true
-    }
-  }
-}
