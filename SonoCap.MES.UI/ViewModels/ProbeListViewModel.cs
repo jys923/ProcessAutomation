@@ -140,7 +140,7 @@ namespace SonoCap.MES.UI.ViewModels
                 // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
                 Log.Information($"{selectedIndex}:{probes.ElementAt(selectedIndex).ToString()}");
                 // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
-                Controls.ProbeView.Show("Motor Module", probes.ElementAt(selectedIndex));
+                Controls.ProbeView.Show(probes.ElementAt(selectedIndex).ProbeSn, probes.ElementAt(selectedIndex));
                 //Controls.InputBox.Show("aaa", "aaa");
             }
         }

@@ -23,6 +23,9 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private ImageSource _resImg = default!;
 
+        [ObservableProperty]
+        private Color[] _cellColors = default!;
+
         [RelayCommand]
         private void KeyDown(KeyEventArgs keyEventArgs)
         {
@@ -41,6 +44,15 @@ namespace SonoCap.MES.UI.ViewModels
 
             SrcImg = Utilities.GetFileToImageSource(Test.OriginalImg) ?? default!;
             ResImg = Utilities.GetFileToImageSource(Test.ChangedImg) ?? default!;
+
+            _cellColors = new Color[9];
+            // Initialize all cells to LightBlue
+            for (int i = 0; i < 9; i++)
+            {
+                _cellColors[i] = Colors.LightBlue;
+            }
+            // Example: set one cell to Yellow
+            _cellColors[Test.TestTypeId - 1 + (Test.TestCategoryId -1) * 3] = Colors.Yellow;
         }
     }
 }

@@ -8,6 +8,7 @@ using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -170,7 +171,7 @@ namespace SonoCap.MES.UI.ViewModels
                 // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
                 Log.Information($"{selectedIndex}:{tests.ElementAt(selectedIndex).ToString()}");
                 // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
-                Controls.TestView.Show("Motor Module", tests.ElementAt(selectedIndex));
+                Controls.TestView.Show($"Test Id : {tests.ElementAt(selectedIndex).Id}", tests.ElementAt(selectedIndex));
                 //Controls.InputBox.Show("aaa", "aaa");
             }
         }

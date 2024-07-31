@@ -10,6 +10,7 @@
         <ResourceDictionary>
             <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue"/>
             <SolidColorBrush x:Key="CellBodyBrush" Color="LightGray"/>
+            <converters:ColorConverter x:Key="ColorConverter"/>
             <converters:HeightConverter x:Key="HeightConverter "/>
             <converters:TestResultBorderBrushConverter x:Key="TestResultBorderBrushConverter"/>
             <converters:EnabledToVisibilityConverter x:Key="EnabledToVisibilityConverter"/>
@@ -50,6 +51,12 @@
             </Style>
             <Style x:Key="LabelMediumStyle" TargetType="Label">
                 <Setter Property="FontSize" Value="20"/>
+                <Setter Property="VerticalAlignment" Value="Stretch"/>
+            </Style>
+
+            <Style x:Key="TextBlockMediumStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
             <Style x:Key="GroupBoxLargeStyle" TargetType="GroupBox">
                 <Setter Property="FontSize" Value="20"/>
