@@ -45,7 +45,7 @@ namespace SonoCap.MES.UI
             SetMidnightTimer();
             SetTestThreshold();
             SetPath();
-            ShowMainView();
+            ShowFirstView();
         }
 
         private static IServiceProvider ConfigureServices()
@@ -54,7 +54,7 @@ namespace SonoCap.MES.UI
             appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
-            LoggingConfigurator.Configure();
+            LoggingConfigurator.Configure(configuration);
 
             IServiceCollection services = new ServiceCollection();
 
@@ -109,6 +109,7 @@ namespace SonoCap.MES.UI
         {
             services.AddTransient<ISocketService, SocketService>();
             services.AddTransient<IExcelService, ExcelService>();
+            services.AddTransient<MotorService>();
         }
 
         private static void RegisterRepositories(IServiceCollection services)
@@ -130,6 +131,7 @@ namespace SonoCap.MES.UI
         private static void RegisterViewModels(IServiceCollection services)
         {
             services.AddTransient(typeof(MainViewModel));
+            services.AddTransient(typeof(FirstViewModel));
             services.AddTransient(typeof(ProbeListViewModel));
             services.AddTransient(typeof(TestListViewModel));
             services.AddTransient(typeof(TestingViewModel));
@@ -139,12 +141,20 @@ namespace SonoCap.MES.UI
 
         private static void RegisterViews(IServiceCollection services)
         {
-            services.AddTransient(s => new MainView() { DataContext = s.GetRequiredService<MainViewModel>() });
-            services.AddTransient(s => new ProbeListView() { DataContext = s.GetRequiredService<ProbeListViewModel>() });
-            services.AddTransient(s => new TestListView() { DataContext = s.GetRequiredService<TestListViewModel>() });
-            services.AddTransient(s => new TestingView() { DataContext = s.GetRequiredService<TestingViewModel>() });
-            services.AddTransient(s => new TestView() { DataContext = s.GetRequiredService<TestViewModel>() });
-            services.AddTransient(s => new ProbeView() { DataContext = s.GetRequiredService<ProbeViewModel>() });
+            services.AddTransient(typeof(MainView));
+            services.AddTransient(typeof(FirstView));
+            services.AddTransient(typeof(ProbeListView));
+            services.AddTransient(typeof(TestListView));
+            services.AddTransient(typeof(TestingView));
+            services.AddTransient(typeof(TestView));
+            services.AddTransient(typeof(ProbeView));
+            //services.AddTransient(s => new MainView() { DataContext = s.GetRequiredService<MainViewModel>() });
+            //services.AddTransient(s => new FirstView() { DataContext = s.GetRequiredService<FirstViewModel>() });
+            //services.AddTransient(s => new ProbeListView() { DataContext = s.GetRequiredService<ProbeListViewModel>() });
+            //services.AddTransient(s => new TestListView() { DataContext = s.GetRequiredService<TestListViewModel>() });
+            //services.AddTransient(s => new TestingView() { DataContext = s.GetRequiredService<TestingViewModel>() });
+            //services.AddTransient(s => new TestView() { DataContext = s.GetRequiredService<TestViewModel>() });
+            //services.AddTransient(s => new ProbeView() { DataContext = s.GetRequiredService<ProbeViewModel>() });
         }
 
         private static void RegisterDynamicProxies(IServiceCollection services)
@@ -198,6 +208,12 @@ namespace SonoCap.MES.UI
             //mainView.Show();
             IViewService viewService = Services.GetService<IViewService>()!;
             viewService.ShowMainView();
+        }
+
+        private void ShowFirstView()
+        {
+            IViewService viewService = Services.GetService<IViewService>()!;
+            viewService.ShowFirstView();
         }
     }
 }

@@ -3,6 +3,7 @@ using AspectCore.DynamicProxy; // AspectCore의 동적 프록시 관련 네임�
 using AspectCore.Extensions.DependencyInjection; // AspectCore의 DI 확장 관련 네임스페이스
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using SonoCap.Commons;
 using System.Diagnostics; // Microsoft의 DI 관련 네임스페이스
 
 namespace AspectCoreSample
@@ -333,10 +334,12 @@ namespace AspectCoreSample
     {
         static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-            //.WriteTo.Console()
-            .WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
-            .CreateLogger();
+            LoggingConfigurator.Configure(1);
+
+            //Log.Logger = new LoggerConfiguration()
+            ////.WriteTo.Console()
+            //.WriteTo.Console(outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            //.CreateLogger();
 
             // 서비스 컬렉션을 생성합니다.
             ServiceCollection services = new ServiceCollection();

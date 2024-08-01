@@ -8,16 +8,19 @@ using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
+using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO.Ports;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using static SonoCap.MES.UI.Services.MotorService;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 
@@ -114,7 +117,7 @@ namespace SonoCap.MES.UI.ViewModels
         {
             if (e == null) return;
 
-            Log.Information($"TDSnKeyDown : {e.Key}");
+            //Log.Information($"TDSnKeyDown : {e.Key}");
             if (e.Key == Key.Down)
             {
                 if (TDSnFilteredItems.Count > 0)
@@ -305,7 +308,9 @@ namespace SonoCap.MES.UI.ViewModels
         private TestTypes _testType { get; set; } = default!;
         private Test? _test { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
+        private MotorState _motorState = MotorState.disconnect;
 
+        private MotorService _motorService = new();
         private readonly ISocketService _socketService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -322,6 +327,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IPTRViewRepository _pTRViewRepository;
 
         public TestingViewModel(
+            //MotorService motorService,
             ISocketService socketService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
@@ -337,6 +343,7 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository,
             IPTRViewRepository pTRViewRepository)
         {
+            //_motorService = motorService;
             _socketService = socketService;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
@@ -1038,22 +1045,8 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
-            //// 서버 IP 주소와 포트 번호
-            string serverIP = "127.0.0.1";
-            int port = 9999;
-            Task.Run(async () =>
-            {
-                try
-                {
-                    await _socketService.ConnectAsync(serverIP, port);
-                    await _socketService.ReceiveDataAsync();
-                }
-                catch (Exception ex)
-                {
-                    // 예외 처리 필요
-                    Log.Information($"연결 및 데이터 수신 오류: {ex.Message}");
-                }
-            });
+            InitMotor();
+            InitSocket();
 
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var timer = new System.Timers.Timer(1000);//1s
@@ -1073,6 +1066,85 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+        }
+
+        private void InitMotor()
+        {
+            if (_motorService.IsOpen == false)
+            {
+                _motorService.InitPort();
+                //serialPort.Close();
+
+                _motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataDataReceivedHandler);
+                Log.Information("연결되었습니다.");
+            }
+
+            if (_motorService.IsOpen == true)
+            {
+                byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MODE_SEL);
+                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+            }
+        }
+        
+        private void SerialDataDataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+            if (sender is MotorService motorService)
+            {
+                int RecvSize = motorService.BytesToRead;
+                string RecvStr = string.Empty;
+                
+                if (RecvSize >= 2)
+                {
+                    byte[] buff = new byte[2];
+
+                    motorService.Read(buff, 0, 2);
+
+                    Log.Information($"Received : {BitConverter.ToString(buff)}");
+
+                    if (_motorState == MotorState.disconnect)
+                    {
+                        _motorState = MotorState.connect;
+                        byte[] bytesToSend = motorService.GetCommandBytes((int)0xAB55);
+                        motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                    } 
+                    else if (_motorState == MotorState.connect)
+                    {
+                        _motorState = MotorState.start;
+                        byte[] bytesToSend = motorService.GetCommandBytes((int)0xFA55);
+                        motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                    }
+                }
+            }
+        }
+        
+        private void InitSocket()
+        {
+            _socketService.CloseViewRequested += CloseViewRequestedHandler;
+            string serverIP = "127.0.0.1";
+            int port = 9999;
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await _socketService.ConnectAsync(serverIP, port);
+                    await _socketService.ReceiveDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    // 예외 처리 필요
+                    Log.Information($"연결 및 데이터 수신 오류: {ex.Message}");
+                    Application.Current.MainWindow.Close();
+                }
+            });
+        }
+
+        private void CloseViewRequestedHandler(object? sender, EventArgs e)
+        {
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                Window? focusedWindow = System.Windows.Input.Keyboard.FocusedElement as Window;
+                focusedWindow?.Close();
+            });
         }
 
         private async void LogIn()
@@ -1900,6 +1972,15 @@ namespace SonoCap.MES.UI.ViewModels
         {
             //base.OnWindowClosing(sender, e);
             //MessageBox.Show("TestWindow Closing");
+            if (_motorService.IsOpen)
+            {
+                byte[] bytesToSend = _motorService.GetCommandBytes((int)0xFF03);
+                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                Task.Delay(100);
+                _motorService.Close();
+            }
+
+            _socketService.Dispose();
         }
     }
 }

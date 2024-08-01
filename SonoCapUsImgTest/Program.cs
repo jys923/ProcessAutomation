@@ -12,7 +12,7 @@ namespace SonoCapUsImgTest
 
         static void Main(string[] args)
         {
-            LoggingConfigurator.Configure();
+            LoggingConfigurator.Configure(0);
 
             Console.WriteLine("Hello, World!");
             //var cppResult = ForTest(100000000);

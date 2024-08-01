@@ -46,7 +46,7 @@
               Margin="5" 
               IsDefault="True"
               Cursor="Hand"
-              Style="{StaticResource MetroBlueButtonStyle}" 
+              Style="{StaticResource MetroBlueButtonStyle}"
               Command="{Binding OkCommand}"
               CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
             <Button Grid.Row="2" Grid.Column="1" 

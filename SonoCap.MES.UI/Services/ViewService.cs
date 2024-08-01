@@ -40,7 +40,7 @@ namespace SonoCap.MES.UI.Services
             {
                 windows.ElementAt(0).Activate();
                 return true;
-            } 
+            }
             return false;
         }
 
@@ -48,6 +48,12 @@ namespace SonoCap.MES.UI.Services
         {
             if (!ActivateView<MainView>())
                 ShowView<MainView, MainViewModel>();
+        }
+
+        public void ShowFirstView()
+        {
+            if (!ActivateView<FirstView>())
+                ShowView<FirstView, FirstViewModel>();
         }
 
         public void ShowTestingView(SubData subData)

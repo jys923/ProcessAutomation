@@ -18,6 +18,9 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IPTRViewRepository _pTRViewRepository;
 
         [ObservableProperty]
+        private bool _isBusy = false;
+
+        [ObservableProperty]
         private string _title = default!;
 
         [ObservableProperty]
@@ -110,6 +113,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
+            IsBusy = true;
             probes = await _pTRViewRepository.GetProbeTestResultLinqAsync2(
                 StartDate,
                 EndDate,
@@ -120,28 +124,45 @@ namespace SonoCap.MES.UI.ViewModels
             //Probes = new ObservableCollection<ProbeTestResult>(probes);
             Probes = new ObservableCollection<ProbeTestResult>(PTRViewToProbeTestResult.ToList(probes));
             ResultCnt = Probes.Count;
+            IsBusy = false;
         }
 
         [RelayCommand]
         private void Export()
         {
             Log.Information("Export");
+            IsBusy = true;
             if (Utilities.EnsureFolderExists(App.appSettings.Path.ExportExcel))
             {
                 _excelService.ExportToExcel(probes, $"{App.appSettings.Path.ExportExcel}{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx");
             }
+            IsBusy = false;
         }
 
         [RelayCommand]
-        private void ListDoubleClick(object parameter)
+        private async Task ListDoubleClickAsync(object parameter)
         {
             if (parameter is int selectedIndex)
             {
-                // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
-                Log.Information($"{selectedIndex}:{probes.ElementAt(selectedIndex).ToString()}");
-                // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
-                Controls.ProbeView.Show(probes.ElementAt(selectedIndex).ProbeSn, probes.ElementAt(selectedIndex));
-                //Controls.InputBox.Show("aaa", "aaa");
+                if (selectedIndex > -1)
+                {
+                    // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
+                    Log.Information($"{selectedIndex}:{probes.ElementAt(selectedIndex).ToString()}");
+                    // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
+                    Controls.ProbeView.Show(probes.ElementAt(selectedIndex).ProbeSn, probes.ElementAt(selectedIndex));
+                    //Controls.InputBox.Show("aaa", "aaa");
+                }
+                else if (selectedIndex == -1)
+                {
+                    // NextCommand CanExecute 상태를 갱신합니다.
+                    (SearchCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+
+                    // Next 메서드를 호출합니다.
+                    if (SearchCommand.CanExecute(null))
+                    {
+                        await SearchCommand.ExecuteAsync(null);
+                    }
+                }
             }
         }
 

@@ -17,5 +17,7 @@ namespace SonoCap.MES.UI.Services
         void ShowTestListView();
         
         void ShowProbeListView();
+        
+        void ShowFirstView();
     }
 }

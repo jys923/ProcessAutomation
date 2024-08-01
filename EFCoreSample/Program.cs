@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using SonoCap.Commons;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -41,9 +42,11 @@ public class Program
 
     private static void Main(string[] args)
     {
-        var logger = new LoggerConfiguration()
-            .WriteTo.Console()
-            .CreateLogger();
+        //var logger = new LoggerConfiguration()
+        //    .WriteTo.Console()
+        //    .CreateLogger();
+
+        LoggingConfigurator.Configure(1);
 
         logger.Information("Hello, world!");
 

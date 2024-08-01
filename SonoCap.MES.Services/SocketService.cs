@@ -5,7 +5,6 @@ using System.Text;
 using Serilog;
 using System.Runtime.InteropServices;
 using SonoCap.MES.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SonoCap.MES.Services
 {
@@ -15,8 +14,16 @@ namespace SonoCap.MES.Services
         private ImgAndMeta? receivedData;
         private TcpClient _client;
         private TaskCompletionSource<bool> _responseReceived = new TaskCompletionSource<bool>();
+        private bool disposedValue;
 
         public event EventHandler<ImgAndMeta>? DataReceived;
+
+        public event EventHandler? CloseViewRequested;
+
+        private void CloseView()
+        {
+            CloseViewRequested?.Invoke(this, EventArgs.Empty);
+        }
 
         public SocketService()
         {
@@ -35,7 +42,9 @@ namespace SonoCap.MES.Services
                 Log.Error($"연결 오류: {ex.Message}");
 
                 // 프로그램 종료
-                Environment.Exit(1); // 또는 Application.Current.Shutdown()
+                //Environment.Exit(1); 
+                //Application.Current.Shutdown()
+                CloseView();
             }
         }
 
@@ -159,6 +168,38 @@ namespace SonoCap.MES.Services
         {
             _responseReceived.TrySetResult(true);
             _responseReceived = new TaskCompletionSource<bool>(); // 새로운 TaskCompletionSource 생성
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: 관리형 상태(관리형 개체)를 삭제합니다.
+                    if(_client.Connected)
+                        _client.Close();
+                    _client.Dispose();
+                }
+                
+                // TODO: 비관리형 리소스(비관리형 개체)를 해제하고 종료자를 재정의합니다.
+                // TODO: 큰 필드를 null로 설정합니다.
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: 비관리형 리소스를 해제하는 코드가 'Dispose(bool disposing)'에 포함된 경우에만 종료자를 재정의합니다.
+        // ~SocketService()
+        // {
+        //     // 이 코드를 변경하지 마세요. 'Dispose(bool disposing)' 메서드에 정리 코드를 입력합니다.
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // 이 코드를 변경하지 마세요. 'Dispose(bool disposing)' 메서드에 정리 코드를 입력합니다.
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

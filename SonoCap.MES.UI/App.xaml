@@ -113,9 +113,9 @@
             </Style>
             <ResourceDictionary.MergedDictionaries>
                 <!--<ResourceDictionary Source="/Styles/BlinkingButtonStyle.xaml"/>-->
+                <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        
         <!-- DataTemplate을 이용하여 ViewModel과 View를 연결 -->
         <!--<DataTemplate DataType="{x:Type viewmodels:MainViewModel}">
             <views:MainView/>

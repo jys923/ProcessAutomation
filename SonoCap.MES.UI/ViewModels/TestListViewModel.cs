@@ -4,17 +4,18 @@ using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Models.Enums;
-using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace SonoCap.MES.UI.ViewModels
 {
     public partial class TestListViewModel : ViewModelBase
     {
         private readonly ITestRepository _testRepository;
+
+        [ObservableProperty]
+        private bool _isBusy = false;
 
         [ObservableProperty]
         private string _title = default!;
@@ -138,6 +139,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
+            IsBusy = true;
             tests = await _testRepository.GetTestAsync(
                 StartDate,
                 EndDate,
@@ -155,24 +157,41 @@ namespace SonoCap.MES.UI.ViewModels
 
             TestProbes = new ObservableCollection<TestProbe>(TestToTestProbe.ToList(tests));
             ResultCnt = TestProbes.Count;
+            IsBusy = false;
         }
 
         [RelayCommand]
         private void Export()
         {
-            Log.Information("Export");
+            Log.Information($"{nameof(Export)}");
+            //IsBusy = true;
+            //IsBusy = false;
         }
 
         [RelayCommand]
-        private void ListDoubleClick(object parameter)
+        private async Task ListDoubleClickAsync(object parameter)
         {
             if (parameter is int selectedIndex)
             {
-                // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
-                Log.Information($"{selectedIndex}:{tests.ElementAt(selectedIndex).ToString()}");
-                // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
-                Controls.TestView.Show($"Test Id : {tests.ElementAt(selectedIndex).Id}", tests.ElementAt(selectedIndex));
-                //Controls.InputBox.Show("aaa", "aaa");
+                if (selectedIndex > -1)
+                {
+                    // 선택된 행의 인덱스를 활용하여 원하는 동작 수행
+                    Log.Information($"{selectedIndex}:{tests.ElementAt(selectedIndex).ToString()}");
+                    // selectedItem에 대한 추가 처리 (예: 로그, 다른 속성 업데이트 등)
+                    Controls.TestView.Show($"Test Id : {tests.ElementAt(selectedIndex).Id}", tests.ElementAt(selectedIndex));
+                    //Controls.InputBox.Show("aaa", "aaa");
+                }
+                else if (selectedIndex == -1)
+                {
+                    // NextCommand CanExecute 상태를 갱신합니다.
+                    (SearchCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+
+                    // Next 메서드를 호출합니다.
+                    if (SearchCommand.CanExecute(null))
+                    {
+                        await SearchCommand.ExecuteAsync(null);
+                    }
+                }
             }
         }
 
