@@ -8,10 +8,9 @@
              xmlns:Behaviors="clr-namespace:SonoCap.MES.UI.Behaviors">
     <Application.Resources>
         <ResourceDictionary>
-            <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue"/>
-            <SolidColorBrush x:Key="CellBodyBrush" Color="LightGray"/>
-            <converters:ColorConverter x:Key="ColorConverter"/>
+            <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
             <converters:HeightConverter x:Key="HeightConverter "/>
+            <converters:ColorConverter x:Key="ColorConverter"/>
             <converters:TestResultBorderBrushConverter x:Key="TestResultBorderBrushConverter"/>
             <converters:EnabledToVisibilityConverter x:Key="EnabledToVisibilityConverter"/>
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
@@ -19,6 +18,9 @@
             <converters:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
             <Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
 
+            <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue"/>
+            <SolidColorBrush x:Key="CellBodyBrush" Color="LightGray"/>
+            
             <Style x:Key="RemoveGroupBoxBorder" TargetType="GroupBox">
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="BorderBrush" Value="Transparent"/>

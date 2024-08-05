@@ -281,6 +281,62 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [ObservableProperty]
+        private RPM _selectedRPM = RPM.RPM_1875;
+
+        partial void OnSelectedRPMChanged(RPM value)
+        {
+            Log.Information($"value");
+            SetMotor();
+        }
+
+        //public RPM SelectedRPM
+        //{
+        //    get { return _selectedRPM; }
+        //    set
+        //    {
+        //        if (_selectedRPM != value)
+        //        {
+        //            _selectedRPM = value;
+        //            SetMotor(); // Motor 메서드 호출
+        //        }
+        //    }
+        //}
+
+        [ObservableProperty]
+        private PRF _selectedPRF = PRF.PRF_20;
+
+        partial void OnSelectedPRFChanged(PRF value)
+        {
+            Log.Information($"value");
+            SetMotor();
+        }
+
+        //public PRF SelectedPRF
+        //{
+        //    get { return _selectedPRF; }
+        //    set
+        //    {
+        //        if (_selectedPRF != value)
+        //        {
+        //            _selectedPRF = value;
+        //            SetMotor(); // Motor 메서드 호출
+        //        }
+        //    }
+        //}
+
+        //[RelayCommand]
+        private void SetMotor()
+        {
+            Log.Information($"{nameof(SetMotor)}");
+
+            if (_motorService.IsOpen == true)
+            {
+                byte[] bytesToSend = _motorService.GenerateCommand(CMD.CMD_MOTOR_ON, SelectedRPM, SelectedPRF);
+                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+            }
+        }
+
+        [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private int _testResult = -2;
         

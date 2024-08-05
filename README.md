@@ -13,7 +13,7 @@ update-database
 remove-migration
 ```
 
-## Todo List
+## Todo
 - [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
@@ -141,7 +141,7 @@ remove-migration
 - [ ] Property 
 	- https://dh-0501.tistory.com/138
 
-## Scenario List
+## Scenario
 - [ ] test,testList,probeList 호출시 tester 테이블에 PCId, userName 추가 로그인 개념
 	- 셋팅에 pcId 필요(디비 정보)
 - [ ] 테스트가 이미 끝난 경우 테스트값을 볼수 있고 재검사 시 수정 되는지 결정

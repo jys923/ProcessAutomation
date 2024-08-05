@@ -63,15 +63,28 @@ namespace SonoCap.MES.UI.Services
             return Ports;
         }
 
-        public byte[] GenerateCommand(bool isModeSel, RPM rpm, PRF prf)
+        public byte[] GenerateCommand(CMD cmd, RPM rpm, PRF prf)
         {
             List<byte> commandBytes = new List<byte>();
 
             // 모드 선택 여부에 따라 명령어 추가
-            if (isModeSel)
-                commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MODE_SEL));
-            else
-                commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MOTOR_ON));
+            switch (cmd)
+            {
+                case CMD.CMD_MODE_SEL:
+                    commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MODE_SEL));
+                    break;
+                case CMD.CMD_MOTOR_ON:
+                    commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MOTOR_ON));
+                    break;
+                //case CMD.CMD_MOTOR_OFF:
+                //    break;
+                //case CMD.CMD_FREQ_INFO:
+                //    break;
+                //case CMD.CMD_ACK:
+                //    break;
+                //default:
+                //    break;
+            }
 
             // RPM과 PRF 추가
             commandBytes.Add((byte)rpm);
@@ -128,6 +141,83 @@ namespace SonoCap.MES.UI.Services
                 bytesToSend = new byte[2];
                 Array.Copy(temp, bytesToSend, 2);
             }
+
+            Array.Reverse(bytesToSend); // BitConverer result reverse
+
+            return bytesToSend;
+        }
+
+        public byte[] GetCommandBytes(CMD cmd, RPM rpm, PRF prf)
+        {
+            byte[] bytesToSend;
+
+            int cmdHex = 0;
+            switch (cmd)
+            {
+                case CMD.CMD_MODE_SEL:
+                    cmdHex = (int)CMD.CMD_MODE_SEL;
+                    break;
+                case CMD.CMD_MOTOR_ON:
+                    cmdHex = (int)CMD.CMD_MOTOR_ON;
+                    break;
+                case CMD.CMD_MOTOR_OFF:
+                    cmdHex = (int)CMD.CMD_MOTOR_OFF;
+                    break;
+                case CMD.CMD_FREQ_INFO:
+                    cmdHex = (int)CMD.CMD_FREQ_INFO;
+                    break;
+                case CMD.CMD_ACK:
+                    cmdHex = (int)CMD.CMD_ACK;
+                    break;
+                default:
+                    cmdHex = 0;
+                    break;
+            }
+
+            int rpmHex = 0;
+            switch (rpm)
+            {
+                case RPM.RPM_1250:
+                    rpmHex = (int)RPM.RPM_1250;
+                    break;
+                case RPM.RPM_1500:
+                    rpmHex = (int)RPM.RPM_1500;
+                    break;
+                case RPM.RPM_1600:
+                    rpmHex = (int)RPM.RPM_1600;
+                    break;
+                case RPM.RPM_1875:
+                    rpmHex = (int)RPM.RPM_1875;
+                    break;
+                default:
+                    rpmHex = 0;
+                    break;
+            }
+
+            int prfHex = 0;
+            switch (prf)
+            {
+                case PRF.PRF_10:
+                    prfHex = (int)PRF.PRF_10;
+                    break;
+                case PRF.PRF_12:
+                    prfHex = (int)PRF.PRF_12;
+                    break;
+                case PRF.PRF_15:
+                    prfHex = (int)PRF.PRF_15;
+                    break;
+                case PRF.PRF_16:
+                    prfHex = (int)PRF.PRF_16;
+                    break;
+                case PRF.PRF_20:
+                    prfHex = (int)PRF.PRF_20;
+                    break;
+                default:
+                    prfHex = 0;
+                    break;
+            }
+
+            bytesToSend = BitConverter.GetBytes((cmdHex << 16) + (rpmHex << 8) + prfHex);
 
             Array.Reverse(bytesToSend); // BitConverer result reverse
 

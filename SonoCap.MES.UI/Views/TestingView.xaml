@@ -17,7 +17,6 @@
         d:DataContext="{d:DesignInstance Type={x:Type vm:TestingViewModel}}"
         Title="{Binding Title}" Height="1080" Width="1920">
     <Window.Resources>
-
     </Window.Resources>
     <!--<Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding KeyDownCommand}"/>
@@ -501,6 +500,79 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                 <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}"/>
             </Grid>
         </GroupBox>
+        <Grid Grid.Row="2" VerticalAlignment="Top" ShowGridLines="true">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="60"/>
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="RPMGroup"
+                    Content="1250"
+                    IsChecked="{Binding SelectedRPM, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+RPM.RPM_1250}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="RPMGroup"
+                    Content="1500"
+                    IsChecked="{Binding SelectedRPM, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+RPM.RPM_1500}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="RPMGroup"
+                    Content="1600"
+                    IsChecked="{Binding SelectedRPM, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+RPM.RPM_1600}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="RPMGroup"
+                    Content="1875"
+                    IsChecked="{Binding SelectedRPM, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+RPM.RPM_1875}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="PRFGroup"
+                    Content="10"
+                    IsChecked="{Binding SelectedPRF, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+PRF.PRF_10}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="PRFGroup"
+                    Content="12"
+                    IsChecked="{Binding SelectedPRF, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+PRF.PRF_12}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="PRFGroup"
+                    Content="15"
+                    IsChecked="{Binding SelectedPRF, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+PRF.PRF_15}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="PRFGroup"
+                    Content="16"
+                    IsChecked="{Binding SelectedPRF, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+PRF.PRF_16}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+                <RadioButton Style="{StaticResource RadioButtonLargeStyle}"
+                    GroupName="PRFGroup"
+                    Content="20"
+                    IsChecked="{Binding SelectedPRF, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static services:MotorService+PRF.PRF_20}}"
+                    HorizontalContentAlignment="Center"
+                    Background="LightGreen"
+                    Margin="20,0,0,0"/>
+            </StackPanel>
+        </Grid>
         <GroupBox Grid.Row="2" VerticalAlignment="Bottom" Style="{StaticResource RemoveGroupBoxBorder}">
             <Grid>
                 <Grid.ColumnDefinitions>

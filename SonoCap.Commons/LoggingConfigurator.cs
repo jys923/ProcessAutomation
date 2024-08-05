@@ -20,6 +20,7 @@ namespace SonoCap.Commons
                 case 0:
                     Log.Logger = new LoggerConfiguration()
                         .MinimumLevel.Information()
+                        //.Enrich.FromLogContext()
                         .WriteTo.Console(
                             outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
                             //outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {FileName} [{MemberName}] {Message:lj}{NewLine}{Exception}",
