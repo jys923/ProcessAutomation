@@ -84,6 +84,9 @@
                                 <Trigger Property="IsChecked" Value="False">
                                     <Setter TargetName="RadioButton" Property="Fill" Value="Black"/>
                                 </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="RadioButton" Property="Opacity" Value="0.5"/>
+                                </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>

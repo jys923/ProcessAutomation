@@ -281,12 +281,50 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [ObservableProperty]
+        private ObservableDictionary<int, ValidationItem> _rPMIsEnabled = new();
+
+        [ObservableProperty]
         private RPM _selectedRPM = RPM.RPM_1875;
 
         partial void OnSelectedRPMChanged(RPM value)
         {
             Log.Information($"value");
             SetMotor();
+
+            PRFIsEnabled.Keys.ToList().ForEach(key => PRFIsEnabled[key].IsEnabled = false);
+            switch (value)
+            {
+                case RPM.RPM_1250:
+                    PRFIsEnabled[0].IsEnabled = true;
+                    PRFIsEnabled[1].IsEnabled = true;
+                    PRFIsEnabled[2].IsEnabled = true;
+                    PRFIsEnabled[3].IsEnabled = true;
+                    PRFIsEnabled[4].IsEnabled = true;
+                    break;
+                case RPM.RPM_1500:
+                    PRFIsEnabled[0].IsEnabled = false;
+                    PRFIsEnabled[1].IsEnabled = false;
+                    PRFIsEnabled[2].IsEnabled = true;
+                    PRFIsEnabled[3].IsEnabled = true;
+                    PRFIsEnabled[4].IsEnabled = true;
+                    break;
+                case RPM.RPM_1600:
+                    PRFIsEnabled[0].IsEnabled = false;
+                    PRFIsEnabled[1].IsEnabled = false;
+                    PRFIsEnabled[2].IsEnabled = false;
+                    PRFIsEnabled[3].IsEnabled = true;
+                    PRFIsEnabled[4].IsEnabled = true;
+                    break;
+                case RPM.RPM_1875:
+                    PRFIsEnabled[0].IsEnabled = false;
+                    PRFIsEnabled[1].IsEnabled = false;
+                    PRFIsEnabled[2].IsEnabled = false;
+                    PRFIsEnabled[3].IsEnabled = false;
+                    PRFIsEnabled[4].IsEnabled = true;
+                    break;
+                default:
+                    break;
+            }
         }
 
         //public RPM SelectedRPM
@@ -302,6 +340,10 @@ namespace SonoCap.MES.UI.ViewModels
         //    }
         //}
 
+
+        [ObservableProperty]
+        private ObservableDictionary<int, ValidationItem> _pRFIsEnabled = new();
+
         [ObservableProperty]
         private PRF _selectedPRF = PRF.PRF_20;
 
@@ -309,6 +351,44 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information($"value");
             SetMotor();
+
+            //RPMIsEnabled = RPMIsEnabled.ToDictionary(KeyValuePair => KeyValuePair.Key, KeyValuePair => true);
+            RPMIsEnabled.Keys.ToList().ForEach(key => RPMIsEnabled[key].IsEnabled = false);
+            switch (value)
+            {
+                case PRF.PRF_10:
+                    RPMIsEnabled[0].IsEnabled = true;
+                    RPMIsEnabled[1].IsEnabled = false;
+                    RPMIsEnabled[2].IsEnabled = false;
+                    RPMIsEnabled[3].IsEnabled = false;
+                    break;
+                case PRF.PRF_12:
+                    RPMIsEnabled[0].IsEnabled = true;
+                    RPMIsEnabled[1].IsEnabled = false;
+                    RPMIsEnabled[2].IsEnabled = false;
+                    RPMIsEnabled[3].IsEnabled = false;
+                    break;
+                case PRF.PRF_15:
+                    RPMIsEnabled[0].IsEnabled = true;
+                    RPMIsEnabled[1].IsEnabled = true;
+                    RPMIsEnabled[2].IsEnabled = false;
+                    RPMIsEnabled[3].IsEnabled = false;
+                    break;
+                case PRF.PRF_16:
+                    RPMIsEnabled[0].IsEnabled = true;
+                    RPMIsEnabled[1].IsEnabled = true;
+                    RPMIsEnabled[2].IsEnabled = true;
+                    RPMIsEnabled[3].IsEnabled = false;
+                    break;
+                case PRF.PRF_20:
+                    RPMIsEnabled[0].IsEnabled = true;
+                    RPMIsEnabled[1].IsEnabled = true;
+                    RPMIsEnabled[2].IsEnabled = true;
+                    RPMIsEnabled[3].IsEnabled = true;
+                    break;
+                default:
+                    break;
+            }
         }
 
         //public PRF SelectedPRF
@@ -1101,6 +1181,17 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
+            RPMIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
+            RPMIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
+            RPMIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
+            RPMIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
+
+            PRFIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
+            PRFIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
+            PRFIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
+            PRFIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
+            PRFIsEnabled.Add(4, new ValidationItem { IsEnabled = true });
+
             InitMotor();
             InitSocket();
 
