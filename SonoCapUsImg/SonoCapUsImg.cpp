@@ -6,7 +6,11 @@
 HsnBufferCreator::HsnBufferCreator(int width, int height) {
 
 	resizeWindow(width, height);
+#if 1
 	HMODULE hInstance = GetModuleHandle(NULL);
+#else
+	HMODULE hInstance = GetModuleHandle("SonoCapUsImgTest.exe");
+#endif // 0
 	handle = CreateWindowEx(
 		0,
 		_T("static"),
@@ -24,7 +28,7 @@ HsnBufferCreator::HsnBufferCreator(int width, int height) {
 	if (handle == NULL) {
 		//exception
 	}
-	ShowWindow(handle, SW_HIDE);
+	ShowWindow(handle, SW_NORMAL);
 }
 
 HsnBufferCreator::~HsnBufferCreator() {
@@ -39,9 +43,9 @@ bool HsnBufferCreator::initiate() {
 
 	if (initiated)
 		return true;//already initiated
-	HDC hdcScreen = GetDC(NULL); // 전체 화면의 디바이스 컨텍스트를 얻음
-	device_context = CreateCompatibleDC(hdcScreen);
-	//device_context = GetDC((HWND)handle);
+	//HDC hdcScreen = GetDC(NULL); // 전체 화면의 디바이스 컨텍스트를 얻음
+	//device_context = CreateCompatibleDC(hdcScreen);
+	device_context = GetDC((HWND)handle);
 	if (!device_context)
 	{
 		//exception
