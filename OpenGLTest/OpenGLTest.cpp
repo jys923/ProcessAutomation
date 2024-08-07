@@ -8,16 +8,18 @@
 #include <GL/GLU.H>
 //#include "gl/glut.h"
 
-void InitLight(); //광원 & 재질 설정 함수
-void reshape(int w, int h); //reshape콜백 함수
 void drawPolygon(); //자동차 & XYZ축 출력 함수
+void InitLight(); //광원 & 재질 설정 함수
+void setupProjection();
+void setupViewing();
+void drawAxes();
+void displayCar();
+void reshape(int w, int h); //reshape콜백 함수
 void special(int key, int x, int y); //특수키 입력 함수
 
 void TestDll();
-
-void EasyUp(int& argc, char** argv);
-
-void TestEasy(int& argc, char** argv);
+void TestEasy();
+void TestEasyUp();
 
 int win_width = 600; //창 좌우 길이
 int win_height = 600; //창 위아래 길이
@@ -204,23 +206,23 @@ void special(int key, int x, int y) //특수키 입력에/
 	glutPostRedisplay();
 }
 
+typedef void (*DrawPolygonFunc)();
+typedef void (*InitializeOpenGLFunc)(HWND);
+typedef void (*CleanupOpenGLFunc)();
+typedef void (*RunOpenGL)();
+
 void TestDll()
 {
 	HINSTANCE hDLL = LoadLibrary(TEXT("OpenGLWrapperCpp.dll"));  // DLL 파일 경로 설정
 
 	if (hDLL != NULL)
 	{
-		typedef void (*DrawPolygonFunc)();
-		typedef void (*InitializeOpenGLFunc)(HWND);
-		typedef void (*CleanupOpenGLFunc)();
-		typedef void (*RunOpenGL)();
-
 		DrawPolygonFunc drawPolygon = (DrawPolygonFunc)GetProcAddress(hDLL, "drawPolygon");
 		InitializeOpenGLFunc initializeOpenGL = (InitializeOpenGLFunc)GetProcAddress(hDLL, "initializeOpenGL");
 		CleanupOpenGLFunc cleanupOpenGL = (CleanupOpenGLFunc)GetProcAddress(hDLL, "cleanupOpenGL");
 		RunOpenGL runOpenGL = (RunOpenGL)GetProcAddress(hDLL, "RunOpenGL");
 
-		if (drawPolygon && initializeOpenGL && cleanupOpenGL) {
+		if (drawPolygon && initializeOpenGL && cleanupOpenGL && runOpenGL) {
 			// 함수 호출
 			initializeOpenGL(GetConsoleWindow());
 			//drawPolygon();
@@ -286,7 +288,6 @@ int main(int argc, char** argv)
 		break;
 	case '4':
 		std::cout << "You entered 4." << std::endl;
-		// Perform action for 4
 		break;
 	default:
 		std::cout << "Invalid input." << std::endl;

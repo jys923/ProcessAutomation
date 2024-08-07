@@ -14,6 +14,9 @@ remove-migration
 ```
 
 ## Todo
+- [ ] openGL research
+- [ ] cpp 빌드 과정
+- [ ] 한소노 lib에서 영상 직접 받기
 - [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
@@ -28,7 +31,6 @@ remove-migration
 	- [ ] UserControl https://narup.tistory.com/68
 - [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
 - [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
-- [ ] 한소노 lib에서 영상 직접 받기
 - [X] 이벤트 핸들러, 콜백 쓰는 방법
 - [X] mfc, wpf 통신 방법 소켓
 	- <a href="https://petra.tistory.com/613">cpp 소켓 프로그래밍</a>
