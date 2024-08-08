@@ -659,7 +659,7 @@ namespace SonoCap.MES.UI.ViewModels
                 case TestCategories.Processing:
                     id = _transducer.Id;
                     existNext = _transducerModule is not null ? true : false;
-                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducer:_transducer);
                     if (!existNext && id > 0 && passAll)
                     {
                         TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn{DateTime.Today.ToString("yyMMdd")}{seqNo.TDMdNo.ToString().PadLeft(3, '0')}", TransducerId = id };
@@ -674,7 +674,7 @@ namespace SonoCap.MES.UI.ViewModels
                 case TestCategories.Process:
                     id = _transducerModule.Id;
                     existNext = _probe is not null ? true : false;
-                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducerModule: _transducerModule);
                     if (!existNext && id > 0 && passAll)
                     {
                         _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
@@ -1000,7 +1000,7 @@ namespace SonoCap.MES.UI.ViewModels
                     id = _transducer.Id;
                     existNext = _transducerModule is not null ? true : false; 
                     
-                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducerModule: _transducerModule);
                     if ( !existNext && id > 0 && passAll)
                     {
                         TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn{DateTime.Today.ToString("yyMMdd")}{seqNo.TDMdNo.ToString().PadLeft(3, '0')}", TransducerId = id };
@@ -1024,7 +1024,7 @@ namespace SonoCap.MES.UI.ViewModels
                     id = _transducerModule.Id;
                     existNext = _probe is not null ? true : false;
 
-                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducerModule: _transducerModule);
                     if (!existNext && id > 0 && passAll)
                     {
                         _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
@@ -1363,78 +1363,92 @@ namespace SonoCap.MES.UI.ViewModels
             };
         }
 
-        private int PassTestCategoryCnt(ITestRepository testRepository, TestCategories testCategory, int id)
+        private async Task<bool> PassTestCategoryAsync(
+            ITestRepository testRepository,
+            TestCategories testCategory,
+            Transducer? transducer = null,
+            TransducerModule? transducerModule = null,
+            Probe? probe = null)
         {
-            int res = 0;
-
-            HashSet<int> processedTestTypes = new HashSet<int>(); // Track processed test types
+            if (transducer == null && transducerModule == null && probe == null)
+            {
+                throw new ArgumentException("At least one of transducer, transducerModule, or probe must be provided.");
+            }
 
             IQueryable<Test> query;
+            Test latestTest;
 
             switch (testCategory)
             {
                 case TestCategories.Processing:
+                    if (transducer == null) return false; // Ensure transducer is provided
+
                     for (int i = 1; i < 4; i++)
                     {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.TransducerId == id &&
+                        query = from tests in testRepository.GetQueryable()
+                                where tests.TransducerId == transducer.Id &&
                                       tests.TestCategoryId == 1 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[10 + i]
+                                      tests.TestTypeId == i
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (query.Any() && !processedTestTypes.Contains(i))
+                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
+
+                        if (latestTest.Id == 0 || latestTest.Result < App.TestThresholdDict[10 + i])
                         {
-                            res++;
-                            processedTestTypes.Add(i); // Mark test type as processed
+                            return false;
                         }
                     }
-                    break;
+                    return true;
 
                 case TestCategories.Process:
+                    if (transducerModule == null) return false; // Ensure transducerModule is provided
+
                     for (int i = 1; i < 4; i++)
                     {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.TransducerModuleId == id &&
+                        query = from tests in testRepository.GetQueryable()
+                                where tests.TransducerModuleId == transducerModule.Id &&
                                       tests.TestCategoryId == 2 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[20 + i]
+                                      tests.TestTypeId == i
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (query.Any() && !processedTestTypes.Contains(i))
+                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
+
+                        if (latestTest.Id == 0 || latestTest.Result < App.TestThresholdDict[20 + i])
                         {
-                            res++;
-                            processedTestTypes.Add(i); // Mark test type as processed
+                            return false;
                         }
                     }
-                    break;
+                    return true;
 
                 case TestCategories.Dispatch:
+                    if (probe == null) return false; // Ensure probe is provided
+
                     for (int i = 1; i < 4; i++)
                     {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.ProbeId == id &&
+                        query = from tests in testRepository.GetQueryable()
+                                where tests.ProbeId == probe.Id &&
                                       tests.TestCategoryId == 3 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[30 + i]
+                                      tests.TestTypeId == i
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (query.Any() && !processedTestTypes.Contains(i))
+                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
+
+                        if (latestTest.Id == 0 || latestTest.Result < App.TestThresholdDict[30 + i])
                         {
-                            res++;
-                            processedTestTypes.Add(i); // Mark test type as processed
+                            return false;
                         }
                     }
-                    break;
-            }
+                    return true;
 
-            return res;
+                default:
+                    return false;
+            }
         }
 
-        private async Task<bool> PassTestCategoryAsync(ITestRepository testRepository, TestCategories testCategory, int id)
+        private async Task<bool> PassTestCategoryAsync2(ITestRepository testRepository, TestCategories testCategory, int id)
         {
             IQueryable<Test> query;
             Test latestTest;
