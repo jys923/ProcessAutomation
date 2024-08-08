@@ -13,41 +13,48 @@ namespace SonoCap.Commons
                 .CreateLogger();
         }
 
-        public static void Configure(int mode)
+        public static void Configure(LogMode mode)
         {
             switch (mode)
             {
-                case 0:
-                    Log.Logger = new LoggerConfiguration()
-                        .MinimumLevel.Information()
-                        //.Enrich.FromLogContext()
-                        .WriteTo.Console(
-                            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-                            //outputTemplate: "{Timestamp:HH:mm:ss,fff} {Level:u3} {FileName} [{MemberName}] {Message:lj}{NewLine}{Exception}",
-                            //outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u4}] ({SourceContext:l}.{MemberName}) {Message:lj}{NewLine}{Exception}",
-                            //outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext} {Message} (at {ClassName} class in {MethodName} method){NewLine}{Exception}",
-                            theme: AnsiConsoleTheme.Code)
-                        .CreateLogger();
+                case LogMode.Console:
+                    ConfigureConsoleLogging();
                     break;
-                case 1:
-                    Log.Logger = new LoggerConfiguration()
-                        .MinimumLevel.Information()
-                        .WriteTo.File(
-                            path: "logs/log-{Date}.txt",
-                            outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-                            rollingInterval: RollingInterval.Day, // Creates a new file daily
-                            retainedFileCountLimit: 30, // Optional: limits the number of retained log files
-                            fileSizeLimitBytes: 10_000_000 // Optional: limits file size to 10 MB
-                        )
-                        .CreateLogger();
+                case LogMode.File:
+                    ConfigureFileLogging();
                     break;
                 default:
-                    break;
+                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }
-            if (mode == 1)
-            {
-                
-            } 
         }
+
+        private static void ConfigureConsoleLogging()
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console(
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    theme: AnsiConsoleTheme.Code)
+                .CreateLogger();
+        }
+
+        private static void ConfigureFileLogging()
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.File(
+                    path: "logs/log-{Date}.txt",
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 30,
+                    fileSizeLimitBytes: 10_000_000)
+                .CreateLogger();
+        }
+    }
+
+    public enum LogMode
+    {
+        Console,
+        File
     }
 }

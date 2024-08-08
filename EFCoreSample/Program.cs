@@ -46,7 +46,7 @@ public class Program
         //    .WriteTo.Console()
         //    .CreateLogger();
 
-        LoggingConfigurator.Configure(1);
+        LoggingConfigurator.Configure(LogMode.Console);
 
         Log.Information("Hello, world!");
 

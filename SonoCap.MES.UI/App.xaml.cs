@@ -54,7 +54,7 @@ namespace SonoCap.MES.UI
             appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
-            LoggingConfigurator.Configure(0);
+            LoggingConfigurator.Configure(LogMode.Console);
 
             IServiceCollection services = new ServiceCollection();
 

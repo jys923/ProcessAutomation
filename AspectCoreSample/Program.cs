@@ -334,7 +334,7 @@ namespace AspectCoreSample
     {
         static void Main(string[] args)
         {
-            LoggingConfigurator.Configure(1);
+            LoggingConfigurator.Configure(LogMode.Console);
 
             //Log.Logger = new LoggerConfiguration()
             ////.WriteTo.Console()
