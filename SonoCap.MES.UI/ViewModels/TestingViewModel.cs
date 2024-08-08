@@ -615,8 +615,9 @@ namespace SonoCap.MES.UI.ViewModels
             OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
 
-            //// TestCommand의 CanExecute 상태를 갱신합니다.
-            //(TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            // TestCommand의 CanExecute 상태를 갱신합니다.
+            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            
             //if (TestCommand.CanExecute(null))
             //{
             //    await TestCommand.ExecuteAsync(null);
@@ -671,17 +672,14 @@ namespace SonoCap.MES.UI.ViewModels
                     }
                     break;
                 case TestCategories.Process:
-                    if (_motorModule is null)
-                    {
-                        _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
-                        if (_motorModule is null) break;
-                    } 
-
                     id = _transducerModule.Id;
                     existNext = _probe is not null ? true : false;
                     passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
                     if (!existNext && id > 0 && passAll)
                     {
+                        _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        if (_motorModule is null) break;
+
                         Probe probe = new Probe { Sn = $"UPAG1{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
                         if (await _probeRepository.InsertAsync(probe))
                         {
@@ -729,7 +727,7 @@ namespace SonoCap.MES.UI.ViewModels
             _probe = null;
             _transducerModule = null;
             _transducer = null;
-            //_motorModule = null;
+            _motorModule = null;
             _pTRView = null;
 
             TdMdCellIsEnabled = false;
@@ -948,15 +946,6 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"{nameof(NextAsync)}");
             //Log.Information($"ValidateAll(_testCategory) : {ValidateAll(_testCategory)}");
 
-            if (_testCategory == TestCategories.Process &&
-                TestResult > App.TestThresholdDict[20 + (int)_testType] &&
-                (PassTestCategoryCnt(_testRepository, _testCategory, _transducerModule.Id) > 1) &&
-                _motorModule == null)
-            {
-                _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
-
-                if (_motorModule == null) return;
-            }
             PTRView? tmpPTR = null;
 
             if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
@@ -989,7 +978,7 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Information(insertTest.ToString());
                 ResLogs.Add($"Add test : {tmp}");
             }
-            
+
             //검사 결과 삭제
             ResTxt = "";
 
@@ -1030,6 +1019,7 @@ namespace SonoCap.MES.UI.ViewModels
                     await PTRViewUpsert();
                     break;
                 case TestCategories.Process:
+                    
                     //id = await GetBySnAsync(_testCategory, _transducerModule.Id);
                     id = _transducerModule.Id;
                     existNext = _probe is not null ? true : false;
@@ -1037,6 +1027,8 @@ namespace SonoCap.MES.UI.ViewModels
                     passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
                     if (!existNext && id > 0 && passAll)
                     {
+                        _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        if (_motorModule is null) break;
                         Probe probe = new Probe { Sn = $"UPAG1{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
                         if (await _probeRepository.InsertAsync(probe))
                         {
@@ -1231,85 +1223,6 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         // UI
-        private void ChangeIsEnabled(TestCategories categories)
-        {
-            switch (categories)
-            {
-                case TestCategories.Processing:
-                    ValidationDict[nameof(TDSn)].IsEnabled = true;
-                break;
-                case TestCategories.Process:
-                    ValidationDict[nameof(TDMdSn)].IsEnabled = true;
-                break;
-                case TestCategories.Dispatch:
-                    ValidationDict[nameof(ProbeSn)].IsEnabled = true;
-                break;
-            }
-        }
-
-        private void ClearAll()
-        {
-            ProbeSn = "";
-            ValidationDict[nameof(ProbeSn)].IsEnabled = false;
-            TDMdSn = "";
-            ValidationDict[nameof(TDMdSn)].IsEnabled = false;
-            TDSn = "";
-            ValidationDict[nameof(TDSn)].IsEnabled = false;
-            SrcImg = default!;
-            ResImg = default!;
-            TestResult = -2;
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            //_motorModule = null;
-            SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-        }
-
-        private void ClearAll(TestCategories category)
-        {
-            switch (category)
-            {
-                case TestCategories.Processing:
-                    ProbeSn = "";
-                    TDMdSn = "";
-                    break;
-                case TestCategories.Process:
-                    ProbeSn = "";
-                    TDSn = "";
-                    break;
-                case TestCategories.Dispatch:
-                    TDMdSn = "";
-                    TDSn = "";
-                    break;
-            }
-            //ValidationDict[nameof(TDSn)].IsEnabled = false;
-            ValidationDict[nameof(TDMdSn)].IsEnabled = false;
-            ValidationDict[nameof(ProbeSn)].IsEnabled = false;
-            SrcImg = default!;
-            ResImg = default!;
-            TestResult = -2;
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            //_motorModule = null;
-            SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-        }
-
-        private void ClearCellBackgrounds()
-        {
-            BorderBackgrounds[11] = new ObservableBrush { Value = Brushes.LightBlue };
-            BorderBackgrounds[12] = new ObservableBrush { Value = Brushes.LightBlue };
-            BorderBackgrounds[13] = new ObservableBrush { Value = Brushes.LightBlue };
-
-            BorderBackgrounds[21] = new ObservableBrush { Value = Brushes.LightBlue };
-            BorderBackgrounds[22] = new ObservableBrush { Value = Brushes.LightBlue };
-            BorderBackgrounds[23] = new ObservableBrush { Value = Brushes.LightBlue };
-
-            BorderBackgrounds[31] = new ObservableBrush { Value = Brushes.LightBlue };
-            BorderBackgrounds[32] = new ObservableBrush { Value = Brushes.LightBlue };
-            BorderBackgrounds[33] = new ObservableBrush { Value = Brushes.LightBlue };
-        }
-
         private void SetCellPassFail(Test item, CellPositions cellPosition)
         {
             switch (item.TestTypeId)
@@ -1450,81 +1363,6 @@ namespace SonoCap.MES.UI.ViewModels
             };
         }
 
-        private async Task<bool> IsExistsBySnAsync(SnType snType, string sn)// => snType switch
-        {
-            return snType switch
-            {
-                SnType.Probe => await _probeRepository.GetBySn(sn).AnyAsync(),
-                SnType.TransducerModule => await _transducerModuleRepository.GetBySn(sn).AnyAsync(),
-                SnType.Transducer => await _transducerRepository.GetBySn(sn).AnyAsync(),
-                SnType.MotorModule => await _motorModuleRepository.GetBySn(sn).AnyAsync(),
-                _ => false
-            };
-        }
-
-        private async Task<bool> IsExistsBySnAsync2(SnType snType, string sn)
-        {
-            switch (snType)
-            {
-                case SnType.Probe:
-                    var probes = await _probeRepository.GetBySn(sn).ToListAsync();
-                    return probes.Any(); // Any() 메서드는 리스트에 요소가 있는지 여부를 반환합니다.
-                case SnType.TransducerModule:
-                    var transducerModules = await _transducerModuleRepository.GetBySn(sn).ToListAsync();
-                    return transducerModules.Any();
-                case SnType.Transducer:
-                    var transducers = await _transducerRepository.GetBySn(sn).ToListAsync();
-                    return transducers.Any();
-                case SnType.MotorModule:
-                    var motorModules = await _motorModuleRepository.GetBySn(sn).ToListAsync();
-                    return motorModules.Any();
-                default:
-                    return false;
-            }
-        }
-        
-        private int GetBySn(TestCategories testCategory, string sn)
-        {
-            int res = 0;
-            //IQueryable<Test> query = _testRepository.GetQueryable();
-            switch (testCategory)
-            {
-                case TestCategories.Processing:
-                    res = _transducerRepository.GetBySn(sn).FirstOrDefault()?.Id ?? 0;
-                    break;
-                case TestCategories.Process:
-                    res = _transducerModuleRepository.GetBySn(sn).FirstOrDefault()?.Id ?? 0;
-                    break;
-                case TestCategories.Dispatch:
-                    res = _probeRepository.GetBySn(sn).FirstOrDefault()?.Id ?? 0;
-                    break;
-            }
-            return res;
-        }
-
-        private async Task<int> GetBySnAsync(TestCategories testCategory, string sn)
-        {
-            int res = 0;
-
-            switch (testCategory)
-            {
-                case TestCategories.Processing:
-                    var transducer = await _transducerRepository.GetBySn(sn).FirstOrDefaultAsync();
-                    res = transducer?.Id ?? 0;
-                    break;
-                case TestCategories.Process:
-                    var transducerModule = await _transducerModuleRepository.GetBySn(sn).FirstOrDefaultAsync();
-                    res = transducerModule?.Id ?? 0;
-                    break;
-                case TestCategories.Dispatch:
-                    var probe = await _probeRepository.GetBySn(sn).FirstOrDefaultAsync();
-                    res = probe?.Id ?? 0;
-                    break;
-            }
-
-            return res;
-        }
-
         private int PassTestCategoryCnt(ITestRepository testRepository, TestCategories testCategory, int id)
         {
             int res = 0;
@@ -1596,74 +1434,10 @@ namespace SonoCap.MES.UI.ViewModels
             return res;
         }
 
-        private bool PassTestCategory(ITestRepository testRepository, TestCategories testCategory, int id)
-        {
-            IQueryable<Test> query;
-
-            switch (testCategory)
-            {
-                case TestCategories.Processing:
-                    for (int i = 1; i < 4; i++)
-                    {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.TransducerId == id &&
-                                      tests.TestCategoryId == 1 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[10 + i]
-                                orderby tests.Id descending
-                                select tests;
-
-                        if (!query.Any())
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                case TestCategories.Process:
-                    for (int i = 1; i < 4; i++)
-                    {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.TransducerModuleId == id &&
-                                      tests.TestCategoryId == 2 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[20 + i]
-                                orderby tests.Id descending
-                                select tests;
-
-                        if (!query.Any())
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                case TestCategories.Dispatch:
-                    for (int i = 1; i < 4; i++)
-                    {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.ProbeId == id &&
-                                      tests.TestCategoryId == 3 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[30 + i]
-                                orderby tests.Id descending
-                                select tests;
-
-                        if (!query.Any())
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
         private async Task<bool> PassTestCategoryAsync(ITestRepository testRepository, TestCategories testCategory, int id)
         {
             IQueryable<Test> query;
+            Test latestTest;
 
             switch (testCategory)
             {
@@ -1673,12 +1447,20 @@ namespace SonoCap.MES.UI.ViewModels
                         query = from tests in _testRepository.GetQueryable()
                                 where tests.TransducerId == id &&
                                       tests.TestCategoryId == 1 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[10 + i]
+                                      tests.TestTypeId == i
+                                      //tests.Result > App.TestThresholdDict[10 + i]
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (!await query.AnyAsync())
+                        // Get the test with the highest Id or null if none exists
+                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
+
+                        if (latestTest.Id == 0)
+                        {
+                            return false;
+                        }
+
+                        if (latestTest.Result < App.TestThresholdDict[10 + i])
                         {
                             return false;
                         }
@@ -1691,12 +1473,18 @@ namespace SonoCap.MES.UI.ViewModels
                         query = from tests in _testRepository.GetQueryable()
                                 where tests.TransducerModuleId == id &&
                                       tests.TestCategoryId == 2 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[20 + i]
+                                      tests.TestTypeId == i
+                                      //tests.Result > App.TestThresholdDict[20 + i]
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (!await query.AnyAsync())
+                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
+
+                        if (latestTest.Id == 0)
+                        {
+                            return false;
+                        }
+                        if (latestTest.Result < App.TestThresholdDict[20 + i])
                         {
                             return false;
                         }
@@ -1709,12 +1497,18 @@ namespace SonoCap.MES.UI.ViewModels
                         query = from tests in _testRepository.GetQueryable()
                                 where tests.ProbeId == id &&
                                       tests.TestCategoryId == 3 &&
-                                      tests.TestTypeId == i &&
-                                      tests.Result > App.TestThresholdDict[30 + i]
+                                      tests.TestTypeId == i
+                                      //tests.Result > App.TestThresholdDict[30 + i]
                                 orderby tests.Id descending
                                 select tests;
 
-                        if (!await query.AnyAsync())
+                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
+
+                        if (latestTest.Id == 0)
+                        {
+                            return false;
+                        }
+                        if (latestTest.Result < App.TestThresholdDict[30 + i])
                         {
                             return false;
                         }
@@ -1766,44 +1560,6 @@ namespace SonoCap.MES.UI.ViewModels
             return query.ToList();
         }
 
-        private int? GetIdBySnType(SnType snType, int id)
-        {
-            switch (snType)
-            {
-                case SnType.TransducerModule:
-                    return GetFirstId(_probeRepository, "TransducerModuleId", id);
-                case SnType.Transducer:
-                    return GetFirstId(_transducerModuleRepository, "TransducerId", id);
-                default:
-                    return null;
-            }
-        }
-
-        private int? GetFirstId<T>(IRepositoryBase<T> repository, string idFieldName, int id) where T : class
-        {
-            var query = repository.GetQueryable();
-            query = from item in query
-                    where (int)item.GetType().GetProperty(idFieldName).GetValue(item) == id
-                    orderby (int)item.GetType().GetProperty("Id").GetValue(item)
-                    select item;
-
-            var firstItem = query.FirstOrDefault();
-            return firstItem != null ? (int)firstItem.GetType().GetProperty("Id").GetValue(firstItem) : (int?)null;
-        }
-
-        public bool IsIdUsed(SnType snType, int id)
-        {
-            switch (snType)
-            {
-                case SnType.TransducerModule:
-                    return IsIdUsedInRepository(_probeRepository, "TransducerModuleId", id);
-                case SnType.Transducer:
-                    return IsIdUsedInRepository(_transducerModuleRepository, "TransducerId", id);
-                default:
-                    return false;
-            }
-        }
-
         private bool IsIdUsedInRepository<T>(IRepositoryBase<T> repository, string idFieldName, int id) where T : class
         {
             var query = repository.GetQueryable();
@@ -1812,19 +1568,6 @@ namespace SonoCap.MES.UI.ViewModels
                     select item;
 
             return query.Any();
-        }
-
-        public T? GetEntityIfIdUsed<T>(SnType snType, int id) where T : class
-        {
-            switch (snType)
-            {
-                case SnType.TransducerModule:
-                    return GetEntityIfIdUsedInRepository(_probeRepository, "TransducerModuleId", id) as T;
-                case SnType.Transducer:
-                    return GetEntityIfIdUsedInRepository(_transducerModuleRepository, "TransducerId", id) as T;
-                default:
-                    return null;
-            }
         }
 
         private T? GetEntityIfIdUsedInRepository<T>(IRepositoryBase<T> repository, string idFieldName, int id) where T : class
@@ -1851,65 +1594,6 @@ namespace SonoCap.MES.UI.ViewModels
                     insertTest.ProbeId = _probe!.Id;
                     break;
             }
-        }
-
-        //private bool isNullText(string key, string value)
-        //{
-        //    if (string.IsNullOrWhiteSpace(value))
-        //    {
-        //        SetValidating(key, $"{key}: Is Required.");
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        // Validate
-        private bool ValidateAll(TestCategories test)
-        {
-            // 필드 검증 로직 (검증 실패 시 즉시 종료)
-            bool ValidateField(string key, string value)
-            {
-                // 필드 값이 비어있는지 검증하는 델리게이트
-                var isNullText = (string key, string value) =>
-                {
-                    if (string.IsNullOrWhiteSpace(value))
-                    {
-                        SetValidating(key, $"{key}: Is Required.");
-                        return true;
-                    }
-                    return false;
-                };
-
-                if (isNullText(key, value))
-                    return false;
-
-                if (ValidationDict.ContainsKey(key) && !ValidationDict[key].IsValid)
-                    return false;
-
-                return true;
-            }
-
-            // 각 TestCategory에 대한 필드 검증
-            switch (test)
-            {
-                case TestCategories.Processing:
-                    if (!ValidateField(nameof(TDSn), TDSn))
-                        return false;
-                    break;
-                case TestCategories.Process:
-                    if (!ValidateField(nameof(TDMdSn), TDMdSn))
-                        return false;
-                    break;
-                case TestCategories.Dispatch:
-                    if (!ValidateField(nameof(ProbeSn), ProbeSn))
-                        return false;
-                    break;
-                default:
-                    break;
-            }
-
-            // 모든 검증이 통과되었을 때만 true 반환
-            return true;
         }
 
         private void ClearValidating(string key)
@@ -1939,18 +1623,6 @@ namespace SonoCap.MES.UI.ViewModels
             //OnPropertyChanged(nameof(ValidationDict));
         }
 
-        private void SetValidatingWaterMark(string key, string waterMarkText)
-        {
-            if (ValidationDict.ContainsKey(key))
-            {
-                ValidationDict[key].WaterMarkText = waterMarkText;
-            }
-            else
-            {
-                ValidationDict[key] = new ValidationItem { WaterMarkText = waterMarkText };
-            }
-        }
-
         private void ClearValidatingWaterMark()
         {
             foreach (var item in ValidationDict)
@@ -1978,38 +1650,6 @@ namespace SonoCap.MES.UI.ViewModels
             else
             {
                 SetValidating(key, value);
-            }
-        }
-
-        // Example method to set specific validation messages
-        private void SetSpecificValidationText(string key)
-        {
-            switch (key)
-            {
-                case nameof(ProbeSn):
-                    SetValidating(key, "ProbeSn Is Not Exist.");
-                    break;
-                case "Email":
-                    SetValidating(key, "Email을 입력하세요.");
-                    break;
-                case "ExistEmail":
-                    SetValidating(key, "이미 존재하는 Email입니다.");
-                    break;
-                case "Nickname":
-                    SetValidating(key, "닉네임을 입력하세요.");
-                    break;
-                case "CellPhone":
-                    SetValidating(key, "휴대전화번호를 입력하세요.");
-                    break;
-                case "Password":
-                    SetValidating(key, "비밀번호를 입력하세요.");
-                    break;
-                case "PasswordConfirm":
-                    SetValidating(key, "비밀번호 확인를 입력하세요.");
-                    break;
-                case "DifferentPassword":
-                    SetValidating(key, "비밀번호와 재입력 값이 일치하지 않습니다.");
-                    break;
             }
         }
 
