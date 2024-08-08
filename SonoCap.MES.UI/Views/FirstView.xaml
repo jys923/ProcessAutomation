@@ -17,15 +17,17 @@
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         <Image Grid.Row="1" Source="{Binding Logo}"/>
-        <Grid Height="50" Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" ShowGridLines="true">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
-                <ColumnDefinition Width="100"/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Testing" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestingViewCommand}" /> 
-            <Button Grid.Column="1" Content="TestList" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestListViewCommand}" />
-            <Button Grid.Column="2" Content="ProbeList" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoProbeListViewCommand}" /> 
-        </Grid>
+        <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Bottom">
+            <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Import Excel" FontSize="15" Margin="5" IsDefault="True" Command="{Binding ImportExcelCommand}" />
+                <Button Content="Add MasterData" FontSize="15" Margin="5" IsDefault="True" Command="{Binding AddMasterDataCommand}" />
+            </StackPanel>
+            <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Grid.Column="0" Content="Testing" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestingViewCommand}" />
+                <Button Grid.Column="1" Content="TestList" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestListViewCommand}" />
+                <Button Grid.Column="2" Content="ProbeList" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoProbeListViewCommand}" />
+            </StackPanel>
+        </StackPanel>
+        
     </Grid>
 </Window>

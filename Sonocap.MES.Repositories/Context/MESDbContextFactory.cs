@@ -6,11 +6,12 @@ namespace SonoCap.MES.Repositories.Context
     {
         public MESDbContext CreateDbContext()
         {
-            //var optionsBuilder = new DbContextOptionsBuilder<MESDbContext>();
-            //optionsBuilder.UseMySql("Your Connection String", ServerVersion.AutoDetect("Your Connection String"));
+            string conn = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            var optionsBuilder = new DbContextOptionsBuilder<MESDbContext>();
+            optionsBuilder.UseMySql(conn, ServerVersion.AutoDetect(conn));
 
-            //return new MESDbContext(optionsBuilder.Options);
-            return new MESDbContext();
+            return new MESDbContext(optionsBuilder.Options);
+            //return new MESDbContext();
         }
     }
 }

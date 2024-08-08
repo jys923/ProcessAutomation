@@ -48,7 +48,7 @@ public class Program
 
         LoggingConfigurator.Configure(1);
 
-        logger.Information("Hello, world!");
+        Log.Information("Hello, world!");
 
         int maxCnt = 100000 - 1;
         int resultCnt = 5;

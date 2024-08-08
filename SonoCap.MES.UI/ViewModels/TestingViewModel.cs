@@ -680,14 +680,13 @@ namespace SonoCap.MES.UI.ViewModels
 
             List<Test> tests;
             //정규 표현식 검증 추가
-            if (value.Length > 10)
+            if (value.Length > 1)
             {
                 Log.Information($"Transducer sn {value}");
                 if (!IsExistsBySn(SnType.Transducer, value))
                 {
                     ValidateField(nameof(TDSn), "TDSn Is Not Exist");
                     SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-
                 }
                 else
                 {
@@ -765,144 +764,6 @@ namespace SonoCap.MES.UI.ViewModels
 
 
         }
-
-#if false
-        partial void OnTDMdSnChanged(string value)
-        {
-            TDMdSnFilterItems();
-            TDMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && TDMdSnFilteredItems.Any();
-
-            //ChangeIsEnabled(TestCategories.Process);
-            ClearValidatingWaterMark();
-
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            //_motorModule = null;
-            _pTRView = null;
-
-            List<Test> tests;
-            //정규 표현식 검증 추가
-            if (value.Length > 10)
-            {
-                Log.Information($"TransducerModule sn {value}");
-                if (!IsExistsBySn(SnType.TransducerModule, value))
-                {
-                    ValidateField(nameof(TDMdSn), "TDMdSn Is Not Exist");
-                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-                }
-                else
-                {
-                    SetBySn(SnType.TransducerModule, value);
-                    ValidateField(nameof(TDMdSn));
-                    //ValidationDict[nameof(TDSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDSn)].WaterMarkText = _transducerModule.Transducer.Sn;
-
-                    tests = GetTestById(SnType.TransducerModule, _transducerModule.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    tests = GetTestById(SnType.Transducer, _transducerModule.Transducer.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    IQueryable<Probe> query = _probeRepository.GetQueryable();
-                    query = from probes in query
-                            where probes.TransducerModuleId == _transducerModule.Id
-                            orderby probes.Id descending
-                            select probes;
-
-                    _probe = query.FirstOrDefault();
-
-                    if (_probe is null)
-                        return;
-
-                    //_motorModule = _probe.MotorModule;
-                    ValidationDict[nameof(ProbeSn)].IsEnabled = false;
-                    ValidationDict[nameof(ProbeSn)].WaterMarkText = _probe.Sn;
-
-                    tests = GetTestById(SnType.Probe, _probe.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-                }
-            }
-            else
-            {
-                ValidateField(nameof(TDMdSn), "TDMdSn Is Not Valid");
-                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-            }
-        }
-
-        partial void OnProbeSnChanged(string value)
-        {
-            ProbeSnFilterItems();
-            ProbeSnIsPopupOpen = !string.IsNullOrEmpty(value) && ProbeSnFilteredItems.Any();
-            //ChangeIsEnabled(TestCategories.Dispatch);
-            ClearValidatingWaterMark();
-
-            _probe = null;
-            _transducerModule = null;
-            _transducer = null;
-            //_motorModule = null;
-            _pTRView = null;
-
-            List<Test> tests;
-            //정규 표현식 검증 추가
-            if (value.Length > 10)
-            {
-                Log.Information($"Probe sn {value}");
-                if (!IsExistsBySn(SnType.Probe, value))
-                {
-                    ValidateField(nameof(ProbeSn), "ProbeSn Is Not Exist");
-                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-                }
-                else
-                {
-                    SetBySn(SnType.Probe, value);
-                    ValidateField(nameof(ProbeSn));
-                    ValidationDict[nameof(TDMdSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDMdSn)].WaterMarkText = _probe.TransducerModule.Sn;
-                    //ValidationDict[nameof(TDSn)].IsEnabled = false;
-                    ValidationDict[nameof(TDSn)].WaterMarkText = _probe.TransducerModule.Transducer.Sn;
-
-                    tests = GetTestById(SnType.Probe, _probe.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    tests = GetTestById(SnType.TransducerModule, _probe.TransducerModule.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-
-                    tests = GetTestById(SnType.Transducer, _probe.TransducerModule.Transducer.Id);
-                    foreach (var item in tests)
-                    {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
-                    }
-                }
-            }
-            else
-            {
-                ValidateField(nameof(ProbeSn), "ProbeSn Is Not Valid");
-                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-            }
-        } 
-#endif
 
         partial void OnTestResultChanged(int value)
         {
@@ -1192,9 +1053,6 @@ namespace SonoCap.MES.UI.ViewModels
             PRFIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
             PRFIsEnabled.Add(4, new ValidationItem { IsEnabled = true });
 
-            InitMotor();
-            InitSocket();
-
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var timer = new System.Timers.Timer(1000);//1s
             timer.Elapsed += (s, e) => CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -1215,21 +1073,28 @@ namespace SonoCap.MES.UI.ViewModels
             ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
         }
 
-        private void InitMotor()
+        private bool InitMotor()
         {
             if (_motorService.IsOpen == false)
             {
-                _motorService.InitPort();
-                //serialPort.Close();
-
-                _motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataDataReceivedHandler);
-                Log.Information("연결되었습니다.");
-            }
-
-            if (_motorService.IsOpen == true)
+                //_motorService.CloseViewRequested += CloseViewRequestedHandler;
+                if (_motorService.InitPort())
+                {
+                    _motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataDataReceivedHandler);
+                    Log.Information($"Succ:{nameof(InitMotor)}");
+                    return true;
+                }
+                else 
+                {
+                    Log.Information($"Fail:{nameof(InitMotor)}");
+                    return false;
+                }
+            } 
+            else
             {
                 byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MODE_SEL);
                 _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                return true;
             }
         }
         
@@ -1263,34 +1128,45 @@ namespace SonoCap.MES.UI.ViewModels
                 }
             }
         }
-        
+
         private void InitSocket()
         {
             _socketService.CloseViewRequested += CloseViewRequestedHandler;
             string serverIP = "127.0.0.1";
             int port = 9999;
-            Task.Run(async () =>
+            try
             {
-                try
+                Task.Run(async () =>
                 {
                     await _socketService.ConnectAsync(serverIP, port);
-                    await _socketService.ReceiveDataAsync();
-                }
-                catch (Exception ex)
-                {
-                    // 예외 처리 필요
-                    Log.Information($"연결 및 데이터 수신 오류: {ex.Message}");
-                    Application.Current.MainWindow.Close();
-                }
-            });
+                    //await _socketService.ReceiveDataAsync();
+                });
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{nameof(InitSocket)}: {ex.Message}");
+                //Application.Current.MainWindow.Close();
+            }
         }
 
         private void CloseViewRequestedHandler(object? sender, EventArgs e)
         {
+            CloseWindow();
+        }
+
+        private void CloseWindow()
+        {
+            //App.Current.MainWindow.Close();
+            //Application.Current.Shutdown()
+            //Environment.Exit(1);
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                Window? focusedWindow = System.Windows.Input.Keyboard.FocusedElement as Window;
-                focusedWindow?.Close();
+                //Window? focusedWindow = System.Windows.Input.Keyboard.FocusedElement as Window;
+                //focusedWindow?.Close();
+
+                var windows = Application.Current.Windows.OfType<Window>();
+                var window = windows.FirstOrDefault(w => w.DataContext == this);
+                window?.Close();
             });
         }
 
@@ -2113,12 +1989,19 @@ namespace SonoCap.MES.UI.ViewModels
         {
             //base.OnWindowLoaded(sender, e);
             //MessageBox.Show("TestWindow Loaded");
+            Log.Information($"{nameof(OnWindowLoaded)}");
+            if (!InitMotor())
+            {
+                CloseWindow();
+            }
+            InitSocket();
         }
 
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
         {
             //base.OnWindowClosing(sender, e);
             //MessageBox.Show("TestWindow Closing");
+            Log.Information($"{nameof(OnWindowClosing)}");
             if (_motorService.IsOpen)
             {
                 byte[] bytesToSend = _motorService.GetCommandBytes((int)0xFF03);

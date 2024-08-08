@@ -1,12 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
 
 namespace SonoCap.MES.Models.Base
 {
-    public class ModelBase
+    public class ModelBase : AddOn
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -23,14 +20,5 @@ namespace SonoCap.MES.Models.Base
 
         [Required]
         public DateTime CreatedDate { get; set; } = DateTime.Now;
-
-        public override string ToString()
-        {
-            var properties = GetType().GetProperties()
-                .Where(p => p.CanRead && !p.GetIndexParameters().Any())
-                .Select(p => new { Name = p.Name, Value = p.GetValue(this, null) });
-
-            return string.Join(", ", properties.Select(p => $"{p.Name}: {p.Value}"));
-        }
     }
 }

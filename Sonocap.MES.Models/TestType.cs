@@ -13,6 +13,6 @@ namespace SonoCap.MES.Models
         public required string Name { get; set; }
 
         [Required]
-        public int Threshold { get; set; } = new Random().Next(70, 100);
+        public int Threshold { get; set; } = 90;
     }
 }

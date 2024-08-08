@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace SonoCap.MES.Models
 {
-    public class Test : ModelBase, IToJson
+    public class Test : ModelBase
     {
         [Required]
         public int TestCategoryId { get; set; }

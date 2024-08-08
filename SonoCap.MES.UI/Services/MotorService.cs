@@ -1,4 +1,5 @@
-﻿using System.IO.Ports;
+﻿using Serilog;
+using System.IO.Ports;
 using System.Management;
 
 namespace SonoCap.MES.UI.Services
@@ -37,6 +38,13 @@ namespace SonoCap.MES.UI.Services
             CMD_MOTOR_OFF = 0xFF03,
             CMD_FREQ_INFO = 0xFA55,
             CMD_ACK = 0xF055
+        }
+
+        public event EventHandler? CloseViewRequested;
+
+        private void CloseView()
+        {
+            CloseViewRequested?.Invoke(this, EventArgs.Empty);
         }
 
         public IEnumerable<string> MyGetPortNames(string contain)
@@ -247,7 +255,7 @@ namespace SonoCap.MES.UI.Services
             Open();
         }
 
-        public void InitPort()
+        public bool InitPort()
         {
             string portname = MyGetPortNames("Silicon Labs CP210x").FirstOrDefault() ?? string.Empty;
             PortName = portname;
@@ -255,7 +263,19 @@ namespace SonoCap.MES.UI.Services
             DataBits = 8;
             StopBits = StopBits.One;
             Parity = Parity.None;
-            Open();
+            try
+            {
+                Open();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error($"{e.Message}");
+                return false;
+                //await Task.Delay(1000);
+                //CloseView();
+                //throw;
+            }
         }
 
         public void SendACK()

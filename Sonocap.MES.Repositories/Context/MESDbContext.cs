@@ -125,10 +125,10 @@ namespace SonoCap.MES.Repositories.Context
             optionsBuilder.UseLazyLoadingProxies(true);
 
             string MariaDBConnectionString = string.Empty;
-#if DEBUG
+            MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+
             optionsBuilder.EnableSensitiveDataLogging(true);
-            MariaDBConnectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes_6; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
-#endif
+
             optionsBuilder.UseMySql(MariaDBConnectionString, ServerVersion.AutoDetect(MariaDBConnectionString), options => options.CommandTimeout(120));
         }
 #endif

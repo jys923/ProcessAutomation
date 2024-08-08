@@ -93,10 +93,9 @@ namespace SonoCap.MES.UI
 
                 options.UseLoggerFactory(loggerFactory);
                 options.UseLazyLoadingProxies(true);
-                options.EnableSensitiveDataLogging(true);
+                options.EnableSensitiveDataLogging();
 
                 options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(120));
-                options.UseLazyLoadingProxies(true);
             });
         }
 

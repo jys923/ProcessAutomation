@@ -35,15 +35,13 @@ namespace SonoCap.MES.Services
             try
             {
                 await _client.ConnectAsync(IPAddress.Parse(serverIP), port);
+                await ReceiveDataAsync();
+                Log.Information($"{nameof(ConnectAsync)}: Succ");
             }
             catch (Exception ex)
             {
                 // 예외 처리 필요
-                Log.Error($"연결 오류: {ex.Message}");
-
-                // 프로그램 종료
-                //Environment.Exit(1); 
-                //Application.Current.Shutdown()
+                Log.Error($"{nameof(ConnectAsync)}: {ex.Message}");
                 CloseView();
             }
         }
@@ -133,10 +131,9 @@ namespace SonoCap.MES.Services
             catch (Exception ex)
             {
                 // 예외 처리 필요
-                Log.Error($"수신 오류: {ex.Message}");
+                Log.Error($"{nameof(ReceiveDataAsync)}: {ex.Message}");
             }
         }
-
 
         public async Task SendDataAsync(string data)
         {
@@ -148,7 +145,7 @@ namespace SonoCap.MES.Services
             catch (Exception ex)
             {
                 // 예외 처리 필요
-                Log.Error($"송신 오류: {ex.Message}");
+                Log.Error($"{nameof(SendDataAsync)}: {ex.Message}");
             }
         }
 
