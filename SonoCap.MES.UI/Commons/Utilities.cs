@@ -65,7 +65,6 @@ namespace SonoCap.MES.UI.Commons
             return null;
         }
 
-
         public static bool ImageSourceToBitmapFile(ImageSource imageSource, string fileName)
         {
             try
