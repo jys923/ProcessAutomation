@@ -35,8 +35,8 @@ namespace SonoCap.MES.Services
             try
             {
                 await _client.ConnectAsync(IPAddress.Parse(serverIP), port);
-                await ReceiveDataAsync();
                 Log.Information($"{nameof(ConnectAsync)}: Succ");
+                await ReceiveDataAsync();
             }
             catch (Exception ex)
             {

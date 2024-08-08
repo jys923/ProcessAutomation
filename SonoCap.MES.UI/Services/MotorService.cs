@@ -71,34 +71,52 @@ namespace SonoCap.MES.UI.Services
             return Ports;
         }
 
-        public byte[] GenerateCommand(CMD cmd, RPM rpm, PRF prf)
+        //public byte[] GenerateCommand(CMD cmd, RPM rpm, PRF prf)
+        //{
+        //    List<byte> commandBytes = new List<byte>();
+
+        //    // 모드 선택 여부에 따라 명령어 추가
+        //    switch (cmd)
+        //    {
+        //        case CMD.CMD_MODE_SEL:
+        //            commandBytes.AddRange(BitConverter.GetBytes((ushort)cmd).Reverse());
+        //            break;
+        //        case CMD.CMD_MOTOR_ON:
+        //            commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MOTOR_ON).Reverse());
+        //            break;
+        //            //case CMD.CMD_MOTOR_OFF:
+        //            //    break;
+        //            //case CMD.CMD_FREQ_INFO:
+        //            //    break;
+        //            //case CMD.CMD_ACK:
+        //            //    break;
+        //            //default:
+        //            //    break;
+        //    }
+
+        //    // RPM과 PRF 추가
+        //    commandBytes.Add((byte)rpm);
+        //    commandBytes.Add((byte)prf);
+
+        //    return commandBytes.ToArray();
+        //}
+
+        public byte[] GenerateCommand(CMD cmd, RPM? rpm = null, PRF? prf = null)
         {
             List<byte> commandBytes = new List<byte>();
 
-            // 모드 선택 여부에 따라 명령어 추가
-            switch (cmd)
-            {
-                case CMD.CMD_MODE_SEL:
-                    commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MODE_SEL));
-                    break;
-                case CMD.CMD_MOTOR_ON:
-                    commandBytes.AddRange(BitConverter.GetBytes((ushort)CMD.CMD_MOTOR_ON));
-                    break;
-                //case CMD.CMD_MOTOR_OFF:
-                //    break;
-                //case CMD.CMD_FREQ_INFO:
-                //    break;
-                //case CMD.CMD_ACK:
-                //    break;
-                //default:
-                //    break;
-            }
+            commandBytes.AddRange(BitConverter.GetBytes((ushort)cmd).Reverse());
 
-            // RPM과 PRF 추가
-            commandBytes.Add((byte)rpm);
-            commandBytes.Add((byte)prf);
+            if (rpm.HasValue)
+                commandBytes.Add((byte)rpm.Value);
 
-            return commandBytes.ToArray();
+            if (prf.HasValue)
+                commandBytes.Add((byte)prf.Value);
+
+            var res = commandBytes.ToArray();
+            Log.Information($"{nameof(GenerateCommand)} : {BitConverter.ToString(res)}");
+
+            return res;
         }
 
         public byte[] GetCommandBytes(bool isModeSel, bool[] cmd, bool[] rpm, bool[] prf)
@@ -241,7 +259,7 @@ namespace SonoCap.MES.UI.Services
             Array.Copy(temp, bytesToSend, 2);
 
             Array.Reverse(bytesToSend); // BitConverer result reverse
-
+            Log.Information($"{nameof(GetCommandBytes)} : {BitConverter.ToString(bytesToSend)}");
             return bytesToSend;
         }
 
@@ -265,12 +283,16 @@ namespace SonoCap.MES.UI.Services
             Parity = Parity.None;
             try
             {
-                Open();
+                if (!IsOpen)
+                {
+                    Open();
+                }
                 return true;
             }
             catch (Exception e)
             {
                 Log.Error($"{e.Message}");
+                CloseView();
                 return false;
                 //await Task.Delay(1000);
                 //CloseView();

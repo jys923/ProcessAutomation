@@ -288,7 +288,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         partial void OnSelectedRPMChanged(RPM value)
         {
-            Log.Information($"value");
+            Log.Information($"{value}");
             SetMotor();
 
             PRFIsEnabled.Keys.ToList().ForEach(key => PRFIsEnabled[key].IsEnabled = false);
@@ -340,7 +340,6 @@ namespace SonoCap.MES.UI.ViewModels
         //    }
         //}
 
-
         [ObservableProperty]
         private ObservableDictionary<int, ValidationItem> _pRFIsEnabled = new();
 
@@ -349,7 +348,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         partial void OnSelectedPRFChanged(PRF value)
         {
-            Log.Information($"value");
+            Log.Information($"{value}");
             SetMotor();
 
             //RPMIsEnabled = RPMIsEnabled.ToDictionary(KeyValuePair => KeyValuePair.Key, KeyValuePair => true);
@@ -407,11 +406,9 @@ namespace SonoCap.MES.UI.ViewModels
         //[RelayCommand]
         private void SetMotor()
         {
-            Log.Information($"{nameof(SetMotor)}");
-
             if (_motorService.IsOpen == true)
             {
-                byte[] bytesToSend = _motorService.GenerateCommand(CMD.CMD_MOTOR_ON, SelectedRPM, SelectedPRF);
+                byte[] bytesToSend = _motorService.GenerateCommand(CMD.CMD_MODE_SEL, SelectedRPM, SelectedPRF);
                 _motorService.Write(bytesToSend, 0, bytesToSend.Length);
             }
         }
@@ -611,8 +608,19 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
             }
 
-            // TestCommand의 CanExecute 상태를 갱신합니다.
-            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            SrcImg = default!;
+            ResImg = default!;
+            TestResult = -2;
+            ValidationDict[nameof(TestResult)].IsEnabled = false;
+            OnTDSnChanged(TDSn);
+            TDSnIsPopupOpen = false;
+
+            //// TestCommand의 CanExecute 상태를 갱신합니다.
+            //(TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            //if (TestCommand.CanExecute(null))
+            //{
+            //    await TestCommand.ExecuteAsync(null);
+            //}
         }
 
         private async Task ForceAllPassAsync(TestCategories testCategory)
@@ -620,17 +628,18 @@ namespace SonoCap.MES.UI.ViewModels
             //throw new NotImplementedException();
             Test insertTest = new Test
             {
-                TestCategoryId = (int)_testCategory,
+                TestCategoryId = (int)testCategory,
                 TesterId = _tester.Id,
                 ChangedImgMetadata = "Force Pass",
                 Result = 100,
                 Method = 2,
             };
 
-            PrepareTest(_testCategory, insertTest);
+            PrepareTest(testCategory, insertTest);
 
             for (int i = 1; i <4; i++) 
             {
+                insertTest.Id = 0;
                 insertTest.TestTypeId = i;
 
                 if (await SaveAsync(_testRepository, insertTest))
@@ -638,6 +647,56 @@ namespace SonoCap.MES.UI.ViewModels
                     ResLogs.Add($"Add test : {insertTest.ToString()}");
                 }
             }
+
+            SharedSeqNo? seqNo = await _sharedSeqNoRepository.GetSeqNoAsync();
+            bool existNext = false;
+            bool passAll = false;
+            int id = 0;
+
+            switch (testCategory)
+            {
+                case TestCategories.Processing:
+                    id = _transducer.Id;
+                    existNext = _transducerModule is not null ? true : false;
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
+                    if (!existNext && id > 0 && passAll)
+                    {
+                        TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn{DateTime.Today.ToString("yyMMdd")}{seqNo.TDMdNo.ToString().PadLeft(3, '0')}", TransducerId = id };
+                        if (await _transducerModuleRepository.InsertAsync(tdMd))
+                        {
+                            _transducerModule = tdMd;
+                            await _sharedSeqNoRepository.SetSeqNoAsync(SnType.TransducerModule);
+                            ResLogs.Add($"Add TDMd Sn : {tdMd.Sn}");
+                        }
+                    }
+                    break;
+                case TestCategories.Process:
+                    if (_motorModule is null)
+                    {
+                        _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        if (_motorModule is null) break;
+                    } 
+
+                    id = _transducerModule.Id;
+                    existNext = _probe is not null ? true : false;
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
+                    if (!existNext && id > 0 && passAll)
+                    {
+                        Probe probe = new Probe { Sn = $"UPAG1{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
+                        if (await _probeRepository.InsertAsync(probe))
+                        {
+                            _probe = probe;
+                            await _sharedSeqNoRepository.SetSeqNoAsync(SnType.Probe);
+                            ResLogs.Add($"Add Probe Sn : {probe.Sn}");
+                        }
+                    }
+                    break;
+                case TestCategories.Dispatch:
+                    break;
+                default:
+                    break;
+            }
+            await PTRViewUpsert();
         }
 
         [RelayCommand]
@@ -900,14 +959,12 @@ namespace SonoCap.MES.UI.ViewModels
             }
             PTRView? tmpPTR = null;
 
-            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-
             if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
                 return;
             
+            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
             string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_O.bmp";
             string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_C.bmp";
-
 
             Utilities.ImageSourceToBitmapFile(SrcImg, OriginalImgName);
             Utilities.ImageSourceToBitmapFile(ResImg, ChangedImgName);
@@ -970,24 +1027,13 @@ namespace SonoCap.MES.UI.ViewModels
                         //ResLogs.Add($"Exist TDMd Sn: {_transducerModule.Sn}");
                     }
 
-                    if (_probe is not null)
-                    {
-                        tmpPTR = await _probeRepository.GetPTRViewAsync(_probe.Sn);
-                        if (tmpPTR is not null)
-                        {
-                            if (_pTRView is not null)
-                                tmpPTR.Id = _pTRView.Id;
-
-                            await _pTRViewRepository.UpsertAsync(tmpPTR);
-                        }
-                    }
-
+                    await PTRViewUpsert();
                     break;
                 case TestCategories.Process:
                     //id = await GetBySnAsync(_testCategory, _transducerModule.Id);
                     id = _transducerModule.Id;
                     existNext = _probe is not null ? true : false;
-                    
+
                     passAll = await PassTestCategoryAsync(_testRepository, _testCategory, id);
                     if (!existNext && id > 0 && passAll)
                     {
@@ -998,22 +1044,12 @@ namespace SonoCap.MES.UI.ViewModels
                             await _sharedSeqNoRepository.SetSeqNoAsync(SnType.Probe);
                             ResLogs.Add($"Add Probe Sn : {probe.Sn}");
                         }
-                    } else if (existNext)
+                    }
+                    else if (existNext)
                     {
                         //ResLogs.Add($"Exist Probe Sn: {_probe.Sn}");
                     }
-                    if (_probe is not null)
-                    {
-                        tmpPTR = await _probeRepository.GetPTRViewAsync(_probe.Sn);
-                        if (tmpPTR is not null)
-
-                        {
-                            if (_pTRView is not null)
-                                tmpPTR.Id = _pTRView.Id;
-
-                            await _pTRViewRepository.UpsertAsync(tmpPTR);
-                        }
-                    }
+                    await PTRViewUpsert();
                     break;
                 case TestCategories.Dispatch:
                     if (_probe is not null)
@@ -1038,6 +1074,21 @@ namespace SonoCap.MES.UI.ViewModels
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
+        }
+
+        private async Task PTRViewUpsert()
+        {
+            if (_probe is not null)
+            {
+                var tmpPTR = await _probeRepository.GetPTRViewAsync(_probe.Sn);
+                if (tmpPTR is not null)
+                {
+                    if (_pTRView is not null)
+                        tmpPTR.Id = _pTRView.Id;
+
+                    await _pTRViewRepository.UpsertAsync(tmpPTR);
+                }
+            }
         }
 
         private void Init()
@@ -1075,26 +1126,17 @@ namespace SonoCap.MES.UI.ViewModels
 
         private bool InitMotor()
         {
-            if (_motorService.IsOpen == false)
+            //_motorService.CloseViewRequested += CloseViewRequestedHandler;
+            if (_motorService.InitPort())
             {
-                //_motorService.CloseViewRequested += CloseViewRequestedHandler;
-                if (_motorService.InitPort())
-                {
-                    _motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataDataReceivedHandler);
-                    Log.Information($"Succ:{nameof(InitMotor)}");
-                    return true;
-                }
-                else 
-                {
-                    Log.Information($"Fail:{nameof(InitMotor)}");
-                    return false;
-                }
-            } 
-            else
-            {
-                byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MODE_SEL);
-                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                _motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataDataReceivedHandler);
+                Log.Information($"Succ:{nameof(InitMotor)}");
                 return true;
+            }
+            else 
+            {
+                Log.Error($"{nameof(InitMotor)}");
+                return false;
             }
         }
         
@@ -1108,21 +1150,20 @@ namespace SonoCap.MES.UI.ViewModels
                 if (RecvSize >= 2)
                 {
                     byte[] buff = new byte[2];
-
                     motorService.Read(buff, 0, 2);
-
                     Log.Information($"Received : {BitConverter.ToString(buff)}");
 
+                    byte[] bytesToSend = Array.Empty<byte>();
                     if (_motorState == MotorState.disconnect)
                     {
                         _motorState = MotorState.connect;
-                        byte[] bytesToSend = motorService.GetCommandBytes((int)0xAB55);
+                        bytesToSend = motorService.GetCommandBytes((int)0xAB55);
                         motorService.Write(bytesToSend, 0, bytesToSend.Length);
                     } 
                     else if (_motorState == MotorState.connect)
                     {
                         _motorState = MotorState.start;
-                        byte[] bytesToSend = motorService.GetCommandBytes((int)0xFA55);
+                        bytesToSend = motorService.GetCommandBytes((int)0xFA55);
                         motorService.Write(bytesToSend, 0, bytesToSend.Length);
                     }
                 }
@@ -1993,6 +2034,14 @@ namespace SonoCap.MES.UI.ViewModels
             if (!InitMotor())
             {
                 CloseWindow();
+            }
+            else
+            {
+                if (_motorService.IsOpen == true)
+                {
+                    byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MODE_SEL);
+                    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                }
             }
             InitSocket();
         }
