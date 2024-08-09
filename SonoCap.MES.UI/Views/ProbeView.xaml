@@ -24,7 +24,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
     </Window.Resources>
-    <Border CornerRadius="5" Background="White">
+    <Border CornerRadius="5" Background="White" BorderBrush="Gray" BorderThickness="1">
         <Grid Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>

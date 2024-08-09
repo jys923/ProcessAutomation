@@ -30,7 +30,7 @@
             </b:InvokeCommandAction>
         </b:EventTrigger>
     </b:Interaction.Triggers>
-    <Grid>
+    <Grid Margin="10 10 10 0">
         <Grid.RowDefinitions>
             <RowDefinition Height=".2*"/>
             <RowDefinition Height="1*"/>
@@ -285,7 +285,7 @@
                 </Viewbox>
             </Grid>
         </Grid>
-        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0 0 -10 0" >
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0 0 -5 0" >
             <Button Width="100" Content="Close" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="30" IsCancel="True" Cursor="Hand" Style="{StaticResource MetroPinkButtonStyle}"/>
         </Grid>
     </Grid>
