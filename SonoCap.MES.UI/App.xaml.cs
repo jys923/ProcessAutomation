@@ -37,11 +37,16 @@ namespace SonoCap.MES.UI
         public App()
         {
             Services = ConfigureServices();
-            Startup += App_Startup;
         }
-        private void App_Startup(object sender, StartupEventArgs e)
+
+        protected override void OnStartup(StartupEventArgs e)
         {
+            base.OnStartup(e); // 기본 OnStartup 메서드를 호출하여 기본 초기화 수행
+
+            // 비동기 초기화 작업을 시작합니다.
             Task.Run(() => InitializeAsync());
+
+            // 나머지 초기화 작업을 수행합니다.
             SetMidnightTimer();
             SetTestThreshold();
             SetPath();
