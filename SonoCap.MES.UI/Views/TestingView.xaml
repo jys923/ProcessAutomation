@@ -620,7 +620,7 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                              IsEnabled="{Binding ValidationDict[TestResult].IsEnabled}"/>
                     </Grid>
                 </Border>
-                <Button Grid.Column="3" FontSize="40" Background="LightBlue" Content="다 음" Command="{Binding NextCommand}"/>
+                <Button Grid.Column="3" FontSize="40" Background="LightBlue" Content="저 장" Command="{Binding NextCommand}"/>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource RemoveGroupBoxBorder}">
@@ -646,10 +646,7 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                     FontSize="35" 
                     Foreground="DarkSlateGray"
                     FontFamily="Digital-7" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                <Grid>
-                    <Label Panel.ZIndex="1" Style="{StaticResource LabelLargeStyle}"  HorizontalContentAlignment="Center" Margin="0,0,0,15" Content="결 과 이 미 지"/>
-                </Grid>
-
+                <Label Panel.ZIndex="1" Style="{StaticResource LabelLargeStyle}"  HorizontalContentAlignment="Center" Margin="0,0,0,15" Content="결 과 이 미 지"/>
                 <Image x:Name="ResImg" Margin="60,0,60,0" Stretch="UniformToFill" Source="{Binding ResImg}"/>
             </StackPanel>
         </GroupBox>

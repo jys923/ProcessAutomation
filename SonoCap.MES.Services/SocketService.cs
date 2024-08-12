@@ -77,9 +77,11 @@ namespace SonoCap.MES.Services
                     }
 
                     // 유효성 검사 예시: CMD 값이 특정 범위를 벗어나면 무시
-                    if (header.CMD != (byte)'A' || header.ImgSize < 0 || header.DataSize < 0)
+                    if ((header.CMD != (byte)'I' && header.CMD != (byte)'M') || header.ImgSize < 0 || header.DataSize < 0)
                     {
                         Log.Information($"유효하지 않은 CMD 값: {header.CMD}, 데이터 무시");
+                        //무한 루프 걸림 
+                        //todo
                         return;
                     }
 

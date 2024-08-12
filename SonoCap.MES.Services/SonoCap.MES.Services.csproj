@@ -13,7 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SonoCap.Commons\SonoCap.Commons.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
-    <ProjectReference Include="..\SonoCapUsImg\SonoCapUsImg.vcxproj" />
   </ItemGroup>
 
   <ItemGroup>

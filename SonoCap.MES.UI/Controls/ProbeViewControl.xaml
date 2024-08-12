@@ -48,27 +48,59 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
-            <Label Style="{StaticResource LabelMediumStyle}" Content="검사 시간" Grid.Row="0"/>
-            <Label Style="{StaticResource LabelMediumStyle}" Content="Probe Sn" Grid.Row="1"/>
-            <Label Style="{StaticResource LabelMediumStyle}" Content="TD Sn" Grid.Row="2"/>
-            <Label Style="{StaticResource LabelMediumStyle}" Content="TDMd Sn" Grid.Row="3"/>
-            <TextBlock Style="{StaticResource TextBlockMediumStyle}" Text="{Binding PTRView.CreatedDate, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}" Grid.Row="0" Grid.Column="1"/>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="0" Content="검사 시간"/>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="1" Content="Probe Sn"/>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="2" Content="TD Sn"/>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="3" Content="TDMd Sn"/>
+            <TextBlock Style="{StaticResource TextBlockMediumStyle}" Text="{Binding PTRView.CreatedDate, StringFormat='yyyy-MM-dd HH:mm'}" Grid.Row="0" Grid.Column="1"/>
             <TextBlock Style="{StaticResource TextBlockMediumStyle}" Text="{Binding PTRView.ProbeSn}" Grid.Row="1" Grid.Column="1"/>
             <TextBlock Style="{StaticResource TextBlockMediumStyle}" Text="{Binding PTRView.TransducerSn}" Grid.Row="2" Grid.Column="1"/>
             <TextBlock Style="{StaticResource TextBlockMediumStyle}" Text="{Binding PTRView.TransducerModuleSn}" Grid.Row="3" Grid.Column="1"/>
         </Grid>
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="0 10 0 10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="1*"/>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.Column="0" Margin="0 0 0 5">
+            <Border Grid.Column="0" Grid.Row="0" Background="{StaticResource CellHeaderBrush}"/>
+            
+            <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource CellHeaderBrush}"/>
+            <Border Grid.Column="0" Grid.Row="2" Background="{StaticResource CellHeaderBrush}"/>
+            <Border Grid.Column="0" Grid.Row="3" Background="{StaticResource CellHeaderBrush}"/>
+
+            <Border Grid.Column="1" Grid.Row="0" Background="{StaticResource CellHeaderBrush}"/>
+            <Border Grid.Column="2" Grid.Row="0" Background="{StaticResource CellHeaderBrush}"/>
+            <Border Grid.Column="3" Grid.Row="0" Background="{StaticResource CellHeaderBrush}"/>
+
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Column="1" HorizontalAlignment="Center" Content="Align"/>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Column="2" HorizontalAlignment="Center" Content="Axial"/>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Column="3" HorizontalAlignment="Center" Content="Leteral"/>
+
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="1" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="공정용">
+                <Label.RenderTransform>
+                    <RotateTransform Angle="-90"/>
+                </Label.RenderTransform>
+            </Label>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="2" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="최종용">
+                <Label.RenderTransform>
+                    <RotateTransform Angle="-90"/>
+                </Label.RenderTransform>
+            </Label>
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="3" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="출하용">
+                <Label.RenderTransform>
+                    <RotateTransform Angle="-90"/>
+                </Label.RenderTransform>
+            </Label>
+
+            <Grid Grid.Row="1" Grid.Column="1" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -84,15 +116,15 @@
                 </Viewbox>
                 <Viewbox Grid.Column="1" Margin="2.5 0 2.5 0">
                     <Image Stretch="UniformToFill" Source="{Binding ResImg00}">
-                    <Image.ToolTip>
-                        <ToolTip>
+                        <Image.ToolTip>
+                            <ToolTip>
                                 <Image Source="{Binding ResImg00}" Stretch="UniformToFill" Width="500" Height="500"/>
-                        </ToolTip>
-                    </Image.ToolTip>
+                            </ToolTip>
+                        </Image.ToolTip>
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="0" Grid.Column="1" Margin="0 0 0 5">
+            <Grid Grid.Row="1" Grid.Column="2" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -116,7 +148,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="0" Grid.Column="2" Margin="0 0 0 5">
+            <Grid Grid.Row="1" Grid.Column="3" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -140,7 +172,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="1" Grid.Column="0" Margin="0 0 0 5">
+            <Grid Grid.Row="2" Grid.Column="1" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -164,7 +196,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="1" Grid.Column="1" Margin="0 0 0 5">
+            <Grid Grid.Row="2" Grid.Column="2" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -188,7 +220,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="1" Grid.Column="2" Margin="0 0 0 5">
+            <Grid Grid.Row="2" Grid.Column="3" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -212,7 +244,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="2" Grid.Column="0" Margin="0 0 0 5">
+            <Grid Grid.Row="3" Grid.Column="1" Margin="0 0 0 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -236,7 +268,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="2" Grid.Column="1" Margin="0 0 0 5">
+            <Grid Grid.Row="3" Grid.Column="2" Margin="0 0 0 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
@@ -260,7 +292,7 @@
                     </Image>
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="2" Grid.Column="2" Margin="0 0 0 5">
+            <Grid Grid.Row="3" Grid.Column="3" Margin="0 0 0 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>

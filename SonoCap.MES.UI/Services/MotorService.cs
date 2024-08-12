@@ -6,6 +6,35 @@ namespace SonoCap.MES.UI.Services
 {
     public class MotorService : SerialPort//, IMotorService
     {
+        public static PRF GetPRFFromDepth(int depthInCm)
+        {
+            PRF prf;
+
+            switch (depthInCm)
+            {
+                case 10000:
+                    prf = PRF.PRF_10;
+                    break;
+                case 12000:
+                    prf = PRF.PRF_12;
+                    break;
+                case 15000:
+                    prf = PRF.PRF_15;
+                    break;
+                case 16000:
+                    prf = PRF.PRF_16;
+                    break;
+                case 20000:
+                    prf = PRF.PRF_20;
+                    break;
+                default:
+                    prf = PRF.PRF_20;
+                    break;
+            }
+
+            return prf;
+        }
+
         public enum MotorState
         {
             disconnect = 0,
@@ -21,6 +50,32 @@ namespace SonoCap.MES.UI.Services
             PRF_15 = 0x03,
             PRF_16 = 0x04,
             PRF_20 = 0x05
+        }
+
+        public static RPM GetRPMFromDensity(int density)
+        {
+            RPM rpm;
+
+            switch (density)
+            {
+                case 1:
+                    rpm = RPM.RPM_1875;
+                    break;
+                case 2:
+                    rpm = RPM.RPM_1600;
+                    break;
+                case 3:
+                    rpm = RPM.RPM_1500;
+                    break;
+                case 4:
+                    rpm = RPM.RPM_1250;
+                    break;
+                default:
+                    rpm = RPM.RPM_1250;
+                    break;
+            }
+
+            return rpm;
         }
 
         public enum RPM
@@ -273,7 +328,7 @@ namespace SonoCap.MES.UI.Services
             Open();
         }
 
-        public bool InitPort()
+        public bool InitPort2()
         {
             string portname = MyGetPortNames("Silicon Labs CP210x").FirstOrDefault() ?? string.Empty;
             PortName = portname;
@@ -297,6 +352,101 @@ namespace SonoCap.MES.UI.Services
                 //await Task.Delay(1000);
                 //CloseView();
                 //throw;
+            }
+        }
+
+        public bool InitPort()
+        {
+            var ports = SerialPort.GetPortNames();
+            string validPort = string.Empty;
+
+            foreach (var port in ports)
+            {
+                try
+                {
+                    // Initialize port with default settings
+                    PortName = port;
+                    BaudRate = 9600;
+                    DataBits = 8;
+                    StopBits = StopBits.One;
+                    Parity = Parity.None;
+
+                    Open(); // Open the port
+
+                    // Set timeout values
+                    ReadTimeout = 100; // 2 seconds timeout for Read operations
+                    WriteTimeout = 100; // Optional: 2 seconds timeout for Write operations
+
+                    // Send ACK command
+                    SendACK();
+
+                    // Read response
+                    var response = ReadResponse();
+
+                    // Check if the response matches 0xF055
+                    if (response == 0xF055)
+                    {
+                        Log.Information($"Valid port found: {port}");
+                        validPort = port;
+                        break; // Stop checking other ports if a valid one is found
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"Error on port {port}: {e.Message}");
+                    //CloseView();
+                }
+                finally
+                {
+                    // Ensure the port is closed
+                    if (IsOpen)
+                    {
+                        Close();
+                    }
+                }
+            }
+
+            // If a valid port is found, return true and set it as the active port
+            if (!string.IsNullOrEmpty(validPort))
+            {
+                PortName = validPort;
+                BaudRate = 9600;
+                DataBits = 8;
+                StopBits = StopBits.One;
+                Parity = Parity.None;
+                Open(); // Open the valid port
+                Log.Information($"Port {validPort} successfully initialized.");
+                return true;
+            }
+
+            // No valid port was found
+            Log.Information("No valid port found.");
+            return false;
+        }
+
+        private ushort ReadResponse()
+        {
+            // Adjust this based on the expected length of response
+            const int responseLength = 2; // 2 bytes for a ushort
+            byte[] responseBytes = new byte[responseLength];
+
+            int bytesRead = 0;
+            while (bytesRead < responseLength)
+            {
+                int read = Read(responseBytes, bytesRead, responseLength - bytesRead);
+                if (read > 0)
+                {
+                    bytesRead += read;
+                }
+            }
+
+            if (bytesRead == responseLength)
+            {
+                return BitConverter.ToUInt16(responseBytes.Reverse().ToArray(), 0);
+            }
+            else
+            {
+                throw new InvalidOperationException("Incomplete response received.");
             }
         }
 

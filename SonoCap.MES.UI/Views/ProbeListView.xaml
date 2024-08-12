@@ -99,7 +99,7 @@
             </b:Interaction.Triggers>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="&#13;ID" Width=".2*" Binding="{Binding Id}"/>
-                <DataGridTextColumn Header="&#13;생성 날짜" Width=".5*" Binding="{Binding CreatedDate, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}"/>
+                <DataGridTextColumn Header="&#13;생성 날짜" Width=".6*" Binding="{Binding CreatedDate, StringFormat='yyyy-MM-dd HH:mm'}"/>
                 <DataGridTextColumn Header="&#13;Probe S/N" Width="1*" Binding="{Binding ProbeSn}"/>
                 <DataGridTextColumn Header="&#13;TD S/N" Width="1*" Binding="{Binding TransducerSn}"/>
                 <DataGridTextColumn Header="&#13;TD Md S/N" Width="1*" Binding="{Binding TransducerModuleSn}"/>

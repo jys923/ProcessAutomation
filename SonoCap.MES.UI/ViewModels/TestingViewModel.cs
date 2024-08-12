@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿//#define SET_MOTOR
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -284,13 +286,13 @@ namespace SonoCap.MES.UI.ViewModels
         private ObservableDictionary<int, ValidationItem> _rPMIsEnabled = new();
 
         [ObservableProperty]
-        private RPM _selectedRPM = RPM.RPM_1875;
+        private RPM _selectedRPM = RPM.RPM_1250;
 
         partial void OnSelectedRPMChanged(RPM value)
         {
             Log.Information($"{value}");
             SetMotor();
-
+#if SET_MOTOR
             PRFIsEnabled.Keys.ToList().ForEach(key => PRFIsEnabled[key].IsEnabled = false);
             switch (value)
             {
@@ -325,6 +327,7 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
+#endif
         }
 
         //public RPM SelectedRPM
@@ -344,14 +347,13 @@ namespace SonoCap.MES.UI.ViewModels
         private ObservableDictionary<int, ValidationItem> _pRFIsEnabled = new();
 
         [ObservableProperty]
-        private PRF _selectedPRF = PRF.PRF_20;
+        private PRF _selectedPRF = PRF.PRF_10;
 
         partial void OnSelectedPRFChanged(PRF value)
         {
             Log.Information($"{value}");
             SetMotor();
-
-            //RPMIsEnabled = RPMIsEnabled.ToDictionary(KeyValuePair => KeyValuePair.Key, KeyValuePair => true);
+#if SET_MOTOR
             RPMIsEnabled.Keys.ToList().ForEach(key => RPMIsEnabled[key].IsEnabled = false);
             switch (value)
             {
@@ -388,6 +390,7 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
+#endif
         }
 
         //public PRF SelectedPRF
@@ -617,7 +620,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             // TestCommand의 CanExecute 상태를 갱신합니다.
             (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-            
+
             //if (TestCommand.CanExecute(null))
             //{
             //    await TestCommand.ExecuteAsync(null);
@@ -920,7 +923,7 @@ namespace SonoCap.MES.UI.ViewModels
                 {
                     ResImg = Utilities.BitmapToImageSource(m_bmpRes);
                     ResTxt = settings.ToJson();
-                    ResLogs.Add($"PASS {(TestCategoriesKor)_testCategory} {(TestTypes)_testType}");
+                    ResLogs.Add($"PASS {(TestCategoriesKor)_testCategory} {(TestTypes)_testType} Frame No:{settings.probe_frame_index}");
                     TestResult = -2;
                 });
 
@@ -1000,7 +1003,7 @@ namespace SonoCap.MES.UI.ViewModels
                     id = _transducer.Id;
                     existNext = _transducerModule is not null ? true : false; 
                     
-                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducerModule: _transducerModule);
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducer: _transducer);
                     if ( !existNext && id > 0 && passAll)
                     {
                         TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn{DateTime.Today.ToString("yyMMdd")}{seqNo.TDMdNo.ToString().PadLeft(3, '0')}", TransducerId = id };
@@ -1085,6 +1088,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
+#if SET_MOTOR
             RPMIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
             RPMIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
             RPMIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
@@ -1095,6 +1099,18 @@ namespace SonoCap.MES.UI.ViewModels
             PRFIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
             PRFIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
             PRFIsEnabled.Add(4, new ValidationItem { IsEnabled = true });
+#else
+            RPMIsEnabled.Add(0, new ValidationItem { IsEnabled = false });
+            RPMIsEnabled.Add(1, new ValidationItem { IsEnabled = false });
+            RPMIsEnabled.Add(2, new ValidationItem { IsEnabled = false });
+            RPMIsEnabled.Add(3, new ValidationItem { IsEnabled = false });
+
+            PRFIsEnabled.Add(0, new ValidationItem { IsEnabled = false });
+            PRFIsEnabled.Add(1, new ValidationItem { IsEnabled = false });
+            PRFIsEnabled.Add(2, new ValidationItem { IsEnabled = false });
+            PRFIsEnabled.Add(3, new ValidationItem { IsEnabled = false });
+            PRFIsEnabled.Add(4, new ValidationItem { IsEnabled = false });
+#endif
 
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var timer = new System.Timers.Timer(1000);//1s
@@ -1164,6 +1180,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void InitSocket()
         {
+            _socketService.DataReceived += DataReceivedHandler;
             _socketService.CloseViewRequested += CloseViewRequestedHandler;
             string serverIP = "127.0.0.1";
             int port = 9999;
@@ -1180,6 +1197,14 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Error($"{nameof(InitSocket)}: {ex.Message}");
                 //Application.Current.MainWindow.Close();
             }
+        }
+
+        private void DataReceivedHandler(object? sender, ImgAndMeta response)
+        {
+            Log.Information($"{nameof(DataReceivedHandler)}:{response.Meta}");
+            HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
+            SelectedRPM = GetRPMFromDensity(settings.density);
+            SelectedPRF = GetPRFFromDepth((int)settings.depth_in_cm);//5개
         }
 
         private void CloseViewRequestedHandler(object? sender, EventArgs e)

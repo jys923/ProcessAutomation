@@ -32,23 +32,28 @@ namespace SonoCap.MES.UI
 
         public IServiceProvider Services { get; }
 
-        public static AppSettings appSettings { get; set; } = default!;
+        public static AppSettings appSettings { get; set; } = new AppSettings();
 
         public App()
         {
             Services = ConfigureServices();
         }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e); // 기본 OnStartup 메서드를 호출하여 기본 초기화 수행
 
             // 비동기 초기화 작업을 시작합니다.
-            Task.Run(() => InitializeAsync());
+            //Task.Run(() => InitializeAsync());
+            //Task.Run(() => SetTestThreshold());
+            // 비동기 초기화 작업을 시작합니다.
+            await Task.WhenAll(
+                InitializeAsync(),
+                SetTestThreshold()
+            );
 
-            // 나머지 초기화 작업을 수행합니다.
+            // 비동기 작업이 완료된 후에 나머지 초기화 작업을 수행합니다.
             SetMidnightTimer();
-            SetTestThreshold();
             SetPath();
             ShowFirstView();
         }
@@ -56,10 +61,9 @@ namespace SonoCap.MES.UI
         private static IServiceProvider ConfigureServices()
         {
             IConfiguration configuration = ConfigureAppSettings();
-            appSettings = new AppSettings();
             configuration.Bind(appSettings);
 
-            LoggingConfigurator.Configure(LogMode.Console);
+            LoggingConfigurator.Configure(configuration);
 
             IServiceCollection services = new ServiceCollection();
 
@@ -187,7 +191,7 @@ namespace SonoCap.MES.UI
             _timer.Start();
         }
 
-        private async void SetTestThreshold()
+        private async Task SetTestThreshold()
         {
             IEnumerable<Models.TestType> testTypes = await Services.GetRequiredService<ITestTypeRepository>().GetAllAsync();
 

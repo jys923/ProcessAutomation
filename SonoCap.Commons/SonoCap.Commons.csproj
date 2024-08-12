@@ -14,4 +14,8 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
+  </ItemGroup>
+
 </Project>

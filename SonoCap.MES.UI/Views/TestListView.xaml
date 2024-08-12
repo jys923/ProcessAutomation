@@ -114,13 +114,13 @@
                 </b:Interaction.Behaviors>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Width=".3*" Binding="{Binding Id}"/>
-                    <DataGridTextColumn Header="생성날짜" Width=".5*" Binding="{Binding CreatedDate, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}"/>
+                    <DataGridTextColumn Header="생성날짜" Width="1*" Binding="{Binding CreatedDate, StringFormat='yyyy-MM-dd HH:mm'}"/>
                     <DataGridTextColumn Header="Detail" Width=".1*" Binding="{Binding Detail}" Visibility="Collapsed"/>
                     <DataGridTextColumn Header="Category" Width=".5*" Binding="{Binding Category.Name}"/>
                     <DataGridTextColumn Header="TestType" Width=".5*" Binding="{Binding TestType.Name}"/>
                     <DataGridTextColumn Header="Result" Width=".3*" Binding="{Binding Result}"/>
                     <DataGridTextColumn Header="Pc" Width=".3*" Binding="{Binding Pc.Name}"/>
-                    <DataGridTextColumn Header="Tester" Width=".3*" Binding="{Binding Tester}"/>
+                    <DataGridTextColumn Header="Tester" Width=".5*" Binding="{Binding Tester}"/>
                     <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding Probe.Sn}"/>
                     <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.Sn}"/>
                     <DataGridTextColumn Header="Transducer" Width="1*" Binding="{Binding Transducer.Sn}"/>

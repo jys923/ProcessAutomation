@@ -43,7 +43,7 @@
                     </Trigger>
                     <!-- Error state trigger -->
                     <DataTrigger Binding="{Binding IsError, RelativeSource={RelativeSource Self}}" Value="True">
-                        <Setter Property="BorderBrush" Value="Red"/>
+                        <Setter Property="BorderBrush" Value="Tomato"/>
                         <Setter Property="BorderThickness" Value="2"/>
                     </DataTrigger>
                 </Style.Triggers>
