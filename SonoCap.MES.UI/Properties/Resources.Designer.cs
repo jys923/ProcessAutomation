@@ -61,26 +61,6 @@ namespace SonoCap.MES.UI.Properties {
         }
         
         /// <summary>
-        ///   System.Byte[] 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
-        internal static byte[] _4 {
-            get {
-                object obj = ResourceManager.GetObject("4", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   System.Byte[] 형식의 지역화된 리소스를 찾습니다.
-        /// </summary>
-        internal static byte[] _5 {
-            get {
-                object obj = ResourceManager.GetObject("5", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
         internal static System.Drawing.Bitmap logo {
@@ -91,12 +71,12 @@ namespace SonoCap.MES.UI.Properties {
         }
         
         /// <summary>
-        ///   System.Byte[] 형식의 지역화된 리소스를 찾습니다.
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
-        internal static byte[] sc_ori_img_512 {
+        internal static System.Drawing.Bitmap usImg1 {
             get {
-                object obj = ResourceManager.GetObject("sc_ori_img_512", resourceCulture);
-                return ((byte[])(obj));
+                object obj = ResourceManager.GetObject("usImg1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

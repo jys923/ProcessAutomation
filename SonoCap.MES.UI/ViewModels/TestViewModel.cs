@@ -6,6 +6,7 @@ using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -16,6 +17,8 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private Test _test = default!;
+
+        private BitmapImage _defaultImg = default!;
 
         [ObservableProperty]
         private ImageSource _srcImg = default!;
@@ -42,8 +45,10 @@ namespace SonoCap.MES.UI.ViewModels
             Title = title;
             _test = test;
 
-            SrcImg = Utilities.GetFileToImageSource(Test.OriginalImg) ?? default!;
-            ResImg = Utilities.GetFileToImageSource(Test.ChangedImg) ?? default!;
+            _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
+
+            SrcImg = Utilities.GetFileToImageSource(Test.OriginalImg) ?? _defaultImg;
+            ResImg = Utilities.GetFileToImageSource(Test.ChangedImg) ?? _defaultImg;
 
             _cellColors = new Color[9];
             // Initialize all cells to LightBlue

@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Reflection;
 
 namespace SonoCap.MES.UI.Commons
 {
@@ -199,6 +200,8 @@ namespace SonoCap.MES.UI.Commons
                     return null;
                 }
 
+                //string uriPath = $"pack://application:,,,{filePath}";
+
                 BitmapImage image = new BitmapImage();
                 image.BeginInit();
                 image.UriSource = new Uri(filePath, UriKind.RelativeOrAbsolute);
@@ -211,6 +214,40 @@ namespace SonoCap.MES.UI.Commons
                 // 예외 처리: 파일 로드 실패 시 null 반환 또는 로그 작성
                 Log.Information($"Error loading image from file: {ex.Message}");
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// 어셈블리에서 리소스 파일을 로드하여 BitmapImage 객체를 반환합니다.
+        /// </summary>
+        /// <param name="fileName">리소스 파일 이름 (예: sc_ori_img_512.bmp)</param>
+        /// <returns>BitmapImage 객체, 파일을 찾을 수 없으면 null</returns>
+        public static BitmapImage LoadBitmapFromResource(string fileName)
+        {
+            // 네임스페이스와 폴더 경로를 포함한 리소스 파일 이름 생성
+            string resourceName = $"SonoCap.MES.UI.Resources.{fileName}";
+
+            // 현재 실행 중인 어셈블리 가져오기
+            Assembly assembly = Assembly.GetExecutingAssembly();
+
+            // 리소스 스트림 가져오기
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (stream != null)
+                {
+                    // BitmapImage 객체 생성 및 초기화
+                    BitmapImage image = new BitmapImage();
+                    image.BeginInit();
+                    image.StreamSource = stream;
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    return image;
+                }
+                else
+                {
+                    // 리소스 스트림을 찾을 수 없을 때
+                    return null;
+                }
             }
         }
 

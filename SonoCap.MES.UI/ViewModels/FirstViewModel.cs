@@ -28,6 +28,8 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _title = default!;
 
+        private BitmapImage _defaultLogo = default!;
+
         [ObservableProperty]
         private ImageSource _logo = default!;
 
@@ -167,7 +169,10 @@ namespace SonoCap.MES.UI.ViewModels
             _transducerTypeRepository = transducerTypeRepository;
             
             Title = this.GetType().Name;
-            
+
+
+            _defaultLogo = Utilities.LoadBitmapFromResource("logo.png");
+
             string imagePath = "Resources/logo.png";
             Logo = Utilities.GetFileToImageSource(imagePath) ?? default!;
         }

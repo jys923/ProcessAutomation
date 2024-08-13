@@ -4,9 +4,10 @@ using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.ViewModels.Base;
+using System.Drawing;
 using System.Windows.Input;
 using System.Windows.Media;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using System.Windows.Media.Imaging;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -17,6 +18,8 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private PTRView _pTRView = default!;
+
+        private BitmapImage _defaultImg = default!;
 
         [ObservableProperty]
         private ImageSource _srcImg00 = default!;
@@ -93,32 +96,34 @@ namespace SonoCap.MES.UI.ViewModels
             Title = title;
             _pTRView = pTRView;
 
-            SrcImg00 = Utilities.GetFileToImageSource(PTRView.Test01.OriginalImg) ?? default!;
-            ResImg00 = Utilities.GetFileToImageSource(PTRView.Test01.ChangedImg) ?? default!;
+            _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
 
-            SrcImg01 = Utilities.GetFileToImageSource(PTRView.Test02.OriginalImg) ?? default!;
-            ResImg01 = Utilities.GetFileToImageSource(PTRView.Test02.ChangedImg) ?? default!;
+            SrcImg00 = Utilities.GetFileToImageSource(PTRView.Test01.OriginalImg) ?? _defaultImg;
+            ResImg00 = Utilities.GetFileToImageSource(PTRView.Test01.ChangedImg) ?? _defaultImg;
 
-            SrcImg02 = Utilities.GetFileToImageSource(PTRView.Test03.OriginalImg) ?? default!;
-            ResImg02 = Utilities.GetFileToImageSource(PTRView.Test03.ChangedImg) ?? default!;
+            SrcImg01 = Utilities.GetFileToImageSource(PTRView.Test02.OriginalImg) ?? _defaultImg;
+            ResImg01 = Utilities.GetFileToImageSource(PTRView.Test02.ChangedImg) ?? _defaultImg;
 
-            SrcImg10 = Utilities.GetFileToImageSource(PTRView.Test04.OriginalImg) ?? default!;
-            ResImg10 = Utilities.GetFileToImageSource(PTRView.Test04.ChangedImg) ?? default!;
+            SrcImg02 = Utilities.GetFileToImageSource(PTRView.Test03.OriginalImg) ?? _defaultImg;
+            ResImg02 = Utilities.GetFileToImageSource(PTRView.Test03.ChangedImg) ?? _defaultImg;
 
-            SrcImg11 = Utilities.GetFileToImageSource(PTRView.Test05.OriginalImg) ?? default!;
-            ResImg11 = Utilities.GetFileToImageSource(PTRView.Test05.ChangedImg) ?? default!;
+            SrcImg10 = Utilities.GetFileToImageSource(PTRView.Test04.OriginalImg) ?? _defaultImg;
+            ResImg10 = Utilities.GetFileToImageSource(PTRView.Test04.ChangedImg) ?? _defaultImg;
 
-            SrcImg12 = Utilities.GetFileToImageSource(PTRView.Test06.OriginalImg) ?? default!;
-            ResImg12 = Utilities.GetFileToImageSource(PTRView.Test06.ChangedImg) ?? default!;
+            SrcImg11 = Utilities.GetFileToImageSource(PTRView.Test05.OriginalImg) ?? _defaultImg;
+            ResImg11 = Utilities.GetFileToImageSource(PTRView.Test05.ChangedImg) ?? _defaultImg;
 
-            SrcImg20 = Utilities.GetFileToImageSource(PTRView.Test07?.OriginalImg ?? null ) ?? default!;
-            ResImg20 = Utilities.GetFileToImageSource(PTRView.Test07?.ChangedImg ?? null ) ?? default!;
+            SrcImg12 = Utilities.GetFileToImageSource(PTRView.Test06.OriginalImg) ?? _defaultImg;
+            ResImg12 = Utilities.GetFileToImageSource(PTRView.Test06.ChangedImg) ?? _defaultImg;
 
-            SrcImg21 = Utilities.GetFileToImageSource(PTRView.Test08?.OriginalImg ?? null ) ?? default!;
-            ResImg21 = Utilities.GetFileToImageSource(PTRView.Test08?.ChangedImg ?? null ) ?? default!;
+            SrcImg20 = Utilities.GetFileToImageSource(PTRView.Test07?.OriginalImg ?? null ) ?? _defaultImg;
+            ResImg20 = Utilities.GetFileToImageSource(PTRView.Test07?.ChangedImg ?? null ) ?? _defaultImg;
 
-            SrcImg22 = Utilities.GetFileToImageSource(PTRView.Test09?.OriginalImg ?? null) ?? default!;
-            ResImg22 = Utilities.GetFileToImageSource(PTRView.Test09?.ChangedImg ?? null) ?? default!;
+            SrcImg21 = Utilities.GetFileToImageSource(PTRView.Test08?.OriginalImg ?? null ) ?? _defaultImg;
+            ResImg21 = Utilities.GetFileToImageSource(PTRView.Test08?.ChangedImg ?? null ) ?? _defaultImg;
+
+            SrcImg22 = Utilities.GetFileToImageSource(PTRView.Test09?.OriginalImg ?? null) ?? _defaultImg;
+            ResImg22 = Utilities.GetFileToImageSource(PTRView.Test09?.ChangedImg ?? null) ?? _defaultImg;
         }
     }
 }

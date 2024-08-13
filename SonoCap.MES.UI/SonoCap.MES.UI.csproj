@@ -19,7 +19,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\sc_ori_img_512.bmp" />
+    <None Remove="Resources\logo.png" />
+    <None Remove="Resources\usImg.bmp" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,9 +56,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\sc_ori_img_512.bmp">
+    <EmbeddedResource Include="Resources\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\usImg.bmp">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -87,9 +91,6 @@
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Update="Resources\logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

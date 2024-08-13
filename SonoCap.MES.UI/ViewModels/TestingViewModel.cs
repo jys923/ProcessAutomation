@@ -419,7 +419,9 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private int _testResult = -2;
-        
+
+        private BitmapImage _defaultImg = default!;
+
         [ObservableProperty]
         private ImageSource _srcImg = default!;
 
@@ -1124,12 +1126,16 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -2;
             SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
 
+            _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
+
             // 이미지 파일 경로 설정
-            string imagePath = "/Resources/sc_ori_img_512.bmp";
+            string imagePath = "Resources/usImg.bmp";
 
             // 이미지 로드
-            SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-            ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+            //SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+            //ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
+            SrcImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
+            ResImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
         }
 
         private bool InitMotor()
