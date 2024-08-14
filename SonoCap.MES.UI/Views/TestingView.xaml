@@ -307,7 +307,7 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
-                <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}"/>
+                <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding ForcePassCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}"/>
 
                 <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
                     <Button.Style>
@@ -402,7 +402,7 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
-                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}"/>
+                <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding ForcePassCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}"/>
 
                 <Button Grid.Row="3" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
                     <Button.Style>
@@ -497,7 +497,7 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                 </Button>
-                <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}"/>
+                <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding ForcePassCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}"/>
             </Grid>
         </GroupBox>
         <Grid Grid.Row="2" VerticalAlignment="Top" ShowGridLines="true">

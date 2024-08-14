@@ -523,7 +523,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private async Task CellClickAsync(CellPositions position)
+        private void CellClick(CellPositions position)
         {
             _oldCell = position;
             int row = (int)position / 10;
@@ -557,18 +557,6 @@ namespace SonoCap.MES.UI.ViewModels
                 case CellPositions.Row1_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column3;
                     break;
-                case CellPositions.Row1_Column4:
-                    Log.Information($"click {CellPositions.Row1_Column4}");
-                    if(_transducer != null)
-                    {
-                        await ForceAllPassAsync(_testCategory);
-                    }
-                    else
-                    {
-                        ResLogs.Add("TD Sn 없음");
-                        //await ShowMessageAsync("TD Sn 없음");
-                    }
-                    break;
                 case CellPositions.Row2_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column1;
                     break;
@@ -578,17 +566,6 @@ namespace SonoCap.MES.UI.ViewModels
                 case CellPositions.Row2_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column3;
                     break;
-                case CellPositions.Row2_Column4:
-                    Log.Information($"click {CellPositions.Row2_Column4}");
-                    if (_transducerModule != null)
-                    {
-                        await ForceAllPassAsync(_testCategory);
-                    }
-                    else
-                    {
-                        ResLogs.Add("TDMd Sn 없음");
-                    }
-                    break;
                 case CellPositions.Row3_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column1;
                     break;
@@ -597,17 +574,6 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row3_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column3;
-                    break;
-                case CellPositions.Row3_Column4:
-                    Log.Information($"click {CellPositions.Row3_Column4}");
-                    if (_probe != null)
-                    {
-                        await ForceAllPassAsync(_testCategory);
-                    }
-                    else
-                    {
-                        ResLogs.Add("Probe Sn 없음");
-                    }
                     break;
                 default:
                     break;
@@ -629,9 +595,70 @@ namespace SonoCap.MES.UI.ViewModels
             //}
         }
 
+        [RelayCommand]
+        private async Task ForcePassAsync(CellPositions position)
+        {
+            Log.Information($"{nameof(ForcePassAsync)}");
+            switch (position)
+            {
+                case CellPositions.Row1_Column4:
+                    Log.Information($"click {CellPositions.Row1_Column4}");
+                    if (_transducer != null)
+                    {
+                        await ForceAllPassAsync(TestCategories.Processing);
+                    }
+                    else
+                    {
+                        ResLogs.Add("TD Sn 없음");
+                        //await ShowMessageAsync("TD Sn 없음");
+                    }
+                    break;
+                case CellPositions.Row2_Column4:
+                    Log.Information($"click {CellPositions.Row2_Column4}");
+                    if (_transducerModule != null)
+                    {
+                        await ForceAllPassAsync(TestCategories.Process);
+                    }
+                    else
+                    {
+                        ResLogs.Add("TDMd Sn 없음");
+                    }
+                    break;
+                case CellPositions.Row3_Column4:
+                    Log.Information($"click {CellPositions.Row3_Column4}");
+                    if (_probe != null)
+                    {
+                        await ForceAllPassAsync(TestCategories.Dispatch);
+                    }
+                    else
+                    {
+                        ResLogs.Add("Probe Sn 없음");
+                    }
+                    break;
+                default:
+                    break;
+            }
+            SrcImg = default!;
+            ResImg = default!;
+            TestResult = -2;
+            ValidationDict[nameof(TestResult)].IsEnabled = false;
+            OnTDSnChanged(TDSn);
+            TDSnIsPopupOpen = false;
+
+            // TestCommand의 CanExecute 상태를 갱신합니다.
+            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+
+            //if (TestCommand.CanExecute(null))
+            //{
+            //    await TestCommand.ExecuteAsync(null);
+            //}
+        }
+
+        //td tdmd probe 입력 값이 달라서 곤란
         private async Task ForceAllPassAsync(TestCategories testCategory)
         {
             //throw new NotImplementedException();
+            //검사하고 없는 것만 검사 데이터 추가
             Test insertTest = new Test
             {
                 TestCategoryId = (int)testCategory,
@@ -643,10 +670,58 @@ namespace SonoCap.MES.UI.ViewModels
 
             PrepareTest(testCategory, insertTest);
 
-            for (int i = 1; i <4; i++) 
+            IEnumerable<Test> testRes = new List<Test>();
+
+            switch (testCategory)
+            {
+                case TestCategories.Processing:
+                    testRes = _testRepository.GetLatestTests(transducer: _transducer);
+                    break;
+                case TestCategories.Process:
+                    testRes = _testRepository.GetLatestTests(transducerModule: _transducerModule);
+                    break;
+                case TestCategories.Dispatch:
+                    testRes = _testRepository.GetLatestTests(probe: _probe);
+                    break;
+                default:
+                    break;
+            }
+
+            int GetTestThreshold(TestCategories testCategory, int testType)
+            {
+                int aa = (int)testCategory * 10 + testType;
+                return App.TestThresholdDict[aa];
+            }
+
+            foreach (Test test in testRes) 
+            {
+                if (test.Result < GetTestThreshold(testCategory, test.TestTypeId))
+                {
+                    insertTest.Id = 0;
+                    insertTest.TestTypeId = test.TestTypeId;
+
+                    if (await SaveAsync(_testRepository, insertTest))
+                    {
+                        ResLogs.Add($"Fail > Pass test : {insertTest.ToString()}");
+                    }
+                }
+            }
+
+            var testList = testRes.ToList();
+
+            // 현재 존재하는 TestTypeId 확인
+            var existingTypes = testList.Select(t => t.TestTypeId).Distinct().ToList();
+
+            // 필요한 TestTypeId (예: 1, 2, 3)
+            var requiredTypes = new[] { 1, 2, 3 };
+
+            // 누락된 TestTypeId 찾기
+            List<int> missingTypes = requiredTypes.Except(existingTypes).ToList();
+
+            foreach (int type in missingTypes)
             {
                 insertTest.Id = 0;
-                insertTest.TestTypeId = i;
+                insertTest.TestTypeId = type;
 
                 if (await SaveAsync(_testRepository, insertTest))
                 {
