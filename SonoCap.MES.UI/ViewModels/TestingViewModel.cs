@@ -599,6 +599,12 @@ namespace SonoCap.MES.UI.ViewModels
         private async Task ForcePassAsync(CellPositions position)
         {
             Log.Information($"{nameof(ForcePassAsync)}");
+            bool proceed = Controls.MessageBox.Show("강제 검사", "강제 검사 실행?");
+            if (!proceed) 
+            {
+                ResLogs.Add("강제 검사 취소");
+                return; 
+            }
             switch (position)
             {
                 case CellPositions.Row1_Column4:

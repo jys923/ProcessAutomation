@@ -19,18 +19,9 @@ namespace SonoCap.MES.UI.Views
     /// </summary>
     public partial class MessageBoxView : Window
     {
-        private void MessageBoxView_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                DragMove();
-            }
-        }
-
         public MessageBoxView()
         {
             InitializeComponent();
-            MouseLeftButtonDown += MessageBoxView_MouseLeftButtonDown;
         }
     }
 }

@@ -1,54 +1,27 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using SonoCap.MES.Models.Enums;
+using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class MessageBoxViewModel : ObservableObject
-  {
-    [ObservableProperty]
-    private string _title = string.Empty;
-    [ObservableProperty]
-    private string _message = string.Empty;
-    [ObservableProperty]
-    private string _okText = string.Empty;
-    [ObservableProperty]
-    private string? _noText;
-    [ObservableProperty]
-    private string? _cancelText;
-
-    [ObservableProperty]
-    private Visibility _noVisibilty;
-    [ObservableProperty]
-    private Visibility _cancelVisibilty;
-
-    public MessageBoxExResult MessageBoxExResult { get; internal set; } = MessageBoxExResult.Cancel;
-
-    [RelayCommand]
-    private void Ok(Window window)
+    public partial class MessageBoxViewModel : ViewModelBase
     {
-      MessageBoxExResult = MessageBoxExResult.Ok;
-      window.DialogResult = true;
-    }
+        [ObservableProperty]
+        private string _title = string.Empty;
+        [ObservableProperty]
+        private string _prompt = string.Empty;
 
-    [RelayCommand]
-    private void No(Window window)
-    {
-      MessageBoxExResult = MessageBoxExResult.No;
-      window.DialogResult = false;
-    }
+        [RelayCommand]
+        private void Ok(Window window)
+        {
+            window.DialogResult = true;
+        }
 
-    public MessageBoxViewModel(string title, string message, string okText, string? noText, string? cancelText)
-    {
-      Title = title;
-      Message = message;
-      OkText = okText;
-      NoText = noText;
-      CancelText = cancelText;
-
-      NoVisibilty = string.IsNullOrEmpty(noText) ? Visibility.Collapsed : Visibility.Visible;
-      CancelVisibilty = string.IsNullOrEmpty(cancelText) ? Visibility.Collapsed : Visibility.Visible;
+        public MessageBoxViewModel(string title, string prompt)
+        {
+            Title = title;
+            Prompt = prompt;
+        }
     }
-  }
 }

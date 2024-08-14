@@ -48,6 +48,11 @@ namespace SonoCap.MES.Models
         [Required]
         public int Method { get; set; }
 
+        //public int? ComponentId { get; set; }
+
+        //[ForeignKey(nameof(ComponentId))]
+        //public virtual Component? Component { get; set; }
+
         public int? TransducerId { get; set; }
 
         [ForeignKey(nameof(TransducerId))] //lazy 로딩

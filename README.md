@@ -17,6 +17,7 @@ remove-migration
 - [ ] openGL research
 - [ ] cpp 빌드 과정
 - [ ] 한소노 lib에서 영상 직접 받기
+- [ ] tests table null 없게 조회시 퀴리가 복잡해짐
 - [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
@@ -31,7 +32,7 @@ remove-migration
 	- [ ] UserControl https://narup.tistory.com/68
 - [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
 - [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
-- [X] 이벤트 핸들러, 콜백 쓰는 방법
+- [X] 이벤트 핸들러, 콜백 쓰는 방법ㅋ
 - [X] mfc, wpf 통신 방법 소켓
 	- <a href="https://petra.tistory.com/613">cpp 소켓 프로그래밍</a>
 	- <a href="https://learn.microsoft.com/ko-kr/windows/win32/winsock/finished-server-and-client-code">cpp 소켓 프로그래밍</a>

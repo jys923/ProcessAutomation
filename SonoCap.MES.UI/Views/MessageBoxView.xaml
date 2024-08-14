@@ -5,76 +5,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
         mc:Ignorable="d"
+        xmlns:controls="clr-namespace:SonoCap.MES.UI.Controls"
+        xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
         WindowStyle="None"
-        Background="Transparent"
         AllowsTransparency="True"
-        SizeToContent="WidthAndHeight"
-        MinWidth="400"
-        MinHeight="200"
+        Background="Transparent"
         WindowStartupLocation="CenterScreen"
-        x:Name="root"
-        Title="MessageBoxView" Height="450" Width="800">
+        SizeToContent="WidthAndHeight"
+        MinWidth="300"
+        MinHeight="200"
+        Title="MessageBoxView" Height="200" Width="300">
     <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Themes/Generic.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="{x:Type Button}" BasedOn="{StaticResource MetroBlueButtonStyle}">
-                <Setter Property="FontSize" Value="15"/>
-                <Setter Property="Margin" Value="5"/>
-                <Setter Property="Width" Value="120"/>
-            </Style>
+        <DataTemplate DataType="{x:Type vm:MessageBoxViewModel}">
+            <controls:MessageBoxControl/>
+        </DataTemplate>
 
-            <Style TargetType="{x:Type TextBlock}">
-                <Setter Property="FontSize" Value="15"/>
-                <Setter Property="Margin" Value="10"/>
-            </Style>
-
-            <Style TargetType="{x:Type Label}">
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="Margin" Value="5"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-            </Style>
-        </ResourceDictionary>
+        <Style TargetType="{x:Type Label}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
     </Window.Resources>
+
     <Border CornerRadius="5" Background="White">
         <Grid Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition/>
-                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
 
             <Border CornerRadius="5 5 0 0" Background="RoyalBlue">
-                <Label Grid.Row="0"
-               Content="{Binding Title}"/>
+                <Label Grid.Row="0" Content="{Binding Title}" />
             </Border>
-
-            <TextBlock Grid.Row="1" Text="{Binding Message}"/>
-
-            <Grid Grid.Row="2" HorizontalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0"
-                IsDefault="True"
-                Content="{Binding OkText}"
-                Command="{Binding OkCommand}"
-                CommandParameter="{Binding ElementName=root}"/>
-                <Button Grid.Column="1"
-                Visibility="{Binding NoVisibilty}"
-                Content="{Binding NoText}"
-                Command="{Binding NoCommand}"
-                CommandParameter="{Binding ElementName=root}"/>
-                <Button Grid.Column="2"
-                IsCancel="True"
-                Visibility="{Binding CancelVisibilty}"
-                Content="{Binding CancelText}"
-                CommandParameter="{Binding ElementName=root}"/>
-            </Grid>
+            <ContentControl Grid.Row="1" Content="{Binding}"/>
         </Grid>
     </Border>
 </Window>
