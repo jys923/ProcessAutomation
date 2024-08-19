@@ -139,25 +139,31 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            IsBusy = true;
-            tests = await _testRepository.GetTestAsync(
-                StartDate,
-                EndDate,
-                TestCategory.Equals("ALL") ? null : TestCategories.IndexOf(TestCategory),
-                TestType.Equals("ALL") ? null : TestTypes.IndexOf(TestType),
-                Tester,
-                Pc.Equals("ALL") ? null : Pcs.IndexOf(Pc),
-                TestResult.Equals("ALL") ? null : TestResults.IndexOf(TestResult),
-                1,
-                ProbeSn,
-                TDMdSn,
-                TDSn,
-                MTMdSn,
-                null);
+            try
+            {
+                IsBusy = true;
+                tests = await _testRepository.GetTestAsync(
+                    StartDate,
+                    EndDate,
+                    TestCategory.Equals("ALL") ? null : TestCategories.IndexOf(TestCategory),
+                    TestType.Equals("ALL") ? null : TestTypes.IndexOf(TestType),
+                    Tester,
+                    Pc.Equals("ALL") ? null : Pcs.IndexOf(Pc),
+                    TestResult.Equals("ALL") ? null : TestResults.IndexOf(TestResult),
+                    1,
+                    ProbeSn,
+                    TDMdSn,
+                    TDSn,
+                    MTMdSn,
+                    null);
 
-            TestProbes = new ObservableCollection<TestProbe>(TestToTestProbe.ToList(tests));
-            ResultCnt = TestProbes.Count;
-            IsBusy = false;
+                TestProbes = new ObservableCollection<TestProbe>(TestToTestProbe.ToList(tests));
+                ResultCnt = TestProbes.Count;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand]

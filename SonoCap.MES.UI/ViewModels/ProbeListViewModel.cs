@@ -114,18 +114,24 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SearchAsync()
         {
-            IsBusy = true;
-            probes = await _pTRViewRepository.GetProbeTestResultLinqAsync2(
-                StartDate,
-                EndDate,
-                ProbeSn,
-                TDMdSn,
-                TDSn,
-                MTMdSn);
-            //Probes = new ObservableCollection<ProbeTestResult>(probes);
-            Probes = new ObservableCollection<ProbeTestResult>(PTRViewToProbeTestResult.ToList(probes));
-            ResultCnt = Probes.Count;
-            IsBusy = false;
+            try
+            {
+                IsBusy = true;
+                probes = await _pTRViewRepository.GetProbeTestResultLinqAsync2(
+                    StartDate,
+                    EndDate,
+                    ProbeSn,
+                    TDMdSn,
+                    TDSn,
+                    MTMdSn);
+                //Probes = new ObservableCollection<ProbeTestResult>(probes);
+                Probes = new ObservableCollection<ProbeTestResult>(PTRViewToProbeTestResult.ToList(probes));
+                ResultCnt = Probes.Count;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand]

@@ -7,10 +7,12 @@
         xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
         xmlns:Converter="clr-namespace:SonoCap.MES.UI.Converters"
         xmlns:Behavior="clr-namespace:SonoCap.MES.UI.Behaviors"
+        xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
         xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
+        d:DataContext="{d:DesignInstance Type={x:Type vm:ProbeListViewModel}}" 
         WindowState="Maximized"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type={x:Type vm:ProbeListViewModel}}" Title="{Binding Title}" Height="1080" Width="1920">
+        Title="{Binding Title}" Height="1080" Width="1920">
     <Window.Style>
         <Style TargetType="Window">
             <Setter Property="FontSize" Value="20" />
@@ -27,6 +29,7 @@
             </b:InvokeCommandAction>
         </b:EventTrigger>
     </b:Interaction.Triggers>
+    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding Path=IsBusy, UpdateSourceTrigger=PropertyChanged}" IndicatorType="Dashes" BusyContent="Please wait..." >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -143,4 +146,5 @@
             </StatusBarItem>
         </StatusBar>
     </Grid>
+    </busyIndicator:BusyMask>
 </Window>
