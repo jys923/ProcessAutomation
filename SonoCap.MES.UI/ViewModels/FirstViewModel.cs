@@ -72,19 +72,18 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private async Task ImportExcelAsync()
+        private async Task ImportTDExcelAsync()
         {
             IEnumerable<Transducer> tds = await _transducerRepository.GetAllAsync();
-            IEnumerable<MotorModule> mtMds = await _motorModuleRepository.GetAllAsync();
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
             openFileDialog.Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls";
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
                 // 이제 filePath를 사용하여 파일을 열 수 있습니다.
-                Log.Information($"Import {filePath}");
+                Log.Information($"Import : {filePath}");
 
-                Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn", "MTLot" });
+                Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn" });
 
                 // 결과 출력
                 foreach (var kvp in data)
@@ -124,6 +123,40 @@ namespace SonoCap.MES.UI.ViewModels
                         await _transducerRepository.BulkInsertAsync(transducers);
                     }
 
+                    string snList = string.Join(Environment.NewLine, transducers.Select(t => t.Sn));
+                    Controls.MessageBox.Show("Add TD Sn List", snList);
+                }
+            }
+        }
+
+        [RelayCommand]
+        private async Task ImportMTExcelAsync()
+        {
+            IEnumerable<MotorModule> mtMds = await _motorModuleRepository.GetAllAsync();
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+            openFileDialog.Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string filePath = openFileDialog.FileName;
+                // 이제 filePath를 사용하여 파일을 열 수 있습니다.
+                Log.Information($"Import : {filePath}");
+
+                Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "MTLot" });
+
+                // 결과 출력
+                foreach (var kvp in data)
+                {
+                    Log.Information($"헤더: {kvp.Key}");
+                    var sb = new System.Text.StringBuilder();
+                    foreach (var value in kvp.Value)
+                    {
+                        sb.Append($"{{{value.ToString()}}}" ?? "");
+                    }
+                    Log.Information($"값:{sb.ToString()}");
+                }
+
+                if (data.Count > 0)
+                {
                     List<SnDate> mtMdSns = data.ContainsKey("MTLot") ? data["MTLot"] : new List<SnDate>();
 
                     Utilities.RemoveDuplicateSnDates(ref mtMdSns);
@@ -145,6 +178,9 @@ namespace SonoCap.MES.UI.ViewModels
                     {
                         await _motorModuleRepository.BulkInsertAsync(motorModules);
                     }
+
+                    string snList = string.Join(Environment.NewLine, motorModules.Select(t => t.Sn));
+                    Controls.MessageBox.Show("Add MT Lot List", snList);
                 }
             }
         }
@@ -170,11 +206,10 @@ namespace SonoCap.MES.UI.ViewModels
             
             Title = this.GetType().Name;
 
-
             _defaultLogo = Utilities.LoadBitmapFromResource("logo.png");
 
             string imagePath = "Resources/logo.png";
-            Logo = Utilities.GetFileToImageSource(imagePath) ?? default!;
+            Logo = Utilities.GetFileToImageSource(imagePath) ?? _defaultLogo;
         }
     }
 

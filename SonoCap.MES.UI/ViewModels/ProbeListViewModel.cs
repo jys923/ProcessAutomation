@@ -8,6 +8,7 @@ using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -209,6 +210,26 @@ namespace SonoCap.MES.UI.ViewModels
             //db 조회
 
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
+        }
+
+        [RelayCommand]
+        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
+        {
+            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
+            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
+            if (key == Key.Enter)
+            {
+                // NextCommand CanExecute 상태를 갱신합니다.
+                //(SearchCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+
+                //// Next 메서드를 호출합니다.
+                //if (SearchCommand.CanExecute(null))
+                //{
+                //    await SearchCommand.ExecuteAsync(null);
+                //}
+
+                //await SearchAsync();
+            }
         }
     }
 }

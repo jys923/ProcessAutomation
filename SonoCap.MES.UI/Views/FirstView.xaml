@@ -19,7 +19,8 @@
         <Image Grid.Row="1" Source="{Binding Logo}"/>
         <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Bottom">
             <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Import Excel" FontSize="15" Margin="5" IsDefault="True" Command="{Binding ImportExcelCommand}" />
+                <Button Content="Import TD Excel" FontSize="15" Margin="5" IsDefault="True" Command="{Binding ImportTDExcelCommand}" />
+                <Button Content="Import MT Excel" FontSize="15" Margin="5" IsDefault="True" Command="{Binding ImportMTExcelCommand}" />
                 <Button Content="Add MasterData" FontSize="15" Margin="5" IsDefault="True" Command="{Binding AddMasterDataCommand}" />
             </StackPanel>
             <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Right">

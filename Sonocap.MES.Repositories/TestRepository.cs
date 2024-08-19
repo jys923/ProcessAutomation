@@ -37,10 +37,20 @@ namespace SonoCap.MES.Repositories
                  from td in tdGroup.DefaultIfEmpty()
                  join mm in _context.Set<MotorModule>() on p.MotorModuleId equals mm.Id into mmGroup
                  from mm in mmGroup.DefaultIfEmpty()
+                 join tt in _context.Set<TestType>() on t.TestTypeId equals tt.Id into ttGroup
+                 from tt in ttGroup.DefaultIfEmpty()
                  where t.DataFlag == 1
                     && t.Id < 100000
                     && (startDate == null || t.CreatedDate >= startDate)
                     && (endDate == null || t.CreatedDate <= endDate)
+                    && (categoryId == null || t.TestCategoryId == categoryId)
+                    && (testTypeId == null || t.TestTypeId == testTypeId)
+                    && (string.IsNullOrEmpty(tester) || p.Sn.Contains(tester))
+                    && (pcId == null || t.Tester.PcId == pcId)
+                    && (result == null ||
+                        (result == 1 && tt != null && t.Result >= tt.Threshold) ||
+                        (result != 1 && tt != null && t.Result < tt.Threshold))
+                    && (dataFlagTest == null || t.DataFlag == dataFlagTest)
                     && (string.IsNullOrEmpty(probeSn) || p.Sn.Contains(probeSn))
                     && (string.IsNullOrEmpty(transducerModuleSn) || tm.Sn.Contains(transducerModuleSn))
                     && (string.IsNullOrEmpty(transducerSn) || td.Sn.Contains(transducerSn))

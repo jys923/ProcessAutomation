@@ -3,10 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Converts;
-using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -143,12 +143,12 @@ namespace SonoCap.MES.UI.ViewModels
             tests = await _testRepository.GetTestAsync(
                 StartDate,
                 EndDate,
-                TestCategory.Equals("ALL") ? (int)Models.Enums.Commons.All : TestCategories.IndexOf(TestCategory),
-                TestType.Equals("ALL") ? (int)Models.Enums.Commons.All : TestTypes.IndexOf(TestType),
+                TestCategory.Equals("ALL") ? null : TestCategories.IndexOf(TestCategory),
+                TestType.Equals("ALL") ? null : TestTypes.IndexOf(TestType),
                 Tester,
-                Pc.Equals("ALL") ? CommonValues.All : Pcs.IndexOf(Pc),
-                TestResult.Equals("ALL") ? (int)Models.Enums.Commons.All : TestResults.IndexOf(TestResult),
-                null,
+                Pc.Equals("ALL") ? null : Pcs.IndexOf(Pc),
+                TestResult.Equals("ALL") ? null : TestResults.IndexOf(TestResult),
+                1,
                 ProbeSn,
                 TDMdSn,
                 TDSn,
@@ -253,6 +253,26 @@ namespace SonoCap.MES.UI.ViewModels
             //TestProbes = new ObservableCollection<TestProbe>();
 
             //Probes.Add(new Probe { ProbeSn = ProbeSn, });
+        }
+
+        [RelayCommand]
+        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
+        {
+           Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
+            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
+            if (key == Key.Enter)
+            {
+                //// NextCommand CanExecute 상태를 갱신합니다.
+                //(SearchCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+
+                //// Next 메서드를 호출합니다.
+                //if (SearchCommand.CanExecute(null))
+                //{
+                //    await SearchCommand.ExecuteAsync(null);
+                //}
+
+                //await SearchAsync();
+            }
         }
     }
 }
