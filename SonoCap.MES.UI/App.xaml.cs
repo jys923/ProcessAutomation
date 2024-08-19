@@ -75,8 +75,7 @@ namespace SonoCap.MES.UI
             RegisterRepositories(services);
             RegisterViewModels(services);
             RegisterViews(services);
-            RegisterDynamicProxies(services);
-            services.AddSingleton<IViewService, ViewService>();
+            //RegisterDynamicProxies(services);
 
             return services.BuildServiceProvider();
         }
@@ -118,6 +117,7 @@ namespace SonoCap.MES.UI
             services.AddTransient<ISocketService, SocketService>();
             services.AddTransient<IExcelService, ExcelService>();
             services.AddTransient<MotorService>();
+            services.AddSingleton<IViewService, ViewService>();
         }
 
         private static void RegisterRepositories(IServiceCollection services)
