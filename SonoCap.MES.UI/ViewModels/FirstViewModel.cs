@@ -249,6 +249,116 @@ namespace SonoCap.MES.UI.ViewModels
             string imagePath = "Resources/logo.png";
             Logo = Utilities.GetFileToImageSource(imagePath) ?? _defaultLogo;
         }
-    }
 
+        //private async Task ImportExcelDataAsync<T>(
+        //    Func<Task<IEnumerable<T>>> getAllEntitiesAsync,
+        //    Func<IEnumerable<SnDate>, IEnumerable<T>, IEnumerable<T>> filterEntities,
+        //    Func<IEnumerable<T>, Task> bulkInsertAsync,
+        //    string headerName,
+        //    string messageBoxTitle,
+        //    Func<IEnumerable<T>, string> generateSnList)
+        //{
+        //    IEnumerable<T> allEntities = await getAllEntitiesAsync();
+        //    Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog
+        //    {
+        //        Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls"
+        //    };
+
+        //    if (openFileDialog.ShowDialog() == true)
+        //    {
+        //        string filePath = openFileDialog.FileName;
+        //        Log.Information($"Import : {filePath}");
+
+        //        try
+        //        {
+        //            Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { headerName });
+
+        //            // 결과 출력
+        //            foreach (var kvp in data)
+        //            {
+        //                Log.Information($"헤더: {kvp.Key}");
+        //                var sb = new System.Text.StringBuilder();
+        //                foreach (var value in kvp.Value)
+        //                {
+        //                    sb.Append($"{{{value.ToString()}}}" ?? "");
+        //                }
+        //                Log.Information($"값:{sb.ToString()}");
+        //            }
+
+        //            if (data.Count > 0)
+        //            {
+        //                List<SnDate> snDates = data.ContainsKey(headerName) ? data[headerName] : new List<SnDate>();
+
+        //                Utilities.RemoveDuplicateSnDates(ref snDates);
+
+        //                // 필터링 및 중복 제거
+        //                IEnumerable<T> filteredEntities = filterEntities(snDates, allEntities);
+
+        //                if (filteredEntities.Any())
+        //                {
+        //                    await bulkInsertAsync(filteredEntities);
+
+        //                    string snList = generateSnList(filteredEntities);
+        //                    Controls.MessageBox.Show(messageBoxTitle, string.IsNullOrEmpty(snList) ? "Nothing new has been added." : snList);
+        //                }
+        //                else
+        //                {
+        //                    Controls.MessageBox.Show(messageBoxTitle, "Nothing new has been added.");
+        //                }
+        //            }
+        //        }
+        //        catch (ArgumentException ex)
+        //        {
+        //            // 파일이 유효하지 않거나 헤더를 찾을 수 없을 때 예외 처리
+        //            Log.Error($"예외 발생: {ex.Message}");
+        //            Controls.MessageBox.Show("Error", $"{ex.Message}");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            // 일반적인 예외 처리
+        //            Log.Error($"예외 발생: {ex.Message}");
+        //            Controls.MessageBox.Show("Error", $"{ex.Message}");
+        //        }
+        //    }
+        //}
+
+        //[RelayCommand]
+        //private async Task ImportTDExcelAsync()
+        //{
+        //    await ImportExcelDataAsync<Transducer>(
+        //        getAllEntitiesAsync: () => _transducerRepository.GetAllAsync(),
+        //        filterEntities: (snDates, allEntities) => snDates
+        //            .Where(tdSn => !allEntities.Any(td => td.Sn == tdSn.Sn))
+        //            .Select(td => new Transducer
+        //            {
+        //                Sn = td.Sn,
+        //                TransducerTypeId = 1,
+        //                CreatedDate = td.Date,
+        //            }),
+        //        bulkInsertAsync: entities => _transducerRepository.BulkInsertAsync(entities.Cast<Transducer>()),
+        //        headerName: "TDSn",
+        //        messageBoxTitle: "Add TD Sn List",
+        //        generateSnList: entities => string.Join(Environment.NewLine, entities.Cast<Transducer>().Select(t => t.Sn))
+        //    );
+        //}
+
+        //[RelayCommand]
+        //private async Task ImportMTExcelAsync()
+        //{
+        //    await ImportExcelDataAsync<MotorModule>(
+        //        getAllEntitiesAsync: () => _motorModuleRepository.GetAllAsync(),
+        //        filterEntities: (snDates, allEntities) => snDates
+        //            .Where(mtMd => !allEntities.Any(mt => mt.Sn == mtMd.Sn))
+        //            .Select(mt => new MotorModule
+        //            {
+        //                Sn = mt.Sn,
+        //                CreatedDate = mt.Date,
+        //            }),
+        //        bulkInsertAsync: entities => _motorModuleRepository.BulkInsertAsync(entities.Cast<MotorModule>()),
+        //        headerName: "MTLot",
+        //        messageBoxTitle: "Add MT Lot List",
+        //        generateSnList: entities => $"Total : {entities.Count()}\n" + string.Join(Environment.NewLine, entities.Cast<MotorModule>().Select(t => t.Sn))
+        //    );
+        //}
+    }
 }
