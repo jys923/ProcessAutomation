@@ -1,82 +1,85 @@
 ﻿#include <windows.h>
 #include <gl/glut.h>
+#include <stdio.h>
 void DoDisplay();
-void DoMenu(int value);
-BOOLEAN bAlias;
-BOOLEAN bHint;
+void DoKeyboard(unsigned char key, int x, int y);
+void DoSpecial(int key, int x, int y);
+void DoMouse(int button, int state, int x, int y);
+const GLfloat size = 0.2;
+const GLfloat step = 0.01;
+GLfloat nx, ny;
+GLboolean bGray = GL_FALSE;
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
     , LPSTR lpszCmdParam, int nCmdShow)
 {
     glutInit(&__argc, __argv);
     glutCreateWindow("OpenGL");
     glutDisplayFunc(DoDisplay);
-    glutCreateMenu(DoMenu);
-    glutAddMenuEntry("Alias ON", 1);
-    glutAddMenuEntry("Alias OFF", 2);
-    glutAddMenuEntry("Hint ON", 3);
-    glutAddMenuEntry("Hint OFF", 4);
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
+    glutKeyboardFunc(DoKeyboard);
+    glutSpecialFunc(DoSpecial);
+    glutMouseFunc(DoMouse);
     glutMainLoop();
     return 0;
 }
-void DoMenu(int value)
+void DoKeyboard(unsigned char key, int x, int y)
 {
-    switch (value) {
-    case 1:
-        bAlias = TRUE;
+    switch (key) {
+    case 'r':
+    case 'R':
+        glClearColor(1.0, 0.0, 0.0, 1.0);
         break;
-    case 2:
-        bAlias = FALSE;
+    case 'g':
+    case 'G':
+        glClearColor(0.0, 1.0, 0.0, 1.0);
         break;
-    case 3:
-        bHint = TRUE;
-        break;
-    case 4:
-        bHint = FALSE;
+    case 'b':
+    case 'B':
+        glClearColor(0.0, 0.0, 1.0, 1.0);
         break;
     }
     glutPostRedisplay();
 }
+void DoSpecial(int key, int x, int y)
+{
+    switch (key) {
+    case GLUT_KEY_LEFT:
+        nx -= step;
+        break;
+    case GLUT_KEY_RIGHT:
+        nx += step;
+        break;
+    case GLUT_KEY_UP:
+        ny += step;
+        break;
+    case GLUT_KEY_DOWN:
+        ny -= step;
+        break;
+    }
+    char info[128];
+    sprintf_s(info, "x=%.2f, y=%.2f", nx, ny);
+    glutSetWindowTitle(info);
+    glutPostRedisplay();
+}
+void DoMouse(int button, int state, int x, int y)
+{
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        bGray = !bGray;
+        glutPostRedisplay();
+    }
+}
 void DoDisplay()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    // 블랜딩이 켜져 있어야 알리아싱이 제대로 된다.
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // 안티 알리아싱 on, off
-    if (bAlias) {
-        glEnable(GL_POINT_SMOOTH);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_POLYGON_SMOOTH);
+    if (bGray) {
+        glColor3f(0.5, 0.5, 0.5);
     }
     else {
-        glDisable(GL_POINT_SMOOTH);
-        glDisable(GL_LINE_SMOOTH);
-        glDisable(GL_POLYGON_SMOOTH);
+        glColor3f(1.0, 1.0, 1.0);
     }
-    // 고품질 출력을 위한 힌트
-    glHint(GL_POINT_SMOOTH_HINT, bHint ? GL_NICEST : GL_FASTEST);
-    glHint(GL_LINE_SMOOTH_HINT, bHint ? GL_NICEST : GL_FASTEST);
-    glHint(GL_POLYGON_SMOOTH_HINT, bHint ? GL_NICEST : GL_FASTEST);
-    glPointSize(10.0);
-    glColor3f(1, 1, 1);
-    glBegin(GL_POINTS);
-    glVertex2f(0.0, 0.8);
-    glEnd();
-    glLineWidth(5);
-    glBegin(GL_LINE_STRIP);
-    glVertex2f(-0.8, 0.7);
-    glVertex2f(0.8, 0.5);
-    glEnd();
     glBegin(GL_POLYGON);
-    glColor3f(1, 0, 0);
-    glVertex2f(0.0, 0.4);
-    glColor3f(0, 1, 0);
-    glVertex2f(-0.4, 0.0);
-    glColor3f(0, 0, 1);
-    glVertex2f(0.0, -0.4);
-    glColor3f(1, 1, 0);
-    glVertex2f(0.4, 0.0);
+    glVertex2f(nx, ny + size);
+    glVertex2f(nx - size, ny - size);
+    glVertex2f(nx + size, ny - size);
     glEnd();
     glFlush();
 }
