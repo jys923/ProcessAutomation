@@ -77,54 +77,76 @@ namespace SonoCap.MES.UI.ViewModels
             IEnumerable<Transducer> tds = await _transducerRepository.GetAllAsync();
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
             openFileDialog.Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls";
+
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
-                // 이제 filePath를 사용하여 파일을 열 수 있습니다.
                 Log.Information($"Import : {filePath}");
 
-                Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn" });
-
-                // 결과 출력
-                foreach (var kvp in data)
+                try
                 {
-                    Log.Information($"헤더: {kvp.Key}");
-                    var sb = new System.Text.StringBuilder();
-                    foreach (var value in kvp.Value)
+                    Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "TDSn" });
+
+                    // 결과 출력
+                    foreach (var kvp in data)
                     {
-                        sb.Append($"{{{value.ToString()}}}" ?? "");
-                    }
-                    Log.Information($"값:{sb.ToString()}");
-                }
-
-                if (data.Count > 0)
-                {
-                    List<SnDate> tdSns = data.ContainsKey("TDSn") ? data["TDSn"] : new List<SnDate>();
-
-                    Utilities.RemoveDuplicateSnDates(ref tdSns);
-
-                    tdSns.RemoveAll(tdSn => tds.Any(td => td.Sn == tdSn.Sn));
-
-                    List<Transducer> transducers = new List<Transducer>();
-
-                    for (int i = 0; i < tdSns.Count; i++)
-                    {
-                        Transducer transducer = new()
+                        Log.Information($"헤더: {kvp.Key}");
+                        var sb = new System.Text.StringBuilder();
+                        foreach (var value in kvp.Value)
                         {
-                            Sn = tdSns[i].Sn,
-                            TransducerTypeId = 1,
-                            CreatedDate = tdSns[i].Date,
-                        };
-                        transducers.Add(transducer);
+                            sb.Append($"{{{value.ToString()}}}" ?? "");
+                        }
+                        Log.Information($"값:{sb.ToString()}");
                     }
 
-                    if (transducers.Count > 0)
+                    if (data.Count > 0)
                     {
-                        await _transducerRepository.BulkInsertAsync(transducers);
-                    }
+                        List<SnDate> tdSns = data.ContainsKey("TDSn") ? data["TDSn"] : new List<SnDate>();
 
-                    string snList = string.Join(Environment.NewLine, transducers.Select(t => t.Sn));
-                    Controls.MessageBox.Show("Add TD Sn List", snList);
+                        Utilities.RemoveDuplicateSnDates(ref tdSns);
+
+                        // 중복된 항목 제거
+                        tdSns.RemoveAll(tdSn => tds.Any(td => td.Sn == tdSn.Sn));
+
+                        List<Transducer> transducers = new List<Transducer>();
+
+                        foreach (var td in tdSns)
+                        {
+                            Transducer transducer = new()
+                            {
+                                Sn = td.Sn,
+                                TransducerTypeId = 1,
+                                CreatedDate = td.Date,
+                            };
+                            transducers.Add(transducer);
+                        }
+
+                        if (transducers.Count > 0)
+                        {
+                            await _transducerRepository.BulkInsertAsync(transducers);
+                        }
+
+                        string snList = string.Empty;
+
+                        if (transducers.Count > 0)
+                        {
+                            snList = $"Total : {transducers.Count}\n" + string.Join(Environment.NewLine, transducers.Select(t => t.Sn));
+                        }
+
+                        Controls.MessageBox.Show("Add TD Sn List", string.IsNullOrEmpty(snList) ? "Nothing new has been added." : snList);
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    // 파일이 유효하지 않거나 헤더를 찾을 수 없을 때 예외 처리
+                    Log.Error($"예외 발생: {ex.Message}");
+                    Controls.MessageBox.Show("Error", $"{ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    // 일반적인 예외 처리
+                    Log.Error($"예외 발생: {ex.Message}");
+                    Controls.MessageBox.Show("Error", $"{ex.Message}");
                 }
             }
         }
@@ -141,46 +163,62 @@ namespace SonoCap.MES.UI.ViewModels
                 // 이제 filePath를 사용하여 파일을 열 수 있습니다.
                 Log.Information($"Import : {filePath}");
 
-                Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "MTLot" });
-
-                // 결과 출력
-                foreach (var kvp in data)
+                try
                 {
-                    Log.Information($"헤더: {kvp.Key}");
-                    var sb = new System.Text.StringBuilder();
-                    foreach (var value in kvp.Value)
+                    Dictionary<string, List<SnDate>> data = _excelService.ReadColumnsDataByHeaders(filePath, new List<string> { "MTLot" });
+
+                    // 결과 출력
+                    foreach (var kvp in data)
                     {
-                        sb.Append($"{{{value.ToString()}}}" ?? "");
-                    }
-                    Log.Information($"값:{sb.ToString()}");
-                }
-
-                if (data.Count > 0)
-                {
-                    List<SnDate> mtMdSns = data.ContainsKey("MTLot") ? data["MTLot"] : new List<SnDate>();
-
-                    Utilities.RemoveDuplicateSnDates(ref mtMdSns);
-                    mtMdSns.RemoveAll(mtMd => mtMds.Any(mt => mt.Sn == mtMd.Sn));
-
-                    List<MotorModule> motorModules = new List<MotorModule>();
-
-                    for (int i = 0; i < mtMdSns.Count; i++)
-                    {
-                        MotorModule motor = new()
+                        Log.Information($"헤더: {kvp.Key}");
+                        var sb = new System.Text.StringBuilder();
+                        foreach (var value in kvp.Value)
                         {
-                            Sn = mtMdSns[i].Sn,
-                            CreatedDate = mtMdSns[i].Date,
-                        };
-                        motorModules.Add(motor);
+                            sb.Append($"{{{value.ToString()}}}" ?? "");
+                        }
+                        Log.Information($"값:{sb.ToString()}");
                     }
 
-                    if (motorModules.Count > 0)
+                    if (data.Count > 0)
                     {
-                        await _motorModuleRepository.BulkInsertAsync(motorModules);
-                    }
+                        List<SnDate> mtMdSns = data.ContainsKey("MTLot") ? data["MTLot"] : new List<SnDate>();
 
-                    string snList = string.Join(Environment.NewLine, motorModules.Select(t => t.Sn));
-                    Controls.MessageBox.Show("Add MT Lot List", snList);
+                        Utilities.RemoveDuplicateSnDates(ref mtMdSns);
+                        mtMdSns.RemoveAll(mtMd => mtMds.Any(mt => mt.Sn == mtMd.Sn));
+
+                        List<MotorModule> motorModules = new List<MotorModule>();
+
+                        for (int i = 0; i < mtMdSns.Count; i++)
+                        {
+                            MotorModule motor = new()
+                            {
+                                Sn = mtMdSns[i].Sn,
+                                CreatedDate = mtMdSns[i].Date,
+                            };
+                            motorModules.Add(motor);
+                        }
+
+                        string snList = string.Empty;
+
+                        if (motorModules.Count > 0)
+                        {
+                            await _motorModuleRepository.BulkInsertAsync(motorModules);
+                            snList = $"Total : {motorModules.Count}\n" + string.Join(Environment.NewLine, motorModules.Select(t => t.Sn));
+                        }
+                        Controls.MessageBox.Show("Add MT Lot List", string.IsNullOrEmpty(snList) ? "Nothing new has been added." : snList);
+                    }
+                }
+                catch (ArgumentException ex)
+                {
+                    // 파일이 유효하지 않거나 헤더를 찾을 수 없을 때 예외 처리
+                    Log.Error($"예외 발생: {ex.Message}");
+                    Controls.MessageBox.Show("Error", $"{ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    // 일반적인 예외 처리
+                    Log.Error($"예외 발생: {ex.Message}");
+                    Controls.MessageBox.Show("Error", $"{ex.Message}");
                 }
             }
         }

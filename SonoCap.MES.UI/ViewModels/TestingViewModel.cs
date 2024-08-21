@@ -523,7 +523,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private void CellClick(CellPositions position)
+        private async Task CellClickAsync(CellPositions position)
         {
             _oldCell = position;
             int row = (int)position / 10;
@@ -589,10 +589,10 @@ namespace SonoCap.MES.UI.ViewModels
             // TestCommand의 CanExecute 상태를 갱신합니다.
             (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
 
-            //if (TestCommand.CanExecute(null))
-            //{
-            //    await TestCommand.ExecuteAsync(null);
-            //}
+            if (TestCommand.CanExecute(null))
+            {
+                await TestCommand.ExecuteAsync(null);
+            }
         }
 
         [RelayCommand]
@@ -1421,7 +1421,6 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         // DB 관련
-
         private void SetBySn(SnType snType, string sn)// => snType switch
         {
             var query = _pTRViewRepository.GetQueryable();
@@ -1560,92 +1559,6 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private async Task<bool> PassTestCategoryAsync2(ITestRepository testRepository, TestCategories testCategory, int id)
-        {
-            IQueryable<Test> query;
-            Test latestTest;
-
-            switch (testCategory)
-            {
-                case TestCategories.Processing:
-                    for (int i = 1; i < 4; i++)
-                    {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.TransducerId == id &&
-                                      tests.TestCategoryId == 1 &&
-                                      tests.TestTypeId == i
-                                      //tests.Result > App.TestThresholdDict[10 + i]
-                                orderby tests.Id descending
-                                select tests;
-
-                        // Get the test with the highest Id or null if none exists
-                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
-
-                        if (latestTest.Id == 0)
-                        {
-                            return false;
-                        }
-
-                        if (latestTest.Result < App.TestThresholdDict[10 + i])
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                case TestCategories.Process:
-                    for (int i = 1; i < 4; i++)
-                    {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.TransducerModuleId == id &&
-                                      tests.TestCategoryId == 2 &&
-                                      tests.TestTypeId == i
-                                      //tests.Result > App.TestThresholdDict[20 + i]
-                                orderby tests.Id descending
-                                select tests;
-
-                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
-
-                        if (latestTest.Id == 0)
-                        {
-                            return false;
-                        }
-                        if (latestTest.Result < App.TestThresholdDict[20 + i])
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                case TestCategories.Dispatch:
-                    for (int i = 1; i < 4; i++)
-                    {
-                        query = from tests in _testRepository.GetQueryable()
-                                where tests.ProbeId == id &&
-                                      tests.TestCategoryId == 3 &&
-                                      tests.TestTypeId == i
-                                      //tests.Result > App.TestThresholdDict[30 + i]
-                                orderby tests.Id descending
-                                select tests;
-
-                        latestTest = await query.FirstOrDefaultAsync() ?? new Test();
-
-                        if (latestTest.Id == 0)
-                        {
-                            return false;
-                        }
-                        if (latestTest.Result < App.TestThresholdDict[30 + i])
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-
-                default:
-                    return false;
-            }
-        }
-
         // Save 메서드
         private async Task<bool> SaveAsync(ITestRepository testRepository, Test insertTest)
         {
@@ -1686,26 +1599,6 @@ namespace SonoCap.MES.UI.ViewModels
             return query.ToList();
         }
 
-        private bool IsIdUsedInRepository<T>(IRepositoryBase<T> repository, string idFieldName, int id) where T : class
-        {
-            var query = repository.GetQueryable();
-            query = from item in query
-                    where (int)item.GetType().GetProperty(idFieldName).GetValue(item) == id
-                    select item;
-
-            return query.Any();
-        }
-
-        private T? GetEntityIfIdUsedInRepository<T>(IRepositoryBase<T> repository, string idFieldName, int id) where T : class
-        {
-            var query = repository.GetQueryable();
-            query = from item in query
-                    where (int)item.GetType().GetProperty(idFieldName).GetValue(item) == id
-                    select item;
-
-            return query.FirstOrDefault() as T;
-        }
-        
         private void PrepareTest(TestCategories testCategory, Test insertTest)
         {
             switch (testCategory)
