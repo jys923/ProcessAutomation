@@ -17,7 +17,7 @@ remove-migration
 - [ ] openGL research
 - [ ] cpp 빌드 과정
 - [ ] 한소노 lib에서 영상 직접 받기
-- [ ] tests table null 없게 조회시 퀴리가 복잡해짐
+- [ ] tests table null 없게 바꾸기 조회시 퀴리가 복잡해짐
 - [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
