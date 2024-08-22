@@ -1,65 +1,34 @@
 ﻿#include <windows.h>
 #include <gl/glut.h>
-#include <stdio.h>
 void DoDisplay();
-void DoKeyboard(unsigned char key, int x, int y);
-GLfloat xAngle, yAngle, zAngle;
+int dl;
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
-	, LPSTR lpszCmdParam, int nCmdShow)
+    , LPSTR lpszCmdParam, int nCmdShow)
 {
-	glutInit(&__argc, __argv);
-	glutCreateWindow("OpenGL");
-	glutDisplayFunc(DoDisplay);
-	glutKeyboardFunc(DoKeyboard);
-	glutMainLoop();
-	return 0;
-}
-void DoKeyboard(unsigned char key, int x, int y)
-{
-	switch (key) {
-	case 'a':yAngle += 2; break;
-	case 'd':yAngle -= 2; break;
-	case 'w':xAngle += 2; break;
-	case 's':xAngle -= 2; break;
-	case 'q':zAngle += 2; break;
-	case 'e':zAngle -= 2; break;
-	case 'z':xAngle = yAngle = zAngle = 0.0; break;
-	}
-	char info[128];
-	sprintf_s(info, "x=%.1f, y=%.1f, z=%.1f", xAngle, yAngle, zAngle);
-	glutSetWindowTitle(info);
-	glutPostRedisplay();
+    glutInit(&__argc, __argv);
+    glutCreateWindow("OpenGL");
+    dl = glGenLists(1);
+    glNewList(dl, GL_COMPILE);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(0.0, 0.2);
+    glVertex2f(-0.2, -0.2);
+    glVertex2f(0.2, -0.2);
+    glEnd();
+    glEndList();
+    glutDisplayFunc(DoDisplay);
+    glutMainLoop();
+    return 0;
 }
 void DoDisplay()
 {
-    static GLfloat vertcolor[] = {
-         1,1,1,  0, 0, -0.8,          // 중앙
-         0,0,1,  0.5, 0.5, 0,    // 우상
-         1,0,0,  -0.5, 0.5, 0,   // 좌상
-         1,1,0,  -0.5, -0.5, 0,  // 좌하
-         0,1,0,  0.5, -0.5, 0,   // 우하
-    };
-    static GLubyte index[] = {
-         0, 1, 2,              //12시
-         0, 2, 3,              // 9시
-         0, 3, 4,              // 6시
-         0, 4, 1,              // 3시
-    };
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_FLAT);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glRotatef(xAngle, 1.0f, 0.0f, 0.0f);
-    glRotatef(yAngle, 0.0f, 1.0f, 0.0f);
-    glRotatef(zAngle, 0.0f, 0.0f, 1.0f);
-    glColor3f(1, 1, 1);
-    glRectf(-0.5, 0.5, 0.5, -0.5);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, sizeof(GLfloat) * 6, &vertcolor[3]);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(3, GL_FLOAT, sizeof(GLfloat) * 6, &vertcolor[0]);
-    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_BYTE, index);
-    glPopMatrix();
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1, 0, 0);
+    glCallList(dl);
+    glTranslatef(0.2, 0.0, 0.0);
+    glColor3f(0, 1, 0);
+    glCallList(dl);
+    glTranslatef(0.2, 0.0, 0.0);
+    glColor3f(0, 0, 1);
+    glCallList(dl);
     glFlush();
 }
