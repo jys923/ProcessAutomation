@@ -1,268 +1,124 @@
-﻿#include <windows.h>
-#include <gl/glut.h>
+﻿#include <GL/glut.h>
 
-void DoDisplay();
-void DoMenu(int value);
-int Action;
+// 카메라 파라미터
+GLfloat eyeX = 0.0f, eyeY = 0.0f, eyeZ = 5.0f;
+GLfloat centerX = 0.0f, centerY = 0.0f, centerZ = 0.0f;
+GLfloat upX = 0.0f, upY = 1.0f, upZ = 0.0f;
+
+// 카메라 설정 함수
+void setupCamera() {
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(eyeX, eyeY, eyeZ,  // 카메라 위치
+        centerX, centerY, centerZ, // 카메라가 바라보는 점
+        upX, upY, upZ); // 업 벡터
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setupCamera();  // 카메라 설정
+    glutWireTeapot(0.3);  // 와이어프레임 찻주전자를 그리기
+    glFlush();
+}
+
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, (GLfloat)w / (GLfloat)h, 1.0, 100.0);  // 원근 투영 설정
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    GLfloat step = 0.1f; // 카메라 이동 스텝
+
+    switch (key) {
+        // 카메라 위치 조절
+    case 'w': // 카메라를 앞쪽으로 이동
+        eyeZ -= step;
+        break;
+    case 's': // 카메라를 뒤쪽으로 이동
+        eyeZ += step;
+        break;
+    case 'a': // 카메라를 왼쪽으로 이동
+        eyeX -= step;
+        break;
+    case 'd': // 카메라를 오른쪽으로 이동
+        eyeX += step;
+        break;
+    case 'r': // 카메라를 위쪽으로 이동
+        eyeY += step;
+        break;
+    case 'f': // 카메라를 아래쪽으로 이동
+        eyeY -= step;
+        break;
+        // 카메라 시점 조절
+    case 'i': // 카메라의 시점을 앞쪽으로 이동
+        centerZ -= step;
+        break;
+    case 'k': // 카메라의 시점을 뒤쪽으로 이동
+        centerZ += step;
+        break;
+    case 'j': // 카메라의 시점을 왼쪽으로 이동
+        centerX -= step;
+        break;
+    case 'l': // 카메라의 시점을 오른쪽으로 이동
+        centerX += step;
+        break;
+    case 'u': // 카메라의 시점을 위쪽으로 이동
+        centerY += step;
+        break;
+    case 'n': // 카메라의 시점을 아래쪽으로 이동
+        centerY -= step;
+        break;
+        // 업 벡터 조절
+    case 'o': // 업 벡터의 Y 값을 증가
+        upY += step;
+        break;
+    case 'p': // 업 벡터의 Y 값을 감소
+        upY -= step;
+        break;
+    case 'm': // 업 벡터의 X 값을 증가
+        upX += step;
+        break;
+    case ',': // 업 벡터의 X 값을 감소
+        upX -= step;
+        break;
+    case '.': // 업 벡터의 Z 값을 증가
+        upZ += step;
+        break;
+    case '/': // 업 벡터의 Z 값을 감소
+        upZ -= step;
+        break;
+        // 원점으로 돌아가기
+    case '0': // 카메라 위치와 시점을 원점으로 리셋
+        eyeX = 0.0f; eyeY = 0.0f; eyeZ = 5.0f;
+        centerX = 0.0f; centerY = 0.0f; centerZ = 0.0f;
+        upX = 0.0f; upY = 1.0f; upZ = 0.0f;
+        break;
+    case 27: // ESC 키를 눌러서 종료
+        exit(0);
+        break;
+    }
+
+    glutPostRedisplay(); // 화면을 다시 그립니다
+}
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
-	, LPSTR lpszCmdParam, int nCmdShow)
+    , LPSTR lpszCmdParam, int nCmdShow)
 {
-	glutInit(&__argc, __argv);
-	glutCreateWindow("OpenGL");
-	glutDisplayFunc(DoDisplay);
-	glutCreateMenu(DoMenu);
-	glutAddMenuEntry("변환 없음", 0);
-	glutAddMenuEntry("이동", 1);
-	glutAddMenuEntry("엉뚱한 위치에 나타나는 이동", 2);
-	glutAddMenuEntry("단위 행렬로 리셋", 3);
-	glutAddMenuEntry("스택에 저장 및 복구", 4);
-	glutAddMenuEntry("확대", 5);
-	glutAddMenuEntry("뒤집기", 6);
-	glutAddMenuEntry("x축 기준 회전", 7);
-	glutAddMenuEntry("y축 기준 회전", 8);
-	glutAddMenuEntry("z축 기준 회전", 9);
-	glutAddMenuEntry("확대 후 이동", 10);
-	glutAddMenuEntry("이동 후 확대", 11);
-	glutAddMenuEntry("원점 기준 회전", 12);
-	glutAddMenuEntry("제자리 회전", 13);
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
-	glutMainLoop();
-	return 0;
+    glutInit(&__argc, __argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("GLU LookAt with Keyboard Controls");
+
+    glEnable(GL_DEPTH_TEST);
+
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard); // 키보드 입력 처리 함수 등록
+
+    glutMainLoop();
+
+    return 0;
 }
-
-void DoMenu(int value)
-{
-	if (value < 100) {
-		Action = value;
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glColor3f(1, 1, 1);
-		glutPostRedisplay();
-		return;
-	}
-}
-
-void DoDisplay()
-{
-	switch (Action) {
-	case 0:
-		// 변환 없음
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glutWireTeapot(0.2);
-
-		glFlush();
-		break;
-	case 1:
-		// 이동
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glutWireTeapot(0.2);
-
-		glTranslatef(0.6, 0.0, 0.0);
-		glutWireTeapot(0.2);
-
-		glFlush();
-		break;
-	case 2:
-		// 엉뚱한 위치에 나타나는 이동
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glutWireTeapot(0.2);
-
-		glTranslatef(0.6, 0.0, 0.0);
-		glutWireTeapot(0.2);
-
-		glTranslatef(0.0, 0.6, 0.0);
-		glutWireTeapot(0.2);
-
-		glFlush();
-		break;
-	case 3:
-		// 단위 행렬로 리셋
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glutWireTeapot(0.2);
-
-		glTranslatef(0.6, 0.0, 0.0);
-		glutWireTeapot(0.2);
-
-		glLoadIdentity();
-		glTranslatef(0.0, 0.6, 0.0);
-		glutWireTeapot(0.2);
-
-		glFlush();
-		break;
-	case 4:
-		// 스택에 저장 및 복구
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-		glutWireTeapot(0.2);
-
-		glPushMatrix();
-		glTranslatef(0.6, 0.0, 0.0);
-		glutWireTeapot(0.2);
-		glPopMatrix();
-
-		glTranslatef(0.0, 0.6, 0.0);
-		glutWireTeapot(0.2);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 5:
-		// 확대
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glScalef(2.0, 3.0, 1.0);
-
-		glutWireTeapot(0.2);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 6:
-		// 뒤집기
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glScalef(-2.0, 3.0, 1.0);
-
-		glutWireTeapot(0.2);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 7:
-		// x축 기준 회전
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glRotatef(45.0, 1.0, 0.0, 0.0);
-
-		glutWireTeapot(0.4);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 8:
-		// y축 기준 회전
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glRotatef(45.0, 0.0, 1.0, 0.0);
-
-		glutWireTeapot(0.4);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 9:
-		// z축 기준 회전
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glRotatef(45.0, 0.0, 0.0, 1.0);
-
-		glutWireTeapot(0.4);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 10:
-		// 확대 후 이동
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glTranslatef(0.5, 0.5, 0.0);
-		glScalef(1.5, 1.5, 1.0);
-
-		glutWireTeapot(0.2);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 11:
-		// 이동 후 확대
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glScalef(1.5, 1.5, 1.0);
-		glTranslatef(0.5, 0.5, 0.0);
-
-		glutWireTeapot(0.2);
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 12:
-		// 원점 기준 회전
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-		glBegin(GL_TRIANGLES);
-		glVertex2f(0.5, 0.8);
-		glVertex2f(0.2, 0.2);
-		glVertex2f(0.8, 0.2);
-		glEnd();
-
-		glRotatef(45.0, 0.0, 0.0, 1.0);
-
-		glColor3f(1, 1, 0);
-		glBegin(GL_TRIANGLES);
-		glVertex2f(0.5, 0.8);
-		glVertex2f(0.2, 0.2);
-		glVertex2f(0.8, 0.2);
-		glEnd();
-
-		glPopMatrix();
-		glFlush();
-		break;
-	case 13:
-		// 제자리 회전
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-
-		glBegin(GL_TRIANGLES);
-		glVertex2f(0.5, 0.8);
-		glVertex2f(0.2, 0.2);
-		glVertex2f(0.8, 0.2);
-		glEnd();
-
-		glTranslatef(0.5, 0.5, 0.0);
-		glRotatef(45.0, 0.0, 0.0, 1.0);
-		glTranslatef(-0.5, -0.5, 0.0);
-
-		glColor3f(1, 1, 0);
-		glBegin(GL_TRIANGLES);
-		glVertex2f(0.5, 0.8);
-		glVertex2f(0.2, 0.2);
-		glVertex2f(0.8, 0.2);
-		glEnd();
-
-		glPopMatrix();
-		glFlush();
-		break;
-	}
-}
-
-
-
