@@ -1,124 +1,113 @@
-﻿#include <GL/glut.h>
+﻿#include <windows.h>
+#include <gl/glut.h>
+#include <stdio.h>
 
-// 카메라 파라미터
-GLfloat eyeX = 0.0f, eyeY = 0.0f, eyeZ = 5.0f;
-GLfloat centerX = 0.0f, centerY = 0.0f, centerZ = 0.0f;
-GLfloat upX = 0.0f, upY = 1.0f, upZ = 0.0f;
-
-// 카메라 설정 함수
-void setupCamera() {
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(eyeX, eyeY, eyeZ,  // 카메라 위치
-        centerX, centerY, centerZ, // 카메라가 바라보는 점
-        upX, upY, upZ); // 업 벡터
-}
-
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    setupCamera();  // 카메라 설정
-    glutWireTeapot(0.3);  // 와이어프레임 찻주전자를 그리기
-    glFlush();
-}
-
-void reshape(int w, int h) {
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45.0, (GLfloat)w / (GLfloat)h, 1.0, 100.0);  // 원근 투영 설정
-}
-
-void keyboard(unsigned char key, int x, int y) {
-    GLfloat step = 0.1f; // 카메라 이동 스텝
-
-    switch (key) {
-        // 카메라 위치 조절
-    case 'w': // 카메라를 앞쪽으로 이동
-        eyeZ -= step;
-        break;
-    case 's': // 카메라를 뒤쪽으로 이동
-        eyeZ += step;
-        break;
-    case 'a': // 카메라를 왼쪽으로 이동
-        eyeX -= step;
-        break;
-    case 'd': // 카메라를 오른쪽으로 이동
-        eyeX += step;
-        break;
-    case 'r': // 카메라를 위쪽으로 이동
-        eyeY += step;
-        break;
-    case 'f': // 카메라를 아래쪽으로 이동
-        eyeY -= step;
-        break;
-        // 카메라 시점 조절
-    case 'i': // 카메라의 시점을 앞쪽으로 이동
-        centerZ -= step;
-        break;
-    case 'k': // 카메라의 시점을 뒤쪽으로 이동
-        centerZ += step;
-        break;
-    case 'j': // 카메라의 시점을 왼쪽으로 이동
-        centerX -= step;
-        break;
-    case 'l': // 카메라의 시점을 오른쪽으로 이동
-        centerX += step;
-        break;
-    case 'u': // 카메라의 시점을 위쪽으로 이동
-        centerY += step;
-        break;
-    case 'n': // 카메라의 시점을 아래쪽으로 이동
-        centerY -= step;
-        break;
-        // 업 벡터 조절
-    case 'o': // 업 벡터의 Y 값을 증가
-        upY += step;
-        break;
-    case 'p': // 업 벡터의 Y 값을 감소
-        upY -= step;
-        break;
-    case 'm': // 업 벡터의 X 값을 증가
-        upX += step;
-        break;
-    case ',': // 업 벡터의 X 값을 감소
-        upX -= step;
-        break;
-    case '.': // 업 벡터의 Z 값을 증가
-        upZ += step;
-        break;
-    case '/': // 업 벡터의 Z 값을 감소
-        upZ -= step;
-        break;
-        // 원점으로 돌아가기
-    case '0': // 카메라 위치와 시점을 원점으로 리셋
-        eyeX = 0.0f; eyeY = 0.0f; eyeZ = 5.0f;
-        centerX = 0.0f; centerY = 0.0f; centerZ = 0.0f;
-        upX = 0.0f; upY = 1.0f; upZ = 0.0f;
-        break;
-    case 27: // ESC 키를 눌러서 종료
-        exit(0);
-        break;
-    }
-
-    glutPostRedisplay(); // 화면을 다시 그립니다
-}
+void DoDisplay();
+void DoKeyboard(unsigned char key, int x, int y);
+void DoMenu(int value);
+GLfloat lx, ly, lz = -1.0;
+GLfloat xAngle, yAngle, zAngle;
+GLboolean bAmbient;
+GLboolean bAttach;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
-    , LPSTR lpszCmdParam, int nCmdShow)
+	, LPSTR lpszCmdParam, int nCmdShow)
 {
-    glutInit(&__argc, __argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow("GLU LookAt with Keyboard Controls");
+	glutInit(&__argc, __argv);
+	glutCreateWindow("OpenGL");
+	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
+	glutDisplayFunc(DoDisplay);
+	glutCreateMenu(DoMenu);
+	glutAddMenuEntry("Ambient ON", 1);
+	glutAddMenuEntry("Ambient OFF", 2);
+	glutAddMenuEntry("Attach light", 3);
+	glutAddMenuEntry("Unattach light", 4);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+	glutKeyboardFunc(DoKeyboard);
+	glutMainLoop();
+	return 0;
+}
 
-    glEnable(GL_DEPTH_TEST);
+void DoKeyboard(unsigned char key, int x, int y)
+{
+	switch (key) {
+	case 'a':yAngle += 2; break;
+	case 'd':yAngle -= 2; break;
+	case 'w':xAngle += 2; break;
+	case 's':xAngle -= 2; break;
+	case 'q':zAngle += 2; break;
+	case 'e':zAngle -= 2; break;
+	case 'z':xAngle = yAngle = zAngle = 0.0; break;
 
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutKeyboardFunc(keyboard); // 키보드 입력 처리 함수 등록
+	case 'j':lx -= 0.1; break;
+	case 'l':lx += 0.1; break;
+	case 'i':ly += 0.1; break;
+	case 'k':ly -= 0.1; break;
+	case 'u':lz += 0.1; break;
+	case 'o':lz -= 0.1; break;
+	case 'm':lx = 0, ly = 0, lz = -1.0; break;
+	}
+	char info[128];
+	sprintf(info, "x=%.1f, y=%.1f, z=%.1f", xAngle, yAngle, zAngle);
+	glutSetWindowTitle(info);
+	glutPostRedisplay();
+}
 
-    glutMainLoop();
+void DoMenu(int value)
+{
+	switch (value) {
+	case 1:
+		bAmbient = GL_TRUE;
+		break;
+	case 2:
+		bAmbient = GL_FALSE;
+		break;
+	case 3:
+		bAttach = GL_TRUE;
+		break;
+	case 4:
+		bAttach = GL_FALSE;
+		break;
+	}
+	glutPostRedisplay();
+}
 
-    return 0;
+void DoDisplay()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glPushMatrix();
+
+	if (bAttach) {
+		glRotatef(xAngle, 1.0f, 0.0f, 0.0f);
+		glRotatef(yAngle, 0.0f, 1.0f, 0.0f);
+		glRotatef(zAngle, 0.0f, 0.0f, 1.0f);
+	}
+
+	// 0번 광원 배치.
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	GLfloat lightpos[] = { lx, ly, lz, 1 };
+	glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
+
+	// 주변광을 초록색으로 설정
+	if (bAmbient) {
+		GLfloat ambient[4] = { 0,1,0,1 };
+		glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	}
+	else {
+		GLfloat ambient[4] = { 0,0,0,1 };
+		glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
+	}
+
+	if (bAttach == false) {
+		glRotatef(xAngle, 1.0f, 0.0f, 0.0f);
+		glRotatef(yAngle, 0.0f, 1.0f, 0.0f);
+		glRotatef(zAngle, 0.0f, 0.0f, 1.0f);
+	}
+
+	glutSolidTeapot(0.5);
+
+	glPopMatrix();
+	glFlush();
 }
