@@ -1,14 +1,9 @@
 ﻿#include <windows.h>
 #include <gl/glut.h>
-#include <stdio.h>
-#include <math.h>
 
 void DoDisplay();
-void DoKeyboard(unsigned char key, int x, int y);
 void DoMenu(int value);
-
-GLfloat xAngle, yAngle, zAngle;
-GLboolean bNormal = GL_TRUE;
+int Action;
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	, LPSTR lpszCmdParam, int nCmdShow)
@@ -16,150 +11,147 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance
 	glutInit(&__argc, __argv);
 	glutCreateWindow("OpenGL");
 	glutDisplayFunc(DoDisplay);
-	glutKeyboardFunc(DoKeyboard);
 	glutCreateMenu(DoMenu);
-	glutAddMenuEntry("Normal ON", 1);
-	glutAddMenuEntry("Normal OFF", 2);
+	glutAddMenuEntry("비트맵 출력", 0);
+	glutAddMenuEntry("노란색 픽셀맵 출력", 1);
+	glutAddMenuEntry("이미지 파일 출력", 2);
+	glutAddMenuEntry("이미지 일부를 화면으로 복사", 3);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 	glutMainLoop();
 	return 0;
 }
 
-void DoKeyboard(unsigned char key, int x, int y)
-{
-	switch (key) {
-	case 'a':yAngle += 2; break;
-	case 'd':yAngle -= 2; break;
-	case 'w':xAngle += 2; break;
-	case 's':xAngle -= 2; break;
-	case 'q':zAngle += 2; break;
-	case 'e':zAngle -= 2; break;
-	case 'z':xAngle = yAngle = zAngle = 0.0; break;
-	}
-	char info[128];
-	sprintf(info, "x=%.1f, y=%.1f, z=%.1f", xAngle, yAngle, zAngle);
-	glutSetWindowTitle(info);
-	glutPostRedisplay();
-}
-
 void DoMenu(int value)
 {
-	switch (value) {
-	case 1:
-		bNormal = GL_TRUE;
-		break;
-	case 2:
-		bNormal = GL_FALSE;
-		break;
+	if (value < 100) {
+		Action = value;
+		glColor3f(1, 1, 1);
+		glutPostRedisplay();
+		return;
 	}
-	glutPostRedisplay();
 }
 
-void GetNormal(GLfloat a[3], GLfloat b[3], GLfloat c[3], GLfloat normal[3])
+GLubyte* LoadBmp(const char* Path, int* Width, int* Height)
 {
-	GLfloat ba[3];
-	GLfloat ca[3];
-	GLfloat n[3];
+	HANDLE hFile;
+	DWORD FileSize, dwRead;
+	BITMAPFILEHEADER* fh = NULL;
+	BITMAPINFOHEADER* ih;
+	BYTE* pRaster;
 
-	// 두 정점간의 벡터 계산
-	ba[0] = b[0] - a[0]; ba[1] = b[1] - a[1]; ba[2] = b[2] - a[2];
-	ca[0] = c[0] - a[0]; ca[1] = c[1] - a[1]; ca[2] = c[2] - a[2];
+	hFile = CreateFileA(Path, GENERIC_READ, 0, NULL,
+		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		return NULL;
+	}
 
-	// 외적 구함
-	n[0] = ba[1] * ca[2] - ca[1] * ba[2];
-	n[1] = ca[0] * ba[2] - ba[0] * ca[2];
-	n[2] = ba[0] * ca[1] - ca[0] * ba[1];
+	FileSize = GetFileSize(hFile, NULL);
+	fh = (BITMAPFILEHEADER*)malloc(FileSize);
+	ReadFile(hFile, fh, FileSize, &dwRead, NULL);
+	CloseHandle(hFile);
 
-	// 정규화
-	GLfloat l = sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
-	normal[0] = n[0] / l; normal[1] = n[1] / l; normal[2] = n[2] / l;
+	int len = FileSize - fh->bfOffBits;
+	pRaster = (GLubyte*)malloc(len);
+	memcpy(pRaster, (BYTE*)fh + fh->bfOffBits, len);
+
+	// RGB로 순서를 바꾼다.
+	for (BYTE* p = pRaster; p < pRaster + len - 3; p += 3) {
+		BYTE b = *p;
+		*p = *(p + 2);
+		*(p + 2) = b;
+	}
+
+	ih = (BITMAPINFOHEADER*)((PBYTE)fh + sizeof(BITMAPFILEHEADER));
+	*Width = ih->biWidth;
+	*Height = ih->biHeight;
+
+	free(fh);
+	return pRaster;
 }
 
 void DoDisplay()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glShadeModel(GL_FLAT);
-	glEnable(GL_DEPTH_TEST);
+	switch (Action) {
+	case 0:
+		// 비트맵 출력
+	{
+		static GLubyte bitmap[] = {
+			0x07, 0xe0, 0x18, 0x18, 0x20, 0x04, 0x43, 0xc2,
+			0x44, 0x22, 0x88, 0x11, 0x81, 0x81, 0x81, 0x81,
+			0x80, 0x01, 0x80, 0x01, 0x92, 0x49, 0x4c, 0x32,
+			0x40, 0x02, 0x20, 0x04, 0x18, 0x18, 0x07, 0xe0,
+		};
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	// 조명을 켠다.
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	GLfloat ambient[] = { 0.5, 0.5, 0.5, 1.0 };
-	glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
-	GLfloat diffuse[] = { 0.5, 0.5, 0.5, 1.0 };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-	GLfloat spec[] = { 1.0, 1.0, 1.0, 1.0 };
-	glLightfv(GL_LIGHT0, GL_SPECULAR, ambient);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
+		glColor3f(1, 1, 0);
+		glRasterPos2f(0.5, 0.5);
+		glBitmap(16, 16, 0, 0, 20, 0, bitmap);
+		glBitmap(16, 16, 0, 0, 20, 0, bitmap);
+		glBitmap(16, 16, 0, 10, 20, 0, bitmap);
 
-	glEnable(GL_COLOR_MATERIAL);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+		glFlush();
+	}
+	break;
+	case 1:
+	{
+		// 노란색 픽셀맵 출력
+		GLubyte data[32 * 32 * 3];
 
-	glPushMatrix();
-	glRotatef(xAngle, 1.0f, 0.0f, 0.0f);
-	glRotatef(yAngle, 0.0f, 1.0f, 0.0f);
-	glRotatef(zAngle, 0.0f, 0.0f, 1.0f);
+		for (int y = 0; y < 32; y++) {
+			for (int x = 0; x < 32; x++) {
+				data[y * 32 * 3 + x * 3 + 0] = 0xff;
+				data[y * 32 * 3 + x * 3 + 1] = 0xff;
+				data[y * 32 * 3 + x * 3 + 2] = 0x00;
+			}
+		}
 
-	// 아랫면 흰 바닥
-	glBegin(GL_QUADS);
-	glVertex2f(-0.5, 0.5);
-	glVertex2f(0.5, 0.5);
-	glVertex2f(0.5, -0.5);
-	glVertex2f(-0.5, -0.5);
-	glEnd();
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	GLfloat normal[3];
-	glColor3ub(128, 128, 128);
+		glRasterPos2f(0.0, 0.0);
+		glDrawPixels(32, 32, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-	// 위
-	glBegin(GL_TRIANGLES);
-	GLfloat up[3][3] = {
-		{0.0, 0.0, -0.8},
-		{0.5, 0.5, 0.0,},
-		{-0.5, 0.5, 0.0},
-	};
-	GetNormal(up[0], up[1], up[2], normal);
-	if (bNormal) glNormal3fv(normal);
-	glVertex3fv(up[0]);
-	glVertex3fv(up[1]);
-	glVertex3fv(up[2]);
+		glFlush();
+	}
+	break;
+	case 2:
+	{
+		// 이미지 파일 출력
+		GLubyte* data;
+		int Width, Height;
 
-	// 왼쪽
-	GLfloat left[3][3] = {
-		{0.0, 0.0, -0.8},
-		{-0.5, 0.5, 0.0},
-		{-0.5, -0.5, 0.0},
-	};
-	GetNormal(left[0], left[1], left[2], normal);
-	if (bNormal) glNormal3fv(normal);
-	glVertex3fv(left[0]);
-	glVertex3fv(left[1]);
-	glVertex3fv(left[2]);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	// 아래
-	GLfloat down[3][3] = {
-		{0.0, 0.0, -0.8},
-		{-0.5, -0.5, 0.0},
-		{0.5, -0.5, 0.0},
-	};
-	GetNormal(down[0], down[1], down[2], normal);
-	if (bNormal) glNormal3fv(normal);
-	glVertex3fv(down[0]);
-	glVertex3fv(down[1]);
-	glVertex3fv(down[2]);
+		data = LoadBmp("chestnut.bmp", &Width, &Height);
+		if (data != NULL) {
+			glRasterPos2f(-0.5, -0.5);
+			glDrawPixels(Width, Height, GL_RGB, GL_UNSIGNED_BYTE, data);
+			free(data);
+		}
 
-	// 오른쪽
-	GLfloat right[3][3] = {
-		{0.0, 0.0, -0.8},
-		{0.5, -0.5, 0.0},
-		{0.5, 0.5, 0.0},
-	};
-	GetNormal(right[0], right[1], right[2], normal);
-	if (bNormal) glNormal3fv(normal);
-	glVertex3fv(right[0]);
-	glVertex3fv(right[1]);
-	glVertex3fv(right[2]);
+		glFlush();
+	}
+	break;
+	case 3:
+	{
+		// 이미지 일부를 화면으로 복사
+		GLubyte* data;
+		int Width, Height;
 
-	glEnd();
-	glPopMatrix();
-	glFlush();
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		data = LoadBmp("chestnut.bmp", &Width, &Height);
+		if (data != NULL) {
+			glRasterPos2f(-0.5, -0.5);
+			glDrawPixels(Width, Height, GL_RGB, GL_UNSIGNED_BYTE, data);
+			free(data);
+		}
+
+		glRasterPos2f(-1.0, -1.0);
+		glCopyPixels(100, 100, 80, 50, GL_COLOR);
+
+		glFlush();
+	}
+	break;
+	}
 }
