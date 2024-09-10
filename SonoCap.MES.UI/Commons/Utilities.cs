@@ -66,7 +66,32 @@ namespace SonoCap.MES.UI.Commons
             return null;
         }
 
-        public static bool ImageSourceToBitmapFile(ImageSource imageSource, string fileName)
+        public static bool ImageSourceToPng(ImageSource imageSource, string fileName)
+        {
+            try
+            {
+                var bitmapSource = imageSource as BitmapSource;
+                if (bitmapSource == null)
+                    throw new ArgumentException("ImageSource must be of type BitmapSource", nameof(imageSource));
+
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                using (var stream = new FileStream(fileName, FileMode.Create))
+                {
+                    encoder.Save(stream);
+                }
+
+                return true; // 성공
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving image: {ex.Message}");
+                return false; // 실패
+            }
+        }
+
+        public static bool ImageSourceToBmp(ImageSource imageSource, string fileName)
         {
             try
             {
@@ -76,6 +101,34 @@ namespace SonoCap.MES.UI.Commons
 
                 var encoder = new BmpBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                using (var stream = new FileStream(fileName, FileMode.Create))
+                {
+                    encoder.Save(stream);
+                }
+
+                return true; // 성공
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving image: {ex.Message}");
+                return false; // 실패
+            }
+        }
+
+        public static bool ImageSourceToGrayBmp(ImageSource imageSource, string fileName)
+        {
+            try
+            {
+                var bitmapSource = imageSource as BitmapSource;
+                if (bitmapSource == null)
+                    throw new ArgumentException("ImageSource must be of type BitmapSource", nameof(imageSource));
+
+                // 그레이스케일 포맷으로 변환
+                var formatConvertedBitmap = new FormatConvertedBitmap(bitmapSource, PixelFormats.Gray8, null, 0);
+
+                var encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(formatConvertedBitmap));
 
                 using (var stream = new FileStream(fileName, FileMode.Create))
                 {
@@ -108,6 +161,28 @@ namespace SonoCap.MES.UI.Commons
             {
                 Log.Information(ex.ToString());
                 return false;
+            }
+        }
+
+        public static string WhatImageFormat(byte[] rawImage)
+        {
+            int length = rawImage.Length;
+
+            if (length % 4 == 0)
+            {
+                return "ARGB";
+            }
+            else if (length % 3 == 0)
+            {
+                return "RGB";
+            }
+            else if (length % 1 == 0)
+            {
+                return "Grayscale";
+            }
+            else
+            {
+                return "Unknown";
             }
         }
 
@@ -160,13 +235,13 @@ namespace SonoCap.MES.UI.Commons
         }
 
         // 원의 외곽선을 그리는 함수
-        public static void DrawCircle(Bitmap bitmap, int centerX, int centerY, int radius, System.Drawing.Color color, int thickness)
+        public static void DrawCircle(Bitmap bitmap, Point center, int radius, System.Drawing.Color color, int thickness)
         {
             // Graphics 객체 생성
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 // 원을 그리기 위한 사각형 영역 계산
-                Rectangle rectangle = new Rectangle(centerX - radius, centerY - radius, radius * 2, radius * 2);
+                Rectangle rectangle = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
 
                 // 원 외곽선 그리기
                 using (System.Drawing.Pen pen = new System.Drawing.Pen(color, thickness))
@@ -175,6 +250,39 @@ namespace SonoCap.MES.UI.Commons
                 }
             }
         }
+
+        // 직선을 그리는 함수
+        public static void DrawLine(Bitmap bitmap, Point start, Point end, System.Drawing.Color color, int thickness)
+        {
+            // Graphics 객체 생성
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                // 직선 그리기
+                using (System.Drawing.Pen pen = new System.Drawing.Pen(color, thickness))
+                {
+                    graphics.DrawLine(pen, start, end);
+                }
+            }
+        }
+
+        // 호를 그리는 함수
+        public static void DrawArc(Bitmap bitmap, Point center, int radius, float startAngle, float sweepAngle, System.Drawing.Color color, int thickness)
+        {
+            // Graphics 객체 생성
+            using (Graphics graphics = Graphics.FromImage(bitmap))
+            {
+                // 호를 그리기 위한 사각형 영역 계산
+                Rectangle rectangle = new Rectangle(center.X - radius, center.Y - radius, radius * 2, radius * 2);
+
+                // 호 그리기
+                using (System.Drawing.Pen pen = new System.Drawing.Pen(color, thickness))
+                {
+                    graphics.DrawArc(pen, rectangle, startAngle, sweepAngle);
+                }
+            }
+        }
+
+
         /// <summary>
         /// epoch
         /// </summary>

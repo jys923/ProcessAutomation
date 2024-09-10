@@ -9,7 +9,7 @@ namespace SonoCap.MES.Repositories
 {
     public class SharedSeqNoRepository : RepositoryBase<SharedSeqNo>, ISharedSeqNoRepository
     {
-        public SharedSeqNoRepository(MESDbContextFactory contextFactory) : base(contextFactory)
+        public SharedSeqNoRepository(MESDbContext context) : base(context)
         { 
         }
 

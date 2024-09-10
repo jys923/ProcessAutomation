@@ -1,10 +1,8 @@
-﻿using SonoCap.MES.UI.Commons;
-
-namespace SonoCap.Tests.MES.UI.Commons
+﻿namespace SonoCap.MES.UI.Commons.Tests
 {
     public class UtilitiesTests : IDisposable
     {
-        private readonly string testFolderPath = Path.Combine(Path.GetTempPath(), "TestFolder");
+        private readonly string testFolderPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "TestFolder");
 
         public UtilitiesTests()
         {
@@ -20,7 +18,7 @@ namespace SonoCap.Tests.MES.UI.Commons
         [Fact]
         public void EnsureFolderExists_FolderDoesNotExist_ShouldCreateFolder()
         {
-            var folderPath = Path.Combine(testFolderPath, "NewFolder");
+            var folderPath = System.IO.Path.Combine(testFolderPath, "NewFolder");
             var result = Utilities.EnsureFolderExists(folderPath);
             Assert.True(result);
             Assert.True(Directory.Exists(folderPath));
@@ -37,7 +35,7 @@ namespace SonoCap.Tests.MES.UI.Commons
         [Fact]
         public void EnsureFolderExists_WhenExceptionOccurs_ShouldReturnFalse()
         {
-            var invalidPath = Path.Combine(testFolderPath, "<>:\"/\\|?*");
+            var invalidPath = System.IO.Path.Combine(testFolderPath, "<>:\"/\\|?*");
             var result = Utilities.EnsureFolderExists(invalidPath);
             Assert.False(result);
         }

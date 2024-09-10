@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SonoCap.Commons;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Base;
@@ -65,7 +66,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private bool _tdCellIsEnabled = true;
+        private bool _tdCellIsEnabled = false;
 
         [ObservableProperty]
         //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
@@ -79,7 +80,7 @@ namespace SonoCap.MES.UI.ViewModels
         private ObservableDictionary<int, ObservableBrush> _borderBackgrounds = new();
 
         [ObservableProperty]
-        private int _blinkingCellIndex = -1;
+        private int _blinkingCellIndex = (int)CellPositions.Row0_Column0;
 
         private int _oldRow = -1;
         private int _oldCol = -1;
@@ -586,13 +587,13 @@ namespace SonoCap.MES.UI.ViewModels
             OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
 
-            // TestCommand의 CanExecute 상태를 갱신합니다.
-            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            //// TestCommand의 CanExecute 상태를 갱신합니다.
+            //(TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
 
-            if (TestCommand.CanExecute(null))
-            {
-                await TestCommand.ExecuteAsync(null);
-            }
+            //if (TestCommand.CanExecute(null))
+            //{
+            //    await TestCommand.ExecuteAsync(null);
+            //}
         }
 
         [RelayCommand]
@@ -792,14 +793,14 @@ namespace SonoCap.MES.UI.ViewModels
                 return;
             }
 
-            // TestCommand의 CanExecute 상태를 갱신합니다.
-            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            //// TestCommand의 CanExecute 상태를 갱신합니다.
+            //(TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
 
-            // Test 메서드를 호출합니다.
-            if (TestCommand.CanExecute(null))
-            {
-                TestCommand.Execute(null);
-            }
+            //// Test 메서드를 호출합니다.
+            //if (TestCommand.CanExecute(null))
+            //{
+            //    TestCommand.Execute(null);
+            //}
         }
 
         partial void OnTDSnChanged(string value)
@@ -816,10 +817,11 @@ namespace SonoCap.MES.UI.ViewModels
             _motorModule = null;
             _pTRView = null;
 
+            TdCellIsEnabled = false;
             TdMdCellIsEnabled = false;
             ProbeCellIsEnabled = false;
 
-            //BlinkingCellIndex = -1;
+            BlinkingCellIndex = (int)CellPositions.Row0_Column0;
 
             List<Test> tests;
             //정규 표현식 검증 추가
@@ -833,6 +835,8 @@ namespace SonoCap.MES.UI.ViewModels
                 }
                 else
                 {
+                    BlinkingCellIndex = (int)CellPositions.Row1_Column1;
+                    TdCellIsEnabled = true;
                     //셀버튼 _td _tdMd _p 각각 널이면 가로로 한줄을 끔
                     SetBySn(SnType.Transducer, value);
                     ValidateField(nameof(TDSn));
@@ -855,7 +859,7 @@ namespace SonoCap.MES.UI.ViewModels
 
                     if (_transducerModule is null)
                         return;
-
+                    
                     TdMdCellIsEnabled = true;
 
                     ValidationDict[nameof(TDMdSn)].IsEnabled = false;
@@ -968,6 +972,7 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Information($"TestAsync response");
                 // 응답을 받았을 때의 로직
                 // 데이터를 받으면 응답 완료
+                Log.Information($"Img : {Utilities.WhatImageFormat(response.Img)}");
                 Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                 Utilities.ByteArrToBitmap(response.Img, m_bmpRes);
 
@@ -978,30 +983,136 @@ namespace SonoCap.MES.UI.ViewModels
 
                 HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
 
-                int radius = 150;
+                int innerThickness = 3;
+                int outerThickness = 3;
 
-                switch (settings.depth_in_cm)
+                switch (_testType)
                 {
-                    case 3:
-                        radius = App.appSettings.Circle.Depth3;
+                    case TestTypes.Align:
+                        int innerRadius = 150;
+                        int outerRadius = 170;
+
+                        switch (settings.depth_in_cm)
+                        {
+                            case 3:
+                                innerThickness = App.appSettings.Align.InnerCircle3.Thickness;
+                                innerRadius = App.appSettings.Align.InnerCircle3.Radius;
+                                outerThickness = App.appSettings.Align.OuterCircle3.Thickness;
+                                outerRadius = App.appSettings.Align.OuterCircle3.Radius;
+                                break;
+                            case 4:
+                                innerThickness = App.appSettings.Align.InnerCircle4.Thickness;
+                                innerRadius = App.appSettings.Align.InnerCircle4.Radius;
+                                outerThickness = App.appSettings.Align.OuterCircle4.Thickness;
+                                outerRadius = App.appSettings.Align.OuterCircle4.Radius;
+                                break;
+                            case 5:
+                                innerThickness = App.appSettings.Align.InnerCircle5.Thickness;
+                                innerRadius = App.appSettings.Align.InnerCircle5.Radius;
+                                outerThickness = App.appSettings.Align.OuterCircle5.Thickness;
+                                outerRadius = App.appSettings.Align.OuterCircle5.Radius;
+                                break;
+                            case 6:
+                                innerThickness = App.appSettings.Align.InnerCircle6.Thickness;
+                                innerRadius = App.appSettings.Align.InnerCircle6.Radius;
+                                outerThickness = App.appSettings.Align.OuterCircle6.Thickness;
+                                outerRadius = App.appSettings.Align.OuterCircle6.Radius;
+                                break;
+                            case 7:
+                                innerThickness = App.appSettings.Align.InnerCircle7.Thickness;
+                                innerRadius = App.appSettings.Align.InnerCircle7.Radius;
+                                outerThickness = App.appSettings.Align.OuterCircle7.Thickness;
+                                outerRadius = App.appSettings.Align.OuterCircle7.Radius;
+                                break;
+                            default:
+                                break;
+                        }
+                        //draw circle
+                        Utilities.DrawCircle(m_bmpRes, new System.Drawing.Point(512 / 2, 512 / 2), innerRadius, System.Drawing.Color.Red, innerThickness);
+                        Utilities.DrawCircle(m_bmpRes, new System.Drawing.Point(512 / 2, 512 / 2), outerRadius, System.Drawing.Color.Green, outerThickness);
+
                         break;
-                    case 4:
-                        radius = App.appSettings.Circle.Depth4;
-                        break;
-                    case 5:
-                        radius = App.appSettings.Circle.Depth5;
-                        break;
-                    case 6:
-                        radius = App.appSettings.Circle.Depth6;
-                        break;
-                    case 7:
-                        radius = App.appSettings.Circle.Depth7;
-                        break;
+                    case TestTypes.Axial:
+                        {
+                            System.Drawing.Point start = new System.Drawing.Point();
+                            System.Drawing.Point end = new System.Drawing.Point();
+
+                            switch (settings.depth_in_cm)
+                            {
+                                case 3:
+                                    innerThickness = App.appSettings.Axial.Line3.Thickness;
+                                    start = App.appSettings.Axial.Line3.Start;
+                                    end = App.appSettings.Axial.Line3.End;
+                                    break;
+                                case 4:
+                                    innerThickness = App.appSettings.Axial.Line4.Thickness;
+                                    start = App.appSettings.Axial.Line4.Start;
+                                    end = App.appSettings.Axial.Line4.End;
+                                    break;
+                                case 5:
+                                    innerThickness = App.appSettings.Axial.Line5.Thickness;
+                                    start = App.appSettings.Axial.Line5.Start;
+                                    end = App.appSettings.Axial.Line5.End;
+                                    break;
+                                case 6:
+                                    innerThickness = App.appSettings.Axial.Line6.Thickness;
+                                    start = App.appSettings.Axial.Line6.Start;
+                                    end = App.appSettings.Axial.Line6.End;
+                                    break;
+                                case 7:
+                                    innerThickness = App.appSettings.Axial.Line7.Thickness;
+                                    start = App.appSettings.Axial.Line7.Start;
+                                    end = App.appSettings.Axial.Line7.End;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            Utilities.DrawLine(m_bmpRes, start, end, System.Drawing.Color.Blue, innerThickness);
+                            break;
+                        }
+                    case TestTypes.Lateral:
+                        {
+                            System.Drawing.Point start = new System.Drawing.Point();
+                            System.Drawing.Point end = new System.Drawing.Point();
+
+                            switch (settings.depth_in_cm)
+                            {
+                                case 3:
+                                    innerThickness = App.appSettings.Lateral.Line3.Thickness;
+                                    start = App.appSettings.Lateral.Line3.Start;
+                                    end = App.appSettings.Lateral.Line3.End;
+                                    break;
+                                case 4:
+                                    innerThickness = App.appSettings.Lateral.Line4.Thickness;
+                                    start = App.appSettings.Lateral.Line4.Start;
+                                    end = App.appSettings.Lateral.Line4.End;
+                                    break;
+                                case 5:
+                                    innerThickness = App.appSettings.Lateral.Line5.Thickness;
+                                    start = App.appSettings.Lateral.Line5.Start;
+                                    end = App.appSettings.Lateral.Line5.End;
+                                    break;
+                                case 6:
+                                    innerThickness = App.appSettings.Lateral.Line6.Thickness;
+                                    start = App.appSettings.Lateral.Line6.Start;
+                                    end = App.appSettings.Lateral.Line6.End;
+                                    break;
+                                case 7:
+                                    innerThickness = App.appSettings.Lateral.Line7.Thickness;
+                                    start = App.appSettings.Lateral.Line7.Start;
+                                    end = App.appSettings.Lateral.Line7.End;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            Utilities.DrawLine(m_bmpRes, start, end, System.Drawing.Color.Cyan, innerThickness);//CMYK (Cyan, Magenta, Yellow, Key/Black)
+                            break;
+                        }
                     default:
                         break;
                 }
-                //draw circle
-                Utilities.DrawCircle(m_bmpRes, 512 / 2, 512 / 2, radius, System.Drawing.Color.Red, 3);
+
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     ResImg = Utilities.BitmapToImageSource(m_bmpRes);
@@ -1038,11 +1149,11 @@ namespace SonoCap.MES.UI.ViewModels
                 return;
             
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_O.bmp";
-            string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_C.bmp";
+            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
+            string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_mod.png";
 
-            Utilities.ImageSourceToBitmapFile(SrcImg, OriginalImgName);
-            Utilities.ImageSourceToBitmapFile(ResImg, ChangedImgName);
+            Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
+            Utilities.ImageSourceToPng(ResImg, ChangedImgName);
 
             Test insertTest = new Test
             {
@@ -1159,6 +1270,22 @@ namespace SonoCap.MES.UI.ViewModels
             if (_probe is not null)
             {
                 var tmpPTR = await _probeRepository.GetPTRViewAsync(_probe.Sn);
+                if (tmpPTR is not null)
+                {
+                    if (_pTRView is not null)
+                        tmpPTR.Id = _pTRView.Id;
+
+                    await _pTRViewRepository.UpsertAsync(tmpPTR);
+                }
+            }
+        }
+
+        private async Task PTRViewUpsert2()
+        {
+            if (_probe is not null)
+            {
+                PTRView? tmpPTR = await _pTRViewRepository.GetPTRView(probeSn:_probe.Sn).FirstOrDefaultAsync();
+
                 if (tmpPTR is not null)
                 {
                     if (_pTRView is not null)
@@ -1304,11 +1431,12 @@ namespace SonoCap.MES.UI.ViewModels
             //App.Current.MainWindow.Close();
             //Application.Current.Shutdown()
             //Environment.Exit(1);
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            
+            Application.Current.Dispatcher.Invoke(() =>
             {
                 //Window? focusedWindow = System.Windows.Input.Keyboard.FocusedElement as Window;
                 //focusedWindow?.Close();
-
+                Controls.MessageBox.Show("Get Video Fail", $"Open Video App First");
                 var windows = Application.Current.Windows.OfType<Window>();
                 var window = windows.FirstOrDefault(w => w.DataContext == this);
                 window?.Close();

@@ -142,6 +142,7 @@ namespace SonoCap.MES.UI.ViewModels
             try
             {
                 IsBusy = true;
+                //await Task.Delay(1000);  // 10초 동안 대기
                 tests = await _testRepository.GetTestAsync(
                     StartDate,
                     EndDate,
@@ -156,8 +157,12 @@ namespace SonoCap.MES.UI.ViewModels
                     TDSn,
                     MTMdSn,
                     null);
+                // TestProbes 비동기로 생성
+                //var testProbesList = await Task.Run(() => TestToTestProbe.ToList(tests));
+                //TestProbes = new ObservableCollection<TestProbe>(testProbesList);
 
-                TestProbes = new ObservableCollection<TestProbe>(TestToTestProbe.ToList(tests));
+                var testProbesList = await TestToTestProbe.ToListAsync(tests);
+                TestProbes = new ObservableCollection<TestProbe>(testProbesList);
                 ResultCnt = TestProbes.Count;
             }
             finally
@@ -167,11 +172,12 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private void Export()
+        private async Task ExportAsync()
         {
-            Log.Information($"{nameof(Export)}");
-            //IsBusy = true;
-            //IsBusy = false;
+            Log.Information($"{nameof(ExportAsync)}");
+            IsBusy = true;
+            await Task.Delay(1000);  // 10초 동안 대기
+            IsBusy = false;
         }
 
         [RelayCommand]
@@ -264,7 +270,7 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
         {
-           Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
+            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
             Log.Information($"{nameof(KeyDownAsync)} key: {key}");
             if (key == Key.Enter)
             {

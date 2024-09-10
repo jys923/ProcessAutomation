@@ -184,14 +184,14 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                     <TextBlock Text="Axial" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0"/>
                 </Border>
                 <Border Grid.Column="3" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
-                    <TextBlock Text="Leteral" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"/>
+                    <TextBlock Text="Lateral" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"/>
                 </Border>
                 <Border Grid.Column="4" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
                     <TextBlock Text="강제 검수" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="4" Grid.Row="0"/>
                 </Border>
 
                 <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource CellHeaderBrush}">
-                    <TextBlock Text="공정용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
+                    <TextBlock Text="모듈" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"/>
                 </Border>
                 <Border Grid.Column="1" Grid.Row="1" Background="{Binding BorderBackgrounds[11].Value}"/>
                 <Border Grid.Column="2" Grid.Row="1" Background="{Binding BorderBackgrounds[12].Value}"/>
@@ -199,7 +199,7 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                 <Border Grid.Column="4" Grid.Row="1" Background="{StaticResource CellBodyBrush}"/>
 
                 <Border Grid.Column="0" Grid.Row="2" Background="{StaticResource CellHeaderBrush}">
-                    <TextBlock Text="최종용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="완제품" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
                 </Border>
                 <Border Grid.Column="1" Grid.Row="2" Background="{Binding BorderBackgrounds[21].Value}"/>
                 <Border Grid.Column="2" Grid.Row="2" Background="{Binding BorderBackgrounds[22].Value}"/>
@@ -207,295 +207,62 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                 <Border Grid.Column="4" Grid.Row="2" Background="{StaticResource CellBodyBrush}"/>
 
                 <Border Grid.Column="0" Grid.Row="3" Background="{StaticResource CellHeaderBrush}">
-                    <TextBlock Text="출하용" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
+                    <TextBlock Text="성능" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2"/>
                 </Border>
                 <Border Grid.Column="1" Grid.Row="3" Background="{Binding BorderBackgrounds[31].Value}"/>
                 <Border Grid.Column="2" Grid.Row="3" Background="{Binding BorderBackgrounds[32].Value}"/>
                 <Border Grid.Column="3" Grid.Row="3" Background="{Binding BorderBackgrounds[33].Value}"/>
                 <Border Grid.Column="4" Grid.Row="3" Background="{StaticResource CellBodyBrush}"/>
                 <!-- 버튼 컨트롤 -->
+                <!-- 첫 번째 버튼 -->
                 <Button Grid.Row="1" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="11">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column1}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="11" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="1" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="12">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column2}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="12" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="1" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="13">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column3}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="13" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="1" Grid.Column="4" Width="auto" Height="auto" Command="{Binding ForcePassCommand}" CommandParameter="{x:Static models:CellPositions.Row1_Column4}" Background="Transparent" IsEnabled="{Binding TdCellIsEnabled}"/>
 
                 <Button Grid.Row="2" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="21">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column1}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="21" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="2" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="22">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column2}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="22" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="2" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="23">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column3}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="23" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="2" Grid.Column="4" Width="auto" Height="auto" Command="{Binding ForcePassCommand}" CommandParameter="{x:Static models:CellPositions.Row2_Column4}" Background="Transparent" IsEnabled="{Binding TdMdCellIsEnabled}"/>
 
                 <Button Grid.Row="3" Grid.Column="1" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="31">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column1}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="31" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="3" Grid.Column="2" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="32">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightButtonDown">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column2}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="32" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="3" Grid.Column="3" Width="auto" Height="auto" Command="{Binding CellClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}">
-                    <Button.Style>
-                        <Style TargetType="{x:Type Button}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding BlinkingCellIndex}" Value="33">
-                                    <DataTrigger.EnterActions>
-                                        <!-- 셀이 깜빡일 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Yellow" Duration="0:0:0.5" AutoReverse="True"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <!-- 깜빡임이 멈출 때의 애니메이션 효과를 구현합니다. -->
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <ColorAnimation Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" To="Transparent" Duration="0:0:0"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseRightClick">
-                            <b:InvokeCommandAction Command="{Binding CellRightClickCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column3}" />
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
+                    <b:Interaction.Behaviors>
+                        <behaviors:BlinkingBehavior BlinkIndex="{Binding BlinkingCellIndex}" TriggerValue="33" />
+                    </b:Interaction.Behaviors>
                 </Button>
                 <Button Grid.Row="3" Grid.Column="4" Width="auto" Height="auto" Command="{Binding ForcePassCommand}" CommandParameter="{x:Static models:CellPositions.Row3_Column4}" Background="Transparent" IsEnabled="{Binding ProbeCellIsEnabled}"/>
             </Grid>

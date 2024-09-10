@@ -9,6 +9,7 @@ using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -117,15 +118,16 @@ namespace SonoCap.MES.UI.ViewModels
             try
             {
                 IsBusy = true;
-                probes = await _pTRViewRepository.GetProbeTestResultLinqAsync2(
+                probes = await _pTRViewRepository.GetProbeTestResultLinqAsync(
                     StartDate,
                     EndDate,
                     ProbeSn,
                     TDMdSn,
                     TDSn,
                     MTMdSn);
-                //Probes = new ObservableCollection<ProbeTestResult>(probes);
-                Probes = new ObservableCollection<ProbeTestResult>(PTRViewToProbeTestResult.ToList(probes));
+
+                var testProbesList = await PTRViewToProbeTestResult.ToListAsync(probes);
+                Probes = new ObservableCollection<ProbeTestResult>(testProbesList);
                 ResultCnt = Probes.Count;
             }
             finally
@@ -139,12 +141,29 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information("Export");
             IsBusy = true;
-            if (Utilities.EnsureFolderExists(App.appSettings.Path.ExportExcel))
+            string exportPath = $"{App.appSettings.Path.ExportExcel}{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx";
+
+            try
             {
-                _excelService.ExportToExcel(probes, $"{App.appSettings.Path.ExportExcel}{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx");
+                if (Utilities.EnsureFolderExists(App.appSettings.Path.ExportExcel))
+                {
+                    _excelService.ExportToExcel(probes, exportPath);
+                    // 성공 메시지 출력
+                    Controls.MessageBox.Show("Export Successful", $"File exported to: {exportPath}");
+                }
             }
-            IsBusy = false;
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Export failed");
+                // 실패 메시지 출력
+                Controls.MessageBox.Show("Export Failed", "An error occurred during export.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
+
 
         [RelayCommand]
         private async Task ListDoubleClickAsync(object parameter)

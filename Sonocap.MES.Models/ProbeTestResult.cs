@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace SonoCap.MES.Models
+﻿namespace SonoCap.MES.Models
 {
-    [Keyless]
     public class ProbeTestResult
     {
         public required int Id { get; set; }

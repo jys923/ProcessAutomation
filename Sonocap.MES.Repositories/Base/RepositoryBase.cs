@@ -17,9 +17,9 @@ namespace SonoCap.MES.Repositories.Base
         //    _dbSet = context.Set<T>();
         //}
 
-        public RepositoryBase(IDbContextFactory<MESDbContext> contextFactory)
+        public RepositoryBase(MESDbContext context)
         {
-            _context = contextFactory.CreateDbContext();
+            _context = context;
             _dbSet = _context.Set<T>();
         }
 

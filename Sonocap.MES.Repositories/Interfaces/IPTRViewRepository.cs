@@ -5,8 +5,14 @@ namespace SonoCap.MES.Repositories.Interfaces
 {
     public interface IPTRViewRepository : IRepositoryBase<PTRView>
     {
-        Task<List<PTRView>> GetProbeTestResultLinqAsync2(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
-        Task<List<ProbeTestResult>> GetProbeTestResultLinqAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
-        Task<List<ProbeTestResult>> GetProbeTestResultSqlAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+        Task<List<PTRView>> GetProbeTestResultLinqAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn);
+
+        public IQueryable<PTRView> GetPTRView(
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? probeSn = null,
+            string? transducerModuleSn = null,
+            string? transducerSn = null,
+            string? motorModuleSn = null);
     }
 }

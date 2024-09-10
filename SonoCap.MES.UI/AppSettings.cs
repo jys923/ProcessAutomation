@@ -1,9 +1,13 @@
-﻿namespace SonoCap.MES.UI
+﻿using System.Drawing;
+
+namespace SonoCap.MES.UI
 {
     public class AppSettings
     {
         public ConnectionStrings ConnectionStrings { get; set; } = new ConnectionStrings();
-        public Circle Circle { get; set; } = default!;
+        public Align Align { get; set; } = default!;
+        public Axial Axial { get; set; } = default!;
+        public Lateral Lateral { get; set; } = default!;
         public string TesterName { get; set; } = @"No Name";
         public int PcId { get; set; } = 1;
         public Path Path { get; set; } = default!;
@@ -15,13 +19,54 @@
         public string MariaDBConnection { get; set; } = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
     }
 
+    public class Align
+    {
+        public Circle InnerCircle3 { get; set; } = default!;
+        public Circle OuterCircle3 { get; set; } = default!;
+
+        public Circle InnerCircle4 { get; set; } = default!;
+        public Circle OuterCircle4 { get; set; } = default!;
+
+        public Circle InnerCircle5 { get; set; } = default!;
+        public Circle OuterCircle5 { get; set; } = default!;
+
+        public Circle InnerCircle6 { get; set; } = default!;
+        public Circle OuterCircle6 { get; set; } = default!;
+
+        public Circle InnerCircle7 { get; set; } = default!;
+        public Circle OuterCircle7 { get; set; } = default!;
+    }
+
     public class Circle
     {
-        public int Depth3 { get; set; } = 170;
-        public int Depth4 { get; set; } = 160;
-        public int Depth5 { get; set; } = 150;
-        public int Depth6 { get; set; } = 140;
-        public int Depth7 { get; set; } = 130;
+        public int Thickness { get; set; } = 3;
+        public int Radius { get; set; } = 170;
+        //color
+    }
+
+    public class Line
+    {
+        public int Thickness { get; set; } = 3;
+        public Point Start { get; set; }
+        public Point End { get; set; }
+    }
+
+    public class Axial
+    {
+        public Line Line3 { get; set; } = default!;
+        public Line Line4 { get; set; } = default!;
+        public Line Line5 { get; set; } = default!;
+        public Line Line6 { get; set; } = default!;
+        public Line Line7 { get; set; } = default!;
+    }
+
+    public class Lateral
+    {
+        public Line Line3 { get; set; } = default!;
+        public Line Line4 { get; set; } = default!;
+        public Line Line5 { get; set; } = default!;
+        public Line Line6 { get; set; } = default!;
+        public Line Line7 { get; set; } = default!;
     }
 
     public class Path

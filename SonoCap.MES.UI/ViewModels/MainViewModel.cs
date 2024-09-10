@@ -207,7 +207,6 @@ namespace SonoCap.MES.UI.ViewModels
             List<int> testerIds = new List<int>();
             List<int> pcIds = new List<int>();
             List<Probe> probes = new List<Probe>();
-            List<ProbeTestResultView> probeTestResultViews = new List<ProbeTestResultView>();
             List<int> tdIds = new List<int>();
 
             #region MotorModules
@@ -393,6 +392,7 @@ namespace SonoCap.MES.UI.ViewModels
         private async Task Master3()
         {
             int maxCnt = 100000;
+            int testTypeCnt = 3;
 
             string currentDate = DateTime.Now.ToString("yyMMdd");
 
@@ -402,7 +402,7 @@ namespace SonoCap.MES.UI.ViewModels
             List<Transducer> transducers = new List<Transducer>();
             List<TransducerModule> transducerModules = new List<TransducerModule>();
             List<Test> tests = new List<Test>();
-            List<Tester> tester = new List<Tester>();
+            List<Tester> testers = new List<Tester>();
             List<int> testerIds = new List<int>();
             List<int> pcIds = new List<int>();
             List<Probe> probes = new List<Probe>();
@@ -433,11 +433,11 @@ namespace SonoCap.MES.UI.ViewModels
             for (int i = 1; i <= maxCnt / 100; i++)
             {
                 Utilities.Shuffle(pcIds);
-                tester.Add(new Tester { Name = "yoon", PcId = pcIds[0] });
-                tester.Add(new Tester { Name = "sang", PcId = pcIds[1] });
-                tester.Add(new Tester { Name = "bkko", PcId = pcIds[2] });
+                testers.Add(new Tester { Name = "yoon", PcId = pcIds[0] });
+                testers.Add(new Tester { Name = "sang", PcId = pcIds[1] });
+                testers.Add(new Tester { Name = "bkko", PcId = pcIds[2] });
             }
-            await _testerRepository.BulkInsertAsync(tester);
+            await _testerRepository.BulkInsertAsync(testers);
 
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
@@ -477,7 +477,7 @@ namespace SonoCap.MES.UI.ViewModels
             #endregion
 
 
-            // #region TestsTDs
+            #region TestsTDs
             for (int i = 1; i <= 100; ++i)
             {
                 testerIds.AddRange(Enumerable.Range(1, 3000));
@@ -486,11 +486,12 @@ namespace SonoCap.MES.UI.ViewModels
 
             for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                for (int k = 1; k <= testTypeCnt; ++k) //3
                 {
                     while (true)
                     {
                         int randomValue = random.Next(65, 100);
+
                         Test test = new Test
                         {
                             TestCategoryId = (int)TestCategories.Processing,
@@ -522,7 +523,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                for (int k = 1; k <= testTypeCnt; ++k) //3
                 {
                     while (true)
                     {
@@ -558,7 +559,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             for (int i = 1; i <= maxCnt; ++i)
             {
-                for (int k = 1; k <= Enum.GetNames(typeof(TestTypes)).Length; ++k) //3
+                for (int k = 1; k <= testTypeCnt; ++k) //3
                 {
                     while (true)
                     {
@@ -589,6 +590,7 @@ namespace SonoCap.MES.UI.ViewModels
                 }
             }
             await _testRepository.BulkInsertAsync(tests);
+            #endregion
         }
 
         [ObservableProperty]
@@ -710,8 +712,8 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task SetPTRViewAsync()
         {
-            int cnt = await _probeRepository.SetPTRViewsAsync();
-            Log.Information($"cnt: {cnt}");
+            //int cnt = await _probeRepository.SetPTRViewsAsync();
+            //Log.Information($"cnt: {cnt}");
         }
 
         private string _searchText = default!;

@@ -1,183 +1,101 @@
-﻿//using Moq;
-//using SonoCap.MES.Models;
-//using SonoCap.MES.Repositories;
-//using SonoCap.MES.Repositories.Context;
-//using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using SonoCap.MES.Models;
+using SonoCap.MES.Models.Enums;
+using SonoCap.MES.Repositories;
+using SonoCap.MES.Repositories.Context;
+using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.Tests.MES.Repositories.Base;
 
-//namespace SonoCap.Tests.MES.Repositories
-//{
-//    public class TestRepositoryTests
-//    {
-//        private readonly Mock<DbSet<Test>> _mockTestSet;
-//        private readonly Mock<DbSet<Probe>> _mockProbeSet;
-//        private readonly Mock<DbSet<TransducerModule>> _mockTransducerModuleSet;
-//        private readonly Mock<DbSet<Transducer>> _mockTransducerSet;
-//        private readonly Mock<DbSet<MotorModule>> _mockMotorModuleSet;
-//        private readonly Mock<MESDbContext> _mockContext;
-//        private readonly TestRepository _repository;
+namespace SonoCap.MES.Repositories.Tests
+{
+    public class TestRepositoryTests : IDisposable
+    {
+        private readonly ITestRepository _repository;
+        private readonly MESDbContext _context;
 
-//        public TestRepositoryTests()
-//        {
-//            // Mock DbSets
-//            _mockTestSet = new Mock<DbSet<Test>>();
-//            _mockProbeSet = new Mock<DbSet<Probe>>();
-//            _mockTransducerModuleSet = new Mock<DbSet<TransducerModule>>();
-//            _mockTransducerSet = new Mock<DbSet<Transducer>>();
-//            _mockMotorModuleSet = new Mock<DbSet<MotorModule>>();
+        public TestRepositoryTests()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddDbContext<MESDbContext>(options =>
+                options.UseInMemoryDatabase("TestDatabase"));
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
-//            // Mock DbContext
-//            _mockContext = new Mock<MESDbContext>();
-//            _mockContext.Setup(c => c.Set<Test>()).Returns(_mockTestSet.Object);
-//            _mockContext.Setup(c => c.Set<Probe>()).Returns(_mockProbeSet.Object);
-//            _mockContext.Setup(c => c.Set<TransducerModule>()).Returns(_mockTransducerModuleSet.Object);
-//            _mockContext.Setup(c => c.Set<Transducer>()).Returns(_mockTransducerSet.Object);
-//            _mockContext.Setup(c => c.Set<MotorModule>()).Returns(_mockMotorModuleSet.Object);
+            _context = serviceProvider.GetRequiredService<MESDbContext>();
+            _repository = new TestRepository(_context);
 
-//            // Initialize repository
-//            Mock<IDbContextFactory<MESDbContext>> contextFactory = new Mock<IDbContextFactory<MESDbContext>>();
-//            contextFactory.Setup(cf => cf.CreateDbContext()).Returns(_mockContext.Object);
-//            _repository = new TestRepository(contextFactory.Object);
+            TestHelper.SeedDatabase(_context);
+        }
 
-//            // Seed data
-//            SetupMockData();
-//        }
+        [Fact]
+        public async Task GetTestAsync_ReturnsFilteredResults()
+        {
+            var tests = _context.Tests.ToList();  // 모든 Test 엔터티 조회
+            foreach (var test1 in tests)
+            {
+                Console.WriteLine($"Id: {test1.Id}, CreatedDate: {test1.CreatedDate}");
+            }
+            //var test = new Test
+            //{
+            //    CreatedDate = DateTime.Now,
+            //    DataFlag = 1,
+            //    TestCategoryId = testCategory1.Id,
+            //    TestTypeId = testType1.Id,
+            //    TesterId = tester1.Id,
+            //    ProbeId = probe.Id,
+            //    TransducerModuleId = transducerModule.Id,
+            //    TransducerId = transducer.Id,
+            //    Result = 10
+            //};
+            // Act
+            var result = await _repository.GetTestAsync(
+                startDate: DateTime.Now.AddDays(-1),
+                endDate: DateTime.Now,
+                categoryId: 1,
+                testTypeId: 1,
+                tester: "Tester1",
+                pcId: 1,
+                result: 10,
+                dataFlagTest: 1,
+                probeSn: "ProbeSN",
+                transducerModuleSn: "TransducerModuleSN",
+                transducerSn: "TransducerSN",
+                motorModuleSn: "MotorModuleSN",
+                dataFlagProbe: 1);
 
-//        private void SetupMockData()
-//        {
-//            var tests = new List<Test>
-//            {
-//                new Test
-//                {
-//                    Id = 1,
-//                    CreatedDate = System.DateTime.Now,
-//                    DataFlag = 1,
-//                    ProbeId = 1,
-//                    TransducerModuleId = 1,
-//                    TransducerId = 1,
-//                },
-//                new Test
-//                {
-//                    Id = 2,
-//                    CreatedDate = System.DateTime.Now.AddDays(-1),
-//                    DataFlag = 1,
-//                    ProbeId = 2,
-//                    TransducerModuleId = 2,
-//                    TransducerId = 2,
-//                }
-//            }.AsQueryable();
+            // Assert
+            Assert.Single(result);
+            var test = result.First();
+            Assert.Equal(1, test.Id);
+        }
 
-//            var probes = new List<Probe>
-//            {
-//                new Probe { Id = 1, Sn = "P123", TransducerModuleId = 1, MotorModuleId = 1 },
-//                new Probe { Id = 2, Sn = "P124", TransducerModuleId = 2, MotorModuleId = 2 }
-//            }.AsQueryable();
+        [Fact]
+        public void GetLatestTests_ThrowsExceptionWhenNoParameters()
+        {
+            // Act & Assert
+            var exception = Assert.Throws<ArgumentException>(() => _repository.GetLatestTests());
+            Assert.Equal("At least one of 'transducer', 'transducerModule', or 'probe' must be provided.", exception.Message);
+        }
 
-//            var transducerModules = new List<TransducerModule>
-//            {
-//                new TransducerModule { Id = 1, Sn = "TM123" },
-//                new TransducerModule { Id = 2, Sn = "TM124" }
-//            }.AsQueryable();
+        [Fact]
+        public void GetLatestTests_ReturnsLatestTests()
+        {
+            // Arrange
+            var transducer = new Transducer { Id = 1, Sn = "TransducerSn1" };
 
-//            var transducers = new List<Transducer>
-//            {
-//                new Transducer { Id = 1, Sn = "T123" },
-//                new Transducer { Id = 2, Sn = "T124" }
-//            }.AsQueryable();
+            // Act
+            var result = _repository.GetLatestTests(transducer: transducer);
 
-//            var motorModules = new List<MotorModule>
-//            {
-//                new MotorModule { Id = 1, Sn = "M123" },
-//                new MotorModule { Id = 2, Sn = "M124" }
-//            }.AsQueryable();
+            // Assert
+            Assert.Single(result);
+            var test = result.First();
+            Assert.Equal(1, test.Id);
+        }
 
-//            // Setup DbSet mock behaviors
-//            _mockTestSet.As<IQueryable<Test>>().Setup(m => m.Provider).Returns(tests.Provider);
-//            _mockTestSet.As<IQueryable<Test>>().Setup(m => m.Expression).Returns(tests.Expression);
-//            _mockTestSet.As<IQueryable<Test>>().Setup(m => m.ElementType).Returns(tests.ElementType);
-//            _mockTestSet.As<IQueryable<Test>>().Setup(m => m.GetEnumerator()).Returns(tests.GetEnumerator());
-
-//            _mockProbeSet.As<IQueryable<Probe>>().Setup(m => m.Provider).Returns(probes.Provider);
-//            _mockProbeSet.As<IQueryable<Probe>>().Setup(m => m.Expression).Returns(probes.Expression);
-//            _mockProbeSet.As<IQueryable<Probe>>().Setup(m => m.ElementType).Returns(probes.ElementType);
-//            _mockProbeSet.As<IQueryable<Probe>>().Setup(m => m.GetEnumerator()).Returns(probes.GetEnumerator());
-
-//            _mockTransducerModuleSet.As<IQueryable<TransducerModule>>().Setup(m => m.Provider).Returns(transducerModules.Provider);
-//            _mockTransducerModuleSet.As<IQueryable<TransducerModule>>().Setup(m => m.Expression).Returns(transducerModules.Expression);
-//            _mockTransducerModuleSet.As<IQueryable<TransducerModule>>().Setup(m => m.ElementType).Returns(transducerModules.ElementType);
-//            _mockTransducerModuleSet.As<IQueryable<TransducerModule>>().Setup(m => m.GetEnumerator()).Returns(transducerModules.GetEnumerator());
-
-//            _mockTransducerSet.As<IQueryable<Transducer>>().Setup(m => m.Provider).Returns(transducers.Provider);
-//            _mockTransducerSet.As<IQueryable<Transducer>>().Setup(m => m.Expression).Returns(transducers.Expression);
-//            _mockTransducerSet.As<IQueryable<Transducer>>().Setup(m => m.ElementType).Returns(transducers.ElementType);
-//            _mockTransducerSet.As<IQueryable<Transducer>>().Setup(m => m.GetEnumerator()).Returns(transducers.GetEnumerator());
-
-//            _mockMotorModuleSet.As<IQueryable<MotorModule>>().Setup(m => m.Provider).Returns(motorModules.Provider);
-//            _mockMotorModuleSet.As<IQueryable<MotorModule>>().Setup(m => m.Expression).Returns(motorModules.Expression);
-//            _mockMotorModuleSet.As<IQueryable<MotorModule>>().Setup(m => m.ElementType).Returns(motorModules.ElementType);
-//            _mockMotorModuleSet.As<IQueryable<MotorModule>>().Setup(m => m.GetEnumerator()).Returns(motorModules.GetEnumerator());
-//        }
-
-//        [Fact]
-//        public async Task GetTestAsync_ShouldReturnFilteredTests()
-//        {
-//            // Arrange
-//            var startDate = System.DateTime.Now.AddDays(-2);
-//            var endDate = System.DateTime.Now;
-
-//            // Act
-//            var result = await _repository.GetTestAsync(
-//                startDate: startDate,
-//                endDate: endDate,
-//                categoryId: null,
-//                testTypeId: null,
-//                tester: null,
-//                pcId: null,
-//                result: null,
-//                dataFlagTest: null,
-//                probeSn: "P123",
-//                transducerModuleSn: null,
-//                transducerSn: null,
-//                motorModuleSn: null,
-//                dataFlagProbe: null
-//            );
-
-//            // Assert
-//            Assert.Single(result);
-//            Assert.Equal(1, result.First().Id);
-//        }
-
-//        [Fact]
-//        public async Task GetTestProbeLinqAsync2_ShouldReturnTestProbeDetails()
-//        {
-//            // Arrange
-//            var startDate = System.DateTime.Now.AddDays(-2);
-//            var endDate = System.DateTime.Now;
-
-//            // Act
-//            var result = await _repository.GetTestProbeLinqAsync2(
-//                startDate: startDate,
-//                endDate: endDate,
-//                categoryId: null,
-//                testTypeId: null,
-//                tester: null,
-//                pcId: null,
-//                result: null,
-//                dataFlagTest: null,
-//                probeSn: "P123",
-//                transducerModuleSn: null,
-//                transducerSn: null,
-//                motorModuleSn: null,
-//                dataFlagProbe: null
-//            );
-
-//            // Assert
-//            Assert.Single(result);
-//            var testProbe = result.First();
-//            Assert.Equal(1, testProbe.Id);
-//            Assert.Equal("P123", testProbe.Probe.Sn);
-//            Assert.Equal("TM123", testProbe.TransducerModule.Sn);
-//            Assert.Equal("T123", testProbe.Transducer.Sn);
-//            Assert.Equal("M123", testProbe.MotorModule.Sn);
-//        }
-//    }
-//}
+        public void Dispose()
+        {
+            _context.Database.EnsureDeleted();
+            _context.Dispose();
+        }
+    }
+}

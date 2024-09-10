@@ -3,9 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
-using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.Services;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Services;
@@ -25,6 +23,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITestTypeRepository _testTypeRepository;
         private readonly ITransducerRepository _transducerRepository;
         private readonly ITransducerTypeRepository _transducerTypeRepository;
+        
         [ObservableProperty]
         private string _title = default!;
 

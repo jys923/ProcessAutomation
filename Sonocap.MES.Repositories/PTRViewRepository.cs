@@ -9,7 +9,7 @@ namespace SonoCap.MES.Repositories
 {
     public class PTRViewRepository : RepositoryBase<PTRView>, IPTRViewRepository
     {
-        public PTRViewRepository(MESDbContextFactory contextFactory) : base(contextFactory)
+        public PTRViewRepository(MESDbContext context) : base(context)
         {
         }
 
@@ -102,7 +102,7 @@ WHERE
             return pTRViews;
         }
 
-        public async Task<List<PTRView>> GetProbeTestResultLinqAsync2(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public async Task<List<PTRView>> GetProbeTestResultLinqAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
         {
             IQueryable<PTRView> query =
                 from ptrv in _context.Set<PTRView>()
@@ -138,10 +138,15 @@ WHERE
             return pTRViews;
         }
 
-
-        public async Task<List<ProbeTestResult>> GetProbeTestResultLinqAsync(DateTime? startDate, DateTime? endDate, string? probeSn, string? transducerModuleSn, string? transducerSn, string? motorModuleSn)
+        public IQueryable<PTRView> GetPTRView(
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? probeSn = null,
+            string? transducerModuleSn = null,
+            string? transducerSn = null,
+            string? motorModuleSn = null)
         {
-            IQueryable<ProbeTestResult> query = 
+            IQueryable<PTRView> query =
                 from ptrv in _context.Set<PTRView>()
                 join t1 in _context.Set<Test>() on ptrv.TestId01 equals t1.Id into t1Group
                 from t1 in t1Group.DefaultIfEmpty()
@@ -161,7 +166,7 @@ WHERE
                 from t8 in t8Group.DefaultIfEmpty()
                 join t9 in _context.Set<Test>() on ptrv.TestId09 equals t9.Id into t9Group
                 from t9 in t9Group.DefaultIfEmpty()
-                where 
+                where
                     ptrv.DataFlag == 1 &&
                     (startDate == null || ptrv.CreatedDate >= startDate) &&
                     (endDate == null || ptrv.CreatedDate <= endDate) &&
@@ -169,54 +174,9 @@ WHERE
                     (string.IsNullOrEmpty(transducerModuleSn) || ptrv.TransducerModuleSn.Contains(transducerModuleSn)) &&
                     (string.IsNullOrEmpty(transducerSn) || ptrv.TransducerSn.Contains(transducerSn)) &&
                     (string.IsNullOrEmpty(motorModuleSn) || ptrv.MotorModuleSn.Contains(motorModuleSn))
-                select new ProbeTestResult
-                {
-                    Id = ptrv.Id,
-                    ProbeSn = ptrv.ProbeSn,
-                    CreatedDate = ptrv.CreatedDate,
-                    TransducerModuleSn = ptrv.TransducerModuleSn,
-                    TransducerSn = ptrv.TransducerSn,
-                    MotorModuleSn = ptrv.MotorModuleSn,
-                    TestCategoryId1 = t1.TestCategoryId,
-                    TestTypeId1 = t1.TestTypeId,
-                    TestCreatedDate1 = t1.CreatedDate,
-                    TestResult1 = t1.Result,
-                    TestCategoryId2 = t2.TestCategoryId,
-                    TestTypeId2 = t2.TestTypeId,
-                    TestCreatedDate2 = t2.CreatedDate,
-                    TestResult2 = t2.Result,
-                    TestCategoryId3 = t3.TestCategoryId,
-                    TestTypeId3 = t3.TestTypeId,
-                    TestCreatedDate3 = t3.CreatedDate,
-                    TestResult3 = t3.Result,
-                    TestCategoryId4 = t4.TestCategoryId,
-                    TestTypeId4 = t4.TestTypeId,
-                    TestCreatedDate4 = t4.CreatedDate,
-                    TestResult4 = t4.Result,
-                    TestCategoryId5 = t5.TestCategoryId,
-                    TestTypeId5 = t5.TestTypeId,
-                    TestCreatedDate5 = t5.CreatedDate,
-                    TestResult5 = t5.Result,
-                    TestCategoryId6 = t6.TestCategoryId,
-                    TestTypeId6 = t6.TestTypeId,
-                    TestCreatedDate6 = t6.CreatedDate,
-                    TestResult6 = t6.Result,
-                    TestCategoryId7 = t7.TestCategoryId,
-                    TestTypeId7 = t7.TestTypeId,
-                    TestCreatedDate7 = t7.CreatedDate,
-                    TestResult7 = t7.Result,
-                    TestCategoryId8 = t8.TestCategoryId,
-                    TestTypeId8 = t8.TestTypeId,
-                    TestCreatedDate8 = t8.CreatedDate,
-                    TestResult8 = t8.Result,
-                    TestCategoryId9 = t9.TestCategoryId,
-                    TestTypeId9 = t9.TestTypeId,
-                    TestCreatedDate9 = t9.CreatedDate,
-                    TestResult9 = t9.Result
-                };
+                select ptrv;
 
-            List<ProbeTestResult> pTRViews = await query.ToListAsync();
-            return pTRViews;
+            return query;
         }
     }
 }

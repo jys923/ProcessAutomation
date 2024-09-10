@@ -1,12 +1,15 @@
-﻿namespace SonoCap.MES.Models.Converts
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SonoCap.MES.Models.Converts
 {
     public class TestToTestProbe
     {
         public static TestProbe Convert(Test test)
         {
             if (test == null)
-                return null;
+                throw new ArgumentNullException(nameof(test), "Test cannot be null");
 
+            // 변환 로직
             return new TestProbe
             {
                 Id = test.Id,
@@ -31,11 +34,17 @@
         public static IEnumerable<TestProbe> ToList(IEnumerable<Test> tests)
         {
             if (tests == null)
-                return new List<TestProbe>();
+                throw new ArgumentNullException(nameof(tests), "Test cannot be null");
 
             return tests.Select(test => Convert(test));
+        }
 
+        public static async Task<IEnumerable<TestProbe>> ToListAsync(IEnumerable<Test> tests)
+        {
+            if (tests == null)
+                throw new ArgumentNullException(nameof(tests), "Test cannot be null");
+
+            return await Task.Run(() => tests.Select(test => Convert(test)).ToList());
         }
     }
-
 }

@@ -16,9 +16,9 @@ using SonoCap.MES.Services;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
+using SonoCap.MES.UI.Commons;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SonoCap.MES.UI.Commons;
 
 namespace SonoCap.MES.UI
 {
@@ -44,8 +44,8 @@ namespace SonoCap.MES.UI
             base.OnStartup(e); // 기본 OnStartup 메서드를 호출하여 기본 초기화 수행
 
             // 비동기 초기화 작업을 시작합니다.
-            //Task.Run(() => InitializeAsync());
-            //Task.Run(() => SetTestThreshold());
+            //await Task.Run(() => InitializeAsync());
+            //await Task.Run(() => SetTestThreshold());
             // 비동기 초기화 작업을 시작합니다.
             await Task.WhenAll(
                 InitializeAsync(),
@@ -55,6 +55,7 @@ namespace SonoCap.MES.UI
             // 비동기 작업이 완료된 후에 나머지 초기화 작업을 수행합니다.
             SetMidnightTimer();
             SetPath();
+            //ShowMainView();
             ShowFirstView();
         }
 
@@ -69,7 +70,7 @@ namespace SonoCap.MES.UI
 
             ConfigureDbContext(services, appSettings);
             
-            services.AddScoped<MESDbContextFactory>();
+            //services.AddScoped<MESDbContextFactory>();
 
             RegisterServices(services);
             RegisterRepositories(services);
@@ -104,7 +105,7 @@ namespace SonoCap.MES.UI
                 options.EnableSensitiveDataLogging();
 
                 options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(120));
-            });
+            }, ServiceLifetime.Transient);
         }
 
         private async Task InitializeAsync()

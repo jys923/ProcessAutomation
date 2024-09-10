@@ -9,7 +9,7 @@ namespace SonoCap.MES.Repositories
 {
     public class ProbeRepository : RepositoryBase<Probe>, IProbeRepository
     {
-        public ProbeRepository(MESDbContextFactory contextFactory) : base(contextFactory)
+        public ProbeRepository(MESDbContext context) : base(context)
         {
         }
 
@@ -709,9 +709,14 @@ WHERE
             return _pTRView;
         }
 
+        public virtual Task<int> ExecuteSqlAsync(string sql)
+        {
+            return _context.Database.ExecuteSqlRawAsync(sql);
+        }
+
         public async Task<int> SetPTRViewsAsync()
         {
-            string query = 
+            string query =
 @"
 INSERT INTO PTRViews (ProbeSn, TransducerModuleSn, TransducerSn, MotorModuleSn, DataFlag, CreatedDate, TestId01, TestId02, TestId03, TestId04, TestId05, TestId06, TestId07, TestId08, TestId09)
 SELECT
@@ -720,7 +725,7 @@ SELECT
     td.Sn AS TransducerSn,
     mm.Sn AS MotorModuleSn,
     1 as DataFlag,
-    NOW() as CreatedDate,  
+    datetime('now') as CreatedDate,  
     (
         SELECT Id 
         FROM Tests 
@@ -790,8 +795,80 @@ FROM
     LEFT JOIN Transducers td ON tm.TransducerId = td.Id AND td.DataFlag = 1
     LEFT JOIN MotorModules mm ON p.MotorModuleId = mm.Id AND mm.DataFlag = 1;
 ";
-            return await _context.Database.ExecuteSqlRawAsync(query);
+            return await ExecuteSqlAsync(query);
 
+        }
+
+        public async Task<int> SetPTRViewsLinqAsync()
+        {
+            var probeTestResults = 
+                from p in _context.Set<Probe>()
+                join tm in _context.Set<TransducerModule>() on p.TransducerModuleId equals tm.Id into tmGroup
+                from tm in tmGroup.DefaultIfEmpty()
+                where tm.DataFlag == 1
+                join td in _context.Set<Transducer>() on tm.TransducerId equals td.Id into tdGroup
+                from td in tdGroup.DefaultIfEmpty()
+                where td.DataFlag == 1
+                join mm in _context.Set<MotorModule>() on p.MotorModuleId equals mm.Id into mmGroup
+                from mm in mmGroup.DefaultIfEmpty()
+                where mm.DataFlag == 1
+                select new PTRView
+                {
+                    ProbeSn = p.Sn,
+                    TransducerModuleSn = tm.Sn,
+                    TransducerSn = td.Sn,
+                    MotorModuleSn = mm.Sn,
+                    DataFlag = 1,
+                    CreatedDate = DateTime.Now,
+                    TestId01 = _context.Set<Test>()
+                        .Where(t => t.TransducerId == td.Id && t.TestCategoryId == 1 && t.TestTypeId == 1 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId02 = _context.Set<Test>()
+                        .Where(t => t.TransducerId == td.Id && t.TestCategoryId == 1 && t.TestTypeId == 2 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId03 = _context.Set<Test>()
+                        .Where(t => t.TransducerId == td.Id && t.TestCategoryId == 1 && t.TestTypeId == 3 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId04 = _context.Set<Test>()
+                        .Where(t => t.TransducerModuleId == tm.Id && t.TestCategoryId == 2 && t.TestTypeId == 1 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId05 = _context.Set<Test>()
+                        .Where(t => t.TransducerModuleId == tm.Id && t.TestCategoryId == 2 && t.TestTypeId == 2 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId06 = _context.Set<Test>()
+                        .Where(t => t.TransducerModuleId == tm.Id && t.TestCategoryId == 2 && t.TestTypeId == 3 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId07 = _context.Set<Test>()
+                        .Where(t => t.ProbeId == p.Id && t.TestCategoryId == 3 && t.TestTypeId == 1 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId08 = _context.Set<Test>()
+                        .Where(t => t.ProbeId == p.Id && t.TestCategoryId == 3 && t.TestTypeId == 2 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault(),
+                    TestId09 = _context.Set<Test>()
+                        .Where(t => t.ProbeId == p.Id && t.TestCategoryId == 3 && t.TestTypeId == 3 && t.DataFlag == 1)
+                        .OrderByDescending(t => t.Id)
+                        .Select(t => t.Id)
+                        .FirstOrDefault()
+                };
+
+            _context.Set<PTRView>().AddRange(probeTestResults);
+            return await _context.SaveChangesAsync();
         }
     }
 }

@@ -17,6 +17,7 @@
         <Button Content="TDMd" Command="{Binding TDMdTestCommand}"  HorizontalAlignment="Left" Margin="100,200,0,0" VerticalAlignment="Top" Width="100"/>
         <Button Content="Excel Import" Command="{Binding ImportExcelFileCommand}"  HorizontalAlignment="Left" Margin="100,250,0,0" VerticalAlignment="Top" Width="100"/>
         <Button Content="SeqNoTest" Command="{Binding SeqNoTestCommand}"  HorizontalAlignment="Left" Margin="100,300,0,0" VerticalAlignment="Top" Width="100"/>
+        
         <Button x:Name="ListBtn" Content="ProbeList" Command="{Binding ToListCommand}"  HorizontalAlignment="Left" Margin="200,50,0,0" VerticalAlignment="Top" Width="100"/>
         <Button x:Name="BlinkBtn" Content="BlinkToggle" Command="{Binding ToBlinkCommand}" 
         HorizontalAlignment="Left" Margin="200,100,0,0" VerticalAlignment="Top" Width="100">
@@ -46,6 +47,11 @@
                 </Style>
             </Button.Style>
         </Button>
+        <Button Content="Select1" Command="{Binding Select1Command}" HorizontalAlignment="Left" Margin="200,150,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="SetPTRView" Command="{Binding SetPTRViewCommand}" HorizontalAlignment="Left" Margin="200,200,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="GetSns" Command="{Binding GetSnsCommand}" HorizontalAlignment="Left" Margin="200,250,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="InputBox" Command="{Binding InputBoxCommand}" HorizontalAlignment="Left" Margin="200,300,0,0" VerticalAlignment="Top" Width="100"/>
+
         <TextBox x:Name="AutoCompleteTextBox"
                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                  VerticalAlignment="Top" 
@@ -72,17 +78,16 @@
                 </ListBox.Style>
             </ListBox>
         </Popup>
-        <Button Content="Master" Command="{Binding MasterCommand}" HorizontalAlignment="Left" Margin="100,350,0,0" VerticalAlignment="Top" Width="100"/>
+        
         <controls:TextBoxControl Validating="true" WaterMarkText="aaaa" IsEnabled="True" HorizontalAlignment="Left" Margin="300,100,0,0" VerticalAlignment="Top" Width="100"/>
-        <Button Content="Select1" Command="{Binding Select1Command}" HorizontalAlignment="Left" Margin="200,150,0,0" VerticalAlignment="Top" Width="100"/>
-        <Button Content="SetPTRView" Command="{Binding SetPTRViewCommand}" HorizontalAlignment="Left" Margin="200,200,0,0" VerticalAlignment="Top" Width="100"/>
-
         <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,150,0,0" TextWrapping="Wrap" Text="{Binding Query}" VerticalAlignment="Top" Width="100"/>
-        <Button Content="GetSns" Command="{Binding GetSnsCommand}" HorizontalAlignment="Left" Margin="200,250,0,0" VerticalAlignment="Top" Width="100"/>
-        <Button Content="InputBox" Command="{Binding InputBoxCommand}" HorizontalAlignment="Left" Margin="200,300,0,0" VerticalAlignment="Top" Width="100"/>
         <TextBox IsEnabled="True" HorizontalAlignment="Left" Margin="300,200,0,0" TextWrapping="Wrap" Text="{Binding Send}" VerticalAlignment="Top" Width="100"/>
-        <Button Content="send" Command="{Binding SendSocCommand}" HorizontalAlignment="Left" Margin="300,250,0,0" VerticalAlignment="Top" Width="100"/>
-        <Button Content="receive" Command="{Binding ReceiveCommand}" HorizontalAlignment="Left" Margin="300,300,0,0" VerticalAlignment="Top" Width="100"/>
+        
+        <Button Content="Master" Command="{Binding Master3Command}" HorizontalAlignment="Left" Margin="400,50,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="Master" Command="{Binding Master3Command}" HorizontalAlignment="Left" Margin="400,100,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="send" Command="{Binding SendSocCommand}" HorizontalAlignment="Left" Margin="400,150,0,0" VerticalAlignment="Top" Width="100"/>
+        <Button Content="receive" Command="{Binding ReceiveCommand}" HorizontalAlignment="Left" Margin="400,200,0,0" VerticalAlignment="Top" Width="100"/>
+
         <GroupBox  Margin="660,40,0,0" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100" >
             <Image Stretch="Uniform" Source="{Binding SrcImg}"/>
         </GroupBox>

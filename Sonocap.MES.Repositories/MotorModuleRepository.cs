@@ -7,7 +7,7 @@ namespace SonoCap.MES.Repositories
 {
     public class MotorModuleRepository : RepositoryBase<MotorModule>, IMotorModuleRepository
     {
-        public MotorModuleRepository(MESDbContextFactory contextFactory) : base(contextFactory)
+        public MotorModuleRepository(MESDbContext context) : base(context)
         {
         }
     }

@@ -1,4 +1,4 @@
-﻿#define MIGRATION
+﻿//#define MIGRATION
 
 using SonoCap.MES.Models;
 using Microsoft.EntityFrameworkCore;

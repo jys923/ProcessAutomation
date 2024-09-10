@@ -14,10 +14,25 @@ remove-migration
 ```
 
 ## Todo
-- [ ] openGL research
-- [ ] cpp 빌드 과정
+- [ ] 다음줄 활성 /비활성 전환
+- [ ] 블링크 인덱스 관련 디버깅 다음 줄 비활성
+- [ ] 강제 검수 후 다음줄 비활성
+- [ ] mt 넣고 다음줄 비활성
 - [ ] 한소노 lib에서 영상 직접 받기
+- [ ] Silk.NET
+- [ ] openTK openGL research
 - [ ] tests table null 없게 바꾸기 조회시 퀴리가 복잡해짐
+- [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
+- [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
+- [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
+- [X] 윈 선 그리기
+- [X] 셀클릭 후 검사시 prf 까지 변경
+- [X] export excel 성공 실패 msg
+- [X] 한소노 앱 미실행 강제 종료 msg 
+- [X] 한소노 소켓 서버가 없으면 강제 종료
+- [X] 참조, 안쓰는 nuget 정리 
+- [X] test list 비동기 속도 개선
+- [X] cpp 빌드 과정
 - [X] 유저 컨트롤
 	- [ ] messagebox
 		- https://arong.info/Archive/ContentsView/28
@@ -30,8 +45,6 @@ remove-migration
 	- [ ] https://forum.dotnetdev.kr/t/mvvm-sample-for-wpf-usercontrol/8919
 	- [ ] UserControl https://kaki104.tistory.com/851
 	- [ ] UserControl https://narup.tistory.com/68
-- [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
-- [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
 - [X] 이벤트 핸들러, 콜백 쓰는 방법ㅋ
 - [X] mfc, wpf 통신 방법 소켓
 	- <a href="https://petra.tistory.com/613">cpp 소켓 프로그래밍</a>
@@ -45,7 +58,6 @@ remove-migration
 - [X] excel import
 - [X] excel export
 - [X] WPF -> MFC : save 명령 req , MFC : img 저장 , MFC -> WPF : 파일패스 res
-- [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
 - [X] 모달 https://www.youtube.com/watch?v=uBMMvPG7zn4 
 - [X] 윈도우 생명주기
 	- https://www.youtube.com/watch?v=SJIhnpb0rM0
@@ -84,7 +96,7 @@ remove-migration
 - [X] 검색시 td 객체에 데이터 삽입 널 체크
 - [X] dataflag 0 조회 확인
 - [X] testView 시나리오 확립
-- [ ] datagrid click 세부 내용
+- [X] datagrid click 세부 내용
 - [X] 기본 포커스 위치?
 	- why 빨간줄 나옴
 - [X] 모터 모듈 s/n 파일 import
@@ -103,7 +115,7 @@ remove-migration
 	- [X] 없으면 밑에 없다고 출력
 - [ ] Datagrid 필터링
 	- https://stackoverflow.com/questions/6317860/should-i-bind-to-icollectionview-or-observablecollection
-- [ ] datagrid 60만건 속도 개선
+- [X] datagrid 60만건 속도 개선
 	- https://stackoverflow.com/questions/1704512/wpf-toolkit-datagrid-scrolling-performance-problems-why
 - [X] db crud
 - [X] db 만건 1초 튜닝
@@ -132,7 +144,7 @@ remove-migration
 - [X] Microsoft.Extensions.Logging vs :star: :sparkles: :crown: Serilog
 	- logging .net 기본 시간 표기 가능,
 	- serilog 구조화된 로그 추가 복잡할 때 사용
-- [ ] TDD mock 객체 vs UseInMemoryDatabase
+- [X] TDD mock 객체 vs UseInMemoryDatabase
 - [ ] WPF animation
 - [ ] behavior
 - [ ] find first asqueryable 용도

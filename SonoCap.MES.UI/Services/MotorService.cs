@@ -12,19 +12,19 @@ namespace SonoCap.MES.UI.Services
 
             switch (depthInCm)
             {
-                case 10000:
+                case 7:
                     prf = PRF.PRF_10;
                     break;
-                case 12000:
+                case 6:
                     prf = PRF.PRF_12;
                     break;
-                case 15000:
+                case 5:
                     prf = PRF.PRF_15;
                     break;
-                case 16000:
+                case 4:
                     prf = PRF.PRF_16;
                     break;
-                case 20000:
+                case 3:
                     prf = PRF.PRF_20;
                     break;
                 default:

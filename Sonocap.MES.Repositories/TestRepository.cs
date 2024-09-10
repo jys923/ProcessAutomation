@@ -8,7 +8,7 @@ namespace SonoCap.MES.Repositories
 {
     public class TestRepository : RepositoryBase<Test>, ITestRepository
     {
-        public TestRepository(MESDbContextFactory contextFactory) : base(contextFactory)
+        public TestRepository(MESDbContext context) : base(context)
         {
         }
 
@@ -40,12 +40,12 @@ namespace SonoCap.MES.Repositories
                  join tt in _context.Set<TestType>() on t.TestTypeId equals tt.Id into ttGroup
                  from tt in ttGroup.DefaultIfEmpty()
                  where t.DataFlag == 1
-                    && t.Id < 100000
+                    && t.Id < 10000//0
                     && (startDate == null || t.CreatedDate >= startDate)
                     && (endDate == null || t.CreatedDate <= endDate)
                     && (categoryId == null || t.TestCategoryId == categoryId)
                     && (testTypeId == null || t.TestTypeId == testTypeId)
-                    && (string.IsNullOrEmpty(tester) || p.Sn.Contains(tester))
+                    && (string.IsNullOrEmpty(tester) || t.Tester.Name.Contains(tester))
                     && (pcId == null || t.Tester.PcId == pcId)
                     && (result == null ||
                         (result == 1 && tt != null && t.Result >= tt.Threshold) ||
@@ -115,57 +115,6 @@ namespace SonoCap.MES.Repositories
                  });
 
             return await query.ToListAsync();
-        }
-
-        public IEnumerable<Test> GetLatestTestsForTransducer(Transducer transducer)
-        {
-            var resultQuery =
-                from test in _context.Set<Test>()
-                where test.TransducerId == transducer.Id
-                && new[] { 1, 2, 3 }.Contains(test.TestTypeId)
-                && test.Id == (
-                    (from t2 in _context.Set<Test>()
-                     where t2.TransducerId == test.TransducerId
-                        && t2.TestTypeId == test.TestTypeId
-                     select t2.Id).Max())
-                orderby test.TestTypeId
-                select test;
-
-            return resultQuery.ToList();
-        }
-
-        public IEnumerable<Test> GetLatestTestsForTransducerModule(TransducerModule transducerModule)
-        {
-            var resultQuery =
-                from test in _context.Set<Test>()
-                where test.TransducerModuleId == transducerModule.Id
-                && new[] { 1, 2, 3 }.Contains(test.TestTypeId)
-                && test.Id == (
-                    (from t2 in _context.Set<Test>()
-                     where t2.TransducerId == test.TransducerId
-                     && t2.TestTypeId == test.TestTypeId
-                     select t2.Id).Max())
-                orderby test.TestTypeId
-                select test;
-
-            return resultQuery.ToList();
-        }
-
-        public IEnumerable<Test> GetLatestTestsForProbe(Probe probe)
-        {
-            var resultQuery =
-                from test in _context.Set<Test>()
-                where test.ProbeId == probe.Id
-                && new[] { 1, 2, 3 }.Contains(test.TestTypeId)
-                && test.Id == (
-                    (from t2 in _context.Set<Test>()
-                     where t2.TransducerId == test.TransducerId
-                     && t2.TestTypeId == test.TestTypeId
-                     select t2.Id).Max())
-                orderby test.TestTypeId
-                select test;
-
-            return resultQuery.ToList();
         }
 
         public IEnumerable<Test> GetLatestTests(Transducer? transducer = null, TransducerModule? transducerModule = null, Probe? probe = null)

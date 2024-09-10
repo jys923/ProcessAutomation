@@ -57,16 +57,26 @@
         public static IEnumerable<ProbeTestResult> ToList(IEnumerable<PTRView> ptrViews)
         {
             if (ptrViews == null)
-                return new List<ProbeTestResult>();
+                throw new ArgumentNullException(nameof(ptrViews), "ptrViews cannot be null");
+            //return new List<ProbeTestResult>();
 
             return ptrViews.Select(ptrView => Convert(ptrView));
+        }
 
+        public static async Task<IEnumerable<ProbeTestResult>> ToListAsync(IEnumerable<PTRView> ptrViews)
+        {
+            if (ptrViews == null)
+                throw new ArgumentNullException(nameof(ptrViews), "ptrViews cannot be null");
+            //return new List<ProbeTestResult>();
+
+            return await Task.Run(() => ptrViews.Select(ptrView => Convert(ptrView)).ToList());
         }
 
         public IEnumerable<ProbeTestResult> ToList(List<PTRView> ptrViews)
         {
             if (ptrViews == null)
-                return new List<ProbeTestResult>();
+                throw new ArgumentNullException(nameof(ptrViews), "ptrViews cannot be null");
+            //return new List<ProbeTestResult>();
 
             List<ProbeTestResult> probeTestResults = new List<ProbeTestResult>();
 

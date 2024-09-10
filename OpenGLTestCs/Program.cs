@@ -1,78 +1,141 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using System.Drawing;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
-class Program
+
+namespace OpenGLTestCs
 {
-    private static GameWindow window = default!;
-
-    static void Main()
+    // This is where all OpenGL code will be written.
+    // OpenToolkit allows for several functions to be overriden to extend functionality; this is how we'll be writing code.
+    public class Window : GameWindow
     {
-        var gameWindowSettings = new GameWindowSettings()
+        // A simple constructor to let us set properties like window size, title, FPS, etc. on the window.
+        public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
+            : base(gameWindowSettings, nativeWindowSettings)
         {
-            UpdateFrequency = 60.0
-        };
+        }
 
-        var nativeWindowSettings = new NativeWindowSettings()
+        // This function runs on every update frame.
+        protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            //ClientSize = new System.Drawing.Size(800, 600),
-            Title = "OpenTK Sample",
-            APIVersion = new Version(4, 6),
-            // 필요에 따라 OpenGL 기능 버전과 컨텍스트를 설정
-        };
+            // Check if the Escape button is currently being pressed.
+            if (KeyboardState.IsKeyDown(Keys.Escape))
+            {
+                // If it is, close the window.
+                Close();
+            }
 
-        window = new GameWindow(gameWindowSettings, nativeWindowSettings);
-
-        //window = new GameWindow(GameWindowSettings.Default, NativeWindowSettings.Default);
-
-        window.Load += OnLoad;
-        window.RenderFrame += OnRenderFrame;
-        window.UpdateFrame += OnUpdateFrame;
-        window.KeyDown += OnKeyDown;
-
-        window.Run();
-    }
-
-    private static void OnLoad()
-    {
-        GL.ClearColor(Color.CornflowerBlue); // 배경색을 검정색으로 설정
-        GL.ClearDepth(1.0);// '깊이 버퍼에대한 값을 지정합니다.
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.ShadeModel(ShadingModel.Smooth);//
-        GL.LoadIdentity();
-        GL.Ortho(0, 800, 0, 600, -1, 1); // 2D 투영 설정
-    }
-
-    private static void OnRenderFrame(FrameEventArgs frame)
-    {
-        GL.LoadIdentity();
-        //OnRenderFrame(frame);
-        GL.Clear(ClearBufferMask.ColorBufferBit);
-
-        GL.Color3(Color.Tomato); // 사각형 색상 설정 (빨간색)
-        GL.Begin(PrimitiveType.Quads); // 사각형을 그리기 위한 시작
-        GL.Vertex2(100, 100); // 왼쪽 아래
-        GL.Vertex2(200, 100); // 오른쪽 아래
-        GL.Vertex2(200, 200); // 오른쪽 위
-        GL.Vertex2(100, 200); // 왼쪽 위
-        GL.End(); // 사각형 그리기 종료
-
-        window.SwapBuffers(); // 화면 업데이트
-    }
-
-    private static void OnUpdateFrame(FrameEventArgs frame)
-    {
-        // 입력 처리나 애니메이션 업데이트 등이 필요한 경우 여기서 처리
-    }
-
-    private static void OnKeyDown(KeyboardKeyEventArgs e)
-    {
-        Console.WriteLine($"{e.Key}");
-        if (e.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape)
-        {
-            window.Close();
+            base.OnUpdateFrame(e);
         }
     }
 }
 
+//public class Program
+//{
+//    public static void Main(string[] args)
+//    {
+//        var gameWindowSettings = new GameWindowSettings();
+//        var nativeWindowSettings = new NativeWindowSettings()
+//        {
+//            Size = new Vector2i(800, 600),
+//            Profile = ContextProfile.Compatability,
+//            Title = "OpenTK Immediate Mode 3D Example"
+//        };
+
+//        using (var window = new Simple3DWindow(gameWindowSettings, nativeWindowSettings))
+//        {
+//            window.Run();
+//        }
+//    }
+//}
+
+//public class Simple3DWindow : GameWindow
+//{
+//    private float _rotation = 0.0f;
+
+//    public Simple3DWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
+//        : base(gameWindowSettings, nativeWindowSettings)
+//    {
+//    }
+
+//    protected override void OnLoad()
+//    {
+//        base.OnLoad();
+//        GL.ClearColor(Color4.CornflowerBlue);
+//        GL.Enable(EnableCap.DepthTest); // 깊이 테스트 활성화
+//    }
+
+//    protected override void OnResize(ResizeEventArgs e)
+//    {
+//        base.OnResize(e);
+//        GL.Viewport(0, 0, Size.X, Size.Y);
+//        GL.MatrixMode(MatrixMode.Projection);
+//        GL.LoadIdentity();
+//        Matrix4 perspective = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, Size.X / (float)Size.Y, 0.1f, 100.0f);
+//        GL.LoadMatrix(ref perspective);
+//    }
+
+//    protected override void OnUpdateFrame(FrameEventArgs e)
+//    {
+//        base.OnUpdateFrame(e);
+//        _rotation += 0.01f;
+//    }
+
+//    protected override void OnRenderFrame(FrameEventArgs e)
+//    {
+//        base.OnRenderFrame(e);
+//        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+//        GL.MatrixMode(MatrixMode.Modelview);
+//        GL.LoadIdentity();
+//        GL.Translate(0.0f, 0.0f, -5.0f);
+//        GL.Rotate(_rotation, 0.0f, 1.0f, 0.0f);
+
+//        RenderCube();
+
+//        SwapBuffers();
+//    }
+
+//    private void RenderCube()
+//    {
+//        GL.Begin(PrimitiveType.Quads);
+
+//        GL.Color3(1.0, 0.0, 0.0); // 빨간색
+//        GL.Vertex3(-1.0, -1.0, -1.0);
+//        GL.Vertex3(1.0, -1.0, -1.0);
+//        GL.Vertex3(1.0, 1.0, -1.0);
+//        GL.Vertex3(-1.0, 1.0, -1.0);
+
+//        GL.Color3(0.0, 1.0, 0.0); // 초록색
+//        GL.Vertex3(-1.0, -1.0, 1.0);
+//        GL.Vertex3(1.0, -1.0, 1.0);
+//        GL.Vertex3(1.0, 1.0, 1.0);
+//        GL.Vertex3(-1.0, 1.0, 1.0);
+
+//        GL.Color3(0.0, 0.0, 1.0); // 파란색
+//        GL.Vertex3(-1.0, -1.0, -1.0);
+//        GL.Vertex3(-1.0, -1.0, 1.0);
+//        GL.Vertex3(-1.0, 1.0, 1.0);
+//        GL.Vertex3(-1.0, 1.0, -1.0);
+
+//        GL.Color3(1.0, 1.0, 0.0); // 노란색
+//        GL.Vertex3(1.0, -1.0, -1.0);
+//        GL.Vertex3(1.0, -1.0, 1.0);
+//        GL.Vertex3(1.0, 1.0, 1.0);
+//        GL.Vertex3(1.0, 1.0, -1.0);
+
+//        GL.Color3(1.0, 0.0, 1.0); // 보라색
+//        GL.Vertex3(-1.0, -1.0, -1.0);
+//        GL.Vertex3(1.0, -1.0, -1.0);
+//        GL.Vertex3(1.0, -1.0, 1.0);
+//        GL.Vertex3(-1.0, -1.0, 1.0);
+
+//        GL.Color3(0.0, 1.0, 1.0); // 청록색
+//        GL.Vertex3(-1.0, 1.0, -1.0);
+//        GL.Vertex3(1.0, 1.0, -1.0);
+//        GL.Vertex3(1.0, 1.0, 1.0);
+//        GL.Vertex3(-1.0, 1.0, 1.0);
+
+//        GL.End();
+//    }
+//}
