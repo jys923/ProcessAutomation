@@ -12,9 +12,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="OpenTK" Version="4.8.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CubeRenderer\CubeRenderer.vcxproj" />
     <ProjectReference Include="..\SonoCap.Commons\SonoCap.Commons.csproj" />
     <ProjectReference Include="..\SonoCapUsImg\SonoCapUsImg.vcxproj">
       <TreatAsUsed>true</TreatAsUsed>

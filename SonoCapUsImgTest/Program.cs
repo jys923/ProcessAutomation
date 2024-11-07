@@ -1,4 +1,8 @@
-﻿using Serilog;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using Serilog;
 using SonoCap.Commons;
 using System.Runtime.InteropServices;
 using System.Timers;
@@ -7,42 +11,78 @@ namespace SonoCapUsImgTest
 {
     class Program
     {
-        [DllImport("SonoCapUsImgD.dll")]
-        public static extern double ForTest(int length);
+        //[DllImport("SonoCapUsImgD.dll")]
+        //public static extern double ForTest(int length);
+
+        //static void Main(string[] args)
+        //{
+        //    LoggingConfigurator.Configure(LogMode.Console);
+
+        //    Console.WriteLine("Hello, World!");
+        //    //var cppResult = ForTest(100000000);
+        //    //Console.WriteLine("CPP 결과 : " + cppResult + "ms");
+
+        //    //var csResult = CSharpForTest(100000000);
+        //    //Console.WriteLine("CS 결과 : " + csResult + "ms");
+
+        //    //Init();
+
+        //    //while (true)
+        //    //{
+
+        //    //}
+
+        //    var nativeWindowSettings = new NativeWindowSettings()
+        //    {
+        //        ClientSize = new Vector2i(512, 512),
+        //        Title = "LearnOpenTK - Creating a Window",
+
+        //        Profile = ContextProfile.Compatability,
+
+        //        // This is needed to run on macos
+        //        //Flags = ContextFlags.ForwardCompatible,
+        //    };
+
+        //    using (var window = new CudeWindow(GameWindowSettings.Default, nativeWindowSettings))
+        //    {
+        //        //Init();
+        //        window.Run();
+        //    }
+        //}
+
+        //public static double CSharpForTest(int length)
+        //{
+        //    DateTime startTime = DateTime.Now; // 시작 시간 기록
+        //    int j = 0;
+        //    for (int i = 0; i < length; i++)
+        //    {
+        //        j++;
+        //    }
+        //    DateTime endTime = DateTime.Now; // 종료 시간 기록
+
+        //    TimeSpan elapsedTime = endTime - startTime; // 경과 시간 계산
+
+        //    double elapsedMilliseconds = elapsedTime.TotalMilliseconds; // 경과 시간을 밀리초로 얻음
+
+        //    return elapsedMilliseconds;
+        //}
+
+        // C++ DLL의 RenderCube 함수 선언
 
         static void Main(string[] args)
         {
-            LoggingConfigurator.Configure(LogMode.Console);
-
-            Console.WriteLine("Hello, World!");
-            //var cppResult = ForTest(100000000);
-            //Console.WriteLine("CPP 결과 : " + cppResult + "ms");
-
-            //var csResult = CSharpForTest(100000000);
-            //Console.WriteLine("CS 결과 : " + csResult + "ms");
-
-            Init();
-
-            while (true) {
-
-            }
-        }
-
-        public static double CSharpForTest(int length)
-        {
-            DateTime startTime = DateTime.Now; // 시작 시간 기록
-            int j = 0;
-            for (int i = 0; i < length; i++)
+            // GameWindow 설정
+            var nativeWindowSettings = new NativeWindowSettings()
             {
-                j++;
+                Size = new OpenTK.Mathematics.Vector2i(800, 600),
+                Title = "OpenGL Cube Demo",
+                Profile = ContextProfile.Compatability,
+            };
+
+            using (var window = new SimpleWindow(GameWindowSettings.Default, nativeWindowSettings))
+            {
+                window.Run();
             }
-            DateTime endTime = DateTime.Now; // 종료 시간 기록
-            
-            TimeSpan elapsedTime = endTime - startTime; // 경과 시간 계산
-
-            double elapsedMilliseconds = elapsedTime.TotalMilliseconds; // 경과 시간을 밀리초로 얻음
-
-            return elapsedMilliseconds;
         }
 
         private static System.Timers.Timer timer;
@@ -57,6 +97,7 @@ namespace SonoCapUsImgTest
                 //Log.Information($"Sender: {s}");
                 Log.Information($"Timer elapsed event triggered at {e.SignalTime}");
                 SonoCapUsImgService.HsnBufferCreatorGetBitmapBuffer();
+                //SonoCapUsImgService.IpRenderWithCapture();
             };
             timer.AutoReset = true; // 타이머가 주기적으로 실행되도록 설정
             timer.Start();
@@ -86,22 +127,20 @@ namespace SonoCapUsImgTest
 
             SonoCapUsImgService.HsnBufferCreatorInitialize();
 
-            //SonoCapUsImgService.HsnBufferCreatorGetBitmapBuffer();
+            if (!SonoCapUsImgService.IpInitialize())
+            {
+                Log.Information("ipInitialize Fail");
+                return;
+            }
 
-            //if (!SonoCapUsImgService.IpInitialize())
-            //{
-            //    Log.Information("ipInitialize Fail");
-            //    return;
-            //}
-
-            //int width = 512;
-            //int height = 512;
-            //if (!SonoCapUsImgService.IpResize(width, height))
-            //{
-            //    //exception
-            //    Log.Information("ipResize Fail");
-            //    return;
-            //}
+            int width = 512;
+            int height = 512;
+            if (!SonoCapUsImgService.IpResize(width, height))
+            {
+                //exception
+                Log.Information("ipResize Fail");
+                return;
+            }
         }
 
         static int probe = 0;

@@ -46,6 +46,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SonoCap.Tests", "SonoCap.Te
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGL3WinMain", "OpenGL3WinMain\OpenGL3WinMain.vcxproj", "{109AB1DD-790F-4F6D-818B-144DADE451AF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CubeRenderer", "CubeRenderer\CubeRenderer.vcxproj", "{8025D39C-F73B-472D-86C0-DEFFA41024EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -284,6 +286,18 @@ Global
 		{109AB1DD-790F-4F6D-818B-144DADE451AF}.Release|x64.Build.0 = Release|x64
 		{109AB1DD-790F-4F6D-818B-144DADE451AF}.Release|x86.ActiveCfg = Release|Win32
 		{109AB1DD-790F-4F6D-818B-144DADE451AF}.Release|x86.Build.0 = Release|Win32
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Debug|Any CPU.Build.0 = Debug|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Debug|x64.ActiveCfg = Debug|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Debug|x64.Build.0 = Debug|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Debug|x86.ActiveCfg = Debug|Win32
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Debug|x86.Build.0 = Debug|Win32
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Release|Any CPU.ActiveCfg = Release|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Release|Any CPU.Build.0 = Release|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Release|x64.ActiveCfg = Release|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Release|x64.Build.0 = Release|x64
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Release|x86.ActiveCfg = Release|Win32
+		{8025D39C-F73B-472D-86C0-DEFFA41024EF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

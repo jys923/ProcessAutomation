@@ -1,6 +1,8 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL;
 
 namespace OpenGLTestCs
 {
@@ -12,6 +14,21 @@ namespace OpenGLTestCs
         public Window(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
         {
+        }
+
+        // Now, we start initializing OpenGL.
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+            GL.ClearColor(Color4.CornflowerBlue);
+            GL.Enable(EnableCap.DepthTest); // 깊이 테스트 활성화
+        }
+
+        // Now that initialization is done, let's create our render loop.
+        protected override void OnRenderFrame(FrameEventArgs e)
+        {
+            base.OnRenderFrame(e);
+            SwapBuffers();
         }
 
         // This function runs on every update frame.

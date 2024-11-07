@@ -172,7 +172,7 @@ namespace SonoCapUsImgTest
         public static extern bool IsIpInitialized();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr IpRenderWithCapture(
+        public static extern UIntPtr IpRenderWithCapture(
             IntPtr output_final_image_buf,
             UIntPtr final_image_buf_length,
             IntPtr output_raw_data_buf,
