@@ -84,7 +84,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         private int _oldRow = -1;
         private int _oldCol = -1;
-        private CellPositions _oldCell = (CellPositions)(-1);
+        private CellPositions _oldCell = (int)CellPositions.Row0_Column0;
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
@@ -588,7 +588,7 @@ namespace SonoCap.MES.UI.ViewModels
             TDSnIsPopupOpen = false;
 
             //// TestCommand의 CanExecute 상태를 갱신합니다.
-            //(TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
 
             //if (TestCommand.CanExecute(null))
             //{
@@ -599,7 +599,9 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private async Task ForcePassAsync(CellPositions position)
         {
-            Log.Information($"{nameof(ForcePassAsync)}");
+            Log.Information($"{nameof(ForcePassAsync)} click {position}");
+            int row = (int)position / 10;
+            _testCategory = (TestCategories)row;
             bool proceed = Controls.MessageBox.Show("강제 검사", "강제 검사 실행?");
             if (!proceed) 
             {
@@ -609,7 +611,7 @@ namespace SonoCap.MES.UI.ViewModels
             switch (position)
             {
                 case CellPositions.Row1_Column4:
-                    Log.Information($"click {CellPositions.Row1_Column4}");
+                    //BlinkingCellIndex = (int)CellPositions.Row1_Column1;
                     if (_transducer != null)
                     {
                         await ForceAllPassAsync(TestCategories.Processing);
@@ -621,7 +623,7 @@ namespace SonoCap.MES.UI.ViewModels
                     }
                     break;
                 case CellPositions.Row2_Column4:
-                    Log.Information($"click {CellPositions.Row2_Column4}");
+                    //BlinkingCellIndex = (int)CellPositions.Row2_Column1;
                     if (_transducerModule != null)
                     {
                         await ForceAllPassAsync(TestCategories.Process);
@@ -632,7 +634,7 @@ namespace SonoCap.MES.UI.ViewModels
                     }
                     break;
                 case CellPositions.Row3_Column4:
-                    Log.Information($"click {CellPositions.Row3_Column4}");
+                    //BlinkingCellIndex = (int)CellPositions.Row3_Column1;
                     if (_probe != null)
                     {
                         await ForceAllPassAsync(TestCategories.Dispatch);
@@ -653,7 +655,7 @@ namespace SonoCap.MES.UI.ViewModels
             TDSnIsPopupOpen = false;
 
             // TestCommand의 CanExecute 상태를 갱신합니다.
-            (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            //(TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
 
             //if (TestCommand.CanExecute(null))
             //{
@@ -835,7 +837,7 @@ namespace SonoCap.MES.UI.ViewModels
                 }
                 else
                 {
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column1;
+                    BlinkingCellIndex = (int)_oldCell;
                     TdCellIsEnabled = true;
                     //셀버튼 _td _tdMd _p 각각 널이면 가로로 한줄을 끔
                     SetBySn(SnType.Transducer, value);
@@ -930,7 +932,14 @@ namespace SonoCap.MES.UI.ViewModels
         private bool CanTest()
         {
             Log.Information(nameof(CanTest));
-            return BlinkingCellIndex != -1 && GetValidating(nameof(TDSn));
+            List<int> validIndices = new List<int> 
+            { 
+                (int)CellPositions.Row1_Column1, (int)CellPositions.Row1_Column2, (int)CellPositions.Row1_Column3,
+                (int)CellPositions.Row2_Column1, (int)CellPositions.Row2_Column2, (int)CellPositions.Row2_Column3,
+                (int)CellPositions.Row3_Column1, (int)CellPositions.Row3_Column2, (int)CellPositions.Row3_Column3 
+            };
+            return validIndices.Contains(BlinkingCellIndex) && GetValidating(nameof(TDSn));
+
             //bool res = false;
             //switch (_testCategory)
             //{
