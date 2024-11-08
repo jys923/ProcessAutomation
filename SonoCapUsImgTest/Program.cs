@@ -79,7 +79,7 @@ namespace SonoCapUsImgTest
                 Profile = ContextProfile.Compatability,
             };
 
-            using (var window = new SimpleWindow(GameWindowSettings.Default, nativeWindowSettings))
+            using (var window = new HsnWindow(GameWindowSettings.Default, nativeWindowSettings))
             {
                 window.Run();
             }

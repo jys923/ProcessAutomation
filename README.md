@@ -19,11 +19,13 @@ remove-migration
 - [ ] 강제 검수 후 다음줄 비활성
 - [ ] mt 넣고 다음줄 비활성
 - [ ] 한소노 lib에서 영상 직접 받기
-- [ ] Silk.NET
 - [ ] openTK openGL research
+- [ ] HsnPreview 가 안나옴
+- [ ] Silk.NET
 - [ ] tests table null 없게 바꾸기 조회시 퀴리가 복잡해짐
 - [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
 - [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
+- [X] behavier로 깜빡이 코드 중복 제거
 - [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
 - [X] 윈 선 그리기
 - [X] 셀클릭 후 검사시 prf 까지 변경
