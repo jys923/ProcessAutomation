@@ -1,9 +1,0 @@
-﻿using EFCoreSample.Entities;
-using EFCoreSample.Repositories.Base;
-
-namespace EFCoreSample.Repositories
-{
-    public interface ITestRepository : IRepositoryBase<Test>
-    {
-    }
-}
