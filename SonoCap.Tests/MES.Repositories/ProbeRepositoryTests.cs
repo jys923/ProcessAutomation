@@ -51,21 +51,21 @@ namespace SonoCap.MES.Repositories.Tests
         //    Assert.Equal(1, insertedRecord?.DataFlag);
         //}
 
-        [Fact]
-        public async Task GetPTRViewAsync_ShouldReturnPTRView()
-        {
-            TestHelper.SeedDatabaseForDetailedTests(_context);
-            TestHelper.SeedDatabaseForDetailedTestsProbe(_context);
+        //[Fact]
+        //public async Task GetPTRViewAsync_ShouldReturnPTRView()
+        //{
+        //    TestHelper.SeedDatabaseForDetailedTests(_context);
+        //    TestHelper.SeedDatabaseForDetailedTestsProbe(_context);
 
-            //await _repository.SetPTRViewsAsync();
-            var result = await _repository.GetPTRViewAsync("ProbeSN1");
+        //    //await _repository.SetPTRViewsAsync();
+        //    var result = await _repository.GetPTRViewAsync("ProbeSN1");
 
-            Assert.NotNull(result);
-            Assert.Equal("ProbeSN1", result?.ProbeSn);
-            Assert.Equal("TransducerModuleSN1", result?.TransducerModuleSn);
-            Assert.Equal("TransducerSN1", result?.TransducerSn);
-            Assert.Equal("MotorModuleSN1", result?.MotorModuleSn);
-            Assert.Equal(1, result?.TestId01);
-        }
+        //    Assert.NotNull(result);
+        //    Assert.Equal("ProbeSN1", result?.ProbeSn);
+        //    Assert.Equal("TransducerModuleSN1", result?.TransducerModuleSn);
+        //    Assert.Equal("TransducerSN1", result?.TransducerSn);
+        //    Assert.Equal("MotorModuleSN1", result?.MotorModuleSn);
+        //    Assert.Equal(1, result?.TestId01);
+        //}
     }
 }

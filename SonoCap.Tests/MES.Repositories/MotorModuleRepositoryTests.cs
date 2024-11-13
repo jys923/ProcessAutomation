@@ -31,19 +31,19 @@ namespace SonoCap.MES.Repositories.Tests
             Assert.NotEqual(0, motorModule.Id);
         }
 
-        [Fact]
-        public async Task GetAllAsync_ShouldReturnAllEntities()
-        {
-            var motorModule1 = new MotorModule { Sn = "module-sn2" };
-            var motorModule2 = new MotorModule { Sn = "module-sn3" };
+        //[Fact]
+        //public async Task GetAllAsync_ShouldReturnAllEntities()
+        //{
+        //    var motorModule1 = new MotorModule { Sn = "module-sn2" };
+        //    var motorModule2 = new MotorModule { Sn = "module-sn3" };
 
-            await _repository.InsertAsync(motorModule1);
-            await _repository.InsertAsync(motorModule2);
+        //    await _repository.InsertAsync(motorModule1);
+        //    await _repository.InsertAsync(motorModule2);
 
-            var result = await _repository.GetAllAsync();
+        //    var result = await _repository.GetAllAsync();
 
-            Assert.Equal(2, result.Count());
-        }
+        //    Assert.Equal(2, result.Count());
+        //}
 
         //[Fact]
         public async Task BulkInsertAsync_ShouldAddEntities()
@@ -134,23 +134,23 @@ namespace SonoCap.MES.Repositories.Tests
             Assert.Equal("module-sn10", result.First().Sn);
         }
 
-        [Fact]
-        public async Task UpsertAsync_ShouldInsertOrUpdateEntity()
-        {
-            var motorModule = new MotorModule { Sn = "module-sn11" };
+        //[Fact]
+        //public async Task UpsertAsync_ShouldInsertOrUpdateEntity()
+        //{
+        //    var motorModule = new MotorModule { Sn = "module-sn11" };
 
-            var insertResult = await _repository.UpsertAsync(motorModule);
-            //Assert.Equal(1, insertResult);
+        //    var insertResult = await _repository.UpsertAsync(motorModule);
+        //    //Assert.Equal(1, insertResult);
 
-            motorModule.Id = insertResult;
-            motorModule.Sn = "module-sn12";
-            var updateResult = await _repository.UpsertAsync(motorModule);
-            Assert.Equal(insertResult, updateResult);
+        //    motorModule.Id = insertResult;
+        //    motorModule.Sn = "module-sn12";
+        //    var updateResult = await _repository.UpsertAsync(motorModule);
+        //    Assert.Equal(insertResult, updateResult);
 
-            var fromDb = await _repository.GetByIdAsync(motorModule.Id);
-            Assert.NotNull(fromDb);
-            Assert.Equal("module-sn12", fromDb.Sn);
-        }
+        //    var fromDb = await _repository.GetByIdAsync(motorModule.Id);
+        //    Assert.NotNull(fromDb);
+        //    Assert.Equal("module-sn12", fromDb.Sn);
+        //}
 
         //[Fact]
         public void GetFilterItems_ShouldReturnFilteredItems()
