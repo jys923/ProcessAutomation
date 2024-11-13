@@ -120,7 +120,7 @@ namespace AspectCoreSample
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             // 매개변수가 있는지 확인합니다.
-            if (context.Parameters.Count() > 0)
+            if (context.Parameters.Length > 0)
             {
                 try
                 {
@@ -261,7 +261,7 @@ namespace AspectCoreSample
         public override async Task Invoke(AspectContext context, AspectDelegate next)
         {
             // 매개변수가 있는지 확인합니다.
-            if (context.Parameters.Count() > 0)
+            if (context.Parameters.Length > 0)
             {
                 try
                 {

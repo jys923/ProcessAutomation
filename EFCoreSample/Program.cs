@@ -24,41 +24,43 @@ using TestCategory = EFCoreSample.Entities.TestCategory;
 using TestType = EFCoreSample.Entities.TestType;
 using TransducerModule = EFCoreSample.Entities.TransducerModule;
 
-public class Program
+namespace EFCoreSample
 {
-    private static IServiceProvider ConfigureServices()
+    public class Program
     {
-        var services = new ServiceCollection();
-
-        // 서비스 등록
-        services.AddTransient<ITesterTypeRepository, TesterTypeRepository>();
-        services.AddTransient<ITestRepository, TestRepository>();
-        services.AddTransient<ITestTypeRepository, TestTypeRepository>();
-        services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
-        services.AddTransient<IProbeTypeRepository, ProbeTypeRepository>();
-
-        return services.BuildServiceProvider();
-    }
-
-    private static void Main(string[] args)
-    {
-        //var logger = new LoggerConfiguration()
-        //    .WriteTo.Console()
-        //    .CreateLogger();
-
-        LoggingConfigurator.Configure(LogMode.Console);
-
-        Log.Information("Hello, world!");
-
-        int maxCnt = 100000 - 1;
-        int resultCnt = 5;
-
-        string currentDate = DateTime.Now.ToString("yyMMdd");
-
-        Random random = new Random();
-        using (var context = new EFCoreSampleDbContext())
+        private static IServiceProvider ConfigureServices()
         {
-            Stopwatch stopwatch = Stopwatch.StartNew();
+            var services = new ServiceCollection();
+
+            // 서비스 등록
+            services.AddTransient<ITesterTypeRepository, TesterTypeRepository>();
+            services.AddTransient<ITestRepository, TestRepository>();
+            services.AddTransient<ITestTypeRepository, TestTypeRepository>();
+            services.AddTransient<IProbeSNRepository, ProbeSNRepository>();
+            services.AddTransient<IProbeTypeRepository, ProbeTypeRepository>();
+
+            return services.BuildServiceProvider();
+        }
+
+        private static void Main(string[] args)
+        {
+            //var logger = new LoggerConfiguration()
+            //    .WriteTo.Console()
+            //    .CreateLogger();
+
+            LoggingConfigurator.Configure(LogMode.Console);
+
+            Log.Information("Hello, world!");
+
+            int maxCnt = 100000 - 1;
+            int resultCnt = 5;
+
+            string currentDate = DateTime.Now.ToString("yyMMdd");
+
+            Random random = new Random();
+            using (var context = new EFCoreSampleDbContext())
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
 
 #if INSERT_MASTER
             #region 기본값 삽입
@@ -920,63 +922,64 @@ public class Program
 
 #endif
 
-            //var probeViews = context.Probes.Select(probe => new ProbeView
-            //{
-            //    ProbeSN = probe.ProbeSn,
-            //    TransducerModuleSN = probe.TransducerModuleSN,
-            //    TransducerSN = probe.TransducerSN,
-            //    MotorModuleSn = probe.MotorModuleSn,
-            //    Category1Results = context.TestResults
-            //        .Where(result => result.ProbeId == probe.Id && result.CategoryId == 1)
-            //        .ToList(),
-            //    Category2Results = context.TestResults
-            //        .Where(result => result.ProbeId == probe.Id && result.CategoryId == 2)
-            //        .ToList()
-            //}).ToList();
+                //var probeViews = context.Probes.Select(probe => new ProbeView
+                //{
+                //    ProbeSN = probe.ProbeSn,
+                //    TransducerModuleSN = probe.TransducerModuleSN,
+                //    TransducerSN = probe.TransducerSN,
+                //    MotorModuleSn = probe.MotorModuleSn,
+                //    Category1Results = context.TestResults
+                //        .Where(result => result.ProbeId == probe.Id && result.CategoryId == 1)
+                //        .ToList(),
+                //    Category2Results = context.TestResults
+                //        .Where(result => result.ProbeId == probe.Id && result.CategoryId == 2)
+                //        .ToList()
+                //}).ToList();
 
-            stopwatch.Stop();
-            Console.WriteLine($"Execution time: {stopwatch.ElapsedMilliseconds} ms");
-        }
-    }
-
-    private static string MKRandom(int length)
-    {
-        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-        // 랜덤 숫자 생성기 인스턴스 생성
-        Random random = new Random();
-
-        // 랜덤한 10자리 문자열 생성
-        char[] stringChars = new char[length];
-        for (int i = 0; i < stringChars.Length; i++)
-        {
-            stringChars[i] = chars[random.Next(chars.Length)];
-        }
-        string randomString = new string(stringChars);
-
-        //Console.WriteLine("랜덤한 10자리 문자열: " + randomString);
-
-        return randomString;
-    }
-
-    private static string MKSHA256()
-    {
-        string input = MKRandom(20);
-        byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-
-        using (SHA256 sha256 = SHA256.Create())
-        {
-            byte[] hashBytes = sha256.ComputeHash(inputBytes);
-
-            // 해시 값을 문자열로 변환하여 출력
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("x2")); // 각 바이트를 16진수로 변환하여 추가
+                stopwatch.Stop();
+                Console.WriteLine($"Execution time: {stopwatch.ElapsedMilliseconds} ms");
             }
-            string hashString = sb.ToString();
-            //Console.WriteLine("SHA-256 해시 값: " + hashString);
-            return hashString;
+        }
+
+        private static string MKRandom(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            // 랜덤 숫자 생성기 인스턴스 생성
+            Random random = new Random();
+
+            // 랜덤한 10자리 문자열 생성
+            char[] stringChars = new char[length];
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+            string randomString = new string(stringChars);
+
+            //Console.WriteLine("랜덤한 10자리 문자열: " + randomString);
+
+            return randomString;
+        }
+
+        private static string MKSHA256()
+        {
+            string input = MKRandom(20);
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(inputBytes);
+
+                // 해시 값을 문자열로 변환하여 출력
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2")); // 각 바이트를 16진수로 변환하여 추가
+                }
+                string hashString = sb.ToString();
+                //Console.WriteLine("SHA-256 해시 값: " + hashString);
+                return hashString;
+            }
         }
     }
 }
