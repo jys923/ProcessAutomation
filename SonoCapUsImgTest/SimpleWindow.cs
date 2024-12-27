@@ -1,10 +1,9 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL;
-using System.Runtime.InteropServices;
 using ErrorCode = OpenTK.Graphics.OpenGL.ErrorCode;
+using GlRenderer;
 
 namespace SonoCapUsImgTest
 {
@@ -13,14 +12,6 @@ namespace SonoCapUsImgTest
     public class SimpleWindow : GameWindow
     {
 
-        [DllImport("CubeRenderer.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void InitializeOpenGLContext();
-
-        [DllImport("CubeRenderer.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawSquare();
-
-        [DllImport("CubeRenderer.dll", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void DrawCube();
         // A simple constructor to let us set properties like window size, title, FPS, etc. on the window.
         public SimpleWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings)
             : base(gameWindowSettings, nativeWindowSettings)
@@ -43,8 +34,8 @@ namespace SonoCapUsImgTest
             GL.Viewport(0, 0, 800, 600);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadIdentity();
-            GL.Ortho(-2.0, 2.0, -2.0, 2.0, -1.0, 1.0);
-            //Perspective(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+            //GL.Ortho(-2.0, 2.0, -2.0, 2.0, -1.0, 1.0);
+            Perspective(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
             GL.MatrixMode(MatrixMode.Modelview);
         }
 
@@ -59,8 +50,8 @@ namespace SonoCapUsImgTest
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            DrawSquare();
-            //DrawCube();
+            //DrawSquare();
+            RendererInterface.DrawCube();
 
             var error = GL.GetError(); 
             if (error != ErrorCode.NoError) 

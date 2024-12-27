@@ -6,6 +6,7 @@ using OpenTK.Graphics.OpenGL;
 using Serilog;
 using System.Runtime.InteropServices;
 using System.Text;
+using HsnLibraryCS;
 
 namespace SonoCapUsImgTest
 {
@@ -28,8 +29,8 @@ namespace SonoCapUsImgTest
         static byte[] envdata_buffer = new byte[envdata_buffer_size];
 
         // 최종 이미지 버퍼 준비
-        static int width = 1920; // 예시 값
-        static int height = 1080; // 예시 값
+        static int width = 512; // 예시 값
+        static int height = 512; // 예시 값
         static int buffer_size = width * height * 4;
         static byte[] buffer = new byte[buffer_size];
 
@@ -42,31 +43,6 @@ namespace SonoCapUsImgTest
 
         // 메타데이터 버퍼 준비
         static StringBuilder outputMetadata = new StringBuilder(10240);
-
-        //// 함수 호출
-        //UIntPtr result = IpRenderWithCapture(
-        //    finalImagePtr,
-        //    (UIntPtr)buffer.Length,
-        //    rawDataPtr,
-        //    (UIntPtr)envdata_buffer.Length,
-        //    outputMetadata
-        //);
-
-        //// 결과 확인
-        //if (result != UIntPtr.Zero)
-        //{
-        //    Console.WriteLine("메서드 호출 성공!");
-        //    // 추가 처리 코드
-        //}
-        //else
-        //{
-        //    Console.WriteLine("메서드 호출 실패.");
-        //}
-
-        //// GCHandle 해제
-        //finalImageHandle.Free();
-        //rawDataHandle.Free();
-
 
         // Now, we start initializing OpenGL.
         protected override void OnLoad()
@@ -87,23 +63,11 @@ namespace SonoCapUsImgTest
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            //UIntPtr result = SonoCapUsImgService.IpRenderWithCapture(
-            //    finalImagePtr,
-            //    (UIntPtr)buffer.Length,
-            //    rawDataPtr,
-            //    (UIntPtr)envdata_buffer.Length,
-            //    outputMetadata
-            //);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
+            //GL.DrawPixels(512, 512, PixelFormat.Rgba, PixelType.Byte, buffer);
+            GL.DrawPixels(512, 512, PixelFormat.Bgra, PixelType.UnsignedByte, buffer);
 
-            //if (result != UIntPtr.Zero)
-            //{
-            //    Log.Information("메서드 호출 성공!");
-            //    // 추가 처리 코드
-            //}
-            //else
-            //{
-            //    Log.Information("메서드 호출 실패.");
-            //}
             SwapBuffers();
         }
 
@@ -120,45 +84,12 @@ namespace SonoCapUsImgTest
             base.OnUpdateFrame(e);
         }
 
-        private static System.Timers.Timer timer;
-
-        private static void StartTimer()
-        {
-            if (timer != null) return;
-
-            timer = new System.Timers.Timer(1000); // 100ms 간격으로 설정하여 1초에 10회 호출
-            timer.Elapsed += (s, e) =>
-            {
-                //Log.Information($"Sender: {s}");
-                Log.Information($"Timer elapsed event triggered at {e.SignalTime}");
-                //SonoCapUsImgService.HsnBufferCreatorGetBitmapBuffer();
-                UIntPtr result = SonoCapUsImgService.IpRenderWithCapture(
-                    finalImagePtr,
-                    (UIntPtr)buffer.Length,
-                    rawDataPtr,
-                    (UIntPtr)envdata_buffer.Length,
-                    outputMetadata
-                );
-
-                if (result != UIntPtr.Zero)
-                {
-                    Log.Information("메서드 호출 성공!");
-                    // 추가 처리 코드
-                }
-                else
-                {
-                    Log.Information("메서드 호출 실패.");
-                }
-            };
-            timer.AutoReset = true; // 타이머가 주기적으로 실행되도록 설정
-            timer.Start();
-        }
-
+        static HsnUltrasoundOffScreenView offscrrenView;
         private static void Init()
         {
             registerCallbackBeforeInitialize();
 
-            if (!SonoCapUsImgService.Initialize())
+            if (!HsnlibraryCS.HsnInterface.initialize())
             {
                 Log.Information("initialize Fail");
                 return;
@@ -166,123 +97,65 @@ namespace SonoCapUsImgTest
 
             registerCallbackAfterInitialize();
 
-            try
-            {
-                SonoCapUsImgService.StartProbeDetection();
-            }
-            catch (Exception e)
-            {
-                Log.Error($"{e.Message}");
-                throw;
-            }
+            HsnlibraryCS.HsnInterface.startProbeDetection();
 
-            //SonoCapUsImgService.HsnBufferCreatorInitialize();
+            offscrrenView = new HsnUltrasoundOffScreenView(512, 512);
+            offscrrenView.setTargetIPFrameRate(60);
+            offscrrenView.Start(UpdateImgSource);
+        }
 
-            //SonoCapUsImgService.HsnBufferCreatorGetBitmapBuffer();
 
-            if (!SonoCapUsImgService.IpInitialize())
-            {
-                Log.Information("ipInitialize Fail");
-                return;
-            }
 
-            int width = 512;
-            int height = 512;
-            if (!SonoCapUsImgService.IpResize(width, height))
-            {
-                //exception
-                Log.Information("ipResize Fail");
-                return;
-            }
+        private static void UpdateImgSource(byte[] hsnBuffer, int width, int height, int length, MetadataInfo metadata)
+        {
+            Log.Information("updateimgSource");
+            buffer = hsnBuffer;
         }
 
         static int probe = 0;
 
         private static void registerCallbackBeforeInitialize()
         {
-            Loading loading = (bool value) =>
-            {
-                Log.Information($"Loading callback executed! {value}");
-                if (!value && probe == 5)
-                {
-                    StartTimer();
-                }
-            };
-
-            Error error = (string message, int value) =>
-            {
-                Log.Error(message, value);
-            };
-
-            bool result = SonoCapUsImgService.RegisterCallbackLoading(loading); //loading_status
-            result = SonoCapUsImgService.RegisterCallbackError(error); //error
+            HsnlibraryCS.Callback.registerLoadingCallback(OnLoadingCallback);
+            HsnlibraryCS.Callback.registerErrorStateCallback(OnErrorCallback);
         }
 
-        private static void mLoadingCallback(bool value)
+        private static void OnErrorCallback(string err_str, int err_num)
         {
-            Log.Information($"Loading {value}");
+            Log.Error(err_str, err_num);
         }
 
-        private static void myErrorCallback(string value, int value2)
+        private static void OnLoadingCallback(bool val)
         {
-            Log.Error($"Error {value} {value2}");
+            Log.Information($"Loading callback executed! {val}");
         }
 
         private static void registerCallbackAfterInitialize()
         {
-            DeviceAttached deviceAttached = () =>
-            {
-                Log.Information("DeviceAttached callback executed!");
-                SonoCapUsImgService.ActivateProbe();
-            };
-
-            DeviceRemoved deviceRemoved = () =>
-            {
-                Log.Information("DeviceRemoved callback executed!");
-                SonoCapUsImgService.DeactivateProbe();
-            };
-
-            MotorSpeed motorSpeed = (int value, int value2) =>
-            {
-                Log.Information($"{nameof(motorSpeed)}: prf:{value}, depth:{value2}");
-            };
-
-            ProbeState probeState = (int value) =>
-            {
-                //Log.Information($"{nameof(ProbeState)}:{value}");
-                Log.Information($"ProbeState:{value}");
-                probe = value;
-            };
-
-            SonoCapUsImgService.RegisterCallbackDeviceAttached(deviceAttached);
-            SonoCapUsImgService.RegisterCallbackDeviceRemoved(deviceRemoved);
-            SonoCapUsImgService.RegisterCallbackMotorSpeed(motorSpeed);
-            SonoCapUsImgService.RegisterCallbackProbeState(probeState);
+            HsnlibraryCS.HsnInterface.DeviceAttached += OnDeviceAttached;
+            HsnlibraryCS.HsnInterface.DeviceDetached += OnDeviceDetached;
+            HsnlibraryCS.Callback.registerENDMotorCallback(OnMotorCallback);
+            HsnlibraryCS.Callback.registerProbeStateCallback(OnProbeStateCallback);
         }
 
-        private static void DeviceAttachedCallback()
+        private static void OnProbeStateCallback(int val)
         {
-            SonoCapUsImgService.ActivateProbe();
+            probe = val;
         }
 
-        private static void mDeviceAttachedCallback()
+        private static void OnMotorCallback(int prf_hz, int density)
         {
-            SonoCapUsImgService.ActivateProbe();
+            Log.Information($"prf:{prf_hz}, depth:{density}");
         }
 
-        private static void mDeviceRemovedCallback()
+        private static void OnDeviceDetached(object? sender, EventArgs e)
         {
-            SonoCapUsImgService.DeactivateProbe();
+            HsnlibraryCS.HsnInterface.disactivateProbe();
         }
 
-        private static void mMotorSpeedCallback(int value, int value2)
+        private static void OnDeviceAttached(object? sender, EventArgs e)
         {
-            Log.Information($"MotorSpeed prf_hz : {value}, density : {value2}");
-        }
-
-        private static void mProbeStateCallback(int value)
-        {
-            Log.Information($"ProbeState {value}");
+            HsnlibraryCS.HsnInterface.activateProbe();
         }
     }
 }
