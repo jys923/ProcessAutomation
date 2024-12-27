@@ -2,6 +2,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HsnLibraryCS;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SonoCap.Commons;
@@ -18,6 +19,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
@@ -438,6 +441,7 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _selectedLogItem = default!;
 
+        
         private Transducer? _transducer { get; set; } = default!;
         private TransducerModule? _transducerModule { get; set; } = default!;
         private MotorModule? _motorModule { get; set; } = default!;
@@ -1351,8 +1355,147 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             //SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             //ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-            SrcImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
+            //SrcImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
             ResImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
+
+            registerCallbackBeforeInitialize();
+
+            if (!HsnlibraryCS.HsnInterface.initialize())
+            {
+                Log.Information("initialize Fail");
+                return;
+            }
+
+            registerCallbackAfterInitialize();
+
+            HsnlibraryCS.HsnInterface.startProbeDetection();
+
+            offscrrenView = new HsnUltrasoundOffScreenView(512, 512);
+            offscrrenView.setTargetIPFrameRate(60);
+            offscrrenView.Start(UpdateImgSource);
+        }
+
+        static int byte_per_sample = 2;
+        static int max_no_sample = 512;
+        static int max_scanline = 960;
+
+        // 환경 데이터 버퍼 준비
+        static int envdata_buffer_size = max_scanline * max_no_sample * byte_per_sample;
+        static byte[] envdata_buffer = new byte[envdata_buffer_size];
+
+        // 최종 이미지 버퍼 준비
+        static int width = 512; // 예시 값
+        static int height = 512; // 예시 값
+        static int buffer_size = width * height * 4;
+        static byte[] buffer = new byte[buffer_size];
+
+        // GCHandle로 고정하여 IntPtr로 변환
+        static GCHandle finalImageHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+        static IntPtr finalImagePtr = finalImageHandle.AddrOfPinnedObject();
+
+        static GCHandle rawDataHandle = GCHandle.Alloc(envdata_buffer, GCHandleType.Pinned);
+        static IntPtr rawDataPtr = rawDataHandle.AddrOfPinnedObject();
+
+        // 메타데이터 버퍼 준비
+        static StringBuilder outputMetadata = new StringBuilder(10240);
+
+        static HsnUltrasoundOffScreenView offscrrenView;
+
+        static double framerate_acc_val = 0;
+        static DateTime prev_time = DateTime.Now;
+
+        private void UpdateImgSource(byte[] hsnBuffer, int width, int height, int length, MetadataInfo metadata)
+        {
+            //Log.Information("updateimgSource");
+            //SrcImg = hsnBuffer;
+            var curr_time = DateTime.Now;
+            var elapsed_time = curr_time - prev_time;
+            if (elapsed_time.TotalMilliseconds > 1000)
+            {
+                framerate_acc_val++;
+                //Debug.WriteLine("IP Framerate : " + (framerate_acc_val * 1000.0 / elapsed_time.TotalMilliseconds).ToString());
+                framerate_acc_val = 0;
+                prev_time = curr_time;
+            }
+            else
+            {
+                framerate_acc_val++;
+            }
+
+            int stride = width * 4;
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                //SrcImg = Utilities.BitmapToImageSource(hsnBuffer);
+                BitmapSource bitmapSource = BitmapSource.Create(
+                    width, height,
+                    96, 96,
+                    System.Windows.Media.PixelFormats.Bgr32,
+                    null,
+                    hsnBuffer,
+                    stride
+                );
+                SrcImg = bitmapSource;
+            });
+
+            // byte[] 배열을 직접 BitmapSource로 변환
+            //Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            //{
+            //    BitmapSource bitmapSource = BitmapSource.Create(
+            //        width, height,
+            //        96, 96,
+            //        System.Windows.Media.PixelFormats.Bgr32,
+            //        null,
+            //        hsnBuffer,
+            //        stride
+            //    );
+            //    //SrcImg.Invoke(bitmapSource);
+            //}));
+        }
+
+        static int probe = 0;
+
+        private static void registerCallbackBeforeInitialize()
+        {
+            HsnlibraryCS.Callback.registerLoadingCallback(OnLoadingCallback);
+            HsnlibraryCS.Callback.registerErrorStateCallback(OnErrorCallback);
+        }
+
+        private static void OnErrorCallback(string err_str, int err_num)
+        {
+            Log.Error(err_str, err_num);
+        }
+
+        private static void OnLoadingCallback(bool val)
+        {
+            Log.Information($"Loading callback executed! {val}");
+        }
+
+        private static void registerCallbackAfterInitialize()
+        {
+            HsnlibraryCS.HsnInterface.DeviceAttached += OnDeviceAttached;
+            HsnlibraryCS.HsnInterface.DeviceDetached += OnDeviceDetached;
+            HsnlibraryCS.Callback.registerENDMotorCallback(OnMotorCallback);
+            HsnlibraryCS.Callback.registerProbeStateCallback(OnProbeStateCallback);
+        }
+
+        private static void OnProbeStateCallback(int val)
+        {
+            probe = val;
+        }
+
+        private static void OnMotorCallback(int prf_hz, int density)
+        {
+            Log.Information($"prf:{prf_hz}, depth:{density}");
+        }
+
+        private static void OnDeviceDetached(object? sender, EventArgs e)
+        {
+            HsnlibraryCS.HsnInterface.disactivateProbe();
+        }
+
+        private static void OnDeviceAttached(object? sender, EventArgs e)
+        {
+            HsnlibraryCS.HsnInterface.activateProbe();
         }
 
         private bool InitMotor()

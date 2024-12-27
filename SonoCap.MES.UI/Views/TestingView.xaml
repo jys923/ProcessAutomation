@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:glWpfControl="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
         xmlns:models="clr-namespace:SonoCap.MES.Models.Enums;assembly=Sonocap.MES.Models"
         xmlns:views="clr-namespace:SonoCap.MES.UI.Views"
         xmlns:services="clr-namespace:SonoCap.MES.UI.Services"
@@ -399,6 +400,17 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Ancestor
                     FontFamily="Digital-7"/>
                 <Label Style="{StaticResource LabelLargeStyle}"  HorizontalContentAlignment="Center" Margin="0,0,0,15" Content="원 본 이 미 지" />
                 <Image x:Name="SrcImg" Margin="60,0,60,0" Stretch="UniformToFill" Source="{Binding SrcImg}"/>
+                <!--<glWpfControl:GLWpfControl
+                    x:Name="OpenTkControl"
+                    Render="OnRender">
+
+                    <glWpfControl:GLWpfControl.Settings>
+                        <glWpfControl:GLWpfControlSettings 
+                            MajorVersion="3"
+                            MinorVersion="3"/>
+                    </glWpfControl:GLWpfControl.Settings>
+
+                </glWpfControl:GLWpfControl>-->
                 <!--Source="/Resources/sc_ori_img_512.bmp"/>-->
             </StackPanel>
         </GroupBox>

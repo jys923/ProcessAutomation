@@ -42,7 +42,7 @@ namespace SonoCap.MES.Services
             {
                 // 예외 처리 필요
                 Log.Error($"{nameof(ConnectAsync)}: {ex.Message}");
-                CloseView();
+                //CloseView();
             }
         }
 
