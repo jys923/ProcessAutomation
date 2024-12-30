@@ -6,7 +6,7 @@ namespace SonoCap.MES.UI.Services
 {
     public class MotorService : SerialPort//, IMotorService
     {
-        public static PRF GetPRFFromDepth(int depthInCm)
+        public PRF GetPRFFromDepth(int depthInCm)
         {
             PRF prf;
 
@@ -52,7 +52,7 @@ namespace SonoCap.MES.UI.Services
             PRF_20 = 0x05
         }
 
-        public static RPM GetRPMFromDensity(int density)
+        public RPM GetRPMFromDensity(int density)
         {
             RPM rpm;
 

@@ -1,0 +1,112 @@
+﻿<UserControl x:Class="SonoCap.MES.UI.Controls.HsnOptControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SonoCap.MES.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="326" d:DesignWidth="630"
+             x:Name="root">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <Grid Height="20">
+                <GroupBox Header="Information" Foreground="White" FontSize="12">
+                    <TextBlock Foreground="White" FontSize="12" Margin="10,5,10,5"
+                        Text="{Binding InformationString}">
+                    </TextBlock>
+                </GroupBox>
+            </Grid>
+            <Grid Height="300">
+                <GroupBox Header="Property" Foreground="White" FontSize="12">
+                    <StackPanel Orientation="Vertical">
+                        <Slider></Slider>
+                        <StatusBar></StatusBar>
+                        <Grid Height="30" HorizontalAlignment="Center" Margin="0,5,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBlock Text="View Depth(Cm)" Foreground="White" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <ComboBox FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" ItemsSource="{Binding ListViewDepth}" SelectedItem="{Binding SelectedViewDepth}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding StringFormat=F0}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                        </Grid>
+
+                        <Grid Height="30" HorizontalAlignment="Center" Margin="0,5,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBlock Text="Line Density(x#)" Foreground="White" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <ComboBox FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" ItemsSource="{Binding ListLineDensity}" SelectedItem="{Binding SelectedLineDensity}"/>
+                            </Grid>
+                        </Grid>
+
+                        <Grid Height="30" HorizontalAlignment="Center" Margin="0,5,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBlock Text="Power" Foreground="White" FontSize="12"
+                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <ComboBox FontSize="12" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" ItemsSource="{Binding ListPower}" SelectedItem="{Binding SelectedPower}" Height="30" VerticalAlignment="Bottom">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding StringFormat=F0}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                        </Grid>
+
+                        <Grid Height="30" HorizontalAlignment="Center" Margin="0,5,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBlock Text="Gain(1~100)" Foreground="White" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <TextBox Text="{Binding IPGain,StringFormat=D}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                        </Grid>
+
+                        <Grid Height="30" HorizontalAlignment="Center" Margin="0,5,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBlock Text="Calibration Offset" Foreground="White" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="1">
+                                <TextBox Text="{Binding CalibrationOffset}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                            </Grid>
+                            <Grid Grid.Column="2">
+                                <Button Command="{Binding CalibrateButtonCommand}" Content="Calibrate" Foreground="White" FontSize="12"/>
+                            </Grid>
+                            <TextBox x:Name="textBox1" Text="{Binding Text1, ElementName=root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                            <TextBox x:Name="textBox2" Text="{Binding Text2, ElementName=root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

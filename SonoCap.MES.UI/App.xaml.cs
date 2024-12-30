@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.UI.Commons;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using SonoCap.MES.UI.Model;
 
 namespace SonoCap.MES.UI
 {
@@ -69,9 +70,9 @@ namespace SonoCap.MES.UI
             IServiceCollection services = new ServiceCollection();
 
             ConfigureDbContext(services, appSettings);
-            
-            //services.AddScoped<MESDbContextFactory>();
 
+            //services.AddScoped<MESDbContextFactory>();
+            RegisterModels(services);
             RegisterServices(services);
             RegisterRepositories(services);
             RegisterViewModels(services);
@@ -111,6 +112,11 @@ namespace SonoCap.MES.UI
         private async Task InitializeAsync()
         {
             await Services.GetRequiredService<ISharedSeqNoRepository>().InitializeAsync();
+        }
+
+        public static void RegisterModels(IServiceCollection services)
+        {
+            services.AddSingleton<GlobalModel>(); // 다른 모델이 있다면 여기에 추가
         }
 
         private static void RegisterServices(IServiceCollection services)

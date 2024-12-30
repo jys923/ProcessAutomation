@@ -6,6 +6,16 @@
         public static readonly int None = -1;
     }
 
+    public enum ProbeStateInfoEnum : int
+    {
+        DIsabled = 0,
+        Enabled,
+        Connected,
+        Activated,
+        Ready,
+        Streaming
+    }
+
     public enum MessageBoxExResult
     {
         Ok = 0, No = 1, Cancel = 2,

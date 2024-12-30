@@ -31,7 +31,6 @@
 
   <ItemGroup>
     <Folder Include="MES.Services\" />
-    <Folder Include="Commons\" />
   </ItemGroup>
 
 </Project>

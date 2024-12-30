@@ -2,8 +2,8 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HsnLibraryCS;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Utilities;
 using Serilog;
 using SonoCap.Commons;
 using SonoCap.MES.Models;
@@ -12,20 +12,24 @@ using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
+using SonoCap.MES.UI.Model;
+using SonoCap.MES.UI.Properties;
 using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO.Ports;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using static OpenTK.Windowing.GraphicsLibraryFramework.GLFWCallbacks;
 using static SonoCap.MES.UI.Services.MotorService;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -51,9 +55,10 @@ namespace SonoCap.MES.UI.ViewModels
             });
         }
 
+
         [ObservableProperty]
         private string _title = default!;
-        
+
         [ObservableProperty]
         private string _message = default!;
 
@@ -93,7 +98,7 @@ namespace SonoCap.MES.UI.ViewModels
         [NotifyCanExecuteChangedFor(nameof(TestCommand))]
         [NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _tDSn = string.Empty;
-        
+
         [ObservableProperty]
         private bool _tDSnIsPopupOpen = false;
 
@@ -160,9 +165,9 @@ namespace SonoCap.MES.UI.ViewModels
             TDSnIsPopupOpen = false;
         }
 
-        [ObservableProperty]
         //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
         //[NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        [ObservableProperty]
         private string _tDMdSn = string.Empty;
 
         [ObservableProperty]
@@ -223,9 +228,9 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        [ObservableProperty]
         //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
         //[NotifyCanExecuteChangedFor(nameof(NextCommand))]
+        [ObservableProperty]
         private string _probeSn = string.Empty;
 
         [ObservableProperty]
@@ -286,138 +291,181 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        [ObservableProperty]
-        private ObservableDictionary<int, ValidationItem> _rPMIsEnabled = new();
-
-        [ObservableProperty]
-        private RPM _selectedRPM = RPM.RPM_1250;
-
-        partial void OnSelectedRPMChanged(RPM value)
-        {
-            Log.Information($"{value}");
-            SetMotor();
-#if SET_MOTOR
-            PRFIsEnabled.Keys.ToList().ForEach(key => PRFIsEnabled[key].IsEnabled = false);
-            switch (value)
-            {
-                case RPM.RPM_1250:
-                    PRFIsEnabled[0].IsEnabled = true;
-                    PRFIsEnabled[1].IsEnabled = true;
-                    PRFIsEnabled[2].IsEnabled = true;
-                    PRFIsEnabled[3].IsEnabled = true;
-                    PRFIsEnabled[4].IsEnabled = true;
-                    break;
-                case RPM.RPM_1500:
-                    PRFIsEnabled[0].IsEnabled = false;
-                    PRFIsEnabled[1].IsEnabled = false;
-                    PRFIsEnabled[2].IsEnabled = true;
-                    PRFIsEnabled[3].IsEnabled = true;
-                    PRFIsEnabled[4].IsEnabled = true;
-                    break;
-                case RPM.RPM_1600:
-                    PRFIsEnabled[0].IsEnabled = false;
-                    PRFIsEnabled[1].IsEnabled = false;
-                    PRFIsEnabled[2].IsEnabled = false;
-                    PRFIsEnabled[3].IsEnabled = true;
-                    PRFIsEnabled[4].IsEnabled = true;
-                    break;
-                case RPM.RPM_1875:
-                    PRFIsEnabled[0].IsEnabled = false;
-                    PRFIsEnabled[1].IsEnabled = false;
-                    PRFIsEnabled[2].IsEnabled = false;
-                    PRFIsEnabled[3].IsEnabled = false;
-                    PRFIsEnabled[4].IsEnabled = true;
-                    break;
-                default:
-                    break;
-            }
-#endif
-        }
-
-        //public RPM SelectedRPM
-        //{
-        //    get { return _selectedRPM; }
-        //    set
-        //    {
-        //        if (_selectedRPM != value)
-        //        {
-        //            _selectedRPM = value;
-        //            SetMotor(); // Motor 메서드 호출
-        //        }
-        //    }
-        //}
-
-        [ObservableProperty]
-        private ObservableDictionary<int, ValidationItem> _pRFIsEnabled = new();
-
-        [ObservableProperty]
-        private PRF _selectedPRF = PRF.PRF_10;
-
-        partial void OnSelectedPRFChanged(PRF value)
-        {
-            Log.Information($"{value}");
-            SetMotor();
-#if SET_MOTOR
-            RPMIsEnabled.Keys.ToList().ForEach(key => RPMIsEnabled[key].IsEnabled = false);
-            switch (value)
-            {
-                case PRF.PRF_10:
-                    RPMIsEnabled[0].IsEnabled = true;
-                    RPMIsEnabled[1].IsEnabled = false;
-                    RPMIsEnabled[2].IsEnabled = false;
-                    RPMIsEnabled[3].IsEnabled = false;
-                    break;
-                case PRF.PRF_12:
-                    RPMIsEnabled[0].IsEnabled = true;
-                    RPMIsEnabled[1].IsEnabled = false;
-                    RPMIsEnabled[2].IsEnabled = false;
-                    RPMIsEnabled[3].IsEnabled = false;
-                    break;
-                case PRF.PRF_15:
-                    RPMIsEnabled[0].IsEnabled = true;
-                    RPMIsEnabled[1].IsEnabled = true;
-                    RPMIsEnabled[2].IsEnabled = false;
-                    RPMIsEnabled[3].IsEnabled = false;
-                    break;
-                case PRF.PRF_16:
-                    RPMIsEnabled[0].IsEnabled = true;
-                    RPMIsEnabled[1].IsEnabled = true;
-                    RPMIsEnabled[2].IsEnabled = true;
-                    RPMIsEnabled[3].IsEnabled = false;
-                    break;
-                case PRF.PRF_20:
-                    RPMIsEnabled[0].IsEnabled = true;
-                    RPMIsEnabled[1].IsEnabled = true;
-                    RPMIsEnabled[2].IsEnabled = true;
-                    RPMIsEnabled[3].IsEnabled = true;
-                    break;
-                default:
-                    break;
-            }
-#endif
-        }
-
-        //public PRF SelectedPRF
-        //{
-        //    get { return _selectedPRF; }
-        //    set
-        //    {
-        //        if (_selectedPRF != value)
-        //        {
-        //            _selectedPRF = value;
-        //            SetMotor(); // Motor 메서드 호출
-        //        }
-        //    }
-        //}
-
-        //[RelayCommand]
-        private void SetMotor()
+        private void SetMotor2()
         {
             if (_motorService.IsOpen == true)
             {
-                byte[] bytesToSend = _motorService.GenerateCommand(CMD.CMD_MODE_SEL, SelectedRPM, SelectedPRF);
+                byte[] bytesToSend = _motorService.GenerateCommand(CMD.CMD_MODE_SEL, _motorService.GetRPMFromDensity(Convert.ToInt32(SelectedLineDensity)), _motorService.GetPRFFromDepth(Convert.ToInt32(SelectedViewDepth)));
                 _motorService.Write(bytesToSend, 0, bytesToSend.Length);
             }
+        }
+
+        [ObservableProperty]
+        private ObservableDictionary<int, ValidationItem> _depthIsEnabled = new();
+
+        // ListViewDepth 초기화
+        //[ObservableProperty]
+        //public IList<double> _listViewDepth = new List<double> { 3, 4, 5, 6, 7 };
+
+        //[ObservableProperty]
+        //private double _selectedViewDepth;
+        public double SelectedViewDepth
+        {
+            get { return _model.ViewDepthCm; }
+            set
+            {
+                _model.ViewDepthCm = value;
+                OnPropertyChanged(nameof(SelectedViewDepth));
+                OnSelectedViewDepthChanged(value);
+            }
+        }
+
+        private void OnSelectedViewDepthChanged(double value)
+        {
+            LineDensityIsEnabled.Keys.ToList().ForEach(key => LineDensityIsEnabled[key].IsEnabled = false);
+            switch (value)
+            {
+                case 3:
+                    LineDensityIsEnabled[0].IsEnabled = true;
+                    LineDensityIsEnabled[1].IsEnabled = true;
+                    LineDensityIsEnabled[2].IsEnabled = true;
+                    LineDensityIsEnabled[3].IsEnabled = true;
+                    break;
+                case 4:
+                    LineDensityIsEnabled[0].IsEnabled = false;
+                    LineDensityIsEnabled[1].IsEnabled = true;
+                    LineDensityIsEnabled[2].IsEnabled = true;
+                    LineDensityIsEnabled[3].IsEnabled = true;
+                    break;
+                case 5:
+                    LineDensityIsEnabled[0].IsEnabled = false;
+                    LineDensityIsEnabled[1].IsEnabled = false;
+                    LineDensityIsEnabled[2].IsEnabled = true;
+                    LineDensityIsEnabled[3].IsEnabled = true;
+                    break;
+                case 6:
+                    LineDensityIsEnabled[0].IsEnabled = false;
+                    LineDensityIsEnabled[1].IsEnabled = false;
+                    LineDensityIsEnabled[2].IsEnabled = false;
+                    LineDensityIsEnabled[3].IsEnabled = true;
+                    break;
+                case 7:
+                    LineDensityIsEnabled[0].IsEnabled = false;
+                    LineDensityIsEnabled[1].IsEnabled = false;
+                    LineDensityIsEnabled[2].IsEnabled = false;
+                    LineDensityIsEnabled[3].IsEnabled = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        [ObservableProperty]
+        private ObservableDictionary<int, ValidationItem> _lineDensityIsEnabled = new();
+        // ListViewDepth 초기화
+        //[ObservableProperty]
+        //public IList<int> _listLineDensity = new List<int> { 1, 2, 3, 4};
+
+        //[ObservableProperty]
+        //private double _selectedLineDensity;
+        public int SelectedLineDensity
+        {
+            get { return _model.LineDensity; }
+            set
+            {
+                _model.LineDensity = value;
+                OnPropertyChanged(nameof(SelectedLineDensity));
+                OnSelectedLineDensityChanged(value);
+            }
+        }
+
+        private void OnSelectedLineDensityChanged(int value)
+        {
+            DepthIsEnabled.Keys.ToList().ForEach(key => DepthIsEnabled[key].IsEnabled = false);
+            switch (value)
+            {
+                case 4:
+                    DepthIsEnabled[0].IsEnabled = true;
+                    DepthIsEnabled[1].IsEnabled = true;
+                    DepthIsEnabled[2].IsEnabled = true;
+                    DepthIsEnabled[3].IsEnabled = true;
+                    DepthIsEnabled[4].IsEnabled = true;
+                    break;
+                case 3:
+                    DepthIsEnabled[0].IsEnabled = true;
+                    DepthIsEnabled[1].IsEnabled = true;
+                    DepthIsEnabled[2].IsEnabled = true;
+                    DepthIsEnabled[3].IsEnabled = false;
+                    DepthIsEnabled[4].IsEnabled = false;
+                    break;
+                case 2:
+                    DepthIsEnabled[0].IsEnabled = true;
+                    DepthIsEnabled[1].IsEnabled = true;
+                    DepthIsEnabled[2].IsEnabled = false;
+                    DepthIsEnabled[3].IsEnabled = false;
+                    DepthIsEnabled[4].IsEnabled = false;
+                    break;
+                case 1:
+                    DepthIsEnabled[0].IsEnabled = true;
+                    DepthIsEnabled[1].IsEnabled = false;
+                    DepthIsEnabled[2].IsEnabled = false;
+                    DepthIsEnabled[3].IsEnabled = false;
+                    DepthIsEnabled[4].IsEnabled = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public double SelectedPower
+        {
+            get { return _model.TxPower; }
+            set
+            {
+                _model.TxPower = value;
+                OnPropertyChanged(nameof(SelectedPower));
+            }
+        }
+
+        public float DRMin
+        {
+            get { return _model.DRMin; }
+            set
+            {
+                _model.DRMin = value;
+                OnPropertyChanged(nameof(DRMin));
+            }
+        }
+
+        public float DRMax
+        {
+            get { return _model.DRMax; }
+            set
+            {
+                _model.DRMax = value;
+                OnPropertyChanged(nameof(DRMax));
+            }
+        }
+
+        public int IPGain
+        {
+            get { return _model.IPGain; }
+            set
+            {
+                _model.IPGain = value;
+                OnPropertyChanged(nameof(IPGain));
+            }
+        }
+
+        [ObservableProperty]
+        private int _calibrationOffset = 0;
+
+        [RelayCommand]
+        private void CalibrateButton()
+        {
+            Log.Information($"{nameof(CalibrateButton)}");
+            //Log.Information($"{nameof(CalibrateButton)} key: {}");
+            _model.CalibrateScanline(CalibrationOffset);
         }
 
         [ObservableProperty]
@@ -441,19 +489,19 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _selectedLogItem = default!;
 
-        
         private Transducer? _transducer { get; set; } = default!;
         private TransducerModule? _transducerModule { get; set; } = default!;
         private MotorModule? _motorModule { get; set; } = default!;
         private Probe? _probe { get; set; } = default!;
-        private PTRView? _pTRView { get; set; } = default!; 
+        private PTRView? _pTRView { get; set; } = default!;
         private TestCategories _testCategory { get; set; } = default!;
         private TestTypes _testType { get; set; } = default!;
         private Test? _test { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
         private MotorState _motorState = MotorState.disconnect;
 
-        private MotorService _motorService = new();
+        private GlobalModel _model;
+        private readonly MotorService _motorService;
         private readonly ISocketService _socketService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -470,7 +518,8 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IPTRViewRepository _pTRViewRepository;
 
         public TestingViewModel(
-            //MotorService motorService,
+            GlobalModel model,
+            MotorService motorService,
             ISocketService socketService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
@@ -486,7 +535,8 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository,
             IPTRViewRepository pTRViewRepository)
         {
-            //_motorService = motorService;
+            _model = model;
+            _motorService = motorService;
             _socketService = socketService;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
@@ -528,7 +578,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private async Task CellClickAsync(CellPositions position)
+        private Task CellClickAsync(CellPositions position)
         {
             _oldCell = position;
             int row = (int)position / 10;
@@ -546,10 +596,10 @@ namespace SonoCap.MES.UI.ViewModels
                 // 로직
             }
 
-            SrcImg = default!;
-            ResImg = default!;
-            TestResult = -2;
-            ValidationDict[nameof(TestResult)].IsEnabled = false;
+            //SrcImg = default!;
+            //ResImg = default!;
+            //TestResult = -2;
+            //ValidationDict[nameof(TestResult)].IsEnabled = false;
 
             switch (position)
             {
@@ -584,7 +634,7 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
             }
 
-            SrcImg = default!;
+            ClearCanvas = true;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
@@ -593,11 +643,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             //// TestCommand의 CanExecute 상태를 갱신합니다.
             (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-
-            //if (TestCommand.CanExecute(null))
-            //{
-            //    await TestCommand.ExecuteAsync(null);
-            //}
+            return Task.CompletedTask;
         }
 
         [RelayCommand]
@@ -607,10 +653,10 @@ namespace SonoCap.MES.UI.ViewModels
             int row = (int)position / 10;
             _testCategory = (TestCategories)row;
             bool proceed = Controls.MessageBox.Show("강제 검사", "강제 검사 실행?");
-            if (!proceed) 
+            if (!proceed)
             {
                 ResLogs.Add("강제 검사 취소");
-                return; 
+                return;
             }
             switch (position)
             {
@@ -651,7 +697,7 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
-            SrcImg = default!;
+            ClearCanvas = true;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
@@ -706,7 +752,7 @@ namespace SonoCap.MES.UI.ViewModels
                 return App.TestThresholdDict[aa];
             }
 
-            foreach (Test test in testRes) 
+            foreach (Test test in testRes)
             {
                 if (test.Result < GetTestThreshold(testCategory, test.TestTypeId))
                 {
@@ -752,7 +798,7 @@ namespace SonoCap.MES.UI.ViewModels
                 case TestCategories.Processing:
                     id = _transducer.Id;
                     existNext = _transducerModule is not null ? true : false;
-                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducer:_transducer);
+                    passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducer: _transducer);
                     if (!existNext && id > 0 && passAll)
                     {
                         TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn{DateTime.Today.ToString("yyMMdd")}{seqNo.TDMdNo.ToString().PadLeft(3, '0')}", TransducerId = id };
@@ -816,7 +862,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             //ChangeIsEnabled(TestCategories.Processing);
             ClearValidatingWaterMark();
-            
+
             _probe = null;
             _transducerModule = null;
             _transducer = null;
@@ -865,7 +911,7 @@ namespace SonoCap.MES.UI.ViewModels
 
                     if (_transducerModule is null)
                         return;
-                    
+
                     TdMdCellIsEnabled = true;
 
                     ValidationDict[nameof(TDMdSn)].IsEnabled = false;
@@ -936,11 +982,11 @@ namespace SonoCap.MES.UI.ViewModels
         private bool CanTest()
         {
             Log.Information(nameof(CanTest));
-            List<int> validIndices = new List<int> 
-            { 
+            List<int> validIndices = new List<int>
+            {
                 (int)CellPositions.Row1_Column1, (int)CellPositions.Row1_Column2, (int)CellPositions.Row1_Column3,
                 (int)CellPositions.Row2_Column1, (int)CellPositions.Row2_Column2, (int)CellPositions.Row2_Column3,
-                (int)CellPositions.Row3_Column1, (int)CellPositions.Row3_Column2, (int)CellPositions.Row3_Column3 
+                (int)CellPositions.Row3_Column1, (int)CellPositions.Row3_Column2, (int)CellPositions.Row3_Column3
             };
             return validIndices.Contains(BlinkingCellIndex) && GetValidating(nameof(TDSn));
 
@@ -972,175 +1018,40 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(CanTest))]
-        private async Task TestAsync()
+        private Task TestAsync()
         {
-            // 데이터 전송
-            await _socketService.SendDataAsync("1");
+            Log.Information($"TestAsync response");
+            //App.Current.Dispatcher.Invoke(() =>
+            //{
+            //ResImg = Utilities.CopyImageSource(SrcImg);
+            //});
 
-            // 응답을 기다립니다.
-            ImgAndMeta? response = await _socketService.WaitForResponseAsync();
+            //await App.Current.Dispatcher.InvokeAsync(async () =>
+            //{
+            //    ResImg = await Utilities.CopyImageSourceAsync(SrcImg);
+            //});
+
+            
+            ClearDraw();
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                ResImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+
+            });
             // 응답 처리
-            if (response != null)
-            {
-                Log.Information($"TestAsync response");
-                // 응답을 받았을 때의 로직
-                // 데이터를 받으면 응답 완료
-                Log.Information($"Img : {Utilities.WhatImageFormat(response.Img)}");
-                Bitmap m_bmpRes = new Bitmap(512, 512, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                Utilities.ByteArrToBitmap(response.Img, m_bmpRes);
+            // 응답을 받았을 때의 로직
+            //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
+            //ResTxt = settings.ToJson();
 
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
-                });
+            //ValidationDict[nameof(TestResult)].IsEnabled = true;
+            return Task.CompletedTask;
+        }
 
-                HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
-
-                int innerThickness = 3;
-                int outerThickness = 3;
-
-                switch (_testType)
-                {
-                    case TestTypes.Align:
-                        int innerRadius = 150;
-                        int outerRadius = 170;
-
-                        switch (settings.depth_in_cm)
-                        {
-                            case 3:
-                                innerThickness = App.appSettings.Align.InnerCircle3.Thickness;
-                                innerRadius = App.appSettings.Align.InnerCircle3.Radius;
-                                outerThickness = App.appSettings.Align.OuterCircle3.Thickness;
-                                outerRadius = App.appSettings.Align.OuterCircle3.Radius;
-                                break;
-                            case 4:
-                                innerThickness = App.appSettings.Align.InnerCircle4.Thickness;
-                                innerRadius = App.appSettings.Align.InnerCircle4.Radius;
-                                outerThickness = App.appSettings.Align.OuterCircle4.Thickness;
-                                outerRadius = App.appSettings.Align.OuterCircle4.Radius;
-                                break;
-                            case 5:
-                                innerThickness = App.appSettings.Align.InnerCircle5.Thickness;
-                                innerRadius = App.appSettings.Align.InnerCircle5.Radius;
-                                outerThickness = App.appSettings.Align.OuterCircle5.Thickness;
-                                outerRadius = App.appSettings.Align.OuterCircle5.Radius;
-                                break;
-                            case 6:
-                                innerThickness = App.appSettings.Align.InnerCircle6.Thickness;
-                                innerRadius = App.appSettings.Align.InnerCircle6.Radius;
-                                outerThickness = App.appSettings.Align.OuterCircle6.Thickness;
-                                outerRadius = App.appSettings.Align.OuterCircle6.Radius;
-                                break;
-                            case 7:
-                                innerThickness = App.appSettings.Align.InnerCircle7.Thickness;
-                                innerRadius = App.appSettings.Align.InnerCircle7.Radius;
-                                outerThickness = App.appSettings.Align.OuterCircle7.Thickness;
-                                outerRadius = App.appSettings.Align.OuterCircle7.Radius;
-                                break;
-                            default:
-                                break;
-                        }
-                        //draw circle
-                        Utilities.DrawCircle(m_bmpRes, new System.Drawing.Point(512 / 2, 512 / 2), innerRadius, System.Drawing.Color.Red, innerThickness);
-                        Utilities.DrawCircle(m_bmpRes, new System.Drawing.Point(512 / 2, 512 / 2), outerRadius, System.Drawing.Color.Green, outerThickness);
-
-                        break;
-                    case TestTypes.Axial:
-                        {
-                            System.Drawing.Point start = new System.Drawing.Point();
-                            System.Drawing.Point end = new System.Drawing.Point();
-
-                            switch (settings.depth_in_cm)
-                            {
-                                case 3:
-                                    innerThickness = App.appSettings.Axial.Line3.Thickness;
-                                    start = App.appSettings.Axial.Line3.Start;
-                                    end = App.appSettings.Axial.Line3.End;
-                                    break;
-                                case 4:
-                                    innerThickness = App.appSettings.Axial.Line4.Thickness;
-                                    start = App.appSettings.Axial.Line4.Start;
-                                    end = App.appSettings.Axial.Line4.End;
-                                    break;
-                                case 5:
-                                    innerThickness = App.appSettings.Axial.Line5.Thickness;
-                                    start = App.appSettings.Axial.Line5.Start;
-                                    end = App.appSettings.Axial.Line5.End;
-                                    break;
-                                case 6:
-                                    innerThickness = App.appSettings.Axial.Line6.Thickness;
-                                    start = App.appSettings.Axial.Line6.Start;
-                                    end = App.appSettings.Axial.Line6.End;
-                                    break;
-                                case 7:
-                                    innerThickness = App.appSettings.Axial.Line7.Thickness;
-                                    start = App.appSettings.Axial.Line7.Start;
-                                    end = App.appSettings.Axial.Line7.End;
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            Utilities.DrawLine(m_bmpRes, start, end, System.Drawing.Color.Blue, innerThickness);
-                            break;
-                        }
-                    case TestTypes.Lateral:
-                        {
-                            System.Drawing.Point start = new System.Drawing.Point();
-                            System.Drawing.Point end = new System.Drawing.Point();
-
-                            switch (settings.depth_in_cm)
-                            {
-                                case 3:
-                                    innerThickness = App.appSettings.Lateral.Line3.Thickness;
-                                    start = App.appSettings.Lateral.Line3.Start;
-                                    end = App.appSettings.Lateral.Line3.End;
-                                    break;
-                                case 4:
-                                    innerThickness = App.appSettings.Lateral.Line4.Thickness;
-                                    start = App.appSettings.Lateral.Line4.Start;
-                                    end = App.appSettings.Lateral.Line4.End;
-                                    break;
-                                case 5:
-                                    innerThickness = App.appSettings.Lateral.Line5.Thickness;
-                                    start = App.appSettings.Lateral.Line5.Start;
-                                    end = App.appSettings.Lateral.Line5.End;
-                                    break;
-                                case 6:
-                                    innerThickness = App.appSettings.Lateral.Line6.Thickness;
-                                    start = App.appSettings.Lateral.Line6.Start;
-                                    end = App.appSettings.Lateral.Line6.End;
-                                    break;
-                                case 7:
-                                    innerThickness = App.appSettings.Lateral.Line7.Thickness;
-                                    start = App.appSettings.Lateral.Line7.Start;
-                                    end = App.appSettings.Lateral.Line7.End;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            Utilities.DrawLine(m_bmpRes, start, end, System.Drawing.Color.Cyan, innerThickness);//CMYK (Cyan, Magenta, Yellow, Key/Black)
-                            break;
-                        }
-                    default:
-                        break;
-                }
-
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    ResImg = Utilities.BitmapToImageSource(m_bmpRes);
-                    ResTxt = settings.ToJson();
-                    ResLogs.Add($"PASS {(TestCategoriesKor)_testCategory} {(TestTypes)_testType} Frame No:{settings.probe_frame_index}");
-                    TestResult = -2;
-                });
-
-                ValidationDict[nameof(TestResult)].IsEnabled = true;
-            }
-            else
-            {
-                // 응답을 받지 못했을 때의 로직
-                // 예: 타임아웃 처리 등
-            }
+        private void ClearDraw()
+        {
+            ClearCanvas = true;
+            Ellipses.Clear();
+            Lines.Clear();
         }
 
         private bool CanNext()
@@ -1151,7 +1062,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(CanNext))]
-        private async Task NextAsync() 
+        private async Task NextAsync()
         {
             Log.Information($"{nameof(NextAsync)}");
             //Log.Information($"ValidateAll(_testCategory) : {ValidateAll(_testCategory)}");
@@ -1160,7 +1071,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
                 return;
-            
+
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
             string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
             string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_mod.png";
@@ -1182,7 +1093,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             PrepareTest(_testCategory, insertTest);
 
-            if(await SaveAsync(_testRepository, insertTest))
+            if (await SaveAsync(_testRepository, insertTest))
             {
                 string tmp = insertTest.ToString();
                 Log.Information(insertTest.ToString());
@@ -1208,10 +1119,10 @@ namespace SonoCap.MES.UI.ViewModels
                 case TestCategories.Processing:
                     //id = await GetBySnAsync(_testCategory, TDSn);
                     id = _transducer.Id;
-                    existNext = _transducerModule is not null ? true : false; 
-                    
+                    existNext = _transducerModule is not null ? true : false;
+
                     passAll = await PassTestCategoryAsync(_testRepository, _testCategory, transducer: _transducer);
-                    if ( !existNext && id > 0 && passAll)
+                    if (!existNext && id > 0 && passAll)
                     {
                         TransducerModule tdMd = new TransducerModule { Sn = $"tdm-sn{DateTime.Today.ToString("yyMMdd")}{seqNo.TDMdNo.ToString().PadLeft(3, '0')}", TransducerId = id };
                         if (await _transducerModuleRepository.InsertAsync(tdMd))
@@ -1219,7 +1130,7 @@ namespace SonoCap.MES.UI.ViewModels
                             await _sharedSeqNoRepository.SetSeqNoAsync(SnType.TransducerModule);
                             ResLogs.Add($"Add TDMd Sn : {tdMd.Sn}");
                         }
-                    } 
+                    }
                     else if (existNext)
                     {
                         //조회 해서 넣을까?
@@ -1229,7 +1140,7 @@ namespace SonoCap.MES.UI.ViewModels
                     await PTRViewUpsert();
                     break;
                 case TestCategories.Process:
-                    
+
                     //id = await GetBySnAsync(_testCategory, _transducerModule.Id);
                     id = _transducerModule.Id;
                     existNext = _probe is not null ? true : false;
@@ -1270,7 +1181,7 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
             }
 
-            SrcImg = default!;
+            ClearCanvas = true;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
@@ -1297,7 +1208,7 @@ namespace SonoCap.MES.UI.ViewModels
         {
             if (_probe is not null)
             {
-                PTRView? tmpPTR = await _pTRViewRepository.GetPTRView(probeSn:_probe.Sn).FirstOrDefaultAsync();
+                PTRView? tmpPTR = await _pTRViewRepository.GetPTRView(probeSn: _probe.Sn).FirstOrDefaultAsync();
 
                 if (tmpPTR is not null)
                 {
@@ -1311,29 +1222,20 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
-#if SET_MOTOR
-            RPMIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
-            RPMIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
-            RPMIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
-            RPMIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
+            _ellipses.CollectionChanged += Ellipses_CollectionChanged;
+            _lines.CollectionChanged += Lines_CollectionChanged;
 
-            PRFIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
-            PRFIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
-            PRFIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
-            PRFIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
-            PRFIsEnabled.Add(4, new ValidationItem { IsEnabled = true });
-#else
-            RPMIsEnabled.Add(0, new ValidationItem { IsEnabled = false });
-            RPMIsEnabled.Add(1, new ValidationItem { IsEnabled = false });
-            RPMIsEnabled.Add(2, new ValidationItem { IsEnabled = false });
-            RPMIsEnabled.Add(3, new ValidationItem { IsEnabled = false });
+            DepthIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
+            DepthIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
+            DepthIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
+            DepthIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
+            DepthIsEnabled.Add(4, new ValidationItem { IsEnabled = true });
 
-            PRFIsEnabled.Add(0, new ValidationItem { IsEnabled = false });
-            PRFIsEnabled.Add(1, new ValidationItem { IsEnabled = false });
-            PRFIsEnabled.Add(2, new ValidationItem { IsEnabled = false });
-            PRFIsEnabled.Add(3, new ValidationItem { IsEnabled = false });
-            PRFIsEnabled.Add(4, new ValidationItem { IsEnabled = false });
-#endif
+            LineDensityIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
+            LineDensityIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
+            LineDensityIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
+            LineDensityIsEnabled.Add(3, new ValidationItem { IsEnabled = true });
+
 
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var timer = new System.Timers.Timer(1000);//1s
@@ -1355,147 +1257,72 @@ namespace SonoCap.MES.UI.ViewModels
             // 이미지 로드
             //SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
             //ResImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
-            //SrcImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
+            SrcImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
             ResImg = Utilities.GetFileToImageSource(imagePath) ?? _defaultImg;
 
-            registerCallbackBeforeInitialize();
-
-            if (!HsnlibraryCS.HsnInterface.initialize())
+            //_model = new GlobalModel();
+            if (!_model.InitializeLibrary())
             {
-                Log.Information("initialize Fail");
+                MessageBox.Show("initialize library failure");
+                //this.Close();
                 return;
             }
-
-            registerCallbackAfterInitialize();
-
-            HsnlibraryCS.HsnInterface.startProbeDetection();
-
-            offscrrenView = new HsnUltrasoundOffScreenView(512, 512);
-            offscrrenView.setTargetIPFrameRate(60);
-            offscrrenView.Start(UpdateImgSource);
+            _model.MotorStateChanged += OnMotorStateChanged;
+            RenderStart();
         }
 
-        static int byte_per_sample = 2;
-        static int max_no_sample = 512;
-        static int max_scanline = 960;
-
-        // 환경 데이터 버퍼 준비
-        static int envdata_buffer_size = max_scanline * max_no_sample * byte_per_sample;
-        static byte[] envdata_buffer = new byte[envdata_buffer_size];
-
-        // 최종 이미지 버퍼 준비
-        static int width = 512; // 예시 값
-        static int height = 512; // 예시 값
-        static int buffer_size = width * height * 4;
-        static byte[] buffer = new byte[buffer_size];
-
-        // GCHandle로 고정하여 IntPtr로 변환
-        static GCHandle finalImageHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-        static IntPtr finalImagePtr = finalImageHandle.AddrOfPinnedObject();
-
-        static GCHandle rawDataHandle = GCHandle.Alloc(envdata_buffer, GCHandleType.Pinned);
-        static IntPtr rawDataPtr = rawDataHandle.AddrOfPinnedObject();
-
-        // 메타데이터 버퍼 준비
-        static StringBuilder outputMetadata = new StringBuilder(10240);
-
-        static HsnUltrasoundOffScreenView offscrrenView;
-
-        static double framerate_acc_val = 0;
-        static DateTime prev_time = DateTime.Now;
-
-        private void UpdateImgSource(byte[] hsnBuffer, int width, int height, int length, MetadataInfo metadata)
+        private void Lines_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            //Log.Information("updateimgSource");
-            //SrcImg = hsnBuffer;
-            var curr_time = DateTime.Now;
-            var elapsed_time = curr_time - prev_time;
-            if (elapsed_time.TotalMilliseconds > 1000)
-            {
-                framerate_acc_val++;
-                //Debug.WriteLine("IP Framerate : " + (framerate_acc_val * 1000.0 / elapsed_time.TotalMilliseconds).ToString());
-                framerate_acc_val = 0;
-                prev_time = curr_time;
-            }
-            else
-            {
-                framerate_acc_val++;
-            }
+            OnPropertyChanged(nameof(Lines));
+        }
 
-            int stride = width * 4;
+        private void Ellipses_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Ellipses));
+        }
+
+        //OnMotorStateChanged: prf_hz:10000, density:4
+        private void OnMotorStateChanged(int prfHz, int density)
+        {
+            Log.Information($"{nameof(OnMotorStateChanged)}: prf_hz:{prfHz}, density:{density}");
+            //_motorService.
+            SetMotor2();
+        }
+
+        private USRenderService usRenderer;
+
+        public void RenderStart()
+        {
+            usRenderer = new USRenderService(512, 512);
+            usRenderer.connectRenderToTargetFunction(UpdateImageSource);
+            usRenderer.RenderStart();
+        }
+
+        public void RenderEnd()
+        {
+            if (usRenderer != null)
+            {
+                usRenderer.RenderEnd();
+            }
+        }
+
+        //public string LoadingMessage
+        //{
+        //    get { return model.IsLoading ? "Loading..." : ""; }
+        //    set
+        //    {
+        //    }
+        //}
+
+        public void UpdateImageSource(BitmapSource bitmapSource)
+        {
+            //SrcImg = bitmapSource;
+
             App.Current.Dispatcher.Invoke(() =>
             {
-                //SrcImg = Utilities.BitmapToImageSource(hsnBuffer);
-                BitmapSource bitmapSource = BitmapSource.Create(
-                    width, height,
-                    96, 96,
-                    System.Windows.Media.PixelFormats.Bgr32,
-                    null,
-                    hsnBuffer,
-                    stride
-                );
+                //SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
                 SrcImg = bitmapSource;
             });
-
-            // byte[] 배열을 직접 BitmapSource로 변환
-            //Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            //{
-            //    BitmapSource bitmapSource = BitmapSource.Create(
-            //        width, height,
-            //        96, 96,
-            //        System.Windows.Media.PixelFormats.Bgr32,
-            //        null,
-            //        hsnBuffer,
-            //        stride
-            //    );
-            //    //SrcImg.Invoke(bitmapSource);
-            //}));
-        }
-
-        static int probe = 0;
-
-        private static void registerCallbackBeforeInitialize()
-        {
-            HsnlibraryCS.Callback.registerLoadingCallback(OnLoadingCallback);
-            HsnlibraryCS.Callback.registerErrorStateCallback(OnErrorCallback);
-        }
-
-        private static void OnErrorCallback(string err_str, int err_num)
-        {
-            Log.Error(err_str, err_num);
-        }
-
-        private static void OnLoadingCallback(bool val)
-        {
-            Log.Information($"Loading callback executed! {val}");
-        }
-
-        private static void registerCallbackAfterInitialize()
-        {
-            HsnlibraryCS.HsnInterface.DeviceAttached += OnDeviceAttached;
-            HsnlibraryCS.HsnInterface.DeviceDetached += OnDeviceDetached;
-            HsnlibraryCS.Callback.registerENDMotorCallback(OnMotorCallback);
-            HsnlibraryCS.Callback.registerProbeStateCallback(OnProbeStateCallback);
-        }
-
-        private static void OnProbeStateCallback(int val)
-        {
-            probe = val;
-        }
-
-        private static void OnMotorCallback(int prf_hz, int density)
-        {
-            Log.Information($"prf:{prf_hz}, depth:{density}");
-        }
-
-        private static void OnDeviceDetached(object? sender, EventArgs e)
-        {
-            HsnlibraryCS.HsnInterface.disactivateProbe();
-        }
-
-        private static void OnDeviceAttached(object? sender, EventArgs e)
-        {
-            HsnlibraryCS.HsnInterface.activateProbe();
         }
 
         private bool InitMotor()
@@ -1507,20 +1334,20 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Information($"Succ:{nameof(InitMotor)}");
                 return true;
             }
-            else 
+            else
             {
                 Log.Error($"{nameof(InitMotor)}");
                 return false;
             }
         }
-        
+
         private void SerialDataDataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
             if (sender is MotorService motorService)
             {
                 int RecvSize = motorService.BytesToRead;
                 string RecvStr = string.Empty;
-                
+
                 if (RecvSize >= 2)
                 {
                     byte[] buff = new byte[2];
@@ -1533,7 +1360,7 @@ namespace SonoCap.MES.UI.ViewModels
                         _motorState = MotorState.connect;
                         bytesToSend = motorService.GetCommandBytes((int)0xAB55);
                         motorService.Write(bytesToSend, 0, bytesToSend.Length);
-                    } 
+                    }
                     else if (_motorState == MotorState.connect)
                     {
                         _motorState = MotorState.start;
@@ -1569,8 +1396,8 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information($"{nameof(DataReceivedHandler)}:{response.Meta}");
             HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
-            SelectedRPM = GetRPMFromDensity(settings.density);
-            SelectedPRF = GetPRFFromDepth((int)settings.depth_in_cm);//5개
+            //SelectedRPM = _motorService.GetRPMFromDensity(settings.density);
+            //SelectedPRF = _motorService.GetPRFFromDepth((int)settings.depth_in_cm);//5개
         }
 
         private void CloseViewRequestedHandler(object? sender, EventArgs e)
@@ -1583,7 +1410,7 @@ namespace SonoCap.MES.UI.ViewModels
             //App.Current.MainWindow.Close();
             //Application.Current.Shutdown()
             //Environment.Exit(1);
-            
+
             Application.Current.Dispatcher.Invoke(() =>
             {
                 //Window? focusedWindow = System.Windows.Input.Keyboard.FocusedElement as Window;
@@ -1711,7 +1538,7 @@ namespace SonoCap.MES.UI.ViewModels
                         .Include(probe => probe.TransducerModule)
                         .Include(probe => probe.MotorModule)
                         .OrderByDescending(x => x.Id).First();
-                    _transducerModule =  _transducerModuleRepository.GetById(_probe.TransducerModuleId);
+                    _transducerModule = _transducerModuleRepository.GetById(_probe.TransducerModuleId);
                     //_motorModule = _motorModuleRepository.GetById(_probe.MotorModuleId);
                     _transducer = _transducerRepository.GetById(_transducerModule.TransducerId);
                     query = from ptr in query
@@ -1953,16 +1780,16 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         public SubData SubData { get; set; } = default!;
-        
+
         public void ReceiveParameter(object parameter)
         {
-            if(parameter is SubData subData)
+            if (parameter is SubData subData)
             {
                 SubData = subData;
 
                 Log.Information($"Received parameter {SubData.stringData}");
             }
-            
+
         }
 
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -1982,7 +1809,7 @@ namespace SonoCap.MES.UI.ViewModels
                     _motorService.Write(bytesToSend, 0, bytesToSend.Length);
                 }
             }
-            InitSocket();
+            //InitSocket();
         }
 
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
@@ -1998,7 +1825,244 @@ namespace SonoCap.MES.UI.ViewModels
                 _motorService.Close();
             }
 
-            _socketService.Dispose();
+            //_socketService.Dispose();
+
+            RenderEnd();
+            _model.DestroyLibrary();
+        }
+
+        System.Windows.Point _startPoint = new System.Windows.Point(0, 0);
+        System.Windows.Point _previousPoint = new System.Windows.Point(0, 0);
+
+        [ObservableProperty]
+        private bool _clearCanvas = false;
+
+        [ObservableProperty]
+        private ObservableCollection<CustomEllipse> _ellipses = new();
+
+        [ObservableProperty]
+        private ObservableCollection<CustomLine> _lines = new();
+
+        [ObservableProperty]
+        private bool _isDrawing;
+
+        [ObservableProperty]
+        private System.Windows.Shapes.Line _currentLine;
+
+        [ObservableProperty]
+        private double _lineLength;
+
+        [ObservableProperty]
+        private double _textPositionX;
+
+        [ObservableProperty]
+        private double _textPositionY;
+
+        [ObservableProperty]
+        private Ellipse _currentEllipse;
+
+        //[ObservableProperty]
+        //private ObservableCollection<Ellipse> _currentEllipses = new();
+
+        [RelayCommand]
+        private void OnMouseDown(MouseButtonEventArgs e)
+        {
+            switch (_testType)
+            {
+                case TestTypes.Align:
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                    {
+                        _startPoint = e.GetPosition((IInputElement)e.Source);
+                        // 좌표가 (0,0), (0,1), (1,0)인 경우 무시
+                        if ((_startPoint.X == 0 && _startPoint.Y == 0) || (_startPoint.X == 0) || (_startPoint.Y == 0))
+                        {
+                            Log.Information($"Ignored Point X:{_startPoint.X} Y:{_startPoint.Y}");
+                            return;
+                        }
+                        Mouse.Capture((IInputElement)e.Source);
+                        IsDrawing = true;
+                        _previousPoint = _startPoint;
+                        Log.Information($"_startPoint X:{_startPoint.X} Y:{_startPoint.Y}");
+
+                        if (e.Source is FrameworkElement canvas)
+                        {
+                            double canvasWidth = canvas.ActualWidth;
+                            double canvasHeight = canvas.ActualHeight;
+
+                            double centerX = canvasWidth / 2;
+                            double centerY = canvasHeight / 2;
+
+                            double Radius = Math.Sqrt(Math.Pow(_startPoint.X - centerX, 2) + Math.Pow(_startPoint.Y - centerY, 2));
+
+                            CustomEllipse tmp = new CustomEllipse();
+                            tmp.Ellipse.Width = 2 * Radius;
+                            tmp.Ellipse.Height = 2 * Radius;
+
+                            Canvas.SetLeft(tmp.Ellipse, centerX - Radius);
+                            Canvas.SetTop(tmp.Ellipse, centerY - Radius);
+
+                            Canvas.SetLeft(tmp.InfoTextBlock, _startPoint.X);
+                            Canvas.SetTop(tmp.InfoTextBlock, _startPoint.Y);
+
+                            if (Ellipses.Count >= 2)
+                            {
+                                Ellipses.RemoveAt(0);
+                            }
+                            Ellipses.Add(tmp);
+                        }
+                    }
+                    break;
+                case TestTypes.Axial:
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                    {
+                        Mouse.Capture((IInputElement)e.Source);
+                        IsDrawing = true;
+                        _startPoint = e.GetPosition((IInputElement)e.Source);
+                        _previousPoint = e.GetPosition((IInputElement)e.Source);
+                        Log.Information($"_previousPoint x:{_previousPoint.X}, y:{_previousPoint.Y} ");
+
+                        CustomEllipse tmp = new CustomEllipse();
+
+                        // 초기 위치 설정
+                        Canvas.SetLeft(tmp.Ellipse, _startPoint.X);
+                        Canvas.SetTop(tmp.Ellipse, _startPoint.Y);
+
+                        Canvas.SetLeft(tmp.InfoTextBlock, _startPoint.X);
+                        Canvas.SetTop(tmp.InfoTextBlock, _startPoint.Y);
+
+                        if (Ellipses.Count >= 5)
+                        {
+                            Ellipses.RemoveAt(0);
+                        }
+                        Ellipses.Add(tmp);
+                    }
+                    break;
+                case TestTypes.Lateral:
+                    if (e.LeftButton == MouseButtonState.Pressed)
+                    {
+                        Mouse.Capture((IInputElement)e.Source);
+                        IsDrawing = true;
+                        _startPoint = e.GetPosition((IInputElement)e.Source);
+                        _previousPoint = e.GetPosition((IInputElement)e.Source);
+
+                        CustomLine tmp = new CustomLine();
+
+                        tmp.Line.X1 = _startPoint.X;
+                        tmp.Line.Y1 = _startPoint.Y;
+                        tmp.Line.X2 = _startPoint.X;
+                        tmp.Line.Y2 = _startPoint.Y;
+
+                        Canvas.SetLeft(tmp.InfoTextBlock, _startPoint.X);
+                        Canvas.SetTop(tmp.InfoTextBlock, _startPoint.Y);
+
+                        if (Lines.Count >= 2)
+                        {
+                            Lines.RemoveAt(0);
+                        }
+                        Lines.Add(tmp);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        [RelayCommand]
+        private void OnMouseMove(MouseEventArgs e)
+        {
+            switch (_testType)
+            {
+                case TestTypes.Align:
+                    //if (IsDrawing && CurrentEllipse != null)
+                    //{
+                    //    System.Windows.Point currentPoint = e.GetPosition((IInputElement)e.Source);
+
+                    //    // 이미지 중심 계산
+                    //    double centerX = 512 / 2;
+                    //    double centerY = 512 / 2;
+
+                    //    // 반지름 계산
+                    //    double radius = Math.Sqrt(Math.Pow(currentPoint.X - centerX, 2) + Math.Pow(currentPoint.Y - centerY, 2));
+                    //    CurrentEllipse.Width = 2 * radius;
+                    //    CurrentEllipse.Height = 2 * radius;
+
+                    //    Canvas.SetLeft(CurrentEllipse, centerX - radius);
+                    //    Canvas.SetTop(CurrentEllipse, centerY - radius);
+                    //}
+                    break;
+                case TestTypes.Axial:
+                    if (IsDrawing && Ellipses.Count > 0)
+                    {
+                        System.Windows.Point currentPoint = e.GetPosition((IInputElement)e.Source);
+                        CustomEllipse currentEllipse = Ellipses[Ellipses.Count - 1];
+                        Log.Information($"currentPoint x:{currentPoint.X}, y:{currentPoint.Y} ");
+
+                        // X2, Y2와의 차이를 계산
+                        double deltaX = Math.Abs(currentPoint.X - _previousPoint.X);
+                        double deltaY = Math.Abs(currentPoint.Y - _previousPoint.Y);
+                        //Log.Information($"delta x:{deltaY}, y:{deltaY} ");
+                        // X나 Y 차이가 30 이하인 경우에만 처리
+                        if (deltaX <= 50 && deltaY <= 50)
+                        {
+                            _previousPoint = currentPoint;
+                            // 반지름 계산
+                            double radius = Math.Sqrt(Math.Pow(currentPoint.X - _startPoint.X, 2) + Math.Pow(currentPoint.Y - _startPoint.Y, 2));
+
+                            double pixelValue = Utilities.GetCirclePixelMean((BitmapSource)SrcImg, (int)_startPoint.X, (int)_startPoint.Y, (int)radius, (int)currentEllipse.Ellipse.StrokeThickness);
+                            //Log.Information($"Pixel Value at ({_startPoint.X}, {_startPoint.Y}): {pixelValue}");
+
+                            currentEllipse.Ellipse.Width = 2 * radius;
+                            currentEllipse.Ellipse.Height = 2 * radius;
+
+                            currentEllipse.InfoTextBlock.Text = ((int)pixelValue).ToString();
+
+                            // 중앙점 기준 위치 조정
+                            Canvas.SetLeft(currentEllipse.Ellipse, _startPoint.X - radius);
+                            Canvas.SetTop(currentEllipse.Ellipse, _startPoint.Y - radius);
+                            Canvas.SetLeft(currentEllipse.InfoTextBlock, currentPoint.X);
+                            Canvas.SetTop(currentEllipse.InfoTextBlock, currentPoint.Y);
+                        }
+                    }
+                    break;
+                case TestTypes.Lateral:
+                    if (IsDrawing && Lines.Count > 0)
+                    {
+                        System.Windows.Point currentPoint = e.GetPosition((IInputElement)e.Source);
+                        CustomLine currentLine = Lines[Lines.Count - 1];
+                        Log.Information($"currentPoint x:{currentPoint.X}, y:{currentPoint.Y} ");
+                        // X2, Y2와의 차이를 계산
+                        double deltaX = Math.Abs(currentPoint.X - currentLine.Line.X2);
+                        double deltaY = Math.Abs(currentPoint.Y - currentLine.Line.Y2);
+
+                        // X나 Y 차이가 30 이하인 경우에만 처리
+                        if (deltaX <= 50 && deltaY <= 50)
+                        {
+                            _previousPoint = currentPoint;
+
+                            currentLine.Line.X2 = currentPoint.X;
+                            currentLine.Line.Y2 = currentPoint.Y;
+                            Log.Information($"X2:Y2 {currentLine.Line.X2}:{currentLine.Line.Y2}");
+                            double length = Math.Sqrt(Math.Pow(currentLine.Line.X2 - currentLine.Line.X1, 2) + Math.Pow(currentLine.Line.Y2 - currentLine.Line.Y1, 2));
+
+                            currentLine.InfoTextBlock.Text = ((int)length).ToString();
+                            Canvas.SetLeft(currentLine.InfoTextBlock, (currentLine.Line.X2 + currentLine.Line.X1)/2);
+                            Canvas.SetTop(currentLine.InfoTextBlock, (currentLine.Line.Y2 + currentLine.Line.Y1) / 2);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        [RelayCommand]
+        private void OnMouseUp(MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Released)
+            {
+                IsDrawing = false;
+                Mouse.Capture(null); // 마우스 캡처 해제
+            }
         }
     }
 }

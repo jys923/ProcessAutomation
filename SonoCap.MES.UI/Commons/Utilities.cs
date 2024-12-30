@@ -524,5 +524,170 @@ namespace SonoCap.MES.UI.Commons
                 list[n] = value;
             }
         }
+
+        public static ImageSource CopyImageSource(ImageSource source)
+        {
+            if (source == null)
+            {
+                // 빈 이미지 생성
+                var emptyImage = new RenderTargetBitmap(1, 1, 96, 96, PixelFormats.Pbgra32);
+                return emptyImage;
+            }
+
+            if (source is BitmapSource bitmapSource)
+            {
+                var encoder = new BmpBitmapEncoder(); // BmpBitmapEncoder 사용
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                using (var stream = new MemoryStream())
+                {
+                    encoder.Save(stream);
+                    stream.Seek(0, SeekOrigin.Begin);
+
+                    var newBitmap = new BitmapImage();
+                    newBitmap.BeginInit();
+                    newBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    newBitmap.StreamSource = stream;
+                    newBitmap.EndInit();
+
+                    return newBitmap;
+                }
+            }
+
+            return new RenderTargetBitmap(1, 1, 96, 96, PixelFormats.Pbgra32);
+        }
+
+        public static async Task<ImageSource> CopyImageSourceAsync(ImageSource source)
+        {
+            return await Task.Run(() =>
+            {
+                if (source == null)
+                {
+                    // 빈 이미지 생성
+                    var emptyImage = new RenderTargetBitmap(1, 1, 96, 96, PixelFormats.Pbgra32);
+                    return (ImageSource)emptyImage;
+                }
+
+                var bitmapSource = source as BitmapSource;
+                if (bitmapSource != null)
+                {
+                    var encoder = new BmpBitmapEncoder(); // BmpBitmapEncoder 사용
+                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+                    using (var stream = new MemoryStream())
+                    {
+                        encoder.Save(stream);
+                        stream.Seek(0, SeekOrigin.Begin);
+
+                        var newBitmap = new BitmapImage();
+                        newBitmap.BeginInit();
+                        newBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        newBitmap.StreamSource = stream;
+                        newBitmap.EndInit();
+
+                        return (ImageSource)newBitmap;
+                    }
+                }
+
+                // source가 BitmapSource가 아닌 경우 빈 이미지 반환
+                return new RenderTargetBitmap(1, 1, 96, 96, PixelFormats.Pbgra32);
+            });
+        }
+
+        public static BitmapSource CopyBitmapSource(BitmapSource source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var encoder = new BmpBitmapEncoder(); // BmpBitmapEncoder 사용
+            encoder.Frames.Add(BitmapFrame.Create(source));
+
+            using (var stream = new MemoryStream())
+            {
+                encoder.Save(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+
+                var newBitmap = new BitmapImage();
+                newBitmap.BeginInit();
+                newBitmap.CacheOption = BitmapCacheOption.OnLoad;
+                newBitmap.StreamSource = stream;
+                newBitmap.EndInit();
+
+                return newBitmap;
+            }
+        }
+
+        public static int GetPixelValue(BitmapSource bitmapSource, int x, int y)
+        {
+            if (x < 0 || x >= bitmapSource.PixelWidth || y < 0 || y >= bitmapSource.PixelHeight)
+            {
+                throw new ArgumentOutOfRangeException("x 또는 y 좌표가 이미지의 범위를 벗어났습니다.");
+            }
+
+            // 픽셀 데이터를 저장할 배열
+            byte[] pixels = new byte[4]; // Bgr32 포맷은 픽셀당 4바이트 (B, G, R, A)
+
+            // 이미지의 픽셀을 추출
+            bitmapSource.CopyPixels(new System.Windows.Int32Rect(x, y, 1, 1), pixels, 4, 0);
+
+            // 그레이스케일 이미지에서 모든 채널은 동일한 값을 가짐
+            return pixels[2]; // R, G, B 중 하나의 값을 반환 (여기서는 R 채널 선택)
+        }
+
+        public static double GetCirclePixelMean(BitmapSource bitmapSource, int centerX, int centerY, double radius, double strokeThickness)
+        {
+            if (bitmapSource == null) throw new ArgumentNullException(nameof(bitmapSource));
+
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = width * 4; // Bgr32 포맷의 경우, 1픽셀 당 4바이트
+
+            byte[] pixels = new byte[height * stride];
+            bitmapSource.CopyPixels(pixels, stride, 0);
+
+            int pixelCount = 0;
+            long pixelSum = 0;
+
+            double innerRadius = radius - strokeThickness;
+            double innerRadiusSquared = innerRadius * innerRadius;
+
+            for (double y = centerY - innerRadius; y <= centerY + innerRadius; y++)
+            {
+                if (y < 0 || y >= height) continue;
+
+                for (double x = centerX - innerRadius; x <= centerX + innerRadius; x++)
+                {
+                    if (x < 0 || x >= width) continue;
+
+                    double dx = x - centerX;
+                    double dy = y - centerY;
+
+                    if (dx * dx + dy * dy < innerRadiusSquared)
+                    {
+                        int ix = (int)Math.Round(x);
+                        int iy = (int)Math.Round(y);
+
+                        int index = (iy * stride) + (ix * 4);
+                        if (index < 0 || index >= pixels.Length) continue;
+
+                        byte pixelValue = pixels[index + 2]; // R, G, B 채널은 모두 같은 값이므로 하나의 채널 값만 사용
+                        pixelSum += pixelValue;
+                        pixelCount++;
+                    }
+                }
+            }
+
+            if (pixelCount > 0)
+            {
+                //Log.Information($"pixelSum : {pixelSum} pixelCount : {pixelCount}");
+                return (double)pixelSum / pixelCount;
+            }
+            else
+            {
+                return double.NaN; // 원 내부에 픽셀이 없는 경우
+            }
+        }
     }
 }

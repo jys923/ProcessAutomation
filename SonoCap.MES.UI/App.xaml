@@ -16,6 +16,8 @@
             <converters:RadioButtonIndexConverter x:Key="RadioButtonIndexConverter" />
             <converters:RowIndexConverter x:Key="RowIndexConverter" />
             <converters:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
+            <converters:IntToBooleanConverter x:Key="IntToBooleanConverter" />
+            <converters:DoubleToBooleanConverter x:Key="DoubleToBooleanConverter" />
             <Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
 
             <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue"/>
@@ -119,6 +121,11 @@
             <ResourceDictionary.MergedDictionaries>
                 <!--<ResourceDictionary Source="/Styles/BlinkingButtonStyle.xaml"/>-->
                 <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
+                <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <!-- Theme setting -->
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Blue.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
         <!-- DataTemplate을 이용하여 ViewModel과 View를 연결 -->
