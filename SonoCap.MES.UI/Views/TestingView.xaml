@@ -789,7 +789,8 @@
             <GroupBox
                 Grid.Row="1"
                 Header="LineDensity"
-                Style="{StaticResource GroupBoxLargeStyle}">
+                Style="{StaticResource GroupBoxLargeStyle}"
+                Visibility="Collapsed">
                 <StackPanel
                     Orientation="Horizontal">
                     <RadioButton
@@ -882,7 +883,7 @@
                 Header="DR min max"
                 Style="{StaticResource GroupBoxLargeStyle}">
                 <mah:RangeSlider
-                    MinRangeWidth="1"
+                    MinRangeWidth="0"
                     Width="500"
                     mah:SliderHelper.ChangeValueBy="LargeChange"
                     mah:SliderHelper.EnableMouseWheel="MouseHover"
@@ -896,8 +897,6 @@
                     Style="{DynamicResource MahApps.Styles.RangeSlider.Win10}"
                     UpperValue="{Binding DRMax}"
                     HorizontalAlignment="Center"
-                    Canvas.Left="4"
-                    Canvas.Top="122"
                     VerticalAlignment="Center"
                     Height="30">
                     <mah:RangeSlider.AutoToolTipRangeValuesTemplate>
@@ -925,26 +924,40 @@
             </GroupBox>
             <Border
                 Height="0" />
-            <GroupBox
-                Header="Calibration"
-                Style="{StaticResource GroupBoxLargeStyle}">
-                <StackPanel
-                    HorizontalAlignment="Center"
-                    Orientation="Horizontal"
-                    Width="500">
-                    <TextBox
-                        TextWrapping="Wrap"
-                        Text="{Binding CalibrationOffset}"
-                        Width="120"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top" />
-                    <Button
-                        Content="Set"
-                        Command="{Binding CalibrateButtonCommand}"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top" />
-                </StackPanel>
-            </GroupBox>
+            <StackPanel Orientation="Horizontal">
+                <GroupBox
+                    Header="Calibration"
+                    Style="{StaticResource GroupBoxLargeStyle}"
+                    Width="200"
+                    HorizontalAlignment="Left">
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal"
+                        Width="200">
+                        <TextBox
+                            TextWrapping="Wrap"
+                            Text="{Binding CalibrationOffset}"
+                            Width="120"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top" />
+                        <Button
+                            Content="Set"
+                            Command="{Binding CalibrateButtonCommand}"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top" />
+                    </StackPanel>
+                </GroupBox>
+                <ComboBox
+                    ItemsSource="{Binding SubSettingList}"
+                    DisplayMemberPath="Item2"
+                    SelectedItem="{Binding SelectedSubSetting}"
+                    Width="200"
+                    Height="30"
+                    VerticalAlignment="Center"
+                    Margin="10"
+                    HorizontalAlignment="Right" />
+            </StackPanel>
+            
         </StackPanel>
         <GroupBox
             Grid.Row="2"
@@ -1027,9 +1040,10 @@
                     Content="초 음 파  영 상" />
                 <Image
                     x:Name="SrcImg"
-                    Margin="60,0,60,0"
-                    Stretch="UniformToFill"
-                    Source="{Binding SrcImg}" />
+                    Stretch="None"
+                    Source="{Binding SrcImg}"
+                    Width="512"
+                    Height="512" />
                 <!--<glWpfControl:GLWpfControl
                     x:Name="OpenTkControl"
                     Render="OnRender">
@@ -1107,10 +1121,7 @@
                         Width="512"
                         Height="512"
                         x:Name="ResImg"
-                        Stretch="UniformToFill"
-                        Source="{Binding ResImg}"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top" />
+                        Source="{Binding ResImg}" />
                     <!--<TextBlock
                         x:Name="lengthTextBlock"
                         Text="{Binding LengthText}"
@@ -1118,15 +1129,6 @@
                         Background="Black"
                         FontSize="14"
                         Visibility="Collapsed" />-->
-                    <TextBlock
-                        x:Name="lengthTextBlock"
-                        Text="{Binding LineLength, StringFormat={}{0:F2}}"
-                        Foreground="White"
-                        Background="Black"
-                        FontSize="14"
-                        Canvas.Left="{Binding TextPositionX}"
-                        Canvas.Top="{Binding TextPositionY}"
-                        Visibility="Visible" />
                 </Canvas>
             </StackPanel>
         </GroupBox>

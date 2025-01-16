@@ -38,6 +38,7 @@ namespace SonoCap.MES.UI.Services
 
             if (windows.Any())
             {
+                windows.ElementAt(0).Show(); // 창 다시 보이기
                 windows.ElementAt(0).Activate();
                 return true;
             }

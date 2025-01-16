@@ -2,6 +2,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using HsnlibraryCS;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Utilities;
 using Serilog;
@@ -36,6 +37,8 @@ using Brushes = System.Windows.Media.Brushes;
 
 namespace SonoCap.MES.UI.ViewModels
 {
+    public class SubSetting { public int Id { get; set; } public string Name { get; set; } }
+
     public partial class TestingViewModel : ViewModelBase, IParameterReceiver
     {
         // 메시지를 표시할 메서드 예시
@@ -316,7 +319,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 _model.ViewDepthCm = value;
                 OnPropertyChanged(nameof(SelectedViewDepth));
-                OnSelectedViewDepthChanged(value);
+                //OnSelectedViewDepthChanged(value);
             }
         }
 
@@ -375,7 +378,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 _model.LineDensity = value;
                 OnPropertyChanged(nameof(SelectedLineDensity));
-                OnSelectedLineDensityChanged(value);
+                //OnSelectedLineDensityChanged(value);
             }
         }
 
@@ -432,8 +435,11 @@ namespace SonoCap.MES.UI.ViewModels
             get { return _model.DRMin; }
             set
             {
-                _model.DRMin = value;
-                OnPropertyChanged(nameof(DRMin));
+                if (value <= DRMax - 2)
+                {
+                    _model.DRMin = value;
+                    OnPropertyChanged(nameof(DRMin));
+                }
             }
         }
 
@@ -442,8 +448,11 @@ namespace SonoCap.MES.UI.ViewModels
             get { return _model.DRMax; }
             set
             {
-                _model.DRMax = value;
-                OnPropertyChanged(nameof(DRMax));
+                if (value >= DRMin + 2) 
+                { 
+                    _model.DRMax = value; 
+                    OnPropertyChanged(nameof(DRMax)); 
+                }
             }
         }
 
@@ -473,6 +482,20 @@ namespace SonoCap.MES.UI.ViewModels
         private int _testResult = -2;
 
         private BitmapImage _defaultImg = default!;
+
+        [ObservableProperty]
+        private ObservableCollection<Tuple<int, string>> _subSettingList;
+
+        [ObservableProperty]
+        private Tuple<int,string> _selectedSubSetting;
+
+        partial void OnSelectedSubSettingChanged(Tuple<int, string> value)
+        {
+            if (_model.Subsetting != value.Item1)
+            {
+                _model.Subsetting = value.Item1;
+            }
+        }
 
         [ObservableProperty]
         private ImageSource _srcImg = default!;
@@ -1038,6 +1061,14 @@ namespace SonoCap.MES.UI.ViewModels
                 ResImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
 
             });
+
+            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
+            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
+            //string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_mod.png";
+
+            Utilities.ImageSourceToGrayBmp(ResImg, OriginalImgName);
+            //Utilities.ImageSourceToPng(ResImg, ChangedImgName);
+
             // 응답 처리
             // 응답을 받았을 때의 로직
             //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
@@ -1268,6 +1299,20 @@ namespace SonoCap.MES.UI.ViewModels
                 return;
             }
             _model.MotorStateChanged += OnMotorStateChanged;
+            _model.IpCapsuleIsInnerVisible = true;
+
+            //_selectedSubSetting = _model.Subsetting;
+            List<Tuple<int, string>> subSettingList = _model.SubSettings;
+
+            SubSettingList = new ObservableCollection<Tuple<int, string>>(subSettingList);
+
+            SelectedSubSetting = subSettingList.Find(tuple => tuple.Item1 == _model.Subsetting);
+
+
+            //string targetString = "res_fh";
+            //Tuple<int, string>? result = subSettingList.Find(tuple => tuple.Item2.Contains(targetString));
+            //_model.Subsetting = result.Item1;
+
             RenderStart();
         }
 
@@ -1797,6 +1842,10 @@ namespace SonoCap.MES.UI.ViewModels
             //base.OnWindowLoaded(sender, e);
             //MessageBox.Show("TestWindow Loaded");
             Log.Information($"{nameof(OnWindowLoaded)}");
+
+            //Init();
+            //LogIn();
+
             if (!InitMotor())
             {
                 CloseWindow();
@@ -1819,16 +1868,31 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"{nameof(OnWindowClosing)}");
             if (_motorService.IsOpen)
             {
-                byte[] bytesToSend = _motorService.GetCommandBytes((int)0xFF03);
+                byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MOTOR_OFF);
                 _motorService.Write(bytesToSend, 0, bytesToSend.Length);
                 Task.Delay(100);
-                _motorService.Close();
+                //_motorService.Close();
             }
 
             //_socketService.Dispose();
 
-            RenderEnd();
-            _model.DestroyLibrary();
+            //RenderEnd();
+            //_model.DestroyLibrary();
+            e.Cancel = true;
+            if (sender is Window window) 
+            {
+                window.Hide();
+            }
+        }
+
+        protected override void OnWindowActivated(object? sender, EventArgs e)
+        {
+            Log.Information($"{nameof(OnWindowActivated)}");
+            if (_motorService.IsOpen == true)
+            {
+                byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MOTOR_ON);
+                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+            }
         }
 
         System.Windows.Point _startPoint = new System.Windows.Point(0, 0);
@@ -1845,24 +1909,6 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private bool _isDrawing;
-
-        [ObservableProperty]
-        private System.Windows.Shapes.Line _currentLine;
-
-        [ObservableProperty]
-        private double _lineLength;
-
-        [ObservableProperty]
-        private double _textPositionX;
-
-        [ObservableProperty]
-        private double _textPositionY;
-
-        [ObservableProperty]
-        private Ellipse _currentEllipse;
-
-        //[ObservableProperty]
-        //private ObservableCollection<Ellipse> _currentEllipses = new();
 
         [RelayCommand]
         private void OnMouseDown(MouseButtonEventArgs e)

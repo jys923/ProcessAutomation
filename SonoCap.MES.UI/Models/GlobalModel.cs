@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using SonoCap.MES.Models.Enums;
+using System;
 
 namespace SonoCap.MES.UI.Model
 {
@@ -43,6 +44,45 @@ namespace SonoCap.MES.UI.Model
         {
             string message = $"Error {err_num}: {err_str}";
             System.Windows.MessageBox.Show(message);
+        }
+
+        public List<Tuple<int, string>> Applications
+        {
+            get
+            {
+                var applications = new List<Tuple<int, string>>();
+                if (!HsnlibraryCS.HsnInterface.listApplication(ref applications))
+                {
+                    throw new Exception("Failed to list applications.");
+                }
+                return applications;
+            }
+        }
+
+        public List<Tuple<int, string>> Presets
+        {
+            get
+            {
+                var presets = new List<Tuple<int, string>>();
+                if (!HsnlibraryCS.HsnInterface.listPreset(Application, ref presets))
+                {
+                    throw new Exception("Failed to list presets.");
+                }
+                return presets;
+            }
+        }
+
+        public List<Tuple<int, string>> SubSettings
+        {
+            get
+            {
+                var subSettings = new List<Tuple<int, string>>();
+                if (!HsnlibraryCS.HsnInterface.listSubSetting(Setting, ref subSettings))
+                {
+                    throw new Exception("Failed to list subsettings.");
+                }
+                return subSettings;
+            }
         }
 
         public double ViewDepthCm
@@ -104,6 +144,80 @@ namespace SonoCap.MES.UI.Model
             }
         }
 
+        public int Application
+        {
+            get
+            {
+                int application = 0;
+                if (HsnlibraryCS.HsnInterface.getCurrentApplication(ref application))
+                {
+                    return application;
+                }
+                else
+                {
+                    throw new Exception("Failed to get current subsetting.");
+                }
+            }
+            set
+            {
+                if (!HsnlibraryCS.HsnInterface.loadApplication(value))
+                {
+                    throw new Exception("Failed to load subsetting.");
+                }
+            }
+        }
+
+        public int Setting
+        {
+            get
+            {
+                int currentSetting = 0;
+                if (HsnlibraryCS.HsnInterface.getCurrentSetting(ref currentSetting))
+                {
+                    return currentSetting;
+                }
+                else
+                {
+                    throw new Exception("Failed to get current subsetting.");
+                }
+            }
+            set
+            {
+                if (!HsnlibraryCS.HsnInterface.loadSetting(value))
+                {
+                    throw new Exception("Failed to load subsetting.");
+                }
+            }
+        }
+
+        public int Subsetting
+        {
+            get
+            {
+                int currentSubsetting = 0;
+                if (HsnlibraryCS.HsnInterface.getCurrentSubSetting(ref currentSubsetting))
+                {
+                    return currentSubsetting;
+                }
+                else
+                {
+                    throw new Exception("Failed to get current subsetting.");
+                }
+            }
+            set
+            {
+                if (!HsnlibraryCS.HsnInterface.loadSubSetting(value))
+                {
+                    throw new Exception("Failed to load subsetting.");
+                }
+            }
+        }
+
+        public bool loadSubSetting(int value)
+        {
+            return HsnlibraryCS.HsnInterface.loadSubSetting(value);
+        }
+
         public string DataVersion
         {
             get
@@ -130,6 +244,19 @@ namespace SonoCap.MES.UI.Model
             }
         }
 
+        public string IPVersion
+        {
+            get
+            {
+                string value = "";
+                if (!HsnlibraryCS.HsnInterface.getCurrentIPVersion(ref value))
+                {
+                    return "";
+                }
+                return value;
+            }
+        }
+
         public string MainboardSN
         {
             get
@@ -141,6 +268,12 @@ namespace SonoCap.MES.UI.Model
                 }
                 return value;
             }
+        }
+
+        public bool IpCapsuleIsInnerVisible
+        {
+            get { return HsnlibraryCS.HsnInterface.getIpCapsuleIsInnerVisible(); }
+            set { HsnlibraryCS.HsnInterface.setIpCapsuleIsInnerVisible(value); }
         }
 
         public int CalibrateScanline(int offset)

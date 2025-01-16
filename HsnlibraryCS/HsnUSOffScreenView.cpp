@@ -50,8 +50,8 @@ HsnLibraryCS::HsnUltrasoundOffScreenView::HsnUltrasoundOffScreenView(int initial
 	HMODULE hInstance = GetModuleHandle(NULL);
 	_handle = CreateWindowEx(
 		0,
-		"static",
-		"",
+		L"static",
+		L"",
 		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
 		0, // x
 		0, // y
@@ -68,7 +68,7 @@ HsnLibraryCS::HsnUltrasoundOffScreenView::HsnUltrasoundOffScreenView(int initial
 		throw gcnew Exception(getLastErrorMessage());
 	}
 
-	ShowWindow(_handle, SW_NORMAL);
+	ShowWindow(_handle, SW_HIDE);
 
 }
 
@@ -210,7 +210,11 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Release()
 		{
 			ReleaseDC(_handle, _device_context);
 		}
-		DestroyWindow(_handle);
+		if (_handle != NULL) 
+		{ 
+			DestroyWindow(_handle); 
+			_handle = NULL; 
+		}
 	}
 }
 

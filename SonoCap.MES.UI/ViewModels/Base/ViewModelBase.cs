@@ -12,6 +12,11 @@ namespace SonoCap.MES.UI.ViewModels.Base
         {
             Window!.Loaded += OnWindowLoaded;
             Window!.Closing += OnWindowClosing;
+            Window!.Activated += OnWindowActivated;
+        }
+
+        protected virtual void OnWindowActivated(object? sender, EventArgs e)
+        {
         }
 
         protected virtual void OnWindowClosing(object? sender, CancelEventArgs e)
