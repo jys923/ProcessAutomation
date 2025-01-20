@@ -2,20 +2,21 @@
   
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,6 +45,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HsnlibraryCS\HsnlibraryCS.vcxproj" />
     <ProjectReference Include="..\SonoCap.Interceptors\SonoCap.Interceptors.csproj" />
+    <ProjectReference Include="..\SonoCap.MES.ImageProcess\SonoCap.MES.ImageProcess.vcxproj" />
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Repositories\SonoCap.MES.Repositories.csproj" />
     <ProjectReference Include="..\SonoCap.MES.Services\SonoCap.MES.Services.csproj" />

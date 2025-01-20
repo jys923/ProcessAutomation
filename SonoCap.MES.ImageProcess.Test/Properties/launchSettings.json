@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SonoCap.MES.ImageProcess.Test": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

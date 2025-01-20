@@ -23,6 +23,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -57,7 +58,6 @@ namespace SonoCap.MES.UI.ViewModels
                 MessageIsPopupOpen = false; // Popup을 닫습니다.
             });
         }
-
 
         [ObservableProperty]
         private string _title = default!;
@@ -494,6 +494,9 @@ namespace SonoCap.MES.UI.ViewModels
             if (_model.Subsetting != value.Item1)
             {
                 _model.Subsetting = value.Item1;
+
+                DRMin = _model.DRMin;
+                DRMax = _model.DRMax;
             }
         }
 
@@ -1059,8 +1062,23 @@ namespace SonoCap.MES.UI.ViewModels
             App.Current.Dispatcher.Invoke(() =>
             {
                 ResImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
-
+                //ResImg = SrcImg;
             });
+
+            // BitmapSource를 byte array로 변환하고 IntPtr로 전달
+            BitmapSource bitmapSource = (BitmapSource)ResImg;
+            int width = bitmapSource.PixelWidth;
+            int height = bitmapSource.PixelHeight;
+            int stride = width * 4;  // assuming PixelFormats.Bgr32
+
+            byte[] pixelData = new byte[height * stride];
+            bitmapSource.CopyPixels(pixelData, stride, 0);
+
+            GCHandle handle = GCHandle.Alloc(pixelData, GCHandleType.Pinned);
+            IntPtr bufferPtr = handle.AddrOfPinnedObject();
+
+            // C++ 함수 호출
+            //MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess(bufferPtr, width, height);
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
             string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
