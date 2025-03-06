@@ -594,6 +594,32 @@ namespace SonoCap.MES.UI.Commons
             });
         }
 
+        public static void ProcessImage(Action<IntPtr, int, int, IntPtr, IntPtr> processFunction,
+                                 IntPtr imageBufferPtr, int width, int height,
+                                 IntPtr resultBufferPtr, IntPtr textBufferPtr)
+        {
+            processFunction(imageBufferPtr, width, height, resultBufferPtr, textBufferPtr);
+        }
+
+        public static IntPtr BitmapSourceToByteArray(BitmapSource bitmapSource, out GCHandle handle)
+        {
+            int stride = bitmapSource.PixelWidth * ((bitmapSource.Format.BitsPerPixel + 7) / 8);
+            byte[] byteArray = new byte[stride * bitmapSource.PixelHeight];
+            bitmapSource.CopyPixels(byteArray, stride, 0);
+            handle = GCHandle.Alloc(byteArray, GCHandleType.Pinned);
+            return handle.AddrOfPinnedObject();
+        }
+
+        public static void SaveBitmap(BitmapSource bitmapSource, string filePath)
+        {
+            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            {
+                BmpBitmapEncoder encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                encoder.Save(stream);
+            }
+        }
+
         public static BitmapSource CopyBitmapSource(BitmapSource source)
         {
             if (source == null)
@@ -601,7 +627,8 @@ namespace SonoCap.MES.UI.Commons
                 throw new ArgumentNullException(nameof(source));
             }
 
-            var encoder = new BmpBitmapEncoder(); // BmpBitmapEncoder 사용
+            var encoder = new BmpBitmapEncoder();
+            //var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(source));
 
             using (var stream = new MemoryStream())

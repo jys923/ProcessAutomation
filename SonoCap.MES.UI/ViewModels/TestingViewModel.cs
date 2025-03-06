@@ -2,26 +2,21 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HsnlibraryCS;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Utilities;
 using Serilog;
-using SonoCap.Commons;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
-using SonoCap.MES.Repositories.Base;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Model;
-using SonoCap.MES.UI.Properties;
 using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -30,8 +25,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static OpenTK.Windowing.GraphicsLibraryFramework.GLFWCallbacks;
 using static SonoCap.MES.UI.Services.MotorService;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -42,6 +35,8 @@ namespace SonoCap.MES.UI.ViewModels
 
     public partial class TestingViewModel : ViewModelBase, IParameterReceiver
     {
+        private Action<IntPtr, int, int, IntPtr, IntPtr> processFunction = default!;
+
         // 메시지를 표시할 메서드 예시
         public async Task ShowMessageAsync(string message)
         {
@@ -58,6 +53,8 @@ namespace SonoCap.MES.UI.ViewModels
                 MessageIsPopupOpen = false; // Popup을 닫습니다.
             });
         }
+
+        //private BitmapSource SnapshotImg = default!;
 
         [ObservableProperty]
         private string _title = default!;
@@ -504,6 +501,9 @@ namespace SonoCap.MES.UI.ViewModels
         private ImageSource _srcImg = default!;
 
         [ObservableProperty]
+        private ImageSource _snapshotImg = default!;
+
+        [ObservableProperty]
         private ImageSource _resImg = default!;
 
         [ObservableProperty]
@@ -631,30 +631,39 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 case CellPositions.Row1_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column1;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row1_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column2;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.AlignProcess;
                     break;
                 case CellPositions.Row1_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column3;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row2_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column1;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row2_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column2;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.AlignProcess;
                     break;
                 case CellPositions.Row2_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column3;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row3_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column1;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row3_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column2;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.AlignProcess;
                     break;
                 case CellPositions.Row3_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column3;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 default:
                     break;
@@ -1043,6 +1052,7 @@ namespace SonoCap.MES.UI.ViewModels
             //return res;
         }
 
+
         [RelayCommand(CanExecute = nameof(CanTest))]
         private Task TestAsync()
         {
@@ -1061,38 +1071,65 @@ namespace SonoCap.MES.UI.ViewModels
             ClearDraw();
             App.Current.Dispatcher.Invoke(() =>
             {
-                ResImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+                SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
                 //ResImg = SrcImg;
             });
 
             // BitmapSource를 byte array로 변환하고 IntPtr로 전달
-            BitmapSource bitmapSource = (BitmapSource)ResImg;
-            int width = bitmapSource.PixelWidth;
-            int height = bitmapSource.PixelHeight;
-            int stride = width * 4;  // assuming PixelFormats.Bgr32
+            BitmapSource bitmapSource = (BitmapSource)SnapshotImg;
+            GCHandle imageHandle;
+            IntPtr imageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out imageHandle);
 
-            byte[] pixelData = new byte[height * stride];
-            bitmapSource.CopyPixels(pixelData, stride, 0);
+            // 결과 이미지 저장 배열
+            int resultImageSize = bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4;
+            byte[] resultImageArray = new byte[resultImageSize];
+            GCHandle resultHandle = GCHandle.Alloc(resultImageArray, GCHandleType.Pinned);
+            IntPtr resultBufferPtr = resultHandle.AddrOfPinnedObject();
 
-            GCHandle handle = GCHandle.Alloc(pixelData, GCHandleType.Pinned);
-            IntPtr bufferPtr = handle.AddrOfPinnedObject();
+            // 텍스트 데이터 저장 배열
+            byte[] textArray = new byte[1024];
+            GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
+            IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
 
-            // C++ 함수 호출
-            //MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess(bufferPtr, width, height);
+            // OpenCV 처리 함수 실행 (ProcessImage 내부에는 오직 이 한 줄만 있음)
+            Utilities.ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
-            //string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_mod.png";
+            string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
 
-            Utilities.ImageSourceToGrayBmp(ResImg, OriginalImgName);
-            //Utilities.ImageSourceToPng(ResImg, ChangedImgName);
+            // 결과 이미지 변환 및 저장
+            BitmapSource resultBitmapSource = BitmapSource.Create(
+                bitmapSource.PixelWidth,
+                bitmapSource.PixelHeight,
+                512, 512,
+                PixelFormats.Bgr32,
+                null,
+                resultImageArray,
+                bitmapSource.PixelWidth * 4
+            );
+
+            Utilities.SaveBitmap(resultBitmapSource, resultImagePath);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+                ResImg = resultBitmapSource;
+            });
+            // 결과 텍스트 출력
+            string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
+            Log.Information($"resultText: {resultText}");
+            ResLogs.Add(resultText);
+            ResTxt = resultText;
+            // 메모리 해제
+            imageHandle.Free();
+            resultHandle.Free();
+            textHandle.Free();
 
             // 응답 처리
             // 응답을 받았을 때의 로직
             //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
             //ResTxt = settings.ToJson();
 
-            //ValidationDict[nameof(TestResult)].IsEnabled = true;
+            ValidationDict[nameof(TestResult)].IsEnabled = true;
             return Task.CompletedTask;
         }
 

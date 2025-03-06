@@ -1038,12 +1038,20 @@
                     HorizontalContentAlignment="Center"
                     Margin="0,0,0,15"
                     Content="초 음 파  영 상" />
-                <Image
-                    x:Name="SrcImg"
-                    Stretch="None"
-                    Source="{Binding SrcImg}"
-                    Width="512"
-                    Height="512" />
+                <Grid>
+                    <Image
+                        x:Name="SnapshotImg"
+                        Stretch="None"
+                        Source="{Binding SnapshotImg}"
+                        Width="512"
+                        Height="512" />
+                    <Image
+                        x:Name="SrcImg"
+                        Stretch="None"
+                        Source="{Binding SrcImg}"
+                        Width="512"
+                        Height="512" />
+                </Grid>
                 <!--<glWpfControl:GLWpfControl
                     x:Name="OpenTkControl"
                     Render="OnRender">
