@@ -293,11 +293,16 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void SetMotor2()
         {
-            if (_motorService.IsOpen == true)
+            if (_motorService.CurrentState == MotorState.IsOpen)
             {
-                byte[] bytesToSend = _motorService.GenerateCommand(CMD.CMD_MODE_SEL, _motorService.GetRPMFromDensity(Convert.ToInt32(SelectedLineDensity)), _motorService.GetPRFFromDepth(Convert.ToInt32(SelectedViewDepth)));
+                byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MODE_SEL, _motorService.GetRPMFromDensity(Convert.ToInt32(SelectedLineDensity)), _motorService.GetPRFFromDepth(Convert.ToInt32(SelectedViewDepth)));
                 _motorService.Write(bytesToSend, 0, bytesToSend.Length);
             }
+        }
+
+        private void SetMotor()
+        {
+            _motorService.UpdateSettings(Convert.ToInt32(SelectedLineDensity), Convert.ToInt32(SelectedViewDepth));
         }
 
         [ObservableProperty]
@@ -524,11 +529,9 @@ namespace SonoCap.MES.UI.ViewModels
         private TestTypes _testType { get; set; } = default!;
         private Test? _test { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
-        private MotorState _motorState = MotorState.disconnect;
 
         private GlobalModel _model;
         private readonly MotorService _motorService;
-        private readonly ISocketService _socketService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -546,7 +549,6 @@ namespace SonoCap.MES.UI.ViewModels
         public TestingViewModel(
             GlobalModel model,
             MotorService motorService,
-            ISocketService socketService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
@@ -563,7 +565,6 @@ namespace SonoCap.MES.UI.ViewModels
         {
             _model = model;
             _motorService = motorService;
-            _socketService = socketService;
             _serviceProvider = serviceProvider;
             _motorModuleRepository = motorModuleRepository;
             _pcRepository = pcRepository;
@@ -669,7 +670,6 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
             }
 
-            ClearCanvas = true;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
@@ -732,7 +732,6 @@ namespace SonoCap.MES.UI.ViewModels
                 default:
                     break;
             }
-            ClearCanvas = true;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
@@ -1066,9 +1065,6 @@ namespace SonoCap.MES.UI.ViewModels
             //{
             //    ResImg = await Utilities.CopyImageSourceAsync(SrcImg);
             //});
-
-            
-            ClearDraw();
             App.Current.Dispatcher.Invoke(() =>
             {
                 SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
@@ -1095,7 +1091,8 @@ namespace SonoCap.MES.UI.ViewModels
             Utilities.ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
+            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
+            string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
 
             // 결과 이미지 변환 및 저장
             BitmapSource resultBitmapSource = BitmapSource.Create(
@@ -1107,7 +1104,8 @@ namespace SonoCap.MES.UI.ViewModels
                 resultImageArray,
                 bitmapSource.PixelWidth * 4
             );
-
+            //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
+            Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
             Utilities.SaveBitmap(resultBitmapSource, resultImagePath);
             App.Current.Dispatcher.Invoke(() =>
             {
@@ -1133,13 +1131,6 @@ namespace SonoCap.MES.UI.ViewModels
             return Task.CompletedTask;
         }
 
-        private void ClearDraw()
-        {
-            ClearCanvas = true;
-            Ellipses.Clear();
-            Lines.Clear();
-        }
-
         private bool CanNext()
         {
             Log.Information(nameof(CanNext));
@@ -1159,8 +1150,8 @@ namespace SonoCap.MES.UI.ViewModels
                 return;
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}.bmp";
-            string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_mod.png";
+            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
+            string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
 
             Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
             Utilities.ImageSourceToPng(ResImg, ChangedImgName);
@@ -1267,7 +1258,6 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
             }
 
-            ClearCanvas = true;
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
@@ -1308,9 +1298,6 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
-            _ellipses.CollectionChanged += Ellipses_CollectionChanged;
-            _lines.CollectionChanged += Lines_CollectionChanged;
-
             DepthIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
             DepthIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
             DepthIsEnabled.Add(2, new ValidationItem { IsEnabled = true });
@@ -1371,22 +1358,12 @@ namespace SonoCap.MES.UI.ViewModels
             RenderStart();
         }
 
-        private void Lines_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Lines));
-        }
-
-        private void Ellipses_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Ellipses));
-        }
-
         //OnMotorStateChanged: prf_hz:10000, density:4
         private void OnMotorStateChanged(int prfHz, int density)
         {
             Log.Information($"{nameof(OnMotorStateChanged)}: prf_hz:{prfHz}, density:{density}");
             //_motorService.
-            SetMotor2();
+            SetMotor();
         }
 
         private USRenderService usRenderer;
@@ -1430,7 +1407,7 @@ namespace SonoCap.MES.UI.ViewModels
             //_motorService.CloseViewRequested += CloseViewRequestedHandler;
             if (_motorService.InitPort())
             {
-                _motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataDataReceivedHandler);
+                //_motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataReceivedHandler);
                 Log.Information($"Succ:{nameof(InitMotor)}");
                 return true;
             }
@@ -1439,70 +1416,6 @@ namespace SonoCap.MES.UI.ViewModels
                 Log.Error($"{nameof(InitMotor)}");
                 return false;
             }
-        }
-
-        private void SerialDataDataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
-        {
-            if (sender is MotorService motorService)
-            {
-                int RecvSize = motorService.BytesToRead;
-                string RecvStr = string.Empty;
-
-                if (RecvSize >= 2)
-                {
-                    byte[] buff = new byte[2];
-                    motorService.Read(buff, 0, 2);
-                    Log.Information($"Received : {BitConverter.ToString(buff)}");
-
-                    byte[] bytesToSend = Array.Empty<byte>();
-                    if (_motorState == MotorState.disconnect)
-                    {
-                        _motorState = MotorState.connect;
-                        bytesToSend = motorService.GetCommandBytes((int)0xAB55);
-                        motorService.Write(bytesToSend, 0, bytesToSend.Length);
-                    }
-                    else if (_motorState == MotorState.connect)
-                    {
-                        _motorState = MotorState.start;
-                        bytesToSend = motorService.GetCommandBytes((int)0xFA55);
-                        motorService.Write(bytesToSend, 0, bytesToSend.Length);
-                    }
-                }
-            }
-        }
-
-        private void InitSocket()
-        {
-            _socketService.DataReceived += DataReceivedHandler;
-            _socketService.CloseViewRequested += CloseViewRequestedHandler;
-            string serverIP = "127.0.0.1";
-            int port = 9999;
-            try
-            {
-                Task.Run(async () =>
-                {
-                    await _socketService.ConnectAsync(serverIP, port);
-                    //await _socketService.ReceiveDataAsync();
-                });
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"{nameof(InitSocket)}: {ex.Message}");
-                //Application.Current.MainWindow.Close();
-            }
-        }
-
-        private void DataReceivedHandler(object? sender, ImgAndMeta response)
-        {
-            Log.Information($"{nameof(DataReceivedHandler)}:{response.Meta}");
-            HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
-            //SelectedRPM = _motorService.GetRPMFromDensity(settings.density);
-            //SelectedPRF = _motorService.GetPRFFromDepth((int)settings.depth_in_cm);//5개
-        }
-
-        private void CloseViewRequestedHandler(object? sender, EventArgs e)
-        {
-            CloseWindow();
         }
 
         private void CloseWindow()
@@ -1907,11 +1820,13 @@ namespace SonoCap.MES.UI.ViewModels
             }
             else
             {
-                if (_motorService.IsOpen == true)
-                {
-                    byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MODE_SEL);
-                    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-                }
+                _motorService.StartMotor();
+                Task.Delay(100);
+                //if (_motorService.IsOpen == true)
+                //{
+                //    byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MODE_SEL);
+                //    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+                //}
             }
             //InitSocket();
         }
@@ -1921,13 +1836,15 @@ namespace SonoCap.MES.UI.ViewModels
             //base.OnWindowClosing(sender, e);
             //MessageBox.Show("TestWindow Closing");
             Log.Information($"{nameof(OnWindowClosing)}");
-            if (_motorService.IsOpen)
-            {
-                byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MOTOR_OFF);
-                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-                Task.Delay(100);
-                //_motorService.Close();
-            }
+            _motorService.StopMotor();
+            Task.Delay(100);
+            //if (_motorService.IsOpen)
+            //{
+            //    byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MOTOR_OFF);
+            //    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+            //    Task.Delay(100);
+            //    //_motorService.Close();
+            //}
 
             //_socketService.Dispose();
 
@@ -1943,227 +1860,13 @@ namespace SonoCap.MES.UI.ViewModels
         protected override void OnWindowActivated(object? sender, EventArgs e)
         {
             Log.Information($"{nameof(OnWindowActivated)}");
-            if (_motorService.IsOpen == true)
-            {
-                byte[] bytesToSend = _motorService.GetCommandBytes((int)CMD.CMD_MOTOR_ON);
-                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-            }
-        }
-
-        System.Windows.Point _startPoint = new System.Windows.Point(0, 0);
-        System.Windows.Point _previousPoint = new System.Windows.Point(0, 0);
-
-        [ObservableProperty]
-        private bool _clearCanvas = false;
-
-        [ObservableProperty]
-        private ObservableCollection<CustomEllipse> _ellipses = new();
-
-        [ObservableProperty]
-        private ObservableCollection<CustomLine> _lines = new();
-
-        [ObservableProperty]
-        private bool _isDrawing;
-
-        [RelayCommand]
-        private void OnMouseDown(MouseButtonEventArgs e)
-        {
-            switch (_testType)
-            {
-                case TestTypes.Align:
-                    if (e.LeftButton == MouseButtonState.Pressed)
-                    {
-                        _startPoint = e.GetPosition((IInputElement)e.Source);
-                        // 좌표가 (0,0), (0,1), (1,0)인 경우 무시
-                        if ((_startPoint.X == 0 && _startPoint.Y == 0) || (_startPoint.X == 0) || (_startPoint.Y == 0))
-                        {
-                            Log.Information($"Ignored Point X:{_startPoint.X} Y:{_startPoint.Y}");
-                            return;
-                        }
-                        Mouse.Capture((IInputElement)e.Source);
-                        IsDrawing = true;
-                        _previousPoint = _startPoint;
-                        Log.Information($"_startPoint X:{_startPoint.X} Y:{_startPoint.Y}");
-
-                        if (e.Source is FrameworkElement canvas)
-                        {
-                            double canvasWidth = canvas.ActualWidth;
-                            double canvasHeight = canvas.ActualHeight;
-
-                            double centerX = canvasWidth / 2;
-                            double centerY = canvasHeight / 2;
-
-                            double Radius = Math.Sqrt(Math.Pow(_startPoint.X - centerX, 2) + Math.Pow(_startPoint.Y - centerY, 2));
-
-                            CustomEllipse tmp = new CustomEllipse();
-                            tmp.Ellipse.Width = 2 * Radius;
-                            tmp.Ellipse.Height = 2 * Radius;
-
-                            Canvas.SetLeft(tmp.Ellipse, centerX - Radius);
-                            Canvas.SetTop(tmp.Ellipse, centerY - Radius);
-
-                            Canvas.SetLeft(tmp.InfoTextBlock, _startPoint.X);
-                            Canvas.SetTop(tmp.InfoTextBlock, _startPoint.Y);
-
-                            if (Ellipses.Count >= 2)
-                            {
-                                Ellipses.RemoveAt(0);
-                            }
-                            Ellipses.Add(tmp);
-                        }
-                    }
-                    break;
-                case TestTypes.Axial:
-                    if (e.LeftButton == MouseButtonState.Pressed)
-                    {
-                        Mouse.Capture((IInputElement)e.Source);
-                        IsDrawing = true;
-                        _startPoint = e.GetPosition((IInputElement)e.Source);
-                        _previousPoint = e.GetPosition((IInputElement)e.Source);
-                        Log.Information($"_previousPoint x:{_previousPoint.X}, y:{_previousPoint.Y} ");
-
-                        CustomEllipse tmp = new CustomEllipse();
-
-                        // 초기 위치 설정
-                        Canvas.SetLeft(tmp.Ellipse, _startPoint.X);
-                        Canvas.SetTop(tmp.Ellipse, _startPoint.Y);
-
-                        Canvas.SetLeft(tmp.InfoTextBlock, _startPoint.X);
-                        Canvas.SetTop(tmp.InfoTextBlock, _startPoint.Y);
-
-                        if (Ellipses.Count >= 5)
-                        {
-                            Ellipses.RemoveAt(0);
-                        }
-                        Ellipses.Add(tmp);
-                    }
-                    break;
-                case TestTypes.Lateral:
-                    if (e.LeftButton == MouseButtonState.Pressed)
-                    {
-                        Mouse.Capture((IInputElement)e.Source);
-                        IsDrawing = true;
-                        _startPoint = e.GetPosition((IInputElement)e.Source);
-                        _previousPoint = e.GetPosition((IInputElement)e.Source);
-
-                        CustomLine tmp = new CustomLine();
-
-                        tmp.Line.X1 = _startPoint.X;
-                        tmp.Line.Y1 = _startPoint.Y;
-                        tmp.Line.X2 = _startPoint.X;
-                        tmp.Line.Y2 = _startPoint.Y;
-
-                        Canvas.SetLeft(tmp.InfoTextBlock, _startPoint.X);
-                        Canvas.SetTop(tmp.InfoTextBlock, _startPoint.Y);
-
-                        if (Lines.Count >= 2)
-                        {
-                            Lines.RemoveAt(0);
-                        }
-                        Lines.Add(tmp);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        [RelayCommand]
-        private void OnMouseMove(MouseEventArgs e)
-        {
-            switch (_testType)
-            {
-                case TestTypes.Align:
-                    //if (IsDrawing && CurrentEllipse != null)
-                    //{
-                    //    System.Windows.Point currentPoint = e.GetPosition((IInputElement)e.Source);
-
-                    //    // 이미지 중심 계산
-                    //    double centerX = 512 / 2;
-                    //    double centerY = 512 / 2;
-
-                    //    // 반지름 계산
-                    //    double radius = Math.Sqrt(Math.Pow(currentPoint.X - centerX, 2) + Math.Pow(currentPoint.Y - centerY, 2));
-                    //    CurrentEllipse.Width = 2 * radius;
-                    //    CurrentEllipse.Height = 2 * radius;
-
-                    //    Canvas.SetLeft(CurrentEllipse, centerX - radius);
-                    //    Canvas.SetTop(CurrentEllipse, centerY - radius);
-                    //}
-                    break;
-                case TestTypes.Axial:
-                    if (IsDrawing && Ellipses.Count > 0)
-                    {
-                        System.Windows.Point currentPoint = e.GetPosition((IInputElement)e.Source);
-                        CustomEllipse currentEllipse = Ellipses[Ellipses.Count - 1];
-                        Log.Information($"currentPoint x:{currentPoint.X}, y:{currentPoint.Y} ");
-
-                        // X2, Y2와의 차이를 계산
-                        double deltaX = Math.Abs(currentPoint.X - _previousPoint.X);
-                        double deltaY = Math.Abs(currentPoint.Y - _previousPoint.Y);
-                        //Log.Information($"delta x:{deltaY}, y:{deltaY} ");
-                        // X나 Y 차이가 30 이하인 경우에만 처리
-                        if (deltaX <= 50 && deltaY <= 50)
-                        {
-                            _previousPoint = currentPoint;
-                            // 반지름 계산
-                            double radius = Math.Sqrt(Math.Pow(currentPoint.X - _startPoint.X, 2) + Math.Pow(currentPoint.Y - _startPoint.Y, 2));
-
-                            double pixelValue = Utilities.GetCirclePixelMean((BitmapSource)SrcImg, (int)_startPoint.X, (int)_startPoint.Y, (int)radius, (int)currentEllipse.Ellipse.StrokeThickness);
-                            //Log.Information($"Pixel Value at ({_startPoint.X}, {_startPoint.Y}): {pixelValue}");
-
-                            currentEllipse.Ellipse.Width = 2 * radius;
-                            currentEllipse.Ellipse.Height = 2 * radius;
-
-                            currentEllipse.InfoTextBlock.Text = ((int)pixelValue).ToString();
-
-                            // 중앙점 기준 위치 조정
-                            Canvas.SetLeft(currentEllipse.Ellipse, _startPoint.X - radius);
-                            Canvas.SetTop(currentEllipse.Ellipse, _startPoint.Y - radius);
-                            Canvas.SetLeft(currentEllipse.InfoTextBlock, currentPoint.X);
-                            Canvas.SetTop(currentEllipse.InfoTextBlock, currentPoint.Y);
-                        }
-                    }
-                    break;
-                case TestTypes.Lateral:
-                    if (IsDrawing && Lines.Count > 0)
-                    {
-                        System.Windows.Point currentPoint = e.GetPosition((IInputElement)e.Source);
-                        CustomLine currentLine = Lines[Lines.Count - 1];
-                        Log.Information($"currentPoint x:{currentPoint.X}, y:{currentPoint.Y} ");
-                        // X2, Y2와의 차이를 계산
-                        double deltaX = Math.Abs(currentPoint.X - currentLine.Line.X2);
-                        double deltaY = Math.Abs(currentPoint.Y - currentLine.Line.Y2);
-
-                        // X나 Y 차이가 30 이하인 경우에만 처리
-                        if (deltaX <= 50 && deltaY <= 50)
-                        {
-                            _previousPoint = currentPoint;
-
-                            currentLine.Line.X2 = currentPoint.X;
-                            currentLine.Line.Y2 = currentPoint.Y;
-                            Log.Information($"X2:Y2 {currentLine.Line.X2}:{currentLine.Line.Y2}");
-                            double length = Math.Sqrt(Math.Pow(currentLine.Line.X2 - currentLine.Line.X1, 2) + Math.Pow(currentLine.Line.Y2 - currentLine.Line.Y1, 2));
-
-                            currentLine.InfoTextBlock.Text = ((int)length).ToString();
-                            Canvas.SetLeft(currentLine.InfoTextBlock, (currentLine.Line.X2 + currentLine.Line.X1)/2);
-                            Canvas.SetTop(currentLine.InfoTextBlock, (currentLine.Line.Y2 + currentLine.Line.Y1) / 2);
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        [RelayCommand]
-        private void OnMouseUp(MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Released)
-            {
-                IsDrawing = false;
-                Mouse.Capture(null); // 마우스 캡처 해제
-            }
+            _motorService.StartMotor();
+            Task.Delay(100);
+            //if (_motorService.IsOpen == true)
+            //{
+            //    byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MOTOR_ON);
+            //    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
+            //}
         }
     }
 }

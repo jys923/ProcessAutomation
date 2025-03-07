@@ -121,7 +121,6 @@ namespace SonoCap.MES.UI
 
         private static void RegisterServices(IServiceCollection services)
         {
-            services.AddTransient<ISocketService, SocketService>();
             services.AddTransient<IExcelService, ExcelService>();
             services.AddTransient<MotorService>();
             services.AddSingleton<IViewService, ViewService>();
