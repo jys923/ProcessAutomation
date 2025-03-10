@@ -1,64 +1,309 @@
-#include "Util.h"
+ï»¿#include "Util.h"
 #include "RandomUtilities.h"
 
+#include <opencv2/opencv.hpp>
+#include <vector>
+#include <cmath>
+
+using namespace cv;
+using namespace std;
+
+// RANSAC ê¸°ë°˜ íƒ€ì› ê·¼ì‚¬ í•¨ìˆ˜
+RotatedRect fitRotatedEllipseRANSAC(const  vector<Point>& points, int iter = 30, int sample_num = 10, double offset = 80.0) {
+    int count_max = 0;
+    vector<Point> effective_sample;
+
+    random_device rd;
+    mt19937 rng(rd());
+
+    for (int i = 0; i < iter; i++) {
+        vector<Point> sample;
+        sample.reserve(sample_num);
+
+        // ëœë¤ ìƒ˜í”Œ ì„ íƒ
+        for (int j = 0; j < sample_num; j++) {
+            int idx = rng() % points.size();
+            sample.push_back(points[idx]);
+        }
+
+        // ì„ì‹œ íƒ€ì› ê·¼ì‚¬
+        if (sample.size() >= 5) {
+            RotatedRect ellipse = fitEllipse(sample);
+
+            vector<Point> inliers;
+            for (const Point& pt : points) {
+                double dist = pointPolygonTest(sample, pt, true);
+                if (fabs(dist) < offset) {
+                    inliers.push_back(pt);
+                }
+            }
+
+            if (inliers.size() > count_max) {
+                count_max = inliers.size();
+                effective_sample = inliers;
+            }
+        }
+    }
+
+    if (effective_sample.size() >= 5) {
+        return fitEllipse(effective_sample);
+    }
+    else {
+        return RotatedRect();
+    }
+}
+
+// ì¼ë°˜ì ì¸ íƒ€ì› ê·¼ì‚¬ í•¨ìˆ˜
+RotatedRect fitRotatedEllipse(const vector<Point>& points) {
+    if (points.size() >= 5) {
+        return fitEllipse(points);
+    }
+    return RotatedRect();
+}
+
+// ë©”ì¸ í•¨ìˆ˜: ì´ë¯¸ì§€ ì²˜ë¦¬ ë° íƒ€ì› ê²€ì¶œ
+void processImage(const string& imagePath) {
+    Mat src = imread(imagePath, IMREAD_COLOR);
+    if (src.empty()) {
+        cerr << "ì´ë¯¸ì§€ë¥¼ ë¡œë“œí•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤!" << endl;
+        return;
+    }
+
+    Mat gray;
+    cvtColor(src, gray, COLOR_BGR2GRAY);
+
+    Mat thresh;
+    threshold(gray, thresh, 0, 255, THRESH_BINARY + THRESH_OTSU);
+
+    vector<vector<Point>> contours;
+    findContours(thresh, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+    for (const auto& contour : contours) {
+        double area = contourArea(contour);
+        if (contour.size() > 10 && area > 30000) {
+            // ì¼ë°˜ íƒ€ì› ê·¼ì‚¬ (ë³´ë¼ìƒ‰)
+            RotatedRect ellipse1 = fitRotatedEllipse(contour);
+            ellipse(src, ellipse1, Scalar(142, 56, 142), 2);
+
+            // RANSACì„ ì´ìš©í•œ íƒ€ì› ê·¼ì‚¬ (ë¹¨ê°„ìƒ‰)
+            RotatedRect ellipse2 = fitRotatedEllipseRANSAC(contour);
+            ellipse(src, ellipse2, Scalar(0, 0, 255), 2);
+        }
+    }
+
+    // ê²°ê³¼ ì €ì¥
+    imwrite("out.jpg", src);
+    cout << "ê²°ê³¼ê°€ out.jpgì— ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤!" << endl;
+}
+
+//int main(int argc, char** argv) {
+//    if (argc != 2) {
+//        cerr << "ì‚¬ìš©ë²•: " << argv[0] << " <ì´ë¯¸ì§€ íŒŒì¼ ê²½ë¡œ>" << endl;
+//        return -1;
+//    }
+//
+//    processImage(argv[1]);
+//    return 0;
+//}
+
+
+// ğŸ“Œ 3ï¸âƒ£ RMSE ê¸°ë°˜ ê±°ë¦¬ ì˜¤ì°¨ ê³„ì‚°
+double calculateRMSE(const vector<Point>& contour, const Vec4f& bestLine) {
+    if (contour.empty()) return -1;
+
+    // ğŸ“Œ fitLine ê²°ê³¼ì—ì„œ ë°©í–¥ ë²¡í„° ë° ê¸°ì¤€ì  ì¶”ì¶œ
+    double vx = bestLine[0], vy = bestLine[1];
+    double x0 = bestLine[2], y0 = bestLine[3];
+
+    // ğŸ“Œ ì§ì„  ë°©ì •ì‹ ì„¤ì •: Ax + By + C = 0
+    double A = -vy, B = vx, C = vy * x0 - vx * y0;
+
+    // ğŸ“Œ ê° ì ì´ ì§ì„ ìœ¼ë¡œë¶€í„° ì–¼ë§ˆë‚˜ ë–¨ì–´ì§€ëŠ”ì§€ ì¸¡ì • (MSE ê³„ì‚°)
+    double totalError = 0.0;
+    for (const Point& pt : contour) {
+        double distance = abs(A * pt.x + B * pt.y + C) / sqrt(A * A + B * B);
+        totalError += distance * distance;
+    }
+
+    double mse = totalError / contour.size();  // MSE ê³„ì‚°
+    return sqrt(mse);  // RMSE ë°˜í™˜
+}
+
+double evaluateContourStraightness(const vector<Point>& contour, Mat& resultImage) {
+    if (contour.empty()) return -1;
+
+    // ğŸ“Œ `cv::fitLine()`ì„ ì‚¬ìš©í•˜ì—¬ ìµœì  ì§ì„  êµ¬í•˜ê¸°
+    Vec4f lineParams;
+    fitLine(contour, lineParams, DIST_L2, 0, 0.01, 0.01);
+
+    // ğŸ“Œ fitLine() ê²°ê³¼ë¥¼ ì´ìš©í•˜ì—¬ RMSE ê³„ì‚°
+    double rmse = calculateRMSE(contour, lineParams);
+
+    // ğŸ“Œ ì§ì„  ì‹œê°í™” (ë¹¨ê°„ìƒ‰)
+    float vx = lineParams[0], vy = lineParams[1], x0 = lineParams[2], y0 = lineParams[3];
+    int height = resultImage.rows;
+    int y1 = 0, y2 = height;
+    int x1 = int(x0 + (y1 - y0) * (vx / vy));
+    int x2 = int(x0 + (y2 - y0) * (vx / vy));
+    line(resultImage, Point(x1, y1), Point(x2, y2), Scalar(0, 0, 255), 2);
+
+    // ì»¨íˆ¬ì–´ ìµœëŒ€ ê¸¸ì´ ê³„ì‚° (ìµœëŒ€ RMSE ê¸°ì¤€)
+    double max_rmse = cv::arcLength(contour, false) / 10.0;  // ì ì ˆí•œ ìŠ¤ì¼€ì¼ ì¡°ì •
+
+    // ğŸ“Œ ìƒˆë¡œìš´ ì§ì„ ì„± í‰ê°€ ê³µì‹ (RMSE ê¸°ë°˜)
+    double straightnessScore = max(0.0, 1.0 - (rmse / max_rmse));
+
+    return straightnessScore; // ê°’ì´ 1ì— ê°€ê¹Œìš¸ìˆ˜ë¡ ì§ì„ 
+}
+
+double calculateContourStraightnessMSE(const vector<Point>& contour, Mat& resultImage) {
+    if (contour.empty()) return -1;
+
+    // ğŸ“Œ `cv::fitLine()`ì„ ì‚¬ìš©í•˜ì—¬ ìµœì  ì§ì„  êµ¬í•˜ê¸°
+    Vec4f lineParams;
+    fitLine(contour, lineParams, DIST_L2, 0, 0.01, 0.01);
+
+    // ğŸ“Œ fitLine() ê²°ê³¼ë¥¼ ì´ìš©í•˜ì—¬ RMSE ê³„ì‚°
+    double rmse = calculateRMSE(contour, lineParams);
+
+    // ğŸ“Œ ì§ì„  ì‹œê°í™” (ë¹¨ê°„ìƒ‰)
+    float vx = lineParams[0], vy = lineParams[1], x0 = lineParams[2], y0 = lineParams[3];
+    int height = resultImage.rows;
+    int y1 = 0, y2 = height;
+    int x1 = int(x0 + (y1 - y0) * (vx / vy));
+    int x2 = int(x0 + (y2 - y0) * (vx / vy));
+    line(resultImage, Point(x1, y1), Point(x2, y2), Scalar(0, 0, 255), 2);
+
+    return rmse;  // RMSE ê°’ ë°˜í™˜
+}
+
+double calculateContourStraightnessRANSAC(const vector<Point>& contour, Mat& resultImage, int iterations, double threshold) {
+    if (contour.empty()) return -1;
+
+    random_device rd;
+    mt19937 rng(rd());
+    uniform_int_distribution<int> dist(0, contour.size() - 1);
+
+    Vec4f bestLine;
+    int maxInliers = 0;
+
+    // 1. RANSAC ë°˜ë³µ
+    for (int i = 0; i < iterations; i++) {
+        // ëœë¤í•˜ê²Œ ë‘ ê°œì˜ ì  ì„ íƒ
+        Point p1 = contour[dist(rng)];
+        Point p2 = contour[dist(rng)];
+
+        // ë‘ ì ì„ ì´ìš©í•´ ì§ì„ ì˜ ë°©ì •ì‹ ê³„ì‚°
+        double A = p2.y - p1.y;
+        double B = p1.x - p2.x;
+        double C = p2.x * p1.y - p1.x * p2.y;
+
+        // ì¸ë¼ì´ì–´ ê°œìˆ˜ ê³„ì‚°
+        int inliers = 0;
+        for (const Point& pt : contour) {
+            double distance = abs(A * pt.x + B * pt.y + C) / sqrt(A * A + B * B);
+            if (distance < threshold) inliers++;
+        }
+
+        // ê°€ì¥ ë§ì€ ì¸ë¼ì´ì–´ë¥¼ í¬í•¨í•˜ëŠ” ì§ì„  ì—…ë°ì´íŠ¸
+        if (inliers > maxInliers) {
+            maxInliers = inliers;
+            bestLine = Vec4f(A, B, p1.x, p1.y);
+        }
+    }
+
+    // 2. ìµœì  ì§ì„  ê³„ì‚° ì™„ë£Œ
+    if (maxInliers == 0) return -1;  // ì§ì„ ì„ ì°¾ì§€ ëª»í•œ ê²½ìš°
+
+    double A = bestLine[0], B = bestLine[1], x0 = bestLine[2], y0 = bestLine[3];
+
+    // **ê¸°ìš¸ê¸° ë²¡í„° ê³„ì‚° (vx, vy)**
+    double vx = -B; // x ë°©í–¥
+    double vy = A;  // y ë°©í–¥
+
+    // 3. ìµœì  ì§ì„ ê³¼ì˜ ê±°ë¦¬ ê³„ì‚° (MSE ë˜ëŠ” RMSE)
+    double totalError = 0.0;
+    for (const Point& pt : contour) {
+        double distance = abs(A * pt.x + B * pt.y - A * x0 - B * y0) / sqrt(A * A + B * B);
+        totalError += distance * distance;
+    }
+
+    double mse = totalError / contour.size();
+    double rmse = sqrt(mse);
+
+    // 4. ì˜¬ë°”ë¥¸ ì§ì„  ì‹œê°í™” (ë¹¨ê°„ìƒ‰)
+    int height = resultImage.rows;
+    int width = resultImage.cols;
+
+    // y1, y2ë¥¼ í™”ë©´ ìœ„ì•„ë˜ ëìœ¼ë¡œ ì„¤ì •í•˜ê³ , x1, x2ë¥¼ ê³„ì‚°
+    int y1 = 0, y2 = height;
+    int x1 = int(x0 + (y1 - y0) * (vx / vy));  // ì§ì„ ì˜ ë°©í–¥ì„ ê³ ë ¤í•˜ì—¬ x ê³„ì‚°
+    int x2 = int(x0 + (y2 - y0) * (vx / vy));
+
+    // ì§ì„  ê·¸ë¦¬ê¸°
+    line(resultImage, Point(x1, y1), Point(x2, y2), Scalar(0, 0, 255), 2);
+
+    return rmse;  // RMSE ê°’ì„ ë°˜í™˜ (ê°’ì´ ì‘ì„ìˆ˜ë¡ ì§ì„ ì— ê°€ê¹Œì›€)
+}
+
 void processLogNormalization(const cv::Mat& input, cv::Mat& output, double dr_min, double dr_max) {
-    // »ó¼ö°ª ¼³Á¤
+    // ìƒìˆ˜ê°’ ì„¤ì •
     const double ln10_inv_mul20 = 8.685890; // 20 / ln(10)
     const double absolute_max_db = std::log10(std::sqrt(2.0) * 32768) * 20;
 
-    // »ç¿ëÀÚ Á¤ÀÇ DR min/max¸¦ dB·Î º¯È¯
+    // ì‚¬ìš©ì ì •ì˜ DR min/maxë¥¼ dBë¡œ ë³€í™˜
     double dr_min_db = absolute_max_db * (dr_min / 100.0);
     double dr_max_db = absolute_max_db * (dr_max / 100.0);
 
-    // ÀÔ·Â µ¥ÀÌÅÍ¸¦ floatÀ¸·Î º¯È¯
+    // ì…ë ¥ ë°ì´í„°ë¥¼ floatìœ¼ë¡œ ë³€í™˜
     cv::Mat floatInput;
     input.convertTo(floatInput, CV_32F);
 
-    // ·Î±× º¯È¯ Àû¿ë (log(1.0) ÀÌ»óÀ¸·Î º¸Á¤)
+    // ë¡œê·¸ ë³€í™˜ ì ìš© (log(1.0) ì´ìƒìœ¼ë¡œ ë³´ì •)
     cv::Mat logResult;
     cv::log(cv::max(floatInput, 1.0), logResult);
 
-    // dB º¯È¯ ¹× µ¿Àû ¹üÀ§ Á¶Á¤
+    // dB ë³€í™˜ ë° ë™ì  ë²”ìœ„ ì¡°ì •
     logResult = logResult * ln10_inv_mul20 - dr_min_db;
-    cv::max(logResult, 0.0, logResult); // ÃÖ¼Ò°ª º¸Á¤
+    cv::max(logResult, 0.0, logResult); // ìµœì†Œê°’ ë³´ì •
 
-    // 0~255 Á¤±ÔÈ­
+    // 0~255 ì •ê·œí™”
     logResult = (logResult / (dr_max_db - dr_min_db)) * 255.0;
-    cv::min(logResult, 255.0, logResult); // ÃÖ´ë°ª º¸Á¤
-    logResult.convertTo(output, CV_8U); // uint8 º¯È¯
+    cv::min(logResult, 255.0, logResult); // ìµœëŒ€ê°’ ë³´ì •
+    logResult.convertTo(output, CV_8U); // uint8 ë³€í™˜
 }
 
 //void processLogNormalization(const cv::Mat& input, cv::Mat& output, double dr_min, double dr_max) {
-//    // »ó¼ö°ª ¼³Á¤
+//    // ìƒìˆ˜ê°’ ì„¤ì •
 //    const double ln10_inv_mul20 = 8.685890; // 20 / ln(10)
 //    const double absolute_max_db = std::log10(std::sqrt(2.0) * 32768) * 20;
 //
-//    // »ç¿ëÀÚ Á¤ÀÇ DR min/max¸¦ dB·Î º¯È¯
+//    // ì‚¬ìš©ì ì •ì˜ DR min/maxë¥¼ dBë¡œ ë³€í™˜
 //    double dr_min_db = absolute_max_db * (dr_min / 100.0);
 //    double dr_max_db = absolute_max_db * (dr_max / 100.0);
 //
-//    // RGBA ¡æ Grayscale º¯È¯ (¸ğµç Ã¤³ÎÀÌ µ¿ÀÏÇÑ °ªÀ» °¡Áö¹Ç·Î, ÇÏ³ª¸¸ »ç¿ë)
+//    // RGBA â†’ Grayscale ë³€í™˜ (ëª¨ë“  ì±„ë„ì´ ë™ì¼í•œ ê°’ì„ ê°€ì§€ë¯€ë¡œ, í•˜ë‚˜ë§Œ ì‚¬ìš©)
 //    cv::Mat grayInput;
 //    cv::cvtColor(input, grayInput, cv::COLOR_BGRA2GRAY);
 //
-//    // float º¯È¯
+//    // float ë³€í™˜
 //    cv::Mat floatInput;
 //    grayInput.convertTo(floatInput, CV_32F);
 //
-//    // ·Î±× º¯È¯ (log(1.0) ÀÌ»óÀ¸·Î º¸Á¤)
-//    floatInput += 1.0f; // ÃÖ¼Ò°ª º¸Á¤
+//    // ë¡œê·¸ ë³€í™˜ (log(1.0) ì´ìƒìœ¼ë¡œ ë³´ì •)
+//    floatInput += 1.0f; // ìµœì†Œê°’ ë³´ì •
 //    cv::log(floatInput, floatInput);
 //
-//    // dB º¯È¯ ¹× µ¿Àû ¹üÀ§ Á¶Á¤
+//    // dB ë³€í™˜ ë° ë™ì  ë²”ìœ„ ì¡°ì •
 //    cv::Mat logResult = (floatInput * ln10_inv_mul20) - dr_min_db;
-//    cv::max(logResult, 0.0, logResult); // ÃÖ¼Ò°ª º¸Á¤
+//    cv::max(logResult, 0.0, logResult); // ìµœì†Œê°’ ë³´ì •
 //
-//    // 0~255 Á¤±ÔÈ­
+//    // 0~255 ì •ê·œí™”
 //    logResult = (logResult / (dr_max_db - dr_min_db)) * 255.0;
-//    cv::min(logResult, 255.0, logResult); // ÃÖ´ë°ª º¸Á¤
-//    logResult.convertTo(logResult, CV_8U); // uint8 º¯È¯
+//    cv::min(logResult, 255.0, logResult); // ìµœëŒ€ê°’ ë³´ì •
+//    logResult.convertTo(logResult, CV_8U); // uint8 ë³€í™˜
 //
-//    // ´Ù½Ã RGBA·Î º¯È¯
+//    // ë‹¤ì‹œ RGBAë¡œ ë³€í™˜
 //    cv::Mat channels[] = { logResult, logResult, logResult, cv::Mat::ones(logResult.size(), CV_8U) * 255 };
 //    cv::merge(channels, 4, output);
 //}
@@ -77,12 +322,12 @@ void showAndSaveImage(const std::string& windowName, const cv::Mat& image) {
     cv::imwrite(filename, image);
 }
 #else
-// ºó ÇÔ¼ö Á¤ÀÇ (È£ÃâÀº ³²¾ÆÀÖÁö¸¸ ¾Æ¹« µ¿ÀÛ ¾È ÇÔ)
+// ë¹ˆ í•¨ìˆ˜ ì •ì˜ (í˜¸ì¶œì€ ë‚¨ì•„ìˆì§€ë§Œ ì•„ë¬´ ë™ì‘ ì•ˆ í•¨)
 void showAndSaveImage(const std::string&, const cv::Mat&) {}
 #endif
 
 
-// ·£´ı »ö»ó »ı¼º ÇÔ¼ö (OpenCV Scalar ¹İÈ¯)
+// ëœë¤ ìƒ‰ìƒ ìƒì„± í•¨ìˆ˜ (OpenCV Scalar ë°˜í™˜)
 cv::Scalar getRandomColor() {
     RandomUtilities randomUtil;
     return cv::Scalar(randomUtil.getRandomInt(), randomUtil.getRandomInt(), randomUtil.getRandomInt());
@@ -107,7 +352,7 @@ double calculateAngle(const cv::Point& center, const cv::Point& point) {
     {
         radian += 2 * CV_PI;
     }
-    double degree = radian * 180 / CV_PI; // ¶óµğ¾È¿¡¼­ µµ·Î º¯È¯
+    double degree = radian * 180 / CV_PI; // ë¼ë””ì•ˆì—ì„œ ë„ë¡œ ë³€í™˜
     return degree;
 }
 
@@ -121,21 +366,21 @@ double calculateArcLength(const cv::Point& center, const cv::Point& p1, const cv
 }
 
 double calculateArcLength(double angle1, double angle2, double radius) {
-    double degreeDiff = std::abs(angle2 - angle1); // °¢µµ Â÷ÀÌ (µµ ´ÜÀ§)
+    double degreeDiff = std::abs(angle2 - angle1); // ê°ë„ ì°¨ì´ (ë„ ë‹¨ìœ„)
     if (degreeDiff > 180) {
-        degreeDiff = 360 - degreeDiff;  // ´õ ÂªÀº ¹æÇâÀ¸·Î °è»ê
+        degreeDiff = 360 - degreeDiff;  // ë” ì§§ì€ ë°©í–¥ìœ¼ë¡œ ê³„ì‚°
     }
 
-    double radian = degreeDiff * CV_PI / 180.0; // µµ ¡æ ¶óµğ¾È º¯È¯
+    double radian = degreeDiff * CV_PI / 180.0; // ë„ â†’ ë¼ë””ì•ˆ ë³€í™˜
     return radius * radian;
 }
 
 
 double calculateCircularity(const cv::RotatedRect& ellipse) {
-    double a = ellipse.size.width / 2.0; // ÀåÃàÀÇ ¹İÁö¸§
-    double b = ellipse.size.height / 2.0; // ´ÜÃàÀÇ ¹İÁö¸§
-    double area = CV_PI * a * b; // Å¸¿øÀÇ ¸éÀû
-    double perimeter = CV_PI * (3 * (a + b) - sqrt((3 * a + b) * (a + 3 * b))); // Å¸¿øÀÇ µÑ·¹
+    double a = ellipse.size.width / 2.0; // ì¥ì¶•ì˜ ë°˜ì§€ë¦„
+    double b = ellipse.size.height / 2.0; // ë‹¨ì¶•ì˜ ë°˜ì§€ë¦„
+    double area = CV_PI * a * b; // íƒ€ì›ì˜ ë©´ì 
+    double perimeter = CV_PI * (3 * (a + b) - sqrt((3 * a + b) * (a + 3 * b))); // íƒ€ì›ì˜ ë‘˜ë ˆ
     return (4 * CV_PI * area) / (perimeter * perimeter);
 }
 
@@ -146,25 +391,25 @@ double calculateCircularity(const std::vector<cv::Point>& contour) {
 }
 
 void calculateAndDisplayHistogram(const cv::Mat& inputImage, cv::Mat& outputImage) {
-    int histSize = 256;  // ºó(bin)ÀÇ ¼ö
-    float range[] = { 0, 256 };  // È÷½ºÅä±×·¥ ¹üÀ§
+    int histSize = 256;  // ë¹ˆ(bin)ì˜ ìˆ˜
+    float range[] = { 0, 256 };  // íˆìŠ¤í† ê·¸ë¨ ë²”ìœ„
     const float* histRange = { range };
     cv::Mat hist;
 
-    // È÷½ºÅä±×·¥ °è»ê
+    // íˆìŠ¤í† ê·¸ë¨ ê³„ì‚°
     cv::calcHist(&inputImage, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange);
 
-    // È÷½ºÅä±×·¥À» Á¤±ÔÈ­ÇÏ¿© º¸¿©ÁÖ±â ½±°Ô ÇÔ
-    int histHeight = 400; // È÷½ºÅä±×·¥ ³ôÀÌ
-    int histWidth = 512; // È÷½ºÅä±×·¥ ³Êºñ
+    // íˆìŠ¤í† ê·¸ë¨ì„ ì •ê·œí™”í•˜ì—¬ ë³´ì—¬ì£¼ê¸° ì‰½ê²Œ í•¨
+    int histHeight = 400; // íˆìŠ¤í† ê·¸ë¨ ë†’ì´
+    int histWidth = 512; // íˆìŠ¤í† ê·¸ë¨ ë„ˆë¹„
     int binWidth = std::round((double)histWidth / histSize);
     outputImage.create(histHeight, histWidth, CV_8UC1);
     outputImage = cv::Scalar(255);
 
-    // È÷½ºÅä±×·¥À» Á¤±ÔÈ­ÇÕ´Ï´Ù.
+    // íˆìŠ¤í† ê·¸ë¨ì„ ì •ê·œí™”í•©ë‹ˆë‹¤.
     cv::normalize(hist, hist, 0, outputImage.rows, cv::NORM_MINMAX);
 
-    // È÷½ºÅä±×·¥ ±×¸®±â
+    // íˆìŠ¤í† ê·¸ë¨ ê·¸ë¦¬ê¸°
     for (int i = 1; i < histSize; i++) {
         cv::line(outputImage,
             cv::Point(binWidth * (i - 1), histHeight - std::round(hist.at<float>(i - 1))),
@@ -172,7 +417,7 @@ void calculateAndDisplayHistogram(const cv::Mat& inputImage, cv::Mat& outputImag
             cv::Scalar(0), 2, 8, 0);
     }
 
-    // È÷½ºÅä±×·¥ ÀÌ¹ÌÁö Ãâ·Â
+    // íˆìŠ¤í† ê·¸ë¨ ì´ë¯¸ì§€ ì¶œë ¥
     //cv::imshow("Histogram", outputImage);
 }
 
@@ -196,36 +441,36 @@ bool isNearCType(const std::vector<cv::Point>& cType, const cv::Point& oPt, int 
 }
 
 bool isOpenCShape(const std::vector<cv::Point>& contour) {
-    // À±°û¼±ÀÇ µÑ·¹ °è»ê
+    // ìœ¤ê³½ì„ ì˜ ë‘˜ë ˆ ê³„ì‚°
     double contourLength = cv::arcLength(contour, true);
 
-    // À±°û¼±À» µÑ·¯½Î´Â ÃÖ¼Ò ¿øÀ» Ã£±â
+    // ìœ¤ê³½ì„ ì„ ë‘˜ëŸ¬ì‹¸ëŠ” ìµœì†Œ ì›ì„ ì°¾ê¸°
     cv::Point2f center;
     float radius;
     cv::minEnclosingCircle(contour, center, radius);
 
-    // ÃÖ¼Ò ¿øÀÇ µÑ·¹ °è»ê
+    // ìµœì†Œ ì›ì˜ ë‘˜ë ˆ ê³„ì‚°
     double circlePerimeter = 2 * CV_PI * radius;
 
-    // À±°û¼±ÀÇ µÑ·¹¿Í ÃÖ¼Ò ¿øÀÇ µÑ·¹ ºñ±³
-    // ¿¹¸¦ µé¾î, À±°û¼±ÀÇ µÑ·¹°¡ ÃÖ¼Ò ¿øÀÇ µÑ·¹º¸´Ù Å« °æ¿ì ¿­·Á ÀÖÀ» °¡´É¼ºÀÌ ³ô´Ù°í ÆÇ´Ü
+    // ìœ¤ê³½ì„ ì˜ ë‘˜ë ˆì™€ ìµœì†Œ ì›ì˜ ë‘˜ë ˆ ë¹„êµ
+    // ì˜ˆë¥¼ ë“¤ì–´, ìœ¤ê³½ì„ ì˜ ë‘˜ë ˆê°€ ìµœì†Œ ì›ì˜ ë‘˜ë ˆë³´ë‹¤ í° ê²½ìš° ì—´ë ¤ ìˆì„ ê°€ëŠ¥ì„±ì´ ë†’ë‹¤ê³  íŒë‹¨
     return contourLength > circlePerimeter;
 }
 
 bool isOpenCShape(const std::vector<cv::Point>& contour, float radius) {
-    // À±°û¼±ÀÇ µÑ·¹ °è»ê
+    // ìœ¤ê³½ì„ ì˜ ë‘˜ë ˆ ê³„ì‚°
     double contourLength = cv::arcLength(contour, true);
 
-    // ÃÖ¼Ò ¿øÀÇ µÑ·¹ °è»ê
+    // ìµœì†Œ ì›ì˜ ë‘˜ë ˆ ê³„ì‚°
     double circlePerimeter = 2 * CV_PI * radius;
 
-    // À±°û¼±ÀÇ µÑ·¹¿Í ÃÖ¼Ò ¿øÀÇ µÑ·¹ ºñ±³
-    // ¿¹¸¦ µé¾î, À±°û¼±ÀÇ µÑ·¹°¡ ÃÖ¼Ò ¿øÀÇ µÑ·¹º¸´Ù Å« °æ¿ì ¿­·Á ÀÖÀ» °¡´É¼ºÀÌ ³ô´Ù°í ÆÇ´Ü
+    // ìœ¤ê³½ì„ ì˜ ë‘˜ë ˆì™€ ìµœì†Œ ì›ì˜ ë‘˜ë ˆ ë¹„êµ
+    // ì˜ˆë¥¼ ë“¤ì–´, ìœ¤ê³½ì„ ì˜ ë‘˜ë ˆê°€ ìµœì†Œ ì›ì˜ ë‘˜ë ˆë³´ë‹¤ í° ê²½ìš° ì—´ë ¤ ìˆì„ ê°€ëŠ¥ì„±ì´ ë†’ë‹¤ê³  íŒë‹¨
     return contourLength > circlePerimeter;
 }
 
 bool isOpenCShape(const std::vector<cv::Point>& contour, double minRadius, double maxRadius, const cv::Point2f& imageCenter, const cv::Point2f& center, float radius) {
-    double minLength = minRadius * 2 * CV_PI - 10; // minRadius¿Í ¿øÁÖÀ²À» »ç¿ëÇÏ¿© minLength °è»ê
+    double minLength = minRadius * 2 * CV_PI - 10; // minRadiusì™€ ì›ì£¼ìœ¨ì„ ì‚¬ìš©í•˜ì—¬ minLength ê³„ì‚°
 
     if (radius < minRadius || radius > maxRadius) {
         return true;
@@ -244,103 +489,103 @@ bool isOpenCShape(const std::vector<cv::Point>& contour, double minRadius, doubl
 }
 
 std::vector<cv::Point> extractCirclePoints(int radius, const cv::Point& center) {
-    std::vector<cv::Point> circlePoints; // ¿øÀ» ±×¸®±â À§ÇÑ Á¡µéÀ» ÀúÀåÇÒ º¤ÅÍ
+    std::vector<cv::Point> circlePoints; // ì›ì„ ê·¸ë¦¬ê¸° ìœ„í•œ ì ë“¤ì„ ì €ì¥í•  ë²¡í„°
 
-    // ¶óµğ¾ÈÀ» Á÷Á¢ »ç¿ëÇÏ¿© °¢µµ¸¦ ÀÛÀº Áõ°¡·®À¸·Î ¼¼ºĞÈ­
+    // ë¼ë””ì•ˆì„ ì§ì ‘ ì‚¬ìš©í•˜ì—¬ ê°ë„ë¥¼ ì‘ì€ ì¦ê°€ëŸ‰ìœ¼ë¡œ ì„¸ë¶„í™”
     for (double angle = 0; angle < 2 * CV_PI; angle += 0.01) {
         double x = center.x + radius * cos(angle);
         double y = center.y + radius * sin(angle);
         cv::Point newPoint(static_cast<int>(x), static_cast<int>(y));
-        circlePoints.push_back(newPoint); // ¿øÀ» ±×¸®±â À§ÇÑ Á¡ Ãß°¡
+        circlePoints.push_back(newPoint); // ì›ì„ ê·¸ë¦¬ê¸° ìœ„í•œ ì  ì¶”ê°€
     }
 
     return circlePoints;
 }
 
 void drawCircleUsingOpenCV() {
-    cv::Mat image = cv::Mat::zeros(512, 512, CV_8UC3); // °ËÁ¤ ¹ÙÅÁ »ı¼º
-    cv::Point imageCenter(256, 256); // ÀÌ¹ÌÁö Áß½ÉÁ¡ ¼³Á¤ (512x512ÀÌ¹Ç·Î Áß½ÉÀº 256, 256)
-    int radius = 27; // ¿øÀÇ ¹İÁö¸§ ¼³Á¤
+    cv::Mat image = cv::Mat::zeros(512, 512, CV_8UC3); // ê²€ì • ë°”íƒ• ìƒì„±
+    cv::Point imageCenter(256, 256); // ì´ë¯¸ì§€ ì¤‘ì‹¬ì  ì„¤ì • (512x512ì´ë¯€ë¡œ ì¤‘ì‹¬ì€ 256, 256)
+    int radius = 27; // ì›ì˜ ë°˜ì§€ë¦„ ì„¤ì •
 
-    // OpenCV ÇÔ¼ö·Î ¿ø ±×¸®±â
-    cv::circle(image, imageCenter, static_cast<int>(radius), cv::Scalar(0, 255, 255), 1); // ³ë¶õ»ö ¿øÀ¸·Î Ã¤¿ì±â
+    // OpenCV í•¨ìˆ˜ë¡œ ì› ê·¸ë¦¬ê¸°
+    cv::circle(image, imageCenter, static_cast<int>(radius), cv::Scalar(0, 255, 255), 1); // ë…¸ë€ìƒ‰ ì›ìœ¼ë¡œ ì±„ìš°ê¸°
 
-    // ¿ø ÀÌ¹ÌÁö Ç¥½Ã
+    // ì› ì´ë¯¸ì§€ í‘œì‹œ
     cv::imshow("Circle Using OpenCV", image);
     cv::waitKey(0);
 }
 
 void drawExtractedCirclePoints() {
-    cv::Point imageCenter(256, 256); // ÀÌ¹ÌÁö Áß½ÉÁ¡ ¼³Á¤ (512x512ÀÌ¹Ç·Î Áß½ÉÀº 256, 256)
-    int radius = 27; // ¿øÀÇ ¹İÁö¸§ ¼³Á¤
+    cv::Point imageCenter(256, 256); // ì´ë¯¸ì§€ ì¤‘ì‹¬ì  ì„¤ì • (512x512ì´ë¯€ë¡œ ì¤‘ì‹¬ì€ 256, 256)
+    int radius = 27; // ì›ì˜ ë°˜ì§€ë¦„ ì„¤ì •
 
-    // ¿øÀÇ Á¡µé ÃßÃâ
+    // ì›ì˜ ì ë“¤ ì¶”ì¶œ
     std::vector<cv::Point> circlePoints = extractCirclePoints(radius, imageCenter);
 
-    cv::Mat image = cv::Mat::zeros(512, 512, CV_8UC4); // °ËÁ¤ ¹ÙÅÁ »ı¼º
-    // ÃßÃâµÈ Á¡µé ½Ã°¢È­
+    cv::Mat image = cv::Mat::zeros(512, 512, CV_8UC4); // ê²€ì • ë°”íƒ• ìƒì„±
+    // ì¶”ì¶œëœ ì ë“¤ ì‹œê°í™”
     for (const auto& point : circlePoints) {
-        image.at<cv::Vec4b>(point) = cv::Vec4b(0, 255, 255, 255); // ³ë¶õ»ö Á¡À¸·Î Ç¥½Ã
+        image.at<cv::Vec4b>(point) = cv::Vec4b(0, 255, 255, 255); // ë…¸ë€ìƒ‰ ì ìœ¼ë¡œ í‘œì‹œ
     }
 
-    // ¿ø ÀÌ¹ÌÁö Ç¥½Ã
+    // ì› ì´ë¯¸ì§€ í‘œì‹œ
     cv::imshow("Extracted Circle Points", image);
     cv::waitKey(0);
 }
 
-// Á¡µéÀ» ÀÌ¹ÌÁö¿¡ Ç¥½ÃÇÏ´Â ÇÔ¼ö
+// ì ë“¤ì„ ì´ë¯¸ì§€ì— í‘œì‹œí•˜ëŠ” í•¨ìˆ˜
 cv::Mat drawExtractedPoints(const cv::Mat& image, const std::vector<cv::Point>& points) {
-    cv::Mat result = image.clone(); // ÀÔ·Â ÀÌ¹ÌÁö¸¦ º¹»çÇÏ¿© »õ·Î¿î Mat »ı¼º
+    cv::Mat result = image.clone(); // ì…ë ¥ ì´ë¯¸ì§€ë¥¼ ë³µì‚¬í•˜ì—¬ ìƒˆë¡œìš´ Mat ìƒì„±
 
     for (const auto& point : points) {
         if (point.x >= 0 && point.x < result.cols && point.y >= 0 && point.y < result.rows) {
-            result.at<cv::Vec4b>(point) = cv::Vec4b(0, 255, 255, 255); // ³ë¶õ»ö Á¡
+            result.at<cv::Vec4b>(point) = cv::Vec4b(0, 255, 255, 255); // ë…¸ë€ìƒ‰ ì 
         }
     }
-    return result; // ¼öÁ¤µÈ ÀÌ¹ÌÁö ¹İÈ¯
+    return result; // ìˆ˜ì •ëœ ì´ë¯¸ì§€ ë°˜í™˜
 }
 
 
 void drawPreciseCirclePoints() {
-    cv::Mat image = cv::Mat::zeros(512, 512, CV_8UC3); // °ËÁ¤ ¹ÙÅÁ »ı¼º
-    cv::Point imageCenter(256, 256); // ÀÌ¹ÌÁö Áß½ÉÁ¡ ¼³Á¤ (512x512ÀÌ¹Ç·Î Áß½ÉÀº 256, 256)
-    int radius = 27; // ¿øÀÇ ¹İÁö¸§ ¼³Á¤
+    cv::Mat image = cv::Mat::zeros(512, 512, CV_8UC3); // ê²€ì • ë°”íƒ• ìƒì„±
+    cv::Point imageCenter(256, 256); // ì´ë¯¸ì§€ ì¤‘ì‹¬ì  ì„¤ì • (512x512ì´ë¯€ë¡œ ì¤‘ì‹¬ì€ 256, 256)
+    int radius = 27; // ì›ì˜ ë°˜ì§€ë¦„ ì„¤ì •
 
-    // ¶óµğ¾ÈÀ» Á÷Á¢ »ç¿ëÇÏ¿© °¢µµ¸¦ ÀÛÀº Áõ°¡·®À¸·Î ¼¼ºĞÈ­ 0.001 °°À½
+    // ë¼ë””ì•ˆì„ ì§ì ‘ ì‚¬ìš©í•˜ì—¬ ê°ë„ë¥¼ ì‘ì€ ì¦ê°€ëŸ‰ìœ¼ë¡œ ì„¸ë¶„í™” 0.001 ê°™ìŒ
     for (double angle = 0; angle < 2 * CV_PI; angle += 0.01) {
         double x = imageCenter.x + radius * cos(angle);
         double y = imageCenter.y + radius * sin(angle);
         cv::Point newPoint(static_cast<int>(x), static_cast<int>(y));
-        image.at<cv::Vec3b>(newPoint) = cv::Vec3b(0, 255, 255); // ³ë¶õ»ö Á¡À¸·Î Ç¥½Ã
+        image.at<cv::Vec3b>(newPoint) = cv::Vec3b(0, 255, 255); // ë…¸ë€ìƒ‰ ì ìœ¼ë¡œ í‘œì‹œ
     }
 
-    // ¿ø ÀÌ¹ÌÁö Ç¥½Ã
+    // ì› ì´ë¯¸ì§€ í‘œì‹œ
     cv::imshow("Yellow Circle on Black Background", image);
     cv::waitKey(0);
 }
 
 void drawPoints(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vector<cv::Point>& points, const cv::Scalar& color) {
-    // ÀÔ·Â ÀÌ¹ÌÁö¸¦ º¹»çÇÏ¿© ÀÛ¾÷ÇÒ ÀÌ¹ÌÁö »ı¼º
+    // ì…ë ¥ ì´ë¯¸ì§€ë¥¼ ë³µì‚¬í•˜ì—¬ ì‘ì—…í•  ì´ë¯¸ì§€ ìƒì„±
     outputImage = inputImage.clone();
 
-    // ÃßÃâµÈ Á¡µé ½Ã°¢È­
+    // ì¶”ì¶œëœ ì ë“¤ ì‹œê°í™”
     for (const auto& point : points) {
-        // ÀÌ¹ÌÁö¸¦ ³Ñ¾î¼­´Â Á¡À» ±×¸®Áö ¾Êµµ·Ï ¹üÀ§ Ã¼Å©
+        // ì´ë¯¸ì§€ë¥¼ ë„˜ì–´ì„œëŠ” ì ì„ ê·¸ë¦¬ì§€ ì•Šë„ë¡ ë²”ìœ„ ì²´í¬
         if (point.x >= 0 && point.x < outputImage.cols && point.y >= 0 && point.y < outputImage.rows) {
-            outputImage.at<cv::Vec4b>(point) = cv::Vec4b(color[0], color[1], color[2], 255); // ÁöÁ¤µÈ »ö»óÀ¸·Î Á¡ Ç¥½Ã
+            outputImage.at<cv::Vec4b>(point) = cv::Vec4b(color[0], color[1], color[2], 255); // ì§€ì •ëœ ìƒ‰ìƒìœ¼ë¡œ ì  í‘œì‹œ
         }
     }
 }
 
 cv::Mat rotateImage(const cv::Mat& image, double angle)
 {
-    // ÀÌ¹ÌÁöÀÇ Áß½É Á¡ °è»ê
+    // ì´ë¯¸ì§€ì˜ ì¤‘ì‹¬ ì  ê³„ì‚°
     cv::Point2f center(image.cols / 2.0F, image.rows / 2.0F);
 
-    // È¸Àü º¯È¯ Çà·Ä »ı¼º
+    // íšŒì „ ë³€í™˜ í–‰ë ¬ ìƒì„±
     cv::Mat rotMat = cv::getRotationMatrix2D(center, angle, 1.0);
 
-    // ¿øÇü È¸Àü º¯È¯ ¼öÇà
+    // ì›í˜• íšŒì „ ë³€í™˜ ìˆ˜í–‰
     cv::Mat rotatedImage;
     cv::warpAffine(image, rotatedImage, rotMat, image.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0));
 

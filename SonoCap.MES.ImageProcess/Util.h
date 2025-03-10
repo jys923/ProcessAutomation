@@ -3,14 +3,13 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 #include <utility>
-#include <opencv2/core/types.hpp>
 #include <opencv2/core/utils/logger.hpp>
 #include <iostream>
 #include <vector>
 #include <numeric>
 #include <nlohmann/json.hpp>
 
-#define ENABLE_IMAGE_DISPLAY false
+#define ENABLE_IMAGE_DISPLAY true
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);
@@ -21,6 +20,16 @@ const cv::Scalar cyan(255, 255, 0);
 const cv::Scalar magenta(255, 0, 255);
 const cv::Scalar white(255, 255, 255);
 const cv::Scalar black(0, 0, 0);
+
+struct StraightnessData {
+    double score = 0.0;
+};
+
+inline void to_json(nlohmann::json& j, const StraightnessData& data) {
+    j = {
+        {"score", data.score}
+    };
+}
 
 struct ArcData {
     cv::Point center;
@@ -37,7 +46,6 @@ struct ArcData {
     }*/
 };
 
-// `nlohmann::json` 직렬화 지원을 위한 `to_json()` 오버로드
 inline void to_json(nlohmann::json& j, const ArcData& data) {
     j = {
         {"center", {{"x", data.center.x}, {"y", data.center.y}}},
@@ -70,8 +78,6 @@ inline void to_json(nlohmann::json& j, const ContourInfo& data) {
     };
 }
 
-// 함수 선언 (알파벳 순으로 정렬)
-
 // 범용 벡터 -> JSON 변환 함수 (템플릿 활용)
 template <typename T>
 std::string vectorToJsonString(const std::vector<T>& dataVector) {
@@ -83,6 +89,10 @@ std::string objectToJsonString(const T& dataObject) {
     return nlohmann::json(dataObject).dump(4); // 4 = 들여쓰기
 }
 
+// 함수 선언 (알파벳 순으로 정렬)
+double evaluateContourStraightness(const std::vector<cv::Point>& contour, cv::Mat& resultImage);
+double calculateContourStraightnessMSE(const std::vector<cv::Point>& contour, cv::Mat& resultImage);
+double calculateContourStraightnessRANSAC(const std::vector<cv::Point>& contour, cv::Mat& resultImage, int iterations = 100, double threshold = 2.0);
 void processLogNormalization(const cv::Mat& input, cv::Mat& output, double dr_min, double dr_max);
 
 void showAndSaveImage(const std::string& windowName, const cv::Mat& image);
