@@ -20,6 +20,7 @@ using SonoCap.MES.UI.Commons;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SonoCap.MES.UI.Model;
+using SonoCap.MES.UI.Validation;
 
 namespace SonoCap.MES.UI
 {
@@ -122,6 +123,8 @@ namespace SonoCap.MES.UI
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddTransient<IExcelService, ExcelService>();
+            services.AddTransient<TestService>();
+            services.AddTransient<ValidationService>();
             services.AddTransient<MotorService>();
             services.AddSingleton<IViewService, ViewService>();
         }

@@ -68,9 +68,11 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _currentTime = DateTime.Today.ToString("yyyy-MM-dd");
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        private ObservableDictionary<string, ValidationItem> _validationDict = new();
+        //[ObservableProperty]
+        //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
+        //private ObservableDictionary<string, ValidationItem> _validationDict = new();
+
+        public IReadOnlyDictionary<string, ValidationItem> ValidationDict => _validationService.ValidationDict;
 
         [ObservableProperty]
         //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
@@ -545,8 +547,12 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITransducerModuleRepository _transducerModuleRepository;
         private readonly ITransducerTypeRepository _transducerTypeRepository;
         private readonly IPTRViewRepository _pTRViewRepository;
+        private readonly ValidationService _validationService;
+        private readonly TestService _testService;
 
         public TestingViewModel(
+            ValidationService validationService,  // 추가
+            TestService testService,
             GlobalModel model,
             MotorService motorService,
             IServiceProvider serviceProvider,
@@ -563,6 +569,9 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerTypeRepository transducerTypeRepository,
             IPTRViewRepository pTRViewRepository)
         {
+            _validationService = validationService;  // 초기화
+            _validationService.ValidationChanged += (_, __) => (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            _testService = testService;
             _model = model;
             _motorService = motorService;
             _serviceProvider = serviceProvider;
@@ -891,11 +900,16 @@ namespace SonoCap.MES.UI.ViewModels
 
         partial void OnTDSnChanged(string value)
         {
+            _ = HandleTDSnChangedAsync(value);
+        }
+
+        private async Task HandleTDSnChangedAsync(string value)
+        {
             TDSnFilterItems();
             TDSnIsPopupOpen = !string.IsNullOrEmpty(value) && TDSnFilteredItems.Any();
 
             //ChangeIsEnabled(TestCategories.Processing);
-            ClearValidatingWaterMark();
+            _validationService.ClearValidatingWaterMark();
 
             _probe = null;
             _transducerModule = null;
@@ -910,34 +924,39 @@ namespace SonoCap.MES.UI.ViewModels
             BlinkingCellIndex = (int)CellPositions.Row0_Column0;
 
             List<Test> tests;
-            //정규 표현식 검증 추가
+            // 정규 표현식 검증 추가
             if (value.Length > 1)
             {
                 Log.Information($"Transducer sn {value}");
                 if (!IsExistsBySn(SnType.Transducer, value))
                 {
-                    ValidateField(nameof(TDSn), "TDSn Is Not Exist");
+                    _validationService.ValidateField(nameof(TDSn), "TDSn Is Not Exist");
                     SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
                 }
                 else
                 {
                     BlinkingCellIndex = (int)_oldCell;
                     TdCellIsEnabled = true;
-                    //셀버튼 _td _tdMd _p 각각 널이면 가로로 한줄을 끔
-                    SetBySn(SnType.Transducer, value);
-                    ValidateField(nameof(TDSn));
 
-                    tests = GetTestById(SnType.Transducer, _transducer!.Id);
-                    foreach (var item in tests)
+                    // 🔥 기존 동기 `SetBySn`을 비동기 `_testService.SetBySnAsync`로 변경
+                    //SetBySn(SnType.Transducer, value);
+                    (_transducer, _transducerModule, _probe, _pTRView) = await _testService.GetTestComponentsBySnAsync(SnType.Transducer, value);
+
+                    _validationService.ValidateField(nameof(TDSn));
+
+                    if (_transducer != null)
                     {
-                        CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
+                        tests = GetTestById(SnType.Transducer, _transducer.Id);
+                        foreach (var item in tests)
+                        {
+                            CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
+                            SetCellPassFail(item, cellPosition);
+                        }
                     }
-                    //BlinkingCellIndex = 10 + Math.Max(1, Math.Min(tests.Count, 3));
 
                     IQueryable<TransducerModule> query = _transducerModuleRepository.GetQueryable();
                     query = from transducerModules in query
-                            where transducerModules.TransducerId == _transducer.Id
+                            where transducerModules.TransducerId == _transducer!.Id
                             orderby transducerModules.Id descending
                             select transducerModules;
 
@@ -958,18 +977,13 @@ namespace SonoCap.MES.UI.ViewModels
                         SetCellPassFail(item, cellPosition);
                     }
 
-                    //BlinkingCellIndex = 20 + Math.Max(1, Math.Min(tests.Count, 3));
-
                     IQueryable<Probe> queryProbe = _probeRepository.GetQueryable();
                     queryProbe = from probes in queryProbe
                                  where probes.TransducerModuleId == _transducerModule.Id
                                  orderby probes.Id descending
                                  select probes;
 
-                    //_probe = queryProbe.FirstOrDefault();
-
-                    _probe = queryProbe.Include(p => p.MotorModule)
-                                       .FirstOrDefault();
+                    _probe = queryProbe.Include(p => p.MotorModule).FirstOrDefault();
 
                     if (_probe is null)
                         return;
@@ -986,17 +1000,15 @@ namespace SonoCap.MES.UI.ViewModels
                         CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
                         SetCellPassFail(item, cellPosition);
                     }
-                    //BlinkingCellIndex = 30 + Math.Max(1, Math.Min(tests.Count, 3));
                 }
             }
             else
             {
-                ValidateField(nameof(TDSn), "TDSn Is Not Valid");
+                _validationService.ValidateField(nameof(TDSn), "TDSn Is Not Valid");
                 SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
             }
-
-
         }
+
 
         partial void OnTestResultChanged(int value)
         {
@@ -1022,7 +1034,7 @@ namespace SonoCap.MES.UI.ViewModels
                 (int)CellPositions.Row2_Column1, (int)CellPositions.Row2_Column2, (int)CellPositions.Row2_Column3,
                 (int)CellPositions.Row3_Column1, (int)CellPositions.Row3_Column2, (int)CellPositions.Row3_Column3
             };
-            return validIndices.Contains(BlinkingCellIndex) && GetValidating(nameof(TDSn));
+            return validIndices.Contains(BlinkingCellIndex) && _validationService.GetValidating(nameof(TDSn));
 
             //bool res = false;
             //switch (_testCategory)
@@ -1127,7 +1139,7 @@ namespace SonoCap.MES.UI.ViewModels
             //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
             //ResTxt = settings.ToJson();
 
-            ValidationDict[nameof(TestResult)].IsEnabled = true;
+            _validationService.ValidationDict[nameof(TestResult)].IsEnabled = true;
             return Task.CompletedTask;
         }
 
@@ -1135,7 +1147,7 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information(nameof(CanNext));
 
-            return (TestResult != -2 && GetValidating(nameof(TDSn)));
+            return (TestResult != -2 && _validationService.GetValidating(nameof(TDSn)));
         }
 
         [RelayCommand(CanExecute = nameof(CanNext))]
@@ -1260,7 +1272,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             ResImg = default!;
             TestResult = -2;
-            ValidationDict[nameof(TestResult)].IsEnabled = false;
+            _validationService.ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
         }
@@ -1315,10 +1327,16 @@ namespace SonoCap.MES.UI.ViewModels
             timer.Elapsed += (s, e) => CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             timer.Start();
 
-            ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요.", IsEnabled = true };
-            ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
-            ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
-            ValidationDict[nameof(TestResult)] = new ValidationItem { };
+            //ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요.", IsEnabled = true };
+            //ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
+            //ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
+            //ValidationDict[nameof(TestResult)] = new ValidationItem { };
+
+            _validationService.ValidationDict["TDSn"].WaterMarkText = "TDSn을 입력하세요.";
+            _validationService.ValidationDict["TDSn"].IsEnabled = true;
+            _validationService.ValidationDict["TDMdSn"].WaterMarkText = "TDMdSn 입력하세요.";
+            _validationService.ValidationDict["ProbeSn"].WaterMarkText = "ProbeSn 입력하세요.";
+
             TestResult = -2;
             SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
 
@@ -1735,62 +1753,62 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private void ClearValidating(string key)
-        {
-            if (ValidationDict.ContainsKey(key))
-            {
-                ValidationDict[key].IsValid = true;
-                ValidationDict[key].Message = string.Empty;
-            }
-            else
-            {
-                ValidationDict[key] = new ValidationItem { IsValid = true, Message = string.Empty };
-            }
-        }
+        //private void ClearValidating(string key)
+        //{
+        //    if (ValidationDict.ContainsKey(key))
+        //    {
+        //        ValidationDict[key].IsValid = true;
+        //        ValidationDict[key].Message = string.Empty;
+        //    }
+        //    else
+        //    {
+        //        ValidationDict[key] = new ValidationItem { IsValid = true, Message = string.Empty };
+        //    }
+        //}
 
-        private void SetValidating(string key, string message)
-        {
-            if (ValidationDict.ContainsKey(key))
-            {
-                ValidationDict[key].IsValid = false;
-                ValidationDict[key].Message = message;
-            }
-            else
-            {
-                ValidationDict[key] = new ValidationItem { IsValid = false, Message = message };
-            }
-            //OnPropertyChanged(nameof(ValidationDict));
-        }
+        //private void SetValidating(string key, string message)
+        //{
+        //    if (ValidationDict.ContainsKey(key))
+        //    {
+        //        ValidationDict[key].IsValid = false;
+        //        ValidationDict[key].Message = message;
+        //    }
+        //    else
+        //    {
+        //        ValidationDict[key] = new ValidationItem { IsValid = false, Message = message };
+        //    }
+        //    //OnPropertyChanged(nameof(ValidationDict));
+        //}
 
-        private void ClearValidatingWaterMark()
-        {
-            foreach (var item in ValidationDict)
-            {
-                item.Value.WaterMarkText = $"{item.Key}를 입력하세요.";
-            }
-        }
+        //private void ClearValidatingWaterMark()
+        //{
+        //    foreach (var item in ValidationDict)
+        //    {
+        //        item.Value.WaterMarkText = $"{item.Key}를 입력하세요.";
+        //    }
+        //}
 
-        // Example of using the validation methods
-        public bool GetValidating(string key)
-        {
-            if (ValidationDict.ContainsKey(key))
-            {
-                return ValidationDict[key].IsValid;
-            }
-            return false;
-        }
+        //// Example of using the validation methods
+        //public bool GetValidating(string key)
+        //{
+        //    if (ValidationDict.ContainsKey(key))
+        //    {
+        //        return ValidationDict[key].IsValid;
+        //    }
+        //    return false;
+        //}
 
-        public void ValidateField(string key, string value = "")
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                ClearValidating(key);
-            }
-            else
-            {
-                SetValidating(key, value);
-            }
-        }
+        //public void ValidateField(string key, string value = "")
+        //{
+        //    if (string.IsNullOrWhiteSpace(value))
+        //    {
+        //        ClearValidating(key);
+        //    }
+        //    else
+        //    {
+        //        SetValidating(key, value);
+        //    }
+        //}
 
         public SubData SubData { get; set; } = default!;
 
