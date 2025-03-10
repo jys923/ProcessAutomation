@@ -1,8 +1,6 @@
 #include "AlignProcess.h"
 #include "Util.h"
 
-#include <opencv2/core/utils/logger.hpp>
-
 #define USE_CTYPE_CHECK true  // 1로 설정하면 C형 윤곽선 검사, 0으로 설정하면 타원 피팅 사용
 // === 1. 변수 초기화 ===
 #define BASE_RADIUS 29          // 기준 반지름 (29)
@@ -11,7 +9,6 @@
 #define SEARCH_RANGE 3.0            // 점 검사 범위 (5x5)
 #define CENTER_TOLERANCE 5.0        // 중심점 허용 오차
 #define SIZE_TOLERANCE 5.0          // 크기 허용 오차
-
 
 void MyOpenCVWrapper::AlignProcess(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr outputBuffer, System::IntPtr textBuffer) {
 

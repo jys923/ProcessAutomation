@@ -10,7 +10,7 @@
 #include <numeric>
 #include <nlohmann/json.hpp>
 
-#define ENABLE_IMAGE_DISPLAY false
+#define ENABLE_IMAGE_DISPLAY true
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);
