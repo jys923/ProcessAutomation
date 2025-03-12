@@ -8,6 +8,33 @@
 using namespace cv;
 using namespace std;
 
+// 원 내부의 모든 픽셀값 평균을 계산하는 함수
+double calculateCircleMean(const Mat& grayImage, Point center, int radius) {
+    if (grayImage.empty()) {
+        cerr << "Error: Empty image." << endl;
+        return -1;
+    }
+    if (grayImage.channels() != 1) {
+        cerr << "Error: Image must be grayscale." << endl;
+        return -1;
+    }
+
+    double sum = 0;
+    int count = 0;
+
+    for (int y = max(center.y - radius, 0); y <= min(center.y + radius, grayImage.rows - 1); y++) {
+        for (int x = max(center.x - radius, 0); x <= min(center.x + radius, grayImage.cols - 1); x++) {
+            // 원의 방정식 (x - center.x)^2 + (y - center.y)^2 <= radius^2 체크
+            if ((x - center.x) * (x - center.x) + (y - center.y) * (y - center.y) <= radius * radius) {
+                sum += grayImage.at<uchar>(y, x);
+                count++;
+            }
+        }
+    }
+
+    return (count > 0) ? sum / count : 0;
+}
+
 // RANSAC 기반 타원 근사 함수
 RotatedRect fitRotatedEllipseRANSAC(const  vector<Point>& points, int iter = 30, int sample_num = 10, double offset = 80.0) {
     int count_max = 0;
@@ -344,6 +371,43 @@ cv::Mat createCircularMask(const cv::Size& size, int innerRadius, int outerRadiu
     cv::circle(mask, center, innerRadius, cv::Scalar(0), -1);
     cv::bitwise_not(mask, mask);
     return mask;
+}
+
+// 특정 각도에서의 새로운 점 계산 함수 (currentAngle을 인자로 추가하여 재사용)
+Point calculateNewPoint(const Point& center, const Point& point, double currentAngle, double angleOffset) {
+    double newAngle = currentAngle + angleOffset;
+    double radian = newAngle * CV_PI / 180.0;
+
+    double radius = std::sqrt((point.x - center.x) * (point.x - center.x) + (point.y - center.y) * (point.y - center.y));
+    int newX = center.x + static_cast<int>(radius * std::cos(radian));
+    int newY = center.y - static_cast<int>(radius * std::sin(radian));
+
+    return Point(newX, newY);
+}
+
+// 특정 각도에서의 새로운 점 계산 함수 (currentAngle과 radiusOffset 추가하여 재사용 및 확장)
+Point calculateNewPoint(const Point& center, const Point& point, double currentAngle, double angleOffset, double radiusOffset) {
+    double newAngle = currentAngle + angleOffset;
+    double radian = newAngle * CV_PI / 180.0;
+
+    double radius = std::sqrt((point.x - center.x) * (point.x - center.x) + (point.y - center.y) * (point.y - center.y)) + radiusOffset;
+    int newX = center.x + static_cast<int>(radius * std::cos(radian));
+    int newY = center.y - static_cast<int>(radius * std::sin(radian));
+
+    return Point(newX, newY);
+}
+
+// 특정 각도에서의 새로운 점 계산 함수
+Point calculateNewPoint(const Point& center, const Point& point, double angleOffset) {
+    double currentAngle = calculateAngle(center, point);
+    double newAngle = currentAngle + angleOffset;
+    double radian = newAngle * CV_PI / 180.0;
+
+    double radius = std::sqrt((point.x - center.x) * (point.x - center.x) + (point.y - center.y) * (point.y - center.y));
+    int newX = center.x + static_cast<int>(radius * std::cos(radian));
+    int newY = center.y - static_cast<int>(radius * std::sin(radian));
+
+    return Point(newX, newY);
 }
 
 double calculateAngle(const cv::Point& center, const cv::Point& point) {

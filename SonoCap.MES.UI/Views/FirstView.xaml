@@ -25,8 +25,8 @@
             </StackPanel>
             <StackPanel Height="50" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Grid.Column="0" Content="Testing" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestingViewCommand}" />
-                <Button Grid.Column="1" Content="TestList" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestListViewCommand}" />
-                <Button Grid.Column="2" Content="ProbeList" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoProbeListViewCommand}" />
+                <Button Grid.Column="1" Content="Tests" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestListViewCommand}" />
+                <Button Grid.Column="2" Content="Probes" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoProbeListViewCommand}" />
             </StackPanel>
         </StackPanel>
         

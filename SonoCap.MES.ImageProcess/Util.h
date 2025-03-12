@@ -21,6 +21,20 @@ const cv::Scalar magenta(255, 0, 255);
 const cv::Scalar white(255, 255, 255);
 const cv::Scalar black(0, 0, 0);
 
+struct GrayData {
+    cv::Point center;
+    double pixelMean;
+	int radius;
+};
+
+inline void to_json(nlohmann::json& j, const GrayData& data) {
+    j = {
+        {"center", {{"x", data.center.x}, {"y", data.center.y}}},
+        {"radius", data.radius},
+        {"pixelMean", data.pixelMean}
+    };
+}
+
 struct StraightnessData {
     double score = 0.0;
 };
@@ -90,6 +104,7 @@ std::string objectToJsonString(const T& dataObject) {
 }
 
 // 함수 선언 (알파벳 순으로 정렬)
+double calculateCircleMean(const cv::Mat& grayImage, cv::Point center, int radius);
 double evaluateContourStraightness(const std::vector<cv::Point>& contour, cv::Mat& resultImage);
 double calculateContourStraightnessMSE(const std::vector<cv::Point>& contour, cv::Mat& resultImage);
 double calculateContourStraightnessRANSAC(const std::vector<cv::Point>& contour, cv::Mat& resultImage, int iterations = 100, double threshold = 2.0);
@@ -102,6 +117,12 @@ cv::Scalar getRandomColor();
 bool compareCircularity(const ContourInfo& a, const ContourInfo& b);
 
 void calculateAndDisplayHistogram(const cv::Mat& inputImage, cv::Mat& outputImage);
+
+cv::Point calculateNewPoint(const cv::Point& center, const cv::Point& point, double currentAngle, double angleOffset, double radiusOffset);
+
+cv::Point calculateNewPoint(const cv::Point& center, const cv::Point& point, double currentAngle, double angleOffset);
+
+cv::Point calculateNewPoint(const cv::Point& center, const cv::Point& point, double angleOffset);
 
 double calculateAngle(const cv::Point& center, const cv::Point& point);
 

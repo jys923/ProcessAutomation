@@ -1,6 +1,7 @@
 ﻿//#define USE_ALIGN_PROCESS
 //#define USE_RESOLUTION_PROCESS
-#define USE_GEOMETRIC_DISTORTION_PROCESS
+//#define USE_GEOMETRIC_DISTORTION_PROCESS
+#define USE_GRAY_PROCESS
 
 using System.IO;
 using System.Runtime.InteropServices;
@@ -36,8 +37,14 @@ namespace SonoCap.MES.ImageProcess.Test
             processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
             processFolder = ".\\GeometricDistortion\\";
 
+#elif USE_GRAY_PROCESS
+            imagePath = "../../../../TestImg/1741655984932_ori.bmp";
+            //imagePath = "../../../../TestImg/1741245670186_ori.bmp";
+            processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+            processFolder = ".\\Gray\\";
+
 #else
-    Console.WriteLine("Error: No process defined.");
+            Console.WriteLine("Error: No process defined.");
     return;
 #endif
 

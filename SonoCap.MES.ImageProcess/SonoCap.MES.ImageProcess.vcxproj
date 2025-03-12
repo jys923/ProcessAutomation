@@ -123,6 +123,7 @@
   <ItemGroup>
     <ClInclude Include="AlignProcess.h" />
     <ClInclude Include="GeometricDistortionProcess.h" />
+    <ClInclude Include="GrayProcess.h" />
     <ClInclude Include="MyOpenCVWrapper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RandomUtilities.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="AlignProcess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
     <ClCompile Include="GeometricDistortionProcess.cpp" />
+    <ClCompile Include="GrayProcess.cpp" />
     <ClCompile Include="MyOpenCVWrapper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

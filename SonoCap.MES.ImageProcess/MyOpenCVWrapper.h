@@ -18,6 +18,8 @@ namespace MyOpenCVWrapper {
         static void ResolutionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
         
         static void GeometricDistortionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
+
+        static void GrayProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
         
     private:
         // 정적 생성자 추가 (클래스 로드 시 한 번만 실행됨)
