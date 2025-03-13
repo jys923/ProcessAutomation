@@ -7,25 +7,19 @@ using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Model;
 using SonoCap.MES.UI.Services;
+using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.IO;
-using System.IO.Ports;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using static SonoCap.MES.UI.Services.MotorService;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 
@@ -291,15 +285,6 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private void SetMotor2()
-        {
-            if (_motorService.CurrentState == MotorState.IsOpen)
-            {
-                byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MODE_SEL, _motorService.GetRPMFromDensity(Convert.ToInt32(SelectedLineDensity)), _motorService.GetPRFFromDepth(Convert.ToInt32(SelectedViewDepth)));
-                _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-            }
-        }
-
         private void SetMotor()
         {
             _motorService.UpdateSettings(Convert.ToInt32(SelectedLineDensity), Convert.ToInt32(SelectedViewDepth));
@@ -531,7 +516,7 @@ namespace SonoCap.MES.UI.ViewModels
         private Tester? _tester { get; set; } = default!;
 
         private GlobalModel _model;
-        private readonly MotorService _motorService;
+        private readonly IMotorService _motorService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -548,7 +533,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         public TestingViewModel(
             GlobalModel model,
-            MotorService motorService,
+            IMotorService motorService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,
@@ -636,11 +621,11 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row1_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column2;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.AlignProcess;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
                     break;
                 case CellPositions.Row1_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column3;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
                     break;
                 case CellPositions.Row2_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column1;
@@ -648,11 +633,11 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row2_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column2;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.AlignProcess;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
                     break;
                 case CellPositions.Row2_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column3;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
                     break;
                 case CellPositions.Row3_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column1;
@@ -660,11 +645,11 @@ namespace SonoCap.MES.UI.ViewModels
                     break;
                 case CellPositions.Row3_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column2;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.AlignProcess;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
                     break;
                 case CellPositions.Row3_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column3;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
+                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
                     break;
                 default:
                     break;
@@ -1807,10 +1792,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            //base.OnWindowLoaded(sender, e);
-            //MessageBox.Show("TestWindow Loaded");
             Log.Information($"{nameof(OnWindowLoaded)}");
-
             //Init();
             //LogIn();
 
@@ -1822,34 +1804,14 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 _motorService.StartMotor();
                 Task.Delay(100);
-                //if (_motorService.IsOpen == true)
-                //{
-                //    byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MODE_SEL);
-                //    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-                //}
             }
-            //InitSocket();
         }
 
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
         {
-            //base.OnWindowClosing(sender, e);
-            //MessageBox.Show("TestWindow Closing");
             Log.Information($"{nameof(OnWindowClosing)}");
             _motorService.StopMotor();
             Task.Delay(100);
-            //if (_motorService.IsOpen)
-            //{
-            //    byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MOTOR_OFF);
-            //    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-            //    Task.Delay(100);
-            //    //_motorService.Close();
-            //}
-
-            //_socketService.Dispose();
-
-            //RenderEnd();
-            //_model.DestroyLibrary();
             e.Cancel = true;
             if (sender is Window window) 
             {
@@ -1862,11 +1824,6 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"{nameof(OnWindowActivated)}");
             _motorService.StartMotor();
             Task.Delay(100);
-            //if (_motorService.IsOpen == true)
-            //{
-            //    byte[] bytesToSend = _motorService.GetCommandBytes(CMD.CMD_MOTOR_ON);
-            //    _motorService.Write(bytesToSend, 0, bytesToSend.Length);
-            //}
         }
     }
 }

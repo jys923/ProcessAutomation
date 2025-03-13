@@ -12,10 +12,9 @@
 
 void MyOpenCVWrapper::GrayProcess(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr resultBuffer, System::IntPtr textBuffer)
 {
-    memset(resultBuffer.ToPointer(), 0, imageWidth * imageHeight * 4);
-
     std::string resultText = "FAIL";
-
+    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // Include null terminator
+    memset(resultBuffer.ToPointer(), 0, imageWidth * imageHeight * 4);
     // Basic parameters
     uchar* imageData = static_cast<uchar*>(inputBuffer.ToPointer());
     cv::Mat inputImage(imageHeight, imageWidth, CV_8UC4, imageData);
@@ -23,7 +22,8 @@ void MyOpenCVWrapper::GrayProcess(System::IntPtr inputBuffer, int imageWidth, in
         std::cerr << "Error: Image not found!" << std::endl;
         return;
     }
-    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // Include null terminator
+
+    memset(resultBuffer.ToPointer(), 0, imageWidth * imageHeight * 4);
     showAndSaveImage(".\\Gray\\inputImage", inputImage);
 
     cv::Point imageCenter(inputImage.cols / 2, inputImage.rows / 2);

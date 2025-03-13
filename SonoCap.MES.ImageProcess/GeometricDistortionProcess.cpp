@@ -12,6 +12,8 @@
 
 void MyOpenCVWrapper::GeometricDistortionProcess(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr outputBuffer, System::IntPtr textBuffer) {
     std::string resultText = "FAIL";
+    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // Include null terminator
+    memset(outputBuffer.ToPointer(), 0, imageWidth * imageHeight * 4);
 
     // Basic parameters
     uchar* imageData = static_cast<uchar*>(inputBuffer.ToPointer());
@@ -20,7 +22,6 @@ void MyOpenCVWrapper::GeometricDistortionProcess(System::IntPtr inputBuffer, int
         std::cerr << "Error: Image not found!" << std::endl;
         return;
     }
-    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // Include null terminator
     showAndSaveImage(".\\GeometricDistortion\\inputImage", inputImage);
 
     cv::Point imageCenter(inputImage.cols / 2, inputImage.rows / 2);

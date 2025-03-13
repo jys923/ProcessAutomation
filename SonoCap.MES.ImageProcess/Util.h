@@ -95,12 +95,12 @@ inline void to_json(nlohmann::json& j, const ContourInfo& data) {
 // 범용 벡터 -> JSON 변환 함수 (템플릿 활용)
 template <typename T>
 std::string vectorToJsonString(const std::vector<T>& dataVector) {
-    return nlohmann::json(dataVector).dump(4); // 4 = 들여쓰기
+    return nlohmann::json(dataVector).dump(-1); // 4 = 들여쓰기
 }
 
 template <typename T>
 std::string objectToJsonString(const T& dataObject) {
-    return nlohmann::json(dataObject).dump(4); // 4 = 들여쓰기
+    return nlohmann::json(dataObject).dump(-1); // 4 = 들여쓰기
 }
 
 // 함수 선언 (알파벳 순으로 정렬)

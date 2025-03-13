@@ -7,12 +7,10 @@ using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using SonoCap.MES.Services;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using SonoCap.Interceptors;
 using Microsoft.EntityFrameworkCore;
-using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows;
 using System.ComponentModel;
@@ -23,7 +21,7 @@ using System.Drawing;
 using System.IO;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
-using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.UI.Services.Interfaces;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -994,240 +992,11 @@ namespace SonoCap.MES.UI.ViewModels
         private void Receive()
         {
             Log.Information("Receive");
-            // 예시: 메서드 호출
-            IntPtr outputFinalImageBuf = new IntPtr();// = /* final image buffer */;
-            int finalImageBufLength = 512 * 512 * 4;// = /* length of final image buffer */;
-            IntPtr outputRawDataBuf = new IntPtr(); // = /* raw data buffer */;
-
-            int byte_per_sample = 2;
-            int max_no_sample = 512;
-            int max_scanline = 960;
-            int rawDataBufLength = max_scanline * max_no_sample * byte_per_sample;
-            string outputMetadata;
-
-            ulong result = HsnLibraryService.ipRenderWithCapture(outputFinalImageBuf, finalImageBufLength, outputRawDataBuf, rawDataBufLength, out outputMetadata);
-
-            //if (result != IntPtr.Zero)
-            if (result > 0)
-            {
-                // 성공적으로 호출되었을 때의 처리
-                // outputMetadata를 사용하세요
-                Log.Information("Pass");
-            }
-            else
-            {
-                // 호출 실패 시의 처리
-                Log.Information("Fail");
-            }
         }
 
         private static void Init()
         {
-            registerCallbackBeforeInitialize();
-
-            if (!SonoCapUsImgService.Initialize())
-            {
-                Log.Information("initialize Fail");
-                return;
-            }
-
-            registerCallbackAfterInitialize();
-
-            try
-            {
-                SonoCapUsImgService.StartProbeDetection();
-            }
-            catch (Exception e)
-            {
-                Log.Error($"{e.Message}");
-                throw;
-            }
-
-            //if (!SonoCapUsImgService.IpInitialize())
-            //{
-            //    Log.Information("ipInitialize Fail");
-            //    return;
-            //}
-
-            //int width = 512;
-            //int height = 512;
-            //if (!SonoCapUsImgService.IpResize(width, height))
-            //{
-            //    //exception
-            //    Log.Information("ipResize Fail");
-            //    return;
-            //}
-        }
-
-        private static void registerCallbackBeforeInitialize()
-        {
-            Loading loading = () =>
-            {
-                Log.Information("Loading callback executed!");
-            };
-
-            Error error = (string message, int value) => 
-            {
-                Log.Error(message, value);
-            };
-
-            bool result = SonoCapUsImgService.RegisterCallbackLoading(loading); //loading_status
-            result = SonoCapUsImgService.RegisterCallbackError(error); //error
-        }
-
-        private static void mLoadingCallback(bool value)
-        {
-            Log.Information($"Loading {value}");
-        }
-
-        private static void myErrorCallback(string value, int value2)
-        {
-            Log.Error($"Error {value} {value2}");
-        }
-
-        private static void registerCallbackAfterInitialize()
-        {
-            DeviceAttached deviceAttached = () =>
-            {
-                Log.Information("DeviceAttached callback executed!");
-                SonoCapUsImgService.ActivateProbe();
-            };
-
-            DeviceRemoved deviceRemoved = () => 
-            { 
-                Log.Information("DeviceRemoved callback executed!");
-                SonoCapUsImgService.DeactivateProbe();
-            };
-
-            MotorSpeed motorSpeed = (int value, int value2) =>
-            {
-                Log.Information($"{value} {value2}");
-            };
-
-            ProbeState probeState = (int value) =>
-            {
-                Log.Information($"{value}");
-            };
-
-            SonoCapUsImgService.RegisterCallbackDeviceAttached(deviceAttached);
-            SonoCapUsImgService.RegisterCallbackDeviceRemoved(deviceRemoved);
-            SonoCapUsImgService.RegisterCallbackMotorSpeed(motorSpeed);
-            SonoCapUsImgService.RegisterCallbackProbeState(probeState);
-        }
-
-        private static void DeviceAttachedCallback()
-        {
-            SonoCapUsImgService.ActivateProbe();
-        }
-
-        private static void mDeviceAttachedCallback()
-        {
-            HsnLibraryService.activateProbe();
-        }
-
-        private static void mDeviceRemovedCallback()
-        {
-            HsnLibraryService.disactivateProbe();
-        }
-        
-        private static void mMotorSpeedCallback(int value, int value2)
-        {
-            Log.Information($"MotorSpeed prf_hz : {value}, density : {value2}");
-        }
-
-        private static void mProbeStateCallback(int value)
-        {
-            Log.Information($"ProbeState {value}");
-        }
-        
-        private static void init2()
-        {
-            registerCallbackBeforeInitialize();
-
-            if (!HsnLibraryService.initialize())
-            {
-                Log.Information("initialize Fail");
-                return;
-            }
-
-            registerCallbackAfterInitialize();
-
-            try
-            {
-                HsnLibraryService.startProbeDetection();
-            }
-            catch (Exception e)
-            {
-                Log.Information($"{e.Message}");
-                throw;
-            }
-            //HsnLibraryService.startProbeDetection();
-
-            //if (!HsnLibraryService.startProbeDetection())
-            //{
-            //    Log.Information("startProbeDetection Fail");
-            //    return;
-            //}
-
-
-            if (!HsnLibraryService.ipInitialize())
-            {
-                Log.Information("ipInitialize Fail");
-                return;
-            }
-
-            int width = 512;
-            int height = 512;
-            if (!HsnLibraryService.ipResize(width, height))
-            {
-                //exception
-                Log.Information("ipResize Fail");
-                return;
-            }
-        }
-
-        private static void registerCallbackBeforeInitialize2()
-        {
-            HsnLibraryService.registerCallback_Loading(mLoadingCallback2); //loading_status
-            HsnLibraryService.registerCallback_Error(myErrorCallback2); //error
-        }
-
-        private static void mLoadingCallback2(bool value)
-        {
-            Log.Information($"Loading {value}");
-        }
-
-        private static void myErrorCallback2(string value, int value2)
-        {
-            Log.Information($"Error {value} {value2}");
-        }
-
-        private static void registerCallbackAfterInitialize2()
-        {
-            HsnLibraryService.registerCallback_DeviceAttached(mDeviceAttachedCallback2);
-            HsnLibraryService.registerCallback_DeviceRemoved(mDeviceRemovedCallback2);
-            HsnLibraryService.registerCallback_ENDMotorSpeed(mMotorSpeedCallback2);
-            HsnLibraryService.registerCallback_ProbeState(mProbeStateCallback2);//probe state
-        }
-
-        private static void mProbeStateCallback2(int value)
-        {
-            Log.Information($"ProbeState {value}");
-        }
-
-        private static void mMotorSpeedCallback2(int value, int value2)
-        {
-            Log.Information($"MotorSpeed prf_hz : {value}, density : {value2}");
-        }
-
-        private static void mDeviceRemovedCallback2()
-        {
-            HsnLibraryService.disactivateProbe();
-        }
-
-        private static void mDeviceAttachedCallback2()
-        {
-            HsnLibraryService.activateProbe();
+            
         }
     }
 }

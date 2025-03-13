@@ -11,8 +11,6 @@ using System.Windows.Threading;
 using AspectCore.Configuration;
 using SonoCap.Interceptors;
 using SonoCap.MES.UI.Services;
-using SonoCap.MES.Services.Interfaces;
-using SonoCap.MES.Services;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +18,7 @@ using SonoCap.MES.UI.Commons;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SonoCap.MES.UI.Model;
+using SonoCap.MES.UI.Services.Interfaces;
 
 namespace SonoCap.MES.UI
 {
@@ -122,7 +121,7 @@ namespace SonoCap.MES.UI
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddTransient<IExcelService, ExcelService>();
-            services.AddTransient<MotorService>();
+            services.AddTransient<IMotorService, MotorService>();
             services.AddSingleton<IViewService, ViewService>();
         }
 

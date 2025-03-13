@@ -10,7 +10,7 @@ namespace SonoCap.MES.UI
         public Lateral Lateral { get; set; } = default!;
         public string TesterName { get; set; } = @"No Name";
         public int PcId { get; set; } = 1;
-        public Path Path { get; set; } = default!;
+        public MesPath Path { get; set; } = default!;
         public SerilogSettings Serilog { get; set; } = new SerilogSettings();
     }
 
@@ -69,7 +69,7 @@ namespace SonoCap.MES.UI
         public Line Line7 { get; set; } = default!;
     }
 
-    public class Path
+    public class MesPath
     {
         public string ImportExcel { get; set; } = @"./report/";
         public string ExportExcel { get; set; } = @"./report/";

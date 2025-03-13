@@ -7,8 +7,8 @@ using SonoCap.MES.UI.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Services.Interfaces;
-using SonoCap.MES.UI.Services;
 using System.Windows.Media.Imaging;
+using SonoCap.MES.UI.Services.Interfaces;
 
 namespace SonoCap.MES.UI.ViewModels.Tests
 {

@@ -23,6 +23,9 @@ void MyOpenCVWrapper::AlignProcess(System::IntPtr inputBuffer, int imageWidth, i
     cv::Point2f existingEllipseCenter;       // 기존 타원의 중심점
     cv::Size2f existingEllipseSize;          // 기존 타원의 크기
 #endif
+    std::string resultText = "FAIL";
+    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // Include null terminator
+    memset(outputBuffer.ToPointer(), 0, imageWidth * imageHeight * 4);
     // 기본 파라미터
     float contourRadius;
     double contourCircularity;  // 윤곽선의 원형도
@@ -50,7 +53,6 @@ void MyOpenCVWrapper::AlignProcess(System::IntPtr inputBuffer, int imageWidth, i
         std::cerr << "Error: Image not found!" << std::endl;
         return;
     }
-
     showAndSaveImage(".\\Align\\inputImage", inputImage);
 
     // === 3. 이미지 및 초기 윤곽선 설정 ===
@@ -88,6 +90,11 @@ void MyOpenCVWrapper::AlignProcess(System::IntPtr inputBuffer, int imageWidth, i
 
     // === 5. 윤곽선 검출 및 필터링 ===
     cv::findContours(filledEdges, filledContours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+
+    if (filledContours.empty())
+    {
+        return;
+    }
 
     // 디버깅용 윤곽선 표시
     for (size_t i = 0; i < filledContours.size(); i++) {
@@ -214,19 +221,21 @@ void MyOpenCVWrapper::AlignProcess(System::IntPtr inputBuffer, int imageWidth, i
     // === 6. 최적 윤곽선 선택 및 표시 ===
     std::sort(contourInfoList.begin(), contourInfoList.end(), compareCircularity);
 
-    if (!contourInfoList.empty()) {
-        const auto& bestContour = contourInfoList.front();
-        std::cout << "Best Circularity: " << bestContour.circularity << std::endl;
-
-        // 결과 이미지에 윤곽선 표시
-        if (bestContour.ellipse.size.width > 0 && bestContour.ellipse.size.height > 0) {
-            cv::ellipse(resultImage, bestContour.ellipse, red, 1);
-        }
-        else {
-            cv::drawContours(resultImage, std::vector<std::vector<cv::Point>>{bestContour.contour}, -1, red, 1);
-        }
-        std::cout << "Circularity : " << bestContour.circularity << std::endl;
+    if (contourInfoList.empty()) {
+        return;
     }
+
+    const auto& bestContour = contourInfoList.front();
+    std::cout << "Best Circularity: " << bestContour.circularity << std::endl;
+
+    // 결과 이미지에 윤곽선 표시
+    if (bestContour.ellipse.size.width > 0 && bestContour.ellipse.size.height > 0) {
+        cv::ellipse(resultImage, bestContour.ellipse, red, 1);
+    }
+    else {
+        cv::drawContours(resultImage, std::vector<std::vector<cv::Point>>{bestContour.contour}, -1, red, 1);
+    }
+    std::cout << "Circularity : " << bestContour.circularity << std::endl;
 
     // === 7. 결과 처리 ===
     showAndSaveImage(".\\Align\\resultImage", resultImage);
@@ -236,6 +245,6 @@ void MyOpenCVWrapper::AlignProcess(System::IntPtr inputBuffer, int imageWidth, i
 
     // 텍스트 결과 생성 및 버퍼에 복사
     //std::string textOutput = vectorToJsonString(contourInfoList);
-    std::string textOutput = objectToJsonString(contourInfoList[0]);
-    memcpy(textBuffer.ToPointer(), textOutput.c_str(), textOutput.size() + 1);
+    resultText = objectToJsonString(contourInfoList[0]);
+    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1);
 }

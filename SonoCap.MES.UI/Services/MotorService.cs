@@ -1,13 +1,14 @@
 ﻿using Serilog;
+using SonoCap.MES.UI.Services.Interfaces;
 using System.IO.Ports;
 using System.Management;
 
 namespace SonoCap.MES.UI.Services
 {
-    public class MotorService
+    public class MotorService : IMotorService
     {
         private readonly SerialPort _serialPort;
-        
+
         //사용안함 추후 개선 아예 지우고  _serialPort.IsOpen 과 통합
         private MotorState _motorState = MotorState.Close; // 기본값: Close (포트 닫힘)
 
@@ -261,7 +262,7 @@ namespace SonoCap.MES.UI.Services
                     }
 
                     //byte[] response = ReadResponse();
-                    
+
                     //if (response == 0xF055)
                     //if (response == CMD.CMD_ACK)
                     //{
@@ -379,7 +380,7 @@ namespace SonoCap.MES.UI.Services
                 Log.Information("Motor is already started.");
                 return;
             }
-            
+
             byte[] response = SendCommand(GetCommandBytes(CMD.CMD_MOTOR_ON));
 
             if (response.Length > 0)

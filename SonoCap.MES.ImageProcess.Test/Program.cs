@@ -1,7 +1,7 @@
-﻿//#define USE_ALIGN_PROCESS
+﻿#define USE_ALIGN_PROCESS
 //#define USE_RESOLUTION_PROCESS
 //#define USE_GEOMETRIC_DISTORTION_PROCESS
-#define USE_GRAY_PROCESS
+//#define USE_GRAY_PROCESS
 
 using System.IO;
 using System.Runtime.InteropServices;

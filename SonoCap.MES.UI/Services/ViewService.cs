@@ -1,4 +1,5 @@
 ﻿using SonoCap.MES.Models;
+using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels;
 using SonoCap.MES.UI.ViewModels.Base;
 using SonoCap.MES.UI.Views;

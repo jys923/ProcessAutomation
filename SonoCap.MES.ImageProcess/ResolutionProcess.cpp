@@ -20,6 +20,9 @@
 
 void MyOpenCVWrapper::ResolutionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer) {
 
+    std::string resultText = "FAIL";
+	memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // Include null terminator
+    memset(resultBuffer.ToPointer(), 0, width * height * 4);
     cv::Point imageCenter;
     std::vector<std::vector<cv::Point>> contours, filteredContours;
     std::vector<ArcData> arcDataInners;
@@ -31,7 +34,6 @@ void MyOpenCVWrapper::ResolutionProcess(System::IntPtr buffer, int width, int he
     uchar* data = static_cast<uchar*>(buffer.ToPointer());
     image = cv::Mat(height, width, CV_8UC4, data);
     if (image.empty()) {
-        std::cerr << "Error: Image not found!" << std::endl;
         return;
     }
     showAndSaveImage(".\\Resolution\\inputImage", image);
@@ -242,7 +244,7 @@ void MyOpenCVWrapper::ResolutionProcess(System::IntPtr buffer, int width, int he
     showAndSaveImage(".\\Resolution\\binaryImage", binaryImage);
     cv::findContours(binaryImage, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
-    if (contours.size() < 1 )
+    if (contours.empty())
     {
         return;
     }
@@ -281,44 +283,44 @@ void MyOpenCVWrapper::ResolutionProcess(System::IntPtr buffer, int width, int he
 
     showAndSaveImage(".\\Resolution\\drawImageDistance", drawImageDistance);
 
-    if (!arcDataOutters.empty()) {
-        double minDistance = std::numeric_limits<double>::max();
-        ArcData closestOutter;
-        ArcData closestInner;
-
-        for (const auto& arcCenterOutter : arcDataOutters) {
-            for (const auto& arcCenterInner : arcDataInners) {
-                double distance = cv::norm(arcCenterOutter.center - arcCenterInner.center);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestOutter = arcCenterOutter;
-                    closestInner = arcCenterInner;
-                }
-            }
-        }
-
-        // 여기에서 각도를 보정합니다
-        double baseAngle = closestInner.angle;
-
-        for (auto& arc : arcDataInners) {
-            arc.angle -= baseAngle;
-            if (arc.angle < 0) {
-                arc.angle += 360;
-            }
-        }
-
-        cv::line(resultImage, closestInner.center, closestOutter.center, cyan, 1);
-        cv::putText(resultImage, "D : " + std::to_string(static_cast<int>(minDistance)), closestOutter.center, cv::FONT_HERSHEY_SIMPLEX, 0.3, yellow, 1);
-        
-        arcDataInners.erase(std::remove_if(arcDataInners.begin(), arcDataInners.end(),
-            [](const ArcData& arc) {
-                return arc.angle < 10 || arc.angle > 70;
-            }), arcDataInners.end());
+    if (arcDataOutters.empty() || arcDataInners.empty()) {
+        return;
     }
-    else
-    {
-        std::string textOutput = "fail";
-        memcpy(textBuffer.ToPointer(), textOutput.c_str(), textOutput.size() + 1); // +1은 널 종료 문자를 포함하기 위해
+
+    double minDistance = std::numeric_limits<double>::max();
+    ArcData closestOutter;
+    ArcData closestInner;
+
+    for (const auto& arcCenterOutter : arcDataOutters) {
+        for (const auto& arcCenterInner : arcDataInners) {
+            double distance = cv::norm(arcCenterOutter.center - arcCenterInner.center);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestOutter = arcCenterOutter;
+                closestInner = arcCenterInner;
+            }
+        }
+    }
+
+    // 여기에서 각도를 보정합니다
+    double baseAngle = closestInner.angle;
+
+    for (auto& arc : arcDataInners) {
+        arc.angle -= baseAngle;
+        if (arc.angle < 0) {
+            arc.angle += 360;
+        }
+    }
+
+    cv::line(resultImage, closestInner.center, closestOutter.center, cyan, 1);
+    cv::putText(resultImage, "D : " + std::to_string(static_cast<int>(minDistance)), closestOutter.center, cv::FONT_HERSHEY_SIMPLEX, 0.3, yellow, 1);
+        
+    arcDataInners.erase(std::remove_if(arcDataInners.begin(), arcDataInners.end(),
+        [](const ArcData& arc) {
+            return arc.angle < 10 || arc.angle > 70;
+        }), arcDataInners.end());
+
+    if (arcDataInners.empty()) {
         return;
     }
 
@@ -366,9 +368,8 @@ void MyOpenCVWrapper::ResolutionProcess(System::IntPtr buffer, int width, int he
 
     // resultImage와 텍스트 데이터를 버퍼로 복사합니다.
     memcpy(resultBuffer.ToPointer(), resultImage.data, resultImage.total() * resultImage.elemSize());
-    //std::string textOutput = textStream.str();
-    std::string textOutput = vectorToJsonString(arcDataInners);
-    memcpy(textBuffer.ToPointer(), textOutput.c_str(), textOutput.size() + 1); // +1은 널 종료 문자를 포함하기 위해
+    resultText = vectorToJsonString(arcDataInners);
+    memcpy(textBuffer.ToPointer(), resultText.c_str(), resultText.size() + 1); // +1은 널 종료 문자를 포함하기 위해
 
     // 메모리 할당 상태에 따라 다양한 접근 방식을 사용할 수 있습니다.
     // 결과 이미지 표시 및 저장
