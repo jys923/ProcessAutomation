@@ -17,7 +17,7 @@ namespace SonoCap.MES.Repositories.Context
             //    .Build();
             //
             //var connectionString = configuration.GetConnectionString("MariaDBConnection");
-            string connectionString = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            string connectionString = @"Server=192.168.0.7; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
 
             optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), options => options.CommandTimeout(120));
 

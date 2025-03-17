@@ -91,6 +91,13 @@ namespace SonoCap.MES.Repositories.Base
             return count > 0;
         }
 
+        public async Task<int> InsertAsyncInt(T entity)
+        {
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity.Id;
+        }
+
         public async Task<int> UpsertAsync(T entity)
         {
             var existingEntity = await _dbSet.FindAsync(entity.Id);

@@ -16,7 +16,7 @@ namespace SonoCap.MES.UI
 
     public class ConnectionStrings
     {
-        public string MariaDBConnection { get; set; } = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+        public string MariaDBConnection { get; set; } = @"Server=192.168.0.7; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
     }
 
     public class Align

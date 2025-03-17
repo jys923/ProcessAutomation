@@ -6,7 +6,8 @@ namespace SonoCap.MES.Repositories.Context
     {
         public MESDbContext CreateDbContext()
         {
-            string conn = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            //string conn = @"Server=192.168.0.61; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
+            string conn = @"Server=192.168.0.7; Port=3306; Database=sonocap_mes; Uid=root; Pwd=Endolfin12!@;AllowLoadLocalInfile=true;";
             var optionsBuilder = new DbContextOptionsBuilder<MESDbContext>();
             optionsBuilder.UseMySql(conn, ServerVersion.AutoDetect(conn));
 

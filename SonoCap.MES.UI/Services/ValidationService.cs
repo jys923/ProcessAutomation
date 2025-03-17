@@ -1,83 +1,62 @@
 ﻿using SonoCap.MES.Models.Enums;
+using SonoCap.MES.UI.ViewModels;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
 namespace SonoCap.MES.UI.Validation
 {
-    public class ValidationService : INotifyPropertyChanged
+    public static class ValidationService
     {
-        private readonly Dictionary<string, ValidationItem> _validationDict = new();
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public IReadOnlyDictionary<string, ValidationItem> ValidationDict => _validationDict;
-
-        public ValidationService()
+        public static void ClearValidating(ObservableDictionary<string, ValidationItem> validationDict, string key)
         {
-            _validationDict["TDSn"] = new ValidationItem { WaterMarkText = $"TDSn을 입력 하세요.", IsEnabled = true };
-            _validationDict["TDMdSn"] = new ValidationItem { WaterMarkText = $"TDMdSn을 입력 하세요." };
-            _validationDict["ProbeSn"] = new ValidationItem { WaterMarkText = $"ProbeSn을 입력 하세요." };
-            _validationDict["TestResult"] = new ValidationItem { };
-        }
-
-        public event EventHandler? ValidationChanged;
-
-        private void OnValidationChanged()
-        {
-            ValidationChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-
-        public bool GetValidating(string key)
-        {
-            return _validationDict.TryGetValue(key, out var validationItem) && validationItem.IsValid;
-        }
-
-        public void ValidateField(string key, string value = "")
-        {
-            if (string.IsNullOrWhiteSpace(value))
+            if (validationDict.ContainsKey(key))
             {
-                ClearValidating(key);
+                validationDict[key].IsValid = true;
+                validationDict[key].Message = string.Empty;
             }
             else
             {
-                SetValidating(key, value);
+                validationDict[key] = new ValidationItem { IsValid = true, Message = string.Empty };
             }
         }
 
-        public void ClearValidating(string key)
+        public static void SetValidating(ObservableDictionary<string, ValidationItem> validationDict, string key, string message)
         {
-            if (_validationDict.ContainsKey(key))
+            if (validationDict.ContainsKey(key))
             {
-                _validationDict[key].IsValid = true;
-                _validationDict[key].Message = string.Empty;
-                OnPropertyChanged(nameof(ValidationDict));
+                validationDict[key].IsValid = false;
+                validationDict[key].Message = message;
             }
-        }
-
-        public void SetValidating(string key, string message)
-        {
-            if (_validationDict.ContainsKey(key))
+            else
             {
-                _validationDict[key].IsValid = false;
-                _validationDict[key].Message = message;
-                OnPropertyChanged(nameof(ValidationDict));
+                validationDict[key] = new ValidationItem { IsValid = false, Message = message };
             }
         }
 
-        public void ClearValidatingWaterMark()
+        public static void ClearValidatingWaterMark(ObservableDictionary<string, ValidationItem> validationDict)
         {
-            foreach (var item in _validationDict.Values)
+            foreach (var item in validationDict)
             {
-                item.WaterMarkText = $"{item.WaterMarkText}";
+                item.Value.WaterMarkText = $"{item.Key}를 입력하세요.";
             }
-            OnPropertyChanged(nameof(ValidationDict));
         }
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        public static bool GetValidating(ObservableDictionary<string, ValidationItem> validationDict, string key)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            return validationDict.ContainsKey(key) && validationDict[key].IsValid;
+        }
+
+        public static void ValidateField(ObservableDictionary<string, ValidationItem> validationDict, string key, string value = "")
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                ClearValidating(validationDict, key);
+            }
+            else
+            {
+                SetValidating(validationDict, key, value);
+            }
         }
     }
 }

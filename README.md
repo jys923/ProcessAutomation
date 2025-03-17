@@ -14,22 +14,25 @@ remove-migration
 ```
 
 ## Todo
-- [ ] 시리얼 검사 필요 없네 어차피 있는 것중에 검사하면 됨
-- [ ] 모터 정지
-- [ ] hsb lib 2번 정상 종료 hsb 의뢰
-- [ ] hsb lib 종료
-- [ ] 앱 종료 시 호출
-- [ ] 다음줄 활성 /비활성 전환
-- [ ] 블링크 인덱스 관련 디버깅 다음 줄 비활성
-- [ ] 강제 검수 후 다음줄 비활성
-- [ ] mt 넣고 다음줄 비활성
-- [ ] 한소노 lib에서 영상 직접 받기
-- [ ] openTK openGL research
-- [ ] HsnPreview 가 안나옴
-- [ ] Silk.NET
+- [ ] ptr 뷰 관련 정리
+- [ ] td type으로 최종 생성 시리얼 5, 7.5 분간
+- [ ] td 엑셀 읽을떄 구분 추기
 - [ ] tests table null 없게 바꾸기 조회시 퀴리가 복잡해짐
+- [ ] 시리얼 검사 필요 없네 어차피 있는 것중에 검사하면 됨
+- [X] 모터 정지
+- [ ] hsb lib 2번 정상 종료 hsb 의뢰
+- [X] hsb lib 종료
+- [X] 앱 종료 시 호출
+- [X] 다음줄 활성 /비활성 전환
+- [X] 블링크 인덱스 관련 디버깅 다음 줄 비활성
+- [X] 강제 검수 후 다음줄 비활성
+- [X] mt 넣고 다음줄 비활성
+- [X] 한소노 lib에서 영상 직접 받기
+- [X] openTK openGL research
+- [ ] Silk.NET
+- [X] HsnPreview 가 안나옴
 - [ ] WPF - DataTemplate로 UserControl 변경하기 https://www.youtube.com/watch?v=h_OOFnqCjLw
-- [ ] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
+- [X] 전역 스타일 지정 https://www.youtube.com/watch?v=WWvYYxamemY, Dark theme
 - [X] behavier로 깜빡이 코드 중복 제거
 - [ ] animation manager 추가 해서 깜빡이 코드 중복 제거 https://www.youtube.com/playlist?list=PLlrfTSXS0LLK7V03CY3VouBPOn6cL3YAu
 - [X] 윈 선 그리기

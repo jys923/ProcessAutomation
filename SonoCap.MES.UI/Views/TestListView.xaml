@@ -120,24 +120,24 @@
                 </b:Interaction.Behaviors>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Width=".3*" Binding="{Binding Id}"/>
-                    <DataGridTextColumn Header="생성날짜" Width="1*" Binding="{Binding CreatedDate, StringFormat='yyyy-MM-dd HH:mm'}"/>
+                    <DataGridTextColumn Header="생성 날짜" Width="1*" Binding="{Binding CreatedDate, StringFormat='yyyy-MM-dd HH:mm'}"/>
                     <DataGridTextColumn Header="Detail" Width=".1*" Binding="{Binding Detail}" Visibility="Collapsed"/>
-                    <DataGridTextColumn Header="Category" Width=".5*" Binding="{Binding Category.Name}"/>
-                    <DataGridTextColumn Header="TestType" Width=".5*" Binding="{Binding TestType.Name}"/>
-                    <DataGridTextColumn Header="Result" Width=".3*" Binding="{Binding Result}"/>
+                    <DataGridTextColumn Header="Category" Width=".6*" Binding="{Binding Category.Name}"/>
+                    <DataGridTextColumn Header="Test Type" Width=".5*" Binding="{Binding TestType.Name}"/>
+                    <DataGridTextColumn Header="Result" Width=".4*" Binding="{Binding Result}"/>
                     <DataGridTextColumn Header="Pc" Width=".3*" Binding="{Binding Pc.Name}"/>
                     <DataGridTextColumn Header="Tester" Width=".5*" Binding="{Binding Tester}"/>
-                    <DataGridTextColumn Header="ProbeSn" Width="1*" Binding="{Binding Probe.Sn}"/>
-                    <DataGridTextColumn Header="TransducerModule" Width="1*" Binding="{Binding TransducerModule.Sn}"/>
-                    <DataGridTextColumn Header="Transducer" Width="1*" Binding="{Binding Transducer.Sn}"/>
-                    <DataGridTextColumn Header="MotorModuleSn" Width="1*" Binding="{Binding MotorModule.Sn}"/>
-                    <DataGridTextColumn Header="OriginalImg" Width="1*" Binding="{Binding OriginalImg}"/>
-                    <DataGridTextColumn Header="ChangedImg" Width="1*" Binding="{Binding ChangedImg}"/>
-                    <DataGridTextColumn Header="Metadata" Width="200" Binding="{Binding ChangedImgMetadata}"/>
+                    <DataGridTextColumn Header="Probe S/N" Width="1*" Binding="{Binding Probe.Sn}"/>
+                    <DataGridTextColumn Header="TD Md S/N" Width="1*" Binding="{Binding TransducerModule.Sn}"/>
+                    <DataGridTextColumn Header="TD S/N" Width="1*" Binding="{Binding Transducer.Sn}"/>
+                    <DataGridTextColumn Header="MT Md S/N" Width="1*" Binding="{Binding MotorModule.Sn}"/>
+                    <DataGridTextColumn Header="원본 Img" Width="1*" Binding="{Binding OriginalImg}"/>
+                    <DataGridTextColumn Header="검사 Img" Width="1*" Binding="{Binding ChangedImg}"/>
+                    <DataGridTextColumn Header="Meta data" Width="200" Binding="{Binding ChangedImgMetadata}"/>
                 </DataGrid.Columns>
             </DataGrid>
             <!-- Status Bar -->
-            <StatusBar Grid.Row="5">
+            <StatusBar Style="{StaticResource MetroStatusBar}" Grid.Row="5">
                 <!-- Status bar content -->
                 <StatusBarItem>
                     <TextBlock Text="Result Count : "/>

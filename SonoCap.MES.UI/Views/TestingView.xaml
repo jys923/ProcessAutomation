@@ -924,40 +924,53 @@
             </GroupBox>
             <Border
                 Height="0" />
-            <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="1*" />
+                    <ColumnDefinition
+                        Width="1*" />
+                    <ColumnDefinition
+                        Width="1*" />
+                </Grid.ColumnDefinitions>
+
                 <GroupBox
                     Header="Calibration"
                     Style="{StaticResource GroupBoxLargeStyle}"
-                    Width="200"
-                    HorizontalAlignment="Left">
+                    Grid.Column="0">
                     <StackPanel
-                        HorizontalAlignment="Center"
                         Orientation="Horizontal"
-                        Width="200">
+                        HorizontalAlignment="Center">
                         <TextBox
                             TextWrapping="Wrap"
                             Text="{Binding CalibrationOffset}"
-                            Width="120"
+                            Width="100"
                             HorizontalAlignment="Left"
-                            VerticalAlignment="Top" />
+                            VerticalAlignment="Center" />
                         <Button
                             Content="Set"
                             Command="{Binding CalibrateButtonCommand}"
                             HorizontalAlignment="Left"
-                            VerticalAlignment="Top" />
+                            VerticalAlignment="Center" />
                     </StackPanel>
                 </GroupBox>
-                <ComboBox
-                    ItemsSource="{Binding SubSettingList}"
-                    DisplayMemberPath="Item2"
-                    SelectedItem="{Binding SelectedSubSetting}"
-                    Width="200"
-                    Height="30"
-                    VerticalAlignment="Center"
-                    Margin="10"
-                    HorizontalAlignment="Right" />
-            </StackPanel>
-            
+
+                <GroupBox
+                    Header="Setting"
+                    Style="{StaticResource GroupBoxLargeStyle}"
+                    HorizontalAlignment="Stretch"
+                    Grid.Column="1">
+                    <ComboBox
+                        ItemsSource="{Binding SubSettingList}"
+                        DisplayMemberPath="Item2"
+                        SelectedItem="{Binding SelectedSubSetting}"
+                        Width="100"
+                        Height="30"
+                        VerticalAlignment="Center"
+                        Margin="10"
+                        HorizontalAlignment="Center" />
+                </GroupBox>
+            </Grid>
         </StackPanel>
         <GroupBox
             Grid.Row="2"

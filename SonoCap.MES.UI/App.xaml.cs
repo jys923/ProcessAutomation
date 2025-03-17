@@ -33,11 +33,14 @@ namespace SonoCap.MES.UI
 
         public IServiceProvider Services { get; }
 
+        private readonly IMotorService _motorService;
+
         public static AppSettings appSettings { get; set; } = new AppSettings();
 
         public App()
         {
             Services = ConfigureServices();
+            _motorService = Services.GetRequiredService<IMotorService>(); // 싱글톤 유지
         }
 
         protected override async void OnStartup(StartupEventArgs e)
@@ -58,6 +61,17 @@ namespace SonoCap.MES.UI
             SetPath();
             //ShowMainView();
             ShowFirstView();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+
+            if (_motorService is IDisposable disposableMotor)
+            {
+                Log.Information("Application exiting: Disposing motor service.");
+                disposableMotor.Dispose();
+            }
         }
 
         private static IServiceProvider ConfigureServices()
@@ -121,6 +135,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterServices(IServiceCollection services)
         {
+            services.AddTransient<TestingManagementService>();
             services.AddTransient<ISerialPortWrapper, SerialPortWrapper>();
             services.AddTransient<IExcelService, ExcelService>();
             services.AddTransient<IMotorService, MotorService>();
@@ -129,7 +144,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterRepositories(IServiceCollection services)
         {
-            services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
+            services.AddSingleton<IMotorModuleRepository, MotorModuleRepository>();
             services.AddTransient<IPcRepository, PcRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();
             services.AddTransient<IPTRViewRepository, PTRViewRepository>();
