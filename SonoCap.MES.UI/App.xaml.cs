@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using SonoCap.MES.UI.Model;
 using SonoCap.MES.UI.Services.Interfaces;
+using System.IO.Ports;
 
 namespace SonoCap.MES.UI
 {
@@ -120,6 +121,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterServices(IServiceCollection services)
         {
+            services.AddTransient<ISerialPortWrapper, SerialPortWrapper>();
             services.AddTransient<IExcelService, ExcelService>();
             services.AddTransient<IMotorService, MotorService>();
             services.AddSingleton<IViewService, ViewService>();

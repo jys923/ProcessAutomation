@@ -7,62 +7,19 @@ namespace SonoCap.MES.UI.Services
 {
     public class MotorService : IMotorService
     {
-        private readonly SerialPort _serialPort;
+        private readonly ISerialPortWrapper _serialPort;
 
-        //사용안함 추후 개선 아예 지우고  _serialPort.IsOpen 과 통합
-        private MotorState _motorState = MotorState.Close; // 기본값: Close (포트 닫힘)
-
-        public MotorState CurrentState
-        {
-            get
-            {
-                if (!_serialPort.IsOpen)
-                    _motorState = MotorState.Close; // 포트가 닫혀 있으면 상태를 Close로 변경
-
-                return _motorState;
-            }
-        }
-
+        private MotorState _motorState = MotorState.Stop; // 기본값: Close (포트 닫힘)
 
         private RPM _currentRPM = RPM.RPM_1250;
         private PRF _currentPRF = PRF.PRF_20;
 
-        public event Action<MotorState>? OnMotorStateChanged;
+        public event EventHandler? CloseViewRequested;
 
-        private void SerialDataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        // 사용자가 SerialPort를 주입하도록 변경
+        public MotorService(ISerialPortWrapper serialPort)
         {
-            int recvSize = _serialPort.BytesToRead;
-
-            if (recvSize >= 2)
-            {
-                byte[] buff = new byte[2];
-                _serialPort.Read(buff, 0, 2);
-                Log.Information($"Received : {BitConverter.ToString(buff)}");
-
-                //ProcessReceivedData();
-            }
-        }
-
-        private void ProcessReceivedData()
-        {
-            switch (_motorState)
-            {
-                case MotorState.IsOpen:
-                    _motorState = MotorState.Start;
-                    SendCommand(GetCommandBytes(CMD.CMD_MOTOR_ON));
-                    break;
-
-                case MotorState.Close:
-                    _motorState = MotorState.IsOpen;
-                    SendCommand(GetCommandBytes(CMD.CMD_FREQ_INFO));
-                    break;
-
-                default:
-                    Log.Warning("Unhandled motor state: " + _motorState);
-                    break;
-            }
-
-            OnMotorStateChanged?.Invoke(_motorState);
+            _serialPort = serialPort ?? throw new ArgumentNullException(nameof(serialPort));
         }
 
         public void UpdateSettings(int lineDensity, int viewDepth)
@@ -76,11 +33,10 @@ namespace SonoCap.MES.UI.Services
                 return;
             }
 
-            // PRF만 변경된 경우, 아무 동작도 하지 않음
             if (_currentRPM == newRPM && _currentPRF != newPRF)
             {
                 Log.Information("PRF changed but motor update skipped.");
-                _currentPRF = newPRF; // 내부 변수는 업데이트
+                _currentPRF = newPRF;
                 return;
             }
 
@@ -102,11 +58,6 @@ namespace SonoCap.MES.UI.Services
             Log.Information($"Motor settings updated: RPM={_currentRPM}, PRF={_currentPRF}");
         }
 
-        public MotorService()
-        {
-            _serialPort = new SerialPort();
-        }
-
         public PRF GetPRFFromDepth(int depthInCm)
         {
             return depthInCm switch
@@ -120,10 +71,22 @@ namespace SonoCap.MES.UI.Services
             };
         }
 
+        public RPM GetRPMFromDensity(int density)
+        {
+            return density switch
+            {
+                1 => RPM.RPM_1875,
+                2 => RPM.RPM_1600,
+                3 => RPM.RPM_1500,
+                4 => RPM.RPM_1250,
+                _ => RPM.RPM_1250
+            };
+        }
+
         public enum MotorState
         {
-            Close = 0,
-            IsOpen = 1, //IsOpen
+            //Close = 0,
+            //IsOpen = 1,
             Stop = 2,
             Start = 3,
         }
@@ -135,18 +98,6 @@ namespace SonoCap.MES.UI.Services
             PRF_15 = 0x03,
             PRF_16 = 0x04,
             PRF_20 = 0x05
-        }
-
-        public RPM GetRPMFromDensity(int density)
-        {
-            return density switch
-            {
-                1 => RPM.RPM_1875,
-                2 => RPM.RPM_1600,
-                3 => RPM.RPM_1500,
-                4 => RPM.RPM_1250,
-                _ => RPM.RPM_1250
-            };
         }
 
         public enum RPM
@@ -166,8 +117,6 @@ namespace SonoCap.MES.UI.Services
             CMD_ACK = 0xF055
         }
 
-        public event EventHandler? CloseViewRequested;
-
         private void CloseView()
         {
             CloseViewRequested?.Invoke(this, EventArgs.Empty);
@@ -176,7 +125,6 @@ namespace SonoCap.MES.UI.Services
         public IEnumerable<string> MyGetPortNames(string contain)
         {
             var ports = new List<string>();
-
             var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_SerialPort");
 
             foreach (ManagementObject obj in searcher.Get())
@@ -203,14 +151,13 @@ namespace SonoCap.MES.UI.Services
             if (prf.HasValue)
                 commandValue = (commandValue << 8) | ConvertEnumToHex(prf.Value);
 
-            // 조건: prf나 rpm이 하나만 있으면 3바이트, 둘 다 있으면 4바이트, 없으면 2바이트
             int byteSize = (prf.HasValue && rpm.HasValue) ? 4 : (prf.HasValue || rpm.HasValue ? 3 : 2);
 
             byte[] bytesToSend = BitConverter.GetBytes(commandValue);
-            Array.Reverse(bytesToSend, 0, byteSize); // 필요한 바이트 크기만 역순 정렬
+            Array.Reverse(bytesToSend, 0, byteSize);
 
             Log.Information($"{nameof(GetCommandBytes)} : {BitConverter.ToString(bytesToSend)}");
-            return bytesToSend.Take(byteSize).ToArray(); // 필요한 바이트 크기만 반환
+            return bytesToSend.Take(byteSize).ToArray();
         }
 
         private int ConvertEnumToHex<T>(T value) where T : Enum
@@ -232,44 +179,27 @@ namespace SonoCap.MES.UI.Services
                     _serialPort.DataBits = 8;
                     _serialPort.StopBits = StopBits.One;
                     _serialPort.Parity = Parity.None;
-                    _serialPort.Open();
-
                     _serialPort.ReadTimeout = 100;
                     _serialPort.WriteTimeout = 100;
 
-                    SendACK();
+                    _serialPort.Open();
 
+                    //OpenPort(port);
+
+                    SendACK();
                     byte[] response = ReadResponse();
 
-                    if (response.Length >= 2) // 최소 2바이트 응답인지 확인
+                    if (response.Length >= 2)
                     {
-                        int responseValue = BitConverter.ToUInt16(response.Reverse().ToArray(), 0); // 바이트 배열 → int 변환
+                        int responseValue = BitConverter.ToUInt16(response.Reverse().ToArray(), 0);
 
-                        if (responseValue == (int)CMD.CMD_ACK) // 변환된 값과 enum 비교
+                        if (responseValue == (int)CMD.CMD_ACK)
                         {
                             Log.Information("ACK received! Valid port found: {port}");
                             validPort = port;
                             break;
                         }
-                        //else
-                        //{
-                        //    Log.Warning($"Unexpected response: {responseValue:X4} (Expected: {CMD.CMD_ACK:X4})");
-                        //}
                     }
-                    else
-                    {
-                        //Log.Warning("No valid response received.");
-                    }
-
-                    //byte[] response = ReadResponse();
-
-                    //if (response == 0xF055)
-                    //if (response == CMD.CMD_ACK)
-                    //{
-                    //    Log.Information($"Valid port found: {port}");
-                    //    validPort = port;
-                    //    break;
-                    //}
                 }
                 catch (Exception e)
                 {
@@ -288,7 +218,6 @@ namespace SonoCap.MES.UI.Services
             {
                 _serialPort.PortName = validPort;
                 _serialPort.Open();
-                //_motorState = MotorState.Connect;
                 Log.Information($"Port {validPort} successfully initialized.");
                 return true;
             }
@@ -301,7 +230,7 @@ namespace SonoCap.MES.UI.Services
         {
             try
             {
-                const int responseLength = 2; // 응답 크기 (예제 기준)
+                const int responseLength = 2;
                 byte[] responseBuffer = new byte[responseLength];
 
                 int bytesRead = 0;
@@ -320,7 +249,7 @@ namespace SonoCap.MES.UI.Services
             catch (TimeoutException)
             {
                 Log.Warning("Serial response timeout.");
-                return Array.Empty<byte>(); // 타임아웃 시 빈 응답 반환
+                return Array.Empty<byte>();
             }
             catch (Exception ex)
             {
@@ -342,6 +271,8 @@ namespace SonoCap.MES.UI.Services
             _serialPort.DataBits = 8;
             _serialPort.StopBits = StopBits.One;
             _serialPort.Parity = Parity.None;
+            _serialPort.ReadTimeout = 100;
+            _serialPort.WriteTimeout = 100;
 
             _serialPort.Open();
         }
@@ -360,21 +291,17 @@ namespace SonoCap.MES.UI.Services
             if (!_serialPort.IsOpen)
             {
                 Log.Warning("Serial port is closed. Cannot send command.");
-                return Array.Empty<byte>(); // 빈 응답 반환
+                return Array.Empty<byte>();
             }
 
-            // 명령 전송
             _serialPort.Write(command, 0, command.Length);
             Log.Information($"Command sent: {BitConverter.ToString(command)}");
 
-            // 응답 받기
             return ReadResponse();
         }
 
-
         public void StartMotor()
         {
-            //SendCommand(GetCommandBytes(CMD.CMD_MOTOR_ON));
             if (_motorState == MotorState.Start)
             {
                 Log.Information("Motor is already started.");
@@ -385,9 +312,9 @@ namespace SonoCap.MES.UI.Services
 
             if (response.Length > 0)
             {
-                int responseValue = BitConverter.ToUInt16(response.Reverse().ToArray(), 0); // 바이트 배열 → int 변환
+                int responseValue = BitConverter.ToUInt16(response.Reverse().ToArray(), 0);
 
-                if (responseValue == (int)CMD.CMD_ACK) // 변환된 값과 enum 비교
+                if (responseValue == (int)CMD.CMD_ACK)
                 {
                     Log.Information($"Received response: {BitConverter.ToString(response)}");
                     _motorState = MotorState.Start;
@@ -401,10 +328,9 @@ namespace SonoCap.MES.UI.Services
 
         public void StopMotor()
         {
-            //SendCommand(GetCommandBytes(CMD.CMD_MOTOR_OFF));
             if (_motorState == MotorState.Stop)
             {
-                Log.Information("Motor is already started.");
+                Log.Information("Motor is already stopped.");
                 return;
             }
 
@@ -412,9 +338,9 @@ namespace SonoCap.MES.UI.Services
 
             if (response.Length > 0)
             {
-                int responseValue = BitConverter.ToUInt16(response.Reverse().ToArray(), 0); // 바이트 배열 → int 변환
+                int responseValue = BitConverter.ToUInt16(response.Reverse().ToArray(), 0);
 
-                if (responseValue == (int)CMD.CMD_ACK) // 변환된 값과 enum 비교
+                if (responseValue == (int)CMD.CMD_ACK)
                 {
                     Log.Information($"Received response: {BitConverter.ToString(response)}");
                     _motorState = MotorState.Stop;
@@ -425,59 +351,5 @@ namespace SonoCap.MES.UI.Services
                 Log.Warning("No response received.");
             }
         }
-
-        //public bool IsOpen => _serialPort.IsOpen;
-
-        public void Open()
-        {
-            if (!_serialPort.IsOpen)
-                _serialPort.Open();
-        }
-
-        public void Close()
-        {
-            if (_serialPort.IsOpen)
-                _serialPort.Close();
-        }
-
-        public void Write(byte[] buffer, int offset, int count)
-        {
-            if (_serialPort.IsOpen)
-                _serialPort.Write(buffer, offset, count);
-            else
-                Log.Warning("SerialPort is not open. Cannot write data.");
-        }
-
-        public int BytesToRead => _serialPort.BytesToRead;
-
-        public int Read(byte[] buffer, int offset, int count)
-        {
-            if (_serialPort.IsOpen)
-                return _serialPort.Read(buffer, offset, count);
-
-            Log.Warning("SerialPort is not open. Cannot read data.");
-            return 0;
-        }
-
-        //public event SerialDataReceivedEventHandler? DataReceived
-        //{
-        //    add => _serialPort.DataReceived += value;
-        //    remove => _serialPort.DataReceived -= value;
-        //}
-        //
-        //public void Configure(string portName, int baudRate = 9600, int dataBits = 8, StopBits stopBits = StopBits.One, Parity parity = Parity.None)
-        //{
-        //    if (_serialPort.IsOpen)
-        //        _serialPort.Close();
-
-        //    _serialPort.PortName = portName;
-        //    _serialPort.BaudRate = baudRate;
-        //    _serialPort.DataBits = dataBits;
-        //    _serialPort.StopBits = stopBits;
-        //    _serialPort.Parity = parity;
-
-        //    Log.Information($"SerialPort configured: {portName}, {baudRate} baud");
-        //}
     }
 }
-
