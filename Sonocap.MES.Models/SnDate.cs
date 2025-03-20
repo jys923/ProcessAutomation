@@ -4,7 +4,8 @@ namespace SonoCap.MES.Models
 {
     public class SnDate : AddOn
     {
-        public string Sn { get; set; } = "";
-        public DateTime Date { get; set; }
+        public required string Sn { get; set; }
+        public DateTime Date { get; set; } = DateTime.Now;
+        public string? Type { get; set; }
     }
 }

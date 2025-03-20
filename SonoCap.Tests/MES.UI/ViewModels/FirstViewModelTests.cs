@@ -113,8 +113,8 @@ namespace SonoCap.MES.UI.ViewModels.Tests
             _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Align")), Times.Once);
             _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Axial")), Times.Once);
             _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Lateral")), Times.Once);
-            _mockTransducerTypeRepository.Verify(r => r.InsertAsync(It.Is<TransducerType>(tt => tt.Code == TransducerTypes.SCP01.ToString() && tt.Type == "5Mhz")), Times.Once);
-            _mockTransducerTypeRepository.Verify(r => r.InsertAsync(It.Is<TransducerType>(tt => tt.Code == TransducerTypes.SCP02.ToString() && tt.Type == "7.5Mhz")), Times.Once);
+            _mockTransducerTypeRepository.Verify(r => r.InsertAsync(It.Is<TransducerType>(tt => tt.Code == TransducerTypes.G1.ToString() && tt.Type == "5Mhz")), Times.Once);
+            _mockTransducerTypeRepository.Verify(r => r.InsertAsync(It.Is<TransducerType>(tt => tt.Code == TransducerTypes.G2.ToString() && tt.Type == "7.5Mhz")), Times.Once);
         }
 
         //[Fact]

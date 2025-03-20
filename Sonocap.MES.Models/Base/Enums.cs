@@ -78,9 +78,8 @@
 
     public enum TransducerTypes
     {
-        SCP01 = 1,
-        SCP02,
-        SCP03,
+        G1 = 1,
+        G2,
     }
 
     public enum TestCategories

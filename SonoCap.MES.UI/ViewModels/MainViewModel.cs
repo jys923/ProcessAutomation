@@ -182,8 +182,8 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
         }
 
         [RelayCommand]
@@ -241,8 +241,8 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
 
             // #region TestsTDs
             for (int i = 1; i <= 100; ++i)
@@ -441,8 +441,8 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
 
             #region Transducers
             tdIds.AddRange(Enumerable.Range(1, maxCnt));

@@ -1,6 +1,7 @@
 ﻿using MiniExcelLibs;
 using Serilog;
 using SonoCap.MES.Models;
+using SonoCap.MES.Models.Base;
 using SonoCap.MES.Models.Converts;
 using SonoCap.MES.UI.Services.Interfaces;
 using System.IO;
@@ -62,6 +63,12 @@ namespace SonoCap.MES.UI.Services
             var rows = MiniExcel.Query(filePath).ToList();
 
             // 헤더 행 찾기
+            if (rows.Count == 0)
+            {
+                Log.Error("엑셀 파일이 비어 있습니다.");
+                throw new ArgumentException("엑셀 파일이 비어 있습니다.", nameof(filePath));
+            }
+
             var headers = rows.FirstOrDefault();
             if (headers == null)
             {
@@ -76,51 +83,59 @@ namespace SonoCap.MES.UI.Services
                 throw new ArgumentException("헤더 행을 IDictionary로 변환할 수 없습니다.", nameof(filePath));
             }
 
-            // Dictionary로 헤더 맵핑
+            // Dictionary로 헤더 매핑 (컬럼명 -> 컬럼 인덱스)
+            var headerKeys = headerDict.Keys.ToList();
             var headerDictionary = headerDict.ToDictionary(
-                k => k.Value?.ToString() ?? "", // null 체크 추가
-                v => headerDict.Keys.ToList().IndexOf(v.Key)
+                k => k.Value?.ToString() ?? "",
+                v => headerKeys.IndexOf(v.Key) // ✅ IndexOf()를 미리 리스트로 변환하여 최적화
             );
 
             foreach (var headerToFind in headersToFind)
             {
-                // 헤더 값을 기준으로 해당 열(column) 인덱스 찾기
-                if (headerDictionary.TryGetValue(headerToFind, out int snIndex))
+                if (!headerDictionary.TryGetValue(headerToFind, out int snIndex))
                 {
-                    // 관련된 날짜 열(column) 찾기
-                    string dateHeaderToFind = headerToFind + "Date";
-                    if (headerDictionary.TryGetValue(dateHeaderToFind, out int dateIndex))
-                    {
-                        List<SnDate> columnData = new List<SnDate>();
+                    Log.Warning($"헤더 '{headerToFind}'를 찾을 수 없습니다. 해당 데이터를 건너뜁니다.");
+                    continue;
+                }
 
-                        foreach (var row in rows.Skip(1)) // 첫 번째 행은 헤더이므로 건너뜁니다
+                // 관련된 날짜 및 타입 열(column) 찾기
+                string dateHeaderToFind = headerToFind + "Date";
+                string typeHeaderToFind = headerToFind + "Type";
+
+                bool hasDate = headerDictionary.TryGetValue(dateHeaderToFind, out int dateIndex);
+                bool hasType = headerDictionary.TryGetValue(typeHeaderToFind, out int typeIndex);
+
+                if (!hasDate)
+                {
+                    Log.Warning($"관련 날짜 헤더 '{dateHeaderToFind}'를 찾을 수 없습니다. 해당 데이터를 건너뜁니다.");
+                    continue;
+                }
+
+                List<SnDate> columnData = new List<SnDate>();
+
+                foreach (var row in rows.Skip(1))
+                {
+                    if (!(row is IDictionary<string, object> rowDict)) continue;
+
+                    // ✅ TryGetValue() 사용으로 성능 최적화
+                    rowDict.TryGetValue(headerKeys[snIndex], out var snValue);
+                    rowDict.TryGetValue(headerKeys[dateIndex], out var dateValue);
+                    string? typeValue = hasType && rowDict.TryGetValue(headerKeys[typeIndex], out var typeObj) ? typeObj?.ToString() : null; // ✅ Type이 없으면 null 유지
+
+                    if (snValue != null && dateValue != null && DateTime.TryParse(dateValue.ToString(), out DateTime date))
+                    {
+                        columnData.Add(new SnDate
                         {
-                            var rowDict = (IDictionary<string, object>)row;
-                            var snValue = rowDict.Values.ElementAtOrDefault(snIndex);
-                            var dateValue = rowDict.Values.ElementAtOrDefault(dateIndex);
-
-                            if (snValue != null && dateValue != null && DateTime.TryParse(dateValue.ToString(), out DateTime date))
-                            {
-                                columnData.Add(new SnDate
-                                {
-                                    Sn = snValue.ToString() ?? "",
-                                    Date = date
-                                });
-                            }
-                        }
-
-                        result.Add(headerToFind, columnData);
-                    }
-                    else
-                    {
-                        Log.Information($"관련 날짜 헤더 '{dateHeaderToFind}'를 찾을 수 없습니다.");
-                        throw new ArgumentException($"관련 날짜 헤더 '{dateHeaderToFind}'를 찾을 수 없습니다.");
+                            Sn = snValue.ToString()!,
+                            Date = date,
+                            Type = typeValue // ✅ Type이 없으면 null 유지
+                        });
                     }
                 }
-                else
+
+                if (columnData.Count > 0)
                 {
-                    Log.Information($"헤더 '{headerToFind}'를 찾을 수 없습니다.");
-                    throw new ArgumentException($"헤더 '{headerToFind}'를 찾을 수 없습니다.");
+                    result[headerToFind] = columnData;
                 }
             }
 

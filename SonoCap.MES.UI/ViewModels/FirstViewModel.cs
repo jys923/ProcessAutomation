@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
+using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Services.Interfaces;
@@ -65,13 +66,17 @@ namespace SonoCap.MES.UI.ViewModels
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP01.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.SCP02.ToString(), Type = "7.5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
+            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
         }
 
         [RelayCommand]
         private async Task ImportTDExcelAsync()
         {
+            var transducerTypes = await _transducerTypeRepository.GetAllAsync();
+            int g1Id = transducerTypes.FirstOrDefault(t => t.Code == "G1")?.Id ?? 1;
+            int g2Id = transducerTypes.FirstOrDefault(t => t.Code == "G2")?.Id ?? 1;
+
             IEnumerable<Transducer> tds = await _transducerRepository.GetAllAsync();
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
             openFileDialog.Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls";
@@ -113,9 +118,15 @@ namespace SonoCap.MES.UI.ViewModels
                             Transducer transducer = new()
                             {
                                 Sn = td.Sn,
-                                TransducerTypeId = 1,
+                                TransducerTypeId = td.Type switch
+                                {
+                                    "G1" => g1Id,
+                                    "G2" => g2Id,
+                                    _ => 1 // ✅ 기본값 (예: "G1", "G2"가 아닌 경우 1)
+                                },
                                 CreatedDate = td.Date,
                             };
+
                             transducers.Add(transducer);
                         }
 
