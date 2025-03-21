@@ -1,4 +1,6 @@
-﻿using SonoCap.MES.Models;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SonoCap.MES.Models;
+using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels;
 using SonoCap.MES.UI.ViewModels.Base;
@@ -75,5 +77,19 @@ namespace SonoCap.MES.UI.Services
             if (!ActivateView<ProbeListView>())
                 ShowView<ProbeListView, ProbeListViewModel>();
         }
+
+        public MotorModule? ShowInputBoxMotorView(string title, string prompt)
+        {
+            InputBoxMotorViewModel viewModel = new InputBoxMotorViewModel(title, prompt, _serviceProvider.GetService<IMotorModuleRepository>());
+            InputBoxMotorView view = new InputBoxMotorView
+            {
+                DataContext = viewModel
+            };
+
+            return view.ShowDialog() ?? false
+                ? viewModel.Response
+                : null;
+        }
+
     }
 }

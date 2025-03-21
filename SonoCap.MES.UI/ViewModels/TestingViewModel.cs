@@ -42,13 +42,16 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly TestingManagementService _testingManagementService;
         private readonly IMotorService _motorService;
         private readonly IMotorModuleRepository _motorModuleRepository;
+        private readonly IViewService _viewService;
 
         public TestingViewModel(
+            IViewService viewService,
             TestingManagementService testingManagementService,
             GlobalModel model,
             IMotorService motorService,
             IMotorModuleRepository motorModuleRepository)
         {
+            _viewService = viewService;
             _testingManagementService = testingManagementService;
             _model = model;
             _motorService = motorService;
@@ -882,7 +885,9 @@ namespace SonoCap.MES.UI.ViewModels
                     passAll = await _testingManagementService.PassTestCategoryAsync(_testCategory, transducerModule: _transducerModule);
                     if (!existNext && id > 0 && passAll)
                     {
-                        _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        //_motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        _motorModule = _viewService.ShowInputBoxMotorView("Motor Module", "Input Motor Module Lot");
+
                         if (_motorModule is null) break;
 
                         Probe probe = new Probe { Sn = $"UPAG1{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
@@ -1213,7 +1218,8 @@ namespace SonoCap.MES.UI.ViewModels
                     passAll = await _testingManagementService.PassTestCategoryAsync(_testCategory, transducerModule: _transducerModule);
                     if (!existNext && id > 0 && passAll)
                     {
-                        _motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        //_motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
+                        _motorModule = _viewService.ShowInputBoxMotorView("Motor Module", "Input Motor Module Lot");
                         if (_motorModule is null) break;
                         Probe probe = new Probe { Sn = $"UPA{_transducer.TransducerType.Code}{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
                         if (await _testingManagementService.InsertProbeAsync(probe))

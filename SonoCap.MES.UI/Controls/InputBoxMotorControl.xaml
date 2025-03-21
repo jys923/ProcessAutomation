@@ -28,6 +28,7 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="40"/>
+            <RowDefinition Height="40" />
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
 
@@ -66,29 +67,33 @@ CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Mode=Fin
                 </ListBox.Style>
             </ListBox>
         </Popup>
-        <TextBlock Grid.Row="6" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding ValidationDict[MTMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
+        <TextBlock Grid.Row="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding ValidationDict[MTMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}"/>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Row="2"
-              Content="확인"
-              FontSize="15"
-              Margin="5" 
-              IsDefault="False"
-              Cursor="Hand"
-              Style="{StaticResource MetroBlueButtonStyle}" 
-              Command="{Binding OkCommand}"
-              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
-            <Button Grid.Row="2" Grid.Column="1" 
-              Content="취소"
-              FontSize="15"
-              Margin="5" 
-              IsCancel="True" 
-              Cursor="Hand"
-              Style="{StaticResource MetroPinkButtonStyle}"/>
+            <Button
+                Grid.Row="2"
+                Content="확인"
+                FontSize="15"
+                Margin="5"
+                IsDefault="False"
+                IsEnabled="{Binding OkEnabled}"
+                Cursor="Hand"
+                Style="{StaticResource MetroBlueButtonStyle}"
+                Command="{Binding OkCommand}"
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Button
+                Grid.Row="2"
+                Grid.Column="1"
+                Content="취소"
+                FontSize="15"
+                Margin="5"
+                IsCancel="True"
+                Cursor="Hand"
+                Style="{StaticResource MetroPinkButtonStyle}" />
         </Grid>
     </Grid>
 </UserControl>

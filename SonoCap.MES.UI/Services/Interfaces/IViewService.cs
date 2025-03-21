@@ -19,5 +19,7 @@ namespace SonoCap.MES.UI.Services.Interfaces
         void ShowProbeListView();
         
         void ShowFirstView();
+
+        MotorModule? ShowInputBoxMotorView(string title, string prompt);
     }
 }

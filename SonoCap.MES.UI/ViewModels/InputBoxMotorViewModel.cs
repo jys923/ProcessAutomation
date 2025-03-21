@@ -15,8 +15,10 @@ namespace SonoCap.MES.UI.ViewModels
     public partial class InputBoxMotorViewModel : ViewModelBase
     {
         [ObservableProperty]
-        //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
         private ObservableDictionary<string, ValidationItem> _validationDict = new();
+
+        [ObservableProperty]
+        private bool _okEnabled = false;
 
         [ObservableProperty]
         private string _title = string.Empty;
@@ -24,9 +26,10 @@ namespace SonoCap.MES.UI.ViewModels
         private string _prompt = string.Empty;
 
         [ObservableProperty]
-        //[NotifyCanExecuteChangedFor(nameof(TestCommand))]
-        //[NotifyCanExecuteChangedFor(nameof(NextCommand))]
         private string _mTMdSn = default!;
+        
+        [ObservableProperty]
+        private MotorModule? _response;
 
         [ObservableProperty]
         private bool _mTMdSnIsPopupOpen;
@@ -79,6 +82,8 @@ namespace SonoCap.MES.UI.ViewModels
                     MTMdSn = MTMdSnFilteredItems[MTMdSnSelectedIndex];
                     Response = _motorModuleRepository.GetBySn(MTMdSn).OrderByDescending(x => x.Id).First();
                     MTMdSnIsPopupOpen = false;
+                    OkEnabled = true;
+                    ValidationService.ValidateField(ValidationDict, nameof(MTMdSn));
                 }
             }
             else if (e.Key == Key.Tab)
@@ -92,13 +97,11 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information($"MTMdSnFilteredItemsMouseDoubleClick : {selectedItem}");
             MTMdSn = selectedItem;
+            Response = _motorModuleRepository.GetBySn(MTMdSn).OrderByDescending(x => x.Id).First();
             MTMdSnIsPopupOpen = false;
+            OkEnabled = true;
+            ValidationService.ValidateField(ValidationDict, nameof(MTMdSn));
         }
-
-        [ObservableProperty]
-        private MotorModule? _response;
-        
-        private readonly IMotorModuleRepository _motorModuleRepository;
 
         [RelayCommand]
         private void Ok(Window window)
@@ -106,37 +109,22 @@ namespace SonoCap.MES.UI.ViewModels
             window.DialogResult = true;
         }
 
+        private readonly IMotorModuleRepository _motorModuleRepository;
         public InputBoxMotorViewModel(string title, string prompt, IMotorModuleRepository motorModuleRepository)
         {
             Title = title;
             Prompt = prompt;
             _motorModuleRepository = motorModuleRepository;
-            ValidationDict[nameof(MTMdSn)] = new ValidationItem { IsEnabled=true, IsValid=false, Message="not valided", WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
+            ValidationDict[nameof(MTMdSn)] = new ValidationItem { IsEnabled=true, IsValid=false, Message= "MTMdSn Is Not Exist", WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
         }
 
         partial void OnMTMdSnChanged(string value)
         {
+            OkEnabled = false;
             Response = null;
             MTMdSnFilterItems();
             MTMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && MTMdSnFilteredItems.Any();
-            
-            //if (value.Length > 5)
-            //{
-            //    Log.Information($"MTMdSn sn {value}");
-            //    if (!IsExistsBySn(SnType.MotorModule, value))
-            //    {
-            //        ValidateField(nameof(MTMdSn), "MTMdSn Is Not Exist");
-            //    }
-            //    else
-            //    {
-            //        SetBySn(SnType.MotorModule, value);
-            //        ValidateField(nameof(MTMdSn));
-            //    }
-            //}
-            //else
-            //{
-            //    ValidateField(nameof(MTMdSn), "MTMdSn Is Not Valid");
-            //}
+            ValidationService.ValidateField(ValidationDict, nameof(MTMdSn), "MTMdSn Is Not Exist");
         }
     }
 }
