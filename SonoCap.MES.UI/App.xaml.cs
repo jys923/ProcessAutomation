@@ -144,7 +144,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterRepositories(IServiceCollection services)
         {
-            services.AddSingleton<IMotorModuleRepository, MotorModuleRepository>();
+            services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
             services.AddTransient<IPcRepository, PcRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();
             services.AddTransient<IPTRViewRepository, PTRViewRepository>();
@@ -160,6 +160,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterViewModels(IServiceCollection services)
         {
+            services.AddTransient(typeof(InputBoxMotorViewModel));
             services.AddTransient(typeof(MainViewModel));
             services.AddTransient(typeof(FirstViewModel));
             services.AddTransient(typeof(ProbeListViewModel));
@@ -171,6 +172,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterViews(IServiceCollection services)
         {
+            services.AddTransient(typeof(InputBoxMotorView));
             services.AddTransient(typeof(MainView));
             services.AddTransient(typeof(FirstView));
             services.AddTransient(typeof(ProbeListView));

@@ -78,18 +78,54 @@ namespace SonoCap.MES.UI.Services
                 ShowView<ProbeListView, ProbeListViewModel>();
         }
 
+        public TResult? ShowDialogView<TView, TViewModel, TResult>(Func<TViewModel, TResult?> getResult, object? parameter = null)
+            where TView : Window
+            where TViewModel : ViewModelBase
+        {
+            var viewModel = (TViewModel)_serviceProvider.GetService(typeof(TViewModel))!;
+            var view = (TView)_serviceProvider.GetService(typeof(TView))!;
+            view.DataContext = viewModel;
+            viewModel.SetWindow(view);
+
+            if (parameter != null && viewModel is IParameterReceiver receiver)
+            {
+                receiver.ReceiveParameter(parameter);
+            }
+
+            bool? result = view.ShowDialog();
+            return result == true ? getResult(viewModel) : default;
+        }
+
         public MotorModule? ShowInputBoxMotorView(string title, string prompt)
         {
-            InputBoxMotorViewModel viewModel = new InputBoxMotorViewModel(title, prompt, _serviceProvider.GetService<IMotorModuleRepository>());
-            InputBoxMotorView view = new InputBoxMotorView
-            {
-                DataContext = viewModel
-            };
-
-            return view.ShowDialog() ?? false
-                ? viewModel.Response
-                : null;
+            var param = new LabelInput { Title = title, Prompt = prompt };
+            return ShowDialogView<InputBoxMotorView, InputBoxMotorViewModel, MotorModule>(
+                vm => vm.Response,
+                param
+            );
         }
+
+        //public MotorModule? ShowInputBoxMotorView(string title, string prompt)
+        //{
+        //    var param = new InputBoxParameter { Title = title, Prompt = prompt };
+        //    return ShowDialogView<InputBoxMotorView, InputBoxMotorViewModel, MotorModule>(
+        //        vm => vm.Response,
+        //        param
+        //    );
+        //}
+
+        //public MotorModule? ShowInputBoxMotorView(string title, string prompt)
+        //{
+        //    InputBoxMotorViewModel viewModel = new InputBoxMotorViewModel(title, prompt, _serviceProvider.GetService<IMotorModuleRepository>());
+        //    InputBoxMotorView view = new InputBoxMotorView
+        //    {
+        //        DataContext = viewModel
+        //    };
+
+        //    return view.ShowDialog() ?? false
+        //        ? viewModel.Response
+        //        : null;
+        //}
 
     }
 }

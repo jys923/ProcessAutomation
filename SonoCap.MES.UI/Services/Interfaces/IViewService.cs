@@ -6,7 +6,7 @@ namespace SonoCap.MES.UI.Services.Interfaces
 {
     public interface IViewService
     {
-        void ShowView<TView, TViewModel>(object? parameter = null)
+         void ShowView<TView, TViewModel>(object? parameter = null)
             where TView : Window
             where TViewModel : ViewModelBase;
 
@@ -19,6 +19,10 @@ namespace SonoCap.MES.UI.Services.Interfaces
         void ShowProbeListView();
         
         void ShowFirstView();
+
+        TResult? ShowDialogView<TView, TViewModel, TResult>(Func<TViewModel, TResult?> getResult, object? parameter = null)
+            where TView : Window
+            where TViewModel : ViewModelBase;
 
         MotorModule? ShowInputBoxMotorView(string title, string prompt);
     }

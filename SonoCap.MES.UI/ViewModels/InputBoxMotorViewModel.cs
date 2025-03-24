@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MahApps.Metro.Controls;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Repositories;
@@ -12,7 +13,7 @@ using System.Windows.Input;
 
 namespace SonoCap.MES.UI.ViewModels
 {
-    public partial class InputBoxMotorViewModel : ViewModelBase
+    public partial class InputBoxMotorViewModel : ViewModelBase, IParameterReceiver
     {
         [ObservableProperty]
         private ObservableDictionary<string, ValidationItem> _validationDict = new();
@@ -110,10 +111,8 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         private readonly IMotorModuleRepository _motorModuleRepository;
-        public InputBoxMotorViewModel(string title, string prompt, IMotorModuleRepository motorModuleRepository)
+        public InputBoxMotorViewModel(IMotorModuleRepository motorModuleRepository)
         {
-            Title = title;
-            Prompt = prompt;
             _motorModuleRepository = motorModuleRepository;
             ValidationDict[nameof(MTMdSn)] = new ValidationItem { IsEnabled=true, IsValid=false, Message= "MTMdSn Is Not Exist", WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
         }
@@ -125,6 +124,21 @@ namespace SonoCap.MES.UI.ViewModels
             MTMdSnFilterItems();
             MTMdSnIsPopupOpen = !string.IsNullOrEmpty(value) && MTMdSnFilteredItems.Any();
             ValidationService.ValidateField(ValidationDict, nameof(MTMdSn), "MTMdSn Is Not Exist");
+        }
+
+        public LabelInput LabelItem { get; set; } = default!;
+
+        public void ReceiveParameter(object parameter)
+        {
+            if (parameter is LabelInput label)
+            {
+                //LabelItem = label;
+                Title = label.Title;
+                Prompt = label.Prompt;
+
+                Log.Information($"Received parameter {Title}");
+            }
+
         }
     }
 }
