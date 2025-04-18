@@ -16,6 +16,20 @@ namespace SonoCap.MES.UI.Commons
 {
     public static class Utilities
     {
+        /// <summary>
+        /// 경로 + 파일명(.확장자)을 안전하게 생성해줍니다.
+        /// 폴더가 없으면 자동 생성되며, 슬래시 문제도 자동 처리됩니다.
+        /// </summary>
+        /// <param name="baseDir">기준 디렉터리 (예: ExportImg)</param>
+        /// <param name="prefix">파일명 접두어 (예: capture, screen 등)</param>
+        /// <param name="ext">확장자 (예: png, mp4)</param>
+        /// <returns>전체 경로</returns>
+        public static string BuildPath(string baseDir, string fileNameWithPrefix, string ext)
+        {
+            Directory.CreateDirectory(baseDir);
+            return Path.Combine(baseDir, $"{fileNameWithPrefix}.{ext}");
+        }
+
         public static bool EnsureFolderExists(string folderName)
         {
             try

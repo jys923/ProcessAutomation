@@ -78,6 +78,12 @@ namespace SonoCap.MES.UI.Services
                 ShowView<ProbeListView, ProbeListViewModel>();
         }
 
+        public void ShowPreviewSaveView()
+        {
+            if (!ActivateView<PreviewSaveView>())
+                ShowView<PreviewSaveView, PreviewSaveViewModel>();
+        }
+
         public TResult? ShowDialogView<TView, TViewModel, TResult>(Func<TViewModel, TResult?> getResult, object? parameter = null)
             where TView : Window
             where TViewModel : ViewModelBase
@@ -104,7 +110,6 @@ namespace SonoCap.MES.UI.Services
                 param
             );
         }
-
         //public MotorModule? ShowInputBoxMotorView(string title, string prompt)
         //{
         //    var param = new InputBoxParameter { Title = title, Prompt = prompt };

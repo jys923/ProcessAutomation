@@ -1,60 +1,51 @@
-﻿using Microsoft.Extensions.Configuration;
-using Serilog;
+﻿using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
 namespace SonoCap.Commons
 {
     public static class LoggingConfigurator
     {
-        public static void Configure(IConfiguration configuration)
+        public static void Configure(SerilogSettings settings)
         {
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-        }
+            var loggerConfig = new LoggerConfiguration();
 
-        public static void Configure(LogMode mode)
-        {
-            switch (mode)
+            // 최소 로그 레벨
+            if (!string.IsNullOrEmpty(settings.MinimumLevel?.Default))
             {
-                case LogMode.Console:
-                    ConfigureConsoleLogging();
-                    break;
-                case LogMode.File:
-                    ConfigureFileLogging();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+                var level = Enum.Parse<Serilog.Events.LogEventLevel>(settings.MinimumLevel.Default, true);
+                loggerConfig.MinimumLevel.Is(level);
             }
-        }
 
-        private static void ConfigureConsoleLogging()
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .WriteTo.Console(
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-                    theme: AnsiConsoleTheme.Code)
-                .CreateLogger();
-        }
+            // WriteTo 설정
+            foreach (var target in settings.WriteTo)
+            {
+                switch (target.Name.ToLower())
+                {
+                    case "console":
+                        if (target.Args is ConsoleArgs consoleArgs)
+                        {
+                            loggerConfig.WriteTo.Console(
+                                outputTemplate: consoleArgs.OutputTemplate,
+                                theme: AnsiConsoleTheme.Code);
+                        }
+                        break;
 
-        private static void ConfigureFileLogging()
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .WriteTo.File(
-                    path: "logs/log-{Date}.txt",
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: 30,
-                    fileSizeLimitBytes: 10_000_000)
-                .CreateLogger();
-        }
-    }
+                    case "file":
+                        if (target.Args is FileArgs fileArgs)
+                        {
+                            loggerConfig.WriteTo.File(
+                                path: fileArgs.Path,
+                                outputTemplate: fileArgs.OutputTemplate,
+                                rollingInterval: Enum.Parse<RollingInterval>(fileArgs.RollingInterval, true),
+                                retainedFileCountLimit: fileArgs.RetainedFileCountLimit,
+                                fileSizeLimitBytes: fileArgs.FileSizeLimitBytes
+                            );
+                        }
+                        break;
+                }
+            }
 
-    public enum LogMode
-    {
-        Console,
-        File
+            Log.Logger = loggerConfig.CreateLogger();
+        }
     }
 }

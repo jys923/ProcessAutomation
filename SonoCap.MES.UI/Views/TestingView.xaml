@@ -6,7 +6,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:glWpfControl="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
     xmlns:models="clr-namespace:SonoCap.MES.Models.Enums;assembly=Sonocap.MES.Models"
     xmlns:views="clr-namespace:SonoCap.MES.UI.Views"
     xmlns:services="clr-namespace:SonoCap.MES.UI.Services"
@@ -849,7 +848,7 @@
                         Value="{Binding SelectedPower, Mode=TwoWay}"
                         Height="30" />
                     <TextBlock
-                        Text="{Binding SelectedPower, StringFormat=F0}"
+                        Text="{Binding SelectedPower, StringFormat={}{0:000}}"
                         Margin="5,0,0,0"
                         VerticalAlignment="Center" />
                 </StackPanel>
@@ -872,7 +871,7 @@
                         Value="{Binding IPGain, Mode=TwoWay}"
                         Height="30" />
                     <TextBlock
-                        Text="{Binding IPGain, StringFormat=F0}"
+                        Text="{Binding IPGain, StringFormat={}{0:000}}"
                         Margin="5,0,0,0"
                         VerticalAlignment="Center" />
                 </StackPanel>
@@ -882,46 +881,65 @@
             <GroupBox
                 Header="DR min max"
                 Style="{StaticResource GroupBoxLargeStyle}">
-                <mah:RangeSlider
-                    MinRangeWidth="0"
-                    Width="500"
-                    mah:SliderHelper.ChangeValueBy="LargeChange"
-                    mah:SliderHelper.EnableMouseWheel="MouseHover"
-                    AutoToolTipPlacement="TopLeft"
-                    LargeChange="10"
-                    LowerValue="{Binding DRMin}"
-                    Maximum="100"
-                    Minimum="0"
+                <StackPanel
                     Orientation="Horizontal"
-                    SmallChange="1"
-                    Style="{DynamicResource MahApps.Styles.RangeSlider.Win10}"
-                    UpperValue="{Binding DRMax}"
-                    HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Height="30">
-                    <mah:RangeSlider.AutoToolTipRangeValuesTemplate>
-                        <DataTemplate
-                            DataType="mah:RangeSliderAutoTooltipValues">
-                            <UniformGrid
-                                Columns="2"
-                                Rows="2">
-                                <TextBlock
-                                    HorizontalAlignment="Right"
-                                    Text="From:" />
-                                <TextBlock
-                                    HorizontalAlignment="Right"
-                                    Text="{Binding LowerValue, StringFormat='{}{0:N2}'}" />
-                                <TextBlock
-                                    HorizontalAlignment="Right"
-                                    Text="To:" />
-                                <TextBlock
-                                    HorizontalAlignment="Right"
-                                    Text="{Binding UpperValue, StringFormat='{}{0:N2}'}" />
-                            </UniformGrid>
-                        </DataTemplate>
-                    </mah:RangeSlider.AutoToolTipRangeValuesTemplate>
-                </mah:RangeSlider>
-            </GroupBox>
+                    HorizontalAlignment="Center">
+                    <mah:RangeSlider
+                        MinRangeWidth="0"
+                        Width="500"
+                        mah:SliderHelper.ChangeValueBy="LargeChange"
+                        mah:SliderHelper.EnableMouseWheel="MouseHover"
+                        AutoToolTipPlacement="TopLeft"
+                        LargeChange="10"
+                        LowerValue="{Binding DRMin}"
+                        Maximum="100"
+                        Minimum="0"
+                        Orientation="Horizontal"
+                        SmallChange="1"
+                        Style="{DynamicResource MahApps.Styles.RangeSlider.Win10}"
+                        UpperValue="{Binding DRMax}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Height="30">
+                        <mah:RangeSlider.AutoToolTipRangeValuesTemplate>
+                            <DataTemplate
+                                DataType="mah:RangeSliderAutoTooltipValues">
+                                <UniformGrid
+                                    Columns="2"
+                                    Rows="2">
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Text="From:" />
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Text="{Binding LowerValue, StringFormat={}{0:000}}" />
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Text="To:" />
+                                    <TextBlock
+                                        HorizontalAlignment="Right"
+                                        Text="{Binding UpperValue, StringFormat={}{0:000}}" />
+                                </UniformGrid>
+                            </DataTemplate>
+                        </mah:RangeSlider.AutoToolTipRangeValuesTemplate>
+                    </mah:RangeSlider>
+                    <TextBlock
+                    Text="{Binding DRMin, StringFormat={}{0:000}}"
+                    Margin="5,0,0,0"
+                    FontWeight="Normal"
+                    VerticalAlignment="Center" />
+                <TextBlock
+                    Text="-"
+                    Margin="5,0,0,0"
+                    VerticalAlignment="Center" />
+                <TextBlock
+                    Text="{Binding DRMax, StringFormat={}{0:000}}"
+                    Margin="5,0,0,0"
+                    FontWeight="Normal"
+                    VerticalAlignment="Center" />
+        </StackPanel>
+        </GroupBox>
             <Border
                 Height="0" />
             <Grid>
@@ -1065,18 +1083,6 @@
                         Width="512"
                         Height="512" />
                 </Grid>
-                <!--<glWpfControl:GLWpfControl
-                    x:Name="OpenTkControl"
-                    Render="OnRender">
-
-                    <glWpfControl:GLWpfControl.Settings>
-                        <glWpfControl:GLWpfControlSettings 
-                            MajorVersion="3"
-                            MinorVersion="3"/>
-                    </glWpfControl:GLWpfControl.Settings>
-
-                </glWpfControl:GLWpfControl>-->
-                <!--Source="/Resources/sc_ori_img_512.bmp"/>-->
             </StackPanel>
         </GroupBox>
 

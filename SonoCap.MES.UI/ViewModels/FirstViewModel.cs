@@ -54,6 +54,13 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
+        private void GoPreviewSaveView()
+        {
+            Log.Information($"Click {nameof(GoPreviewSaveView)}");
+            _viewService.ShowPreviewSaveView();
+        }
+
+        [RelayCommand]
         private async Task AddMasterDataAsync()
         {
             Log.Information($"Click {nameof(AddMasterDataAsync)}");

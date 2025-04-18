@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

@@ -65,10 +65,10 @@ namespace SonoCap.MES.UI.ViewModels
 
         private void Init()
         {
-            InitUI();
-            InitTimer();
-            InitImg();
             InitHsn();
+            InitUI();
+            InitImg();
+            InitTimer();
         }
 
         private void InitUI()
@@ -92,6 +92,21 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -2;
 
             SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+
+            // 허용할 파일명 목록
+            var allowList = new HashSet<string>
+            {
+                "pen.json", "gen.json", "res.json",
+                "pen_fh.json", "gen_fh.json", "res_fh.json"
+            };
+
+            // 필터링 적용
+            var filtered = _model.SubSettings
+                .Where(x => allowList.Contains(x.Item2));
+
+            // ObservableCollection 생성
+            SubSettingList = new ObservableCollection<Tuple<int, string>>(filtered);
+            SelectedSubSetting = SubSettingList.FirstOrDefault(x => x.Item1 == _model.Subsetting);
         }
         private void InitTimer()
         {
@@ -126,11 +141,11 @@ namespace SonoCap.MES.UI.ViewModels
             _model.IpCapsuleIsInnerVisible = true;
 
             //_selectedSubSetting = _model.Subsetting;
-            List<Tuple<int, string>> subSettingList = _model.SubSettings;
+            //List<Tuple<int, string>> subSettingList = _model.SubSettings;
 
-            SubSettingList = new ObservableCollection<Tuple<int, string>>(subSettingList);
+            //SubSettingList = new ObservableCollection<Tuple<int, string>>(subSettingList);
 
-            SelectedSubSetting = subSettingList.Find(tuple => tuple.Item1 == _model.Subsetting);
+            //SelectedSubSetting = subSettingList.Find(tuple => tuple.Item1 == _model.Subsetting);
 
             //string targetString = "res_fh";
             //Tuple<int, string>? result = subSettingList.Find(tuple => tuple.Item2.Contains(targetString));
@@ -156,7 +171,7 @@ namespace SonoCap.MES.UI.ViewModels
         private bool InitMotor()
         {
             //_motorService.CloseViewRequested += CloseViewRequestedHandler;
-            if (_motorService.InitPort())
+            if (_motorService.InitializeMotor())
             {
                 //_motorService.DataReceived += new SerialDataReceivedEventHandler(SerialDataReceivedHandler);
                 Log.Information($"Succ:{nameof(InitMotor)}");

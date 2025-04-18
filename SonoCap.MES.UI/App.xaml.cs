@@ -20,6 +20,8 @@ using Serilog;
 using SonoCap.MES.UI.Model;
 using SonoCap.MES.UI.Services.Interfaces;
 using System.IO.Ports;
+using ControlzEx.Standard;
+using System.Diagnostics;
 
 namespace SonoCap.MES.UI
 {
@@ -37,9 +39,13 @@ namespace SonoCap.MES.UI
 
         public static AppSettings appSettings { get; set; } = new AppSettings();
 
+        private Stopwatch sw = default!;
+
         public App()
         {
+            sw = Stopwatch.StartNew();
             Services = ConfigureServices();
+            Log.Information($"SonoCap.MES.UI 시작 : {sw.ElapsedMilliseconds}ms");
             _motorService = Services.GetRequiredService<IMotorService>(); // 싱글톤 유지
         }
 
@@ -50,17 +56,41 @@ namespace SonoCap.MES.UI
             // 비동기 초기화 작업을 시작합니다.
             //await Task.Run(() => InitializeAsync());
             //await Task.Run(() => SetTestThreshold());
+            try
+            {
+                var context = Services.GetRequiredService<MESDbContext>();
+                if (App.appSettings.DbSettings.AutoMigrate)
+                {
+                    context.Database.Migrate(); // 테이블이 없으면 생성 + 마이그레이션 자동 적용
+                    Log.Information("DB 마이그레이션 자동 적용 완료");
+                    await context.SeedAsync(); // 
+                    Log.Information("DB SeedAsync");
+                }
+                await context.Database.OpenConnectionAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Information("DB 연결 실패: " + ex.Message);
+                MessageBox.Show("DB 연결에 실패했습니다.\n\n" + ex.Message, "DB 오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(1);
+            }
+            
             // 비동기 초기화 작업을 시작합니다.
             await Task.WhenAll(
                 InitializeAsync(),
                 SetTestThreshold()
             );
 
+            Log.Information($"DB 초기화: {sw.ElapsedMilliseconds}ms");
+
             // 비동기 작업이 완료된 후에 나머지 초기화 작업을 수행합니다.
             SetMidnightTimer();
             SetPath();
+            Log.Information($"View 표시까지: {sw.ElapsedMilliseconds}ms");
             //ShowMainView();
             ShowFirstView();
+
+            Log.Information($"전체 초기화: {sw.ElapsedMilliseconds}ms");
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -79,7 +109,7 @@ namespace SonoCap.MES.UI
             IConfiguration configuration = ConfigureAppSettings();
             configuration.Bind(appSettings);
 
-            LoggingConfigurator.Configure(configuration);
+            LoggingConfigurator.Configure(appSettings.Serilog); // ← 이렇게 바뀜
 
             IServiceCollection services = new ServiceCollection();
 
@@ -119,7 +149,7 @@ namespace SonoCap.MES.UI
                 options.UseLazyLoadingProxies(true);
                 options.EnableSensitiveDataLogging();
 
-                options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(120));
+                options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(30));
             }, ServiceLifetime.Transient);
         }
 
@@ -168,6 +198,7 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(TestingViewModel));
             services.AddTransient(typeof(TestViewModel));
             services.AddTransient(typeof(ProbeViewModel));
+            services.AddTransient(typeof(PreviewSaveViewModel));
         }
 
         private static void RegisterViews(IServiceCollection services)
@@ -180,6 +211,7 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(TestingView));
             services.AddTransient(typeof(TestView));
             services.AddTransient(typeof(ProbeView));
+            services.AddTransient(typeof(PreviewSaveView));
             //services.AddTransient(s => new MainView() { DataContext = s.GetRequiredService<MainViewModel>() });
             //services.AddTransient(s => new FirstView() { DataContext = s.GetRequiredService<FirstViewModel>() });
             //services.AddTransient(s => new ProbeListView() { DataContext = s.GetRequiredService<ProbeListViewModel>() });

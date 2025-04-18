@@ -2,7 +2,8 @@
   "profiles": {
     "SonoCap.MES.UI": {
       "commandName": "Project",
-      "nativeDebugging": false
+      "nativeDebugging": false,
+      "sqlDebugging": false
     }
   }
 }
