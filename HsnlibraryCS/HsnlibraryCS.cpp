@@ -26,7 +26,7 @@ static void convertListTupleToCSharp(std::vector<std::tuple<int32_t, std::string
 		std::string temp_name = std::get<1>(output);
 		String^ name = toCSharpString(temp_name);
 
-		auto tuple = gcnew Tuple<int, String^>(id, name);
+		auto tuple = gcnew Tuple<int, String^>(id, name);  
 		csharp_item->Add(tuple);
 	}
 }

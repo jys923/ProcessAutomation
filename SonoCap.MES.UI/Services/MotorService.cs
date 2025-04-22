@@ -107,8 +107,20 @@ namespace SonoCap.MES.UI.Services
 
         private void UpdateSettings(RPM newRPM, PRF newPRF)
         {
-            if (_currentRPM == newRPM && _currentPRF == newPRF) return;
+            if (_currentRPM == newRPM && _currentPRF == newPRF)
+            {
+                Log.Information("Motor settings unchanged, skipping update.");
+                return;
+            }
 
+            if (_currentRPM == newRPM && _currentPRF != newPRF)
+            {
+                Log.Information("PRF changed but motor update skipped.");
+                _currentPRF = newPRF;
+                return;
+            }
+
+            // RPM이 변경되었을 때만 실행
             _currentRPM = newRPM;
             _currentPRF = newPRF;
             SendAndCheckAck(CMD.CMD_MODE_SEL, _currentRPM, _currentPRF);

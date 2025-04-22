@@ -230,6 +230,7 @@
                         Width="1*" />
                 </Grid.ColumnDefinitions>
                 <GroupBox
+                    Visibility="Hidden"
                     Header="Calibration"
                     Style="{StaticResource GroupBoxLargeStyle}"
                     Grid.Column="0">
