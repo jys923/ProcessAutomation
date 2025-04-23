@@ -84,6 +84,12 @@ namespace SonoCap.MES.UI.Services
                 ShowView<PreviewSaveView, PreviewSaveViewModel>();
         }
 
+        public void ShowAboutView()
+        {
+            if (!ActivateView<AboutView>())
+                ShowView<AboutView, AboutViewModel>();
+        }
+
         public TResult? ShowDialogView<TView, TViewModel, TResult>(Func<TViewModel, TResult?> getResult, object? parameter = null)
             where TView : Window
             where TViewModel : ViewModelBase

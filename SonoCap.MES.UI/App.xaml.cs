@@ -199,6 +199,7 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(TestViewModel));
             services.AddTransient(typeof(ProbeViewModel));
             services.AddTransient(typeof(PreviewSaveViewModel));
+            services.AddTransient(typeof(AboutViewModel));
         }
 
         private static void RegisterViews(IServiceCollection services)
@@ -212,6 +213,7 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(TestView));
             services.AddTransient(typeof(ProbeView));
             services.AddTransient(typeof(PreviewSaveView));
+            services.AddTransient(typeof(AboutView));
             //services.AddTransient(s => new MainView() { DataContext = s.GetRequiredService<MainViewModel>() });
             //services.AddTransient(s => new FirstView() { DataContext = s.GetRequiredService<FirstViewModel>() });
             //services.AddTransient(s => new ProbeListView() { DataContext = s.GetRequiredService<ProbeListViewModel>() });

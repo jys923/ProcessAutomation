@@ -634,6 +634,48 @@ namespace SonoCap.MES.UI.Commons
             }
         }
 
+        public static void SavePng(BitmapSource bitmapSource, string filePath)
+        {
+            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            {
+                PngBitmapEncoder encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                encoder.Save(stream);
+            }
+        }
+        public static BitmapSource ConvertToGray8(BitmapSource source)
+        {
+            if (source.Format == PixelFormats.Gray8)
+                return source;
+
+            return new FormatConvertedBitmap(source, PixelFormats.Gray8, null, 0);
+        }
+
+        public enum ImageFormatType
+        {
+            Bmp,
+            Png,
+            Jpeg,
+            Tiff
+        }
+
+        public static void SaveImage(BitmapSource bitmapSource, string filePath, ImageFormatType format)
+        {
+            BitmapEncoder encoder = format switch
+            {
+                ImageFormatType.Bmp => new BmpBitmapEncoder(),
+                ImageFormatType.Png => new PngBitmapEncoder(),
+                ImageFormatType.Jpeg => new JpegBitmapEncoder(),
+                ImageFormatType.Tiff => new TiffBitmapEncoder(),
+                _ => throw new ArgumentOutOfRangeException(nameof(format), $"지원되지 않는 포맷: {format}")
+            };
+
+            using FileStream stream = new FileStream(filePath, FileMode.Create);
+            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+            encoder.Save(stream);
+        }
+
+
         public static BitmapSource CopyBitmapSource(BitmapSource source)
         {
             if (source == null)

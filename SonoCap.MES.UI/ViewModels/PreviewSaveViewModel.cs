@@ -19,6 +19,7 @@ using System.Windows.Interop;
 using System.IO;
 using System.Windows.Threading;
 using System.ComponentModel;
+using static SonoCap.MES.UI.Commons.Utilities;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -176,8 +177,10 @@ namespace SonoCap.MES.UI.ViewModels
             //string path = $"{App.appSettings.Path.ExportImg}{DateTime.Now:yyyyMMdd_HHmmss}_capture.png";
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "bmp");
-            Utilities.SaveBitmap((BitmapSource)SnapshotImg, path);
+            string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
+            BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
+            Log.Information($"grayBitmap: {grayBitmap.Format}");
+            Utilities.SavePng(grayBitmap, path);
         }
 
         private Recorder? _rec;

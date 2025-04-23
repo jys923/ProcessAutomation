@@ -239,6 +239,13 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void GoAboutView()
+        {
+            Log.Information($"Click {nameof(GoAboutView)}");
+            _viewService.ShowAboutView();
+        }
+
         public FirstViewModel(
             IExcelService excelService,
             IViewService viewService,
