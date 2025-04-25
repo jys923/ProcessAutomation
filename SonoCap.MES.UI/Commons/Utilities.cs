@@ -772,5 +772,20 @@ namespace SonoCap.MES.UI.Commons
                 return double.NaN; // 원 내부에 픽셀이 없는 경우
             }
         }
+
+        public static void OpenFolder(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath)) return;
+
+            try
+            {
+                var fullPath = Path.GetFullPath(filePath);
+                Process.Start("explorer.exe", $"/select,\"{fullPath}\"");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"파일 선택 열기 실패: {filePath}");
+            }
+        }
     }
 }

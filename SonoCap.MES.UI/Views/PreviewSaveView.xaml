@@ -14,6 +14,7 @@
     xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
     xmlns:controls="clr-namespace:SonoCap.MES.UI.Controls"
     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     mc:Ignorable="d"
     WindowState="Maximized"
     d:DataContext="{d:DesignInstance Type={x:Type vm:PreviewSaveViewModel}}"
@@ -368,5 +369,14 @@
                 </Grid>
             </StackPanel>
         </GroupBox>
+        <materialDesign:Snackbar
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.RowSpan="2"
+            MessageQueue="{Binding MessageQueue}"
+            Name="MainSnackbar"
+            VerticalAlignment="Bottom"
+            HorizontalAlignment="Center"
+            Margin="16" />
     </Grid>
 </Window>

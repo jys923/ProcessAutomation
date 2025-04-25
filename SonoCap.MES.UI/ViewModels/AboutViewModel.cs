@@ -22,10 +22,11 @@ namespace SonoCap.MES.UI.ViewModels
         private string _releaseNotes =
             """
             v 1.0.0
-            - 영상 저장 mp4
-            - 사진 저장 BGRA32 > Gray8 > png
-            - 영상 PRF 변경 시 모터객체의 내부값 만 변경
-            - 모터 시리얼 초기화 시퀀스: motor OFF > mode sel > motor ON
+                - 영상 저장 mp4
+                - 사진 저장 BGRA32 > Gray8 > png
+                - 영상 PRF 변경 시 모터객체의 내부값 만 변경
+                - 모터 시리얼 초기화 시퀀스: motor OFF > mode sel > motor ON
+                - snackbar 메시지 큐 사용
             """;
 
         public string BuildDate => "2025.04.22"; // 또는 자동화 가능

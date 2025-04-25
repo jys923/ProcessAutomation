@@ -181,6 +181,7 @@ namespace SonoCap.MES.UI.ViewModels
             BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
             Log.Information($"grayBitmap: {grayBitmap.Format}");
             Utilities.SavePng(grayBitmap, path);
+            ShowSnackbarWithOpen(path);
         }
 
         private Recorder? _rec;
@@ -324,7 +325,7 @@ namespace SonoCap.MES.UI.ViewModels
                 if (_tempVideoPath != null && _finalVideoPath != null)
                 {
                     File.Move(_tempVideoPath, _finalVideoPath, overwrite: true);
-                    MessageBox.Show($"녹화 완료: {_finalVideoPath}");
+                    ShowSnackbarWithOpen(_finalVideoPath);
                 }
 
                 RecordingTimeText = "00:00:00"; // ✅ 녹화 시간 초기화
@@ -334,7 +335,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"녹화 파일 이동 실패: {ex.Message}");
+                ShowSnackbar($"녹화 파일 이동 실패: {ex.Message}");
             }
         }
 
