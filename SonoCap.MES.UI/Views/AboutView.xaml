@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
+    d:DataContext="{d:DesignInstance Type={x:Type vm:AboutViewModel}, IsDesignTimeCreatable=True}"
     mc:Ignorable="d"
     WindowStartupLocation="CenterOwner"
     Title="{Binding Title}"
