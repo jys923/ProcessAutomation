@@ -1,4 +1,4 @@
-﻿<Controls:MetroWindow
+﻿<Window
     x:Class="SonoCap.MES.UI.Views.AboutView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -61,4 +61,4 @@
                 Command="{Binding CloseCommand}" />
         </StackPanel>
     </Grid>
-</Controls:MetroWindow>
+</Window>
