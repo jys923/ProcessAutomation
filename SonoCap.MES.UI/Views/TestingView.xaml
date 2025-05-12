@@ -46,10 +46,13 @@
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
                     <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="0" Grid.Column="1" Content="TD Sn" />
                     <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="2" Grid.Column="1" Content="TD Md Sn" />
-                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="3" Content="Probe Sn" Margin="0,26,0,0" Grid.RowSpan="2" Grid.Column="1" />
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="4" Grid.Column="1" Content="MT Md Sn" />
+                    <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="6" Grid.Column="1" Content="Probe Sn" />
 
                     <controls:TextBoxControl x:Name="TDSn" Grid.Row="0" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[TDSn].IsValid}" Text="{Binding TDSn}" IsEnabled="{Binding ValidationDict[TDSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[TDSn].WaterMarkText}">
                         <b:Interaction.Triggers>
@@ -93,7 +96,25 @@
                     </Popup>
                     <TextBlock Grid.Row="3" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[TDMdSn].Message}" Visibility="{Binding ValidationDict[TDMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}" />
 
-                    <controls:TextBoxControl x:Name="ProbeSn" Grid.Row="4" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[ProbeSn].IsValid}" Text="{Binding ProbeSn}" IsEnabled="{Binding ValidationDict[ProbeSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[ProbeSn].WaterMarkText}">
+                    <controls:TextBoxControl x:Name="MTMdSn" Grid.Row="4" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[MTMdSn].IsValid}" Text="{Binding MTMdSn}" IsEnabled="{Binding ValidationDict[MTMdSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[MTMdSn].WaterMarkText}">
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="PreviewKeyDown">
+                                <b:InvokeCommandAction Command="{Binding MTMdSnKeyDownCommand}" PassEventArgsToCommand="True" />
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                    </controls:TextBoxControl>
+                    <Popup PlacementTarget="{Binding ElementName=MTMdSn}" Placement="Bottom" StaysOpen="False" IsOpen="{Binding MTMdSnIsPopupOpen}">
+                        <ListBox ItemsSource="{Binding MTMdSnFilteredItems}" IsSynchronizedWithCurrentItem="True" SelectedIndex="{Binding MTMdSnSelectedIndex}" KeyboardNavigation.DirectionalNavigation="Contained">
+                            <ListBox.Style>
+                                <Style TargetType="{x:Type ListBox}">
+                                    <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+                                </Style>
+                            </ListBox.Style>
+                        </ListBox>
+                    </Popup>
+                    <TextBlock Grid.Row="5" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[MTMdSn].Message}" Visibility="{Binding ValidationDict[MTMdSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}" />
+
+                    <controls:TextBoxControl x:Name="ProbeSn" Grid.Row="6" Grid.Column="2" FontSize="20" Validating="{Binding ValidationDict[ProbeSn].IsValid}" Text="{Binding ProbeSn}" IsEnabled="{Binding ValidationDict[ProbeSn].IsEnabled}" WaterMarkText="{Binding ValidationDict[ProbeSn].WaterMarkText}">
                         <b:Interaction.Triggers>
                             <b:EventTrigger EventName="PreviewKeyDown">
                                 <b:InvokeCommandAction Command="{Binding ProbeSnKeyDownCommand}" PassEventArgsToCommand="True" />
@@ -109,11 +130,12 @@
                             </ListBox.Style>
                         </ListBox>
                     </Popup>
-                    <TextBlock Grid.Row="5" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[ProbeSn].Message}" Visibility="{Binding ValidationDict[ProbeSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}" />
+                    <TextBlock Grid.Row="7" Grid.Column="2" FontSize="20" Foreground="Tomato" Margin="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding ValidationDict[ProbeSn].Message}" Visibility="{Binding ValidationDict[ProbeSn].IsEnabled, Converter={StaticResource EnabledToVisibilityConverter}}" />
+
                 </Grid>
             </GroupBox>
             <Border Height="10" />
-            <GroupBox Style="{StaticResource GroupBoxLargeStyle}" Header="검사 현황" Margin="0" VerticalAlignment="Top" Height="300" Width="auto">
+            <GroupBox Style="{StaticResource GroupBoxLargeStyle}" Header="검사 현황" Margin="0" VerticalAlignment="Top" Height="250" Width="auto">
                 <Grid Margin="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*" />
@@ -131,20 +153,20 @@
 
                     <Border Grid.Column="0" Grid.Row="0" Background="{StaticResource CellHeaderBrush}" />
                     <Border Grid.Column="1" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="Align" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" />
+                        <TextBlock Text="정 렬" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" />
                     </Border>
                     <Border Grid.Column="2" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="Axial" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="2" Grid.Row="0" Margin="0,6,0,0" />
+                        <TextBlock Text="해상도" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" />
                     </Border>
                     <Border Grid.Column="3" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="Lateral" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="0" />
-                    </Border>
+                        <TextBlock Text="명 암" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="3" Grid.Row="0" />
+                    </Border> 
                     <Border Grid.Column="4" Grid.Row="0" Background="{StaticResource CellHeaderBrush}">
                         <TextBlock Text="강제 검수" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="4" Grid.Row="0" />
                     </Border>
 
                     <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="모듈" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1" />
+                        <TextBlock Text="부 품" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1" />
                     </Border>
                     <Border Grid.Column="1" Grid.Row="1" Background="{Binding BorderBackgrounds[11].Value}" />
                     <Border Grid.Column="2" Grid.Row="1" Background="{Binding BorderBackgrounds[12].Value}" />
@@ -160,7 +182,7 @@
                     <Border Grid.Column="4" Grid.Row="2" Background="{StaticResource CellBodyBrush}" />
 
                     <Border Grid.Column="0" Grid.Row="3" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="성능" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" />
+                        <TextBlock Text="성 능" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" />
                     </Border>
                     <Border Grid.Column="1" Grid.Row="3" Background="{Binding BorderBackgrounds[31].Value}" />
                     <Border Grid.Column="2" Grid.Row="3" Background="{Binding BorderBackgrounds[32].Value}" />

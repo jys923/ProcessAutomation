@@ -86,6 +86,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             ValidationDict[nameof(TDSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDSn)}을 입력 하세요.", IsEnabled = true };
             ValidationDict[nameof(TDMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(TDMdSn)}을 입력 하세요." };
+            ValidationDict[nameof(MTMdSn)] = new ValidationItem { WaterMarkText = $"{nameof(MTMdSn)}을 입력 하세요." };
             ValidationDict[nameof(ProbeSn)] = new ValidationItem { WaterMarkText = $"{nameof(ProbeSn)}을 입력 하세요." };
             ValidationDict[nameof(TestResult)] = new ValidationItem { };
 
@@ -355,6 +356,67 @@ namespace SonoCap.MES.UI.ViewModels
             else if (e.Key == Key.Tab)
             {
                 TDMdSnIsPopupOpen = false;
+            }
+        }
+
+        [ObservableProperty]
+        private string _mTMdSn = string.Empty;
+
+        [ObservableProperty]
+        private bool _mTMdSnIsPopupOpen = false;
+
+        [ObservableProperty]
+        private int _mTMdSnSelectedIndex = -1;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _mTMdSnFilteredItems = new();
+
+        private void MTMdSnFilterItems()
+        {
+            if (string.IsNullOrWhiteSpace(MTMdSn))
+            {
+
+                MTMdSnFilteredItems.Clear();
+            }
+            else
+            {
+                List<string> items = _testingManagementService.GetFilteredSn(SnType.MotorModule, MTMdSn);
+
+                MTMdSnFilteredItems = new ObservableCollection<string>(items);
+            }
+        }
+
+        [RelayCommand]
+        private void MTMdSnKeyDown(KeyEventArgs e)
+        {
+            if (e == null) return;
+
+            Log.Information($"MTMdSnKeyDown : {e.Key}");
+            if (e.Key == Key.Down)
+            {
+                if (MTMdSnFilteredItems.Count > 0)
+                {
+                    MTMdSnSelectedIndex = (MTMdSnSelectedIndex + 1) % MTMdSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (MTMdSnFilteredItems.Count > 0)
+                {
+                    MTMdSnSelectedIndex = (MTMdSnSelectedIndex - 1 + MTMdSnFilteredItems.Count) % MTMdSnFilteredItems.Count;
+                }
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (MTMdSnSelectedIndex >= 0 && MTMdSnSelectedIndex < MTMdSnFilteredItems.Count)
+                {
+                    MTMdSn = MTMdSnFilteredItems[MTMdSnSelectedIndex];
+                    MTMdSnIsPopupOpen = false;
+                }
+            }
+            else if (e.Key == Key.Tab)
+            {
+                MTMdSnIsPopupOpen = false;
             }
         }
 
@@ -1012,6 +1074,9 @@ namespace SonoCap.MES.UI.ViewModels
                         return;
 
                     _motorModule = _probe.MotorModule;
+
+                    ValidationDict[nameof(MTMdSn)].IsEnabled = false;
+                    ValidationDict[nameof(MTMdSn)].WaterMarkText = _motorModule.Sn;
 
                     ProbeCellIsEnabled = true;
                     ValidationDict[nameof(ProbeSn)].IsEnabled = false;
