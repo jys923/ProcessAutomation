@@ -9,7 +9,7 @@
 #include <numeric>
 #include <nlohmann/json.hpp>
 
-#define ENABLE_IMAGE_DISPLAY false
+#define ENABLE_IMAGE_DISPLAY true
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);
@@ -20,6 +20,57 @@ const cv::Scalar cyan(255, 255, 0);
 const cv::Scalar magenta(255, 0, 255);
 const cv::Scalar white(255, 255, 255);
 const cv::Scalar black(0, 0, 0);
+
+struct SharpnessMetrics {
+    double tenengrad = -1;
+    double laplacian = -1;
+};
+
+struct QualityMetrics {
+    SharpnessMetrics sharpness;
+    double brightness = -1;
+    double contrast = -1;
+    double snr = -1;
+    double speckleIndex = -1;
+    double entropy = -1;
+    double edgeDensity = -1;
+    double localVariance = -1;
+    double cnr = -1;
+    double fourierNoise = -1;
+};
+
+inline void to_json(nlohmann::json& j, const SharpnessMetrics& s) {
+    j = nlohmann::json::object();
+    if (s.tenengrad >= 0)
+        j["Tenengrad"] = s.tenengrad;
+    if (s.laplacian >= 0)
+        j["Laplacian"] = s.laplacian;
+}
+
+inline void to_json(nlohmann::json& j, const QualityMetrics& q) {
+    j = nlohmann::json::object();
+
+    if (q.sharpness.tenengrad >= 0 || q.sharpness.laplacian >= 0)
+        j["Sharpness"] = q.sharpness;
+    if (q.brightness >= 0)
+        j["Brightness"] = q.brightness;
+    if (q.contrast >= 0)
+        j["Contrast"] = q.contrast;
+    if (q.snr >= 0)
+        j["SNR"] = q.snr;
+    if (q.speckleIndex >= 0)
+        j["SpeckleIndex"] = q.speckleIndex;
+    if (q.entropy >= 0)
+        j["Entropy"] = q.entropy;
+    if (q.edgeDensity >= 0)
+        j["EdgeDensity"] = q.edgeDensity;
+    if (q.localVariance >= 0)
+        j["LocalVariance"] = q.localVariance;
+    if (q.cnr >= 0)
+        j["CNR"] = q.cnr;
+    if (q.fourierNoise >= 0)
+        j["FourierNoise"] = q.fourierNoise;
+}
 
 struct GrayData {
     cv::Point center;

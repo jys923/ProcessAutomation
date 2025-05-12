@@ -42,6 +42,9 @@
     <ClInclude Include="GrayProcess.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UltrasoundQualityAnalyzer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -69,6 +72,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GrayProcess.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UltrasoundQualityAnalyzer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

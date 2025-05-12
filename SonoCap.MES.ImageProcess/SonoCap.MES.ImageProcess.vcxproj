@@ -129,6 +129,7 @@
     <ClInclude Include="RandomUtilities.h" />
     <ClInclude Include="ResolutionProcess.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="UltrasoundQualityAnalyzer.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
@@ -145,6 +146,7 @@
     </ClCompile>
     <ClCompile Include="RandomUtilities.cpp" />
     <ClCompile Include="ResolutionProcess.cpp" />
+    <ClCompile Include="UltrasoundQualityAnalyzer.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>

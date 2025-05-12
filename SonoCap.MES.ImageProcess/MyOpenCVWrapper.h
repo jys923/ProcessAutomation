@@ -21,6 +21,17 @@ namespace MyOpenCVWrapper {
 
         static void GrayProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
         
+        static void AnalyzeSharpness(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeContrast(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeBrightness(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeSNR(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeSpeckleIndex(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeEntropy(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeEdgeDensity(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeLocalVariance(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeCNR(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+        static void AnalyzeFFT(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+
     private:
         // 정적 생성자 추가 (클래스 로드 시 한 번만 실행됨)
         static OpenCVWrapper() {

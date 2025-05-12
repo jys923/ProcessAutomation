@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SonoCap.MES.ImageProcess\SonoCap.MES.ImageProcess.vcxproj" />
+    <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
   </ItemGroup>
   
 </Project>

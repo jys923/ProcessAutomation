@@ -180,7 +180,8 @@ namespace SonoCap.MES.UI.ViewModels
             string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
             BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
             Log.Information($"grayBitmap: {grayBitmap.Format}");
-            Utilities.SavePng(grayBitmap, path);
+            //Utilities.SavePng(grayBitmap, path);
+            Utilities.SaveBitmap(grayBitmap, path);
             ShowSnackbarWithOpen(path);
         }
 
