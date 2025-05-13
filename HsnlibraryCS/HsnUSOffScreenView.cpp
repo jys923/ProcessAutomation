@@ -1,6 +1,7 @@
-#include "HsnUSOffScreenView.hpp"
+﻿#include "HsnUSOffScreenView.hpp"
 #include <Hsnlibrary.hpp>
 #include <GL/gl.h>
+#include <opencv2/opencv.hpp>
 
 #include <chrono>
 #include <exception>
@@ -122,6 +123,12 @@ System::Double HsnLibraryCS::HsnUltrasoundOffScreenView::getTargetIPFrameRate()
 	return _fps;
 }
 
+void HsnLibraryCS::HsnUltrasoundOffScreenView::SetRotationAngle(double angleDeg)
+{
+	msclr::lock lock{ _mutex };
+	_rotation_angle = angleDeg;
+}
+
 void HsnLibraryCS::HsnUltrasoundOffScreenView::setDuration(double fps)
 {
 	_time_duration_us = (double)1e6 / fps;
@@ -237,6 +244,33 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Render()
 		{
 			break;
 		}
+		// OpenCV 기반 회전 처리
+		try {
+			cv::Mat src(_height, _width, CV_8UC4, buffer_ptr);
+			cv::Mat dst;
+
+			double angle = 0.0;
+			{
+				msclr::lock angle_lock{ _mutex };
+				angle = _rotation_angle;
+			}
+
+			if (std::abs(angle) >= 1.0)
+			{
+				cv::Mat src(_height, _width, CV_8UC4, buffer_ptr);
+				cv::Mat dst;
+
+				cv::Point2f center(_width / 2.0f, _height / 2.0f);
+				cv::Mat rotMat = cv::getRotationMatrix2D(center, -angle, 1.0);
+
+				cv::warpAffine(src, dst, rotMat, src.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0, 255));
+				std::memcpy(buffer_ptr, dst.data, _width * _height * 4);
+			}
+		}
+		catch (const std::exception& ex) {
+			// 회전 실패 시 무시
+		}
+
 		//metadata parse
 		try {
 			auto json_data = nlohmann::json::parse(output_metadata);

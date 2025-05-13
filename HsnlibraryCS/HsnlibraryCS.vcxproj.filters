@@ -52,4 +52,8 @@
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="HsnUltrasoundOffScreenView.md" />
+    <None Include="vcpkg_dev.md" />
+  </ItemGroup>
 </Project>

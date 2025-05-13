@@ -1,4 +1,6 @@
-﻿using System;
+﻿// 파일명: Program.cs
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -9,6 +11,16 @@ using SonoCap.MES.Models.Process; // QualityMetricsRoot, QualityResultManager �
 
 namespace SonoCap.MES.ImageProcess.Test
 {
+    [Flags]
+    public enum InspectionPartType
+    {
+        None = 0,
+        Geo = 1 << 0,
+        Gray = 1 << 1,
+        Res = 1 << 2,
+        All = Geo | Gray | Res
+    }
+
     enum ImageProcessType
     {
         Align,
@@ -33,6 +45,14 @@ namespace SonoCap.MES.ImageProcess.Test
 
     class Program
     {
+        static readonly List<InspectionPartType> SelectedInspectionParts = new()
+        {
+            //InspectionPartType.All,
+            //InspectionPartType.Geo,
+            //InspectionPartType.Gray,
+            //InspectionPartType.Res
+        };
+
         static readonly List<ImageProcessType> SelectedProcesses = new()
         {
             //ImageProcessType.Align,
@@ -73,7 +93,27 @@ namespace SonoCap.MES.ImageProcess.Test
             GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
             IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
 
-            // 1. Process (영상 처리)
+            foreach (var part in SelectedInspectionParts)
+            {
+                Array.Clear(textArray, 0, textArray.Length); // ← 이거 추가
+
+                var inspectFn = GetInspectionFunction(part);
+                inspectFn(imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
+
+                string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
+                string partName = part.ToString();
+
+                Console.WriteLine($"[Inspection: {partName}]\n{resultText}\n");
+
+                SaveBitmap(
+                    BitmapSource.Create(bitmapSource.PixelWidth, bitmapSource.PixelHeight,
+                                        96, 96, PixelFormats.Bgr32, null,
+                                        resultImageArray, bitmapSource.PixelWidth * 4),
+                    $".\\DebugOutput\\RunInspection_{partName}_result.bmp");
+
+                File.WriteAllText($".\\DebugOutput\\RunInspection_{partName}_result.json", resultText);
+            }
+
             foreach (var process in SelectedProcesses)
             {
                 var processFunction = GetProcessFunction(process);
@@ -97,7 +137,6 @@ namespace SonoCap.MES.ImageProcess.Test
                 }
             }
 
-            // 2. Analyze (영상 분석)
             foreach (var analyze in SelectedAnalyzes)
             {
                 var analyzeFunction = GetAnalyzeFunction(analyze);
@@ -135,6 +174,12 @@ namespace SonoCap.MES.ImageProcess.Test
             string resultFolder = Path.Combine(".\\DebugOutput\\", fileStem);
             Directory.CreateDirectory(resultFolder);
             return resultFolder;
+        }
+
+        static Action<IntPtr, int, int, IntPtr, IntPtr> GetInspectionFunction(InspectionPartType part)
+        {
+            return (buf, w, h, res, txt) =>
+                MyOpenCVWrapper.OpenCVWrapper.RunInspection(buf, w, h, res, txt, (int)part);
         }
 
         static Action<IntPtr, int, int, IntPtr, IntPtr> GetProcessFunction(ImageProcessType process)

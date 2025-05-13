@@ -1,5 +1,6 @@
 ﻿using SonoCap.MES.Models.Base;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace SonoCap.MES.Models
 {
@@ -15,4 +16,17 @@ namespace SonoCap.MES.Models
         [Required]
         public int Threshold { get; set; } = 90;
     }
+
+    //public class TestType : ModelBase
+    //{
+    //    public string Name { get; set; }
+    //    public int Threshold { get; set; }
+    //    public string? SubCriteriaJson { get; set; }
+
+    //    public Dictionary<string, double>? GetParsedCriteria()
+    //    {
+    //        if (string.IsNullOrWhiteSpace(SubCriteriaJson)) return null;
+    //        return JsonSerializer.Deserialize<Dictionary<string, double>>(SubCriteriaJson);
+    //    }
+    //}
 }

@@ -122,20 +122,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AlignProcess.h" />
+    <ClInclude Include="GeoInspection.h" />
     <ClInclude Include="GeometricDistortionProcess.h" />
+    <ClInclude Include="GrayInspection.h" />
     <ClInclude Include="GrayProcess.h" />
     <ClInclude Include="MyOpenCVWrapper.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RandomUtilities.h" />
+    <ClInclude Include="ResInspection.h" />
     <ClInclude Include="ResolutionProcess.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RunInspection.h" />
     <ClInclude Include="UltrasoundQualityAnalyzer.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AlignProcess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="GeoInspection.cpp" />
     <ClCompile Include="GeometricDistortionProcess.cpp" />
+    <ClCompile Include="GrayInspection.cpp" />
     <ClCompile Include="GrayProcess.cpp" />
     <ClCompile Include="MyOpenCVWrapper.cpp" />
     <ClCompile Include="pch.cpp">
@@ -145,7 +151,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="RandomUtilities.cpp" />
+    <ClCompile Include="ResInspection.cpp" />
     <ClCompile Include="ResolutionProcess.cpp" />
+    <ClCompile Include="RunInspection.cpp" />
     <ClCompile Include="UltrasoundQualityAnalyzer.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
@@ -154,6 +162,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resolution.md" />
+    <None Include="result.md" />
+    <None Include="함수 파라미터 추가 방법.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

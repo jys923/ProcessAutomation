@@ -88,7 +88,29 @@ void MyOpenCVWrapper::AnalyzeBrightness(System::IntPtr inputBuffer, int imageWid
     cv::Mat grayImage;
     cv::cvtColor(inputImage, grayImage, cv::COLOR_BGRA2GRAY);
 
-    cv::Scalar meanScalar = cv::mean(grayImage);
+    int radius = static_cast<int>(std::min(imageWidth, imageHeight) * 0.5 * 0.);
+    int cx = imageWidth / 2;
+    int cy = imageHeight / 2;
+
+    // 중심 원 영역 제외한 마스크 만들기
+    cv::Mat mask = cv::Mat::ones(grayImage.size(), CV_8U) * 255;  // 전체 1
+    cv::circle(mask, cv::Point(cx, cy), radius, 0, -1); // 중심 원 제거
+
+    // 마스크 시각화용 이미지 저장
+    {
+        cv::Mat maskedGray;
+        grayImage.copyTo(maskedGray, mask);
+        /*cv::Mat display;
+        cv::normalize(maskedGray, display, 0, 255, cv::NORM_MINMAX);
+        display.convertTo(display, CV_8U);
+        cv::cvtColor(display, display, cv::COLOR_GRAY2BGRA);
+        showAndSaveImage(".\\Gray\\brightness_exclude_center", display);*/
+        cv::cvtColor(maskedGray, maskedGray, cv::COLOR_GRAY2BGRA);
+        showAndSaveImage(".\\Gray\\brightness_exclude_center", maskedGray);
+    }
+
+    // 마스크 영역 제외하고 평균 계산
+    cv::Scalar meanScalar = cv::mean(grayImage, mask);
     double brightnessValue = meanScalar[0];
 
     QualityMetrics quality;
@@ -99,6 +121,7 @@ void MyOpenCVWrapper::AnalyzeBrightness(System::IntPtr inputBuffer, int imageWid
 
     std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
+
 
 void MyOpenCVWrapper::AnalyzeSNR(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
 {
@@ -297,51 +320,28 @@ void MyOpenCVWrapper::AnalyzeFFT(System::IntPtr inputBuffer, int imageWidth, int
     cv::Mat grayImage;
     cv::cvtColor(inputImage, grayImage, cv::COLOR_BGRA2GRAY);
 
-    // 1. DFT
-    cv::Mat planes[] = { cv::Mat_<float>(grayImage), cv::Mat::zeros(grayImage.size(), CV_32F) };
+    cv::Mat grayFloat;
+    grayImage.convertTo(grayFloat, CV_32F, 1.0 / 255.0);
+
+    // 1. DFT (shift 포함)
+    cv::Mat planes[] = {
+        grayFloat,
+        cv::Mat::zeros(grayImage.size(), CV_32F)
+    };
+
     cv::Mat complexImage;
     cv::merge(planes, 2, complexImage);
     cv::dft(complexImage, complexImage);
-
-    // 2. Magnitude
     cv::split(complexImage, planes);
-    cv::magnitude(planes[0], planes[1], planes[0]);
+
+    // 2. Magnitude and Log1p
+    cv::magnitude(planes[0], planes[1], planes[0]);  // planes[0] = magnitude
     cv::Mat magnitudeImage = planes[0];
+    magnitudeImage += 1.0f;
+    cv::log(magnitudeImage, magnitudeImage); // log1p(x)
 
-    // 3. Log scale (shift 전)
-    magnitudeImage += cv::Scalar::all(1);
-    cv::log(magnitudeImage, magnitudeImage);
-
-    // 🔥 저장 (Shift 안 한 FFT 스펙트럼)
-    {
-        cv::Mat display;
-        cv::normalize(magnitudeImage, display, 0, 255, cv::NORM_MINMAX);
-        display.convertTo(display, CV_8U);
-        cv::cvtColor(display, display, cv::COLOR_GRAY2BGRA);
-        showAndSaveImage(".\\DebugOutput\\fftSpectrumBGRA", display);
-    }
-
-    // 🧪 Fourier 노이즈 점수 계산
-    double  noiseScore = 0.0f;
-    {
-        int cx = magnitudeImage.cols / 2;
-        int cy = magnitudeImage.rows / 2;
-        int radius = static_cast<int>(std::min(imageWidth, imageHeight) * 0.05); // 중심 5%
-
-        cv::Mat lowFreqMask = cv::Mat::zeros(magnitudeImage.size(), CV_8U);
-        cv::circle(lowFreqMask, cv::Point(cx, cy), radius, 255, -1);
-
-        double totalEnergy = cv::sum(magnitudeImage)[0];
-        double lowFreqEnergy = cv::sum(magnitudeImage & lowFreqMask)[0]; // mask가 255일 때만
-        double highFreqEnergy = totalEnergy - lowFreqEnergy;
-
-        if (totalEnergy > 0.0)
-            noiseScore = highFreqEnergy / totalEnergy * 100.0;
-    }
-
-    // 4. Shift
+    // 3. Shift
     magnitudeImage = magnitudeImage(cv::Rect(0, 0, magnitudeImage.cols & -2, magnitudeImage.rows & -2));
-
     int cx = magnitudeImage.cols / 2;
     int cy = magnitudeImage.rows / 2;
 
@@ -353,7 +353,7 @@ void MyOpenCVWrapper::AnalyzeFFT(System::IntPtr inputBuffer, int imageWidth, int
     q0.copyTo(tmp); q3.copyTo(q0); tmp.copyTo(q3);
     q1.copyTo(tmp); q2.copyTo(q1); tmp.copyTo(q2);
 
-    // 5. Normalize + BGRA 변환 (Shift한 FFT 스펙트럼)
+    // 4. Save shifted spectrum
     {
         cv::Mat display;
         cv::normalize(magnitudeImage, display, 0, 255, cv::NORM_MINMAX);
@@ -362,7 +362,49 @@ void MyOpenCVWrapper::AnalyzeFFT(System::IntPtr inputBuffer, int imageWidth, int
         showAndSaveImage(".\\DebugOutput\\fftSpectrumShiftedBGRA", display);
     }
 
-    // 6. JSON 형식 결과 저장
+    // 5. Compute noise score (based on shifted spectrum)
+    double noiseScore = 0.0;
+    {
+        int w = magnitudeImage.cols;
+        int h = magnitudeImage.rows;
+        int radius = static_cast<int>(std::min(w, h) * 0.25 * 0.5);
+
+        cv::Mat lowFreqMask = cv::Mat::zeros(h, w, CV_8U);
+        cv::circle(lowFreqMask, cv::Point(w / 2, h / 2), radius, 255, -1);
+
+        cv::Mat masked;
+        magnitudeImage.copyTo(masked, lowFreqMask); // 마스크를 이용한 복사
+
+        cv::Mat maskDisplay;
+        // 마스크 영역만 남기고 나머지를 0으로 (시각화용)
+        cv::normalize(masked, maskDisplay, 0, 255, cv::NORM_MINMAX);
+        maskDisplay.convertTo(maskDisplay, CV_8U);
+        cv::cvtColor(maskDisplay, maskDisplay, cv::COLOR_GRAY2BGRA);
+        showAndSaveImage(".\\DebugOutput\\lowFreqOnly", maskDisplay); // 중심 주파수 영역
+
+        cv::Mat highFreqMask;
+        cv::bitwise_not(lowFreqMask, highFreqMask);
+
+        cv::Mat highMasked;
+        magnitudeImage.copyTo(highMasked, highFreqMask);
+
+        cv::Mat highDisplay;
+        cv::normalize(highMasked, highDisplay, 0, 255, cv::NORM_MINMAX);
+        highDisplay.convertTo(highDisplay, CV_8U);
+        cv::cvtColor(highDisplay, highDisplay, cv::COLOR_GRAY2BGRA);
+        showAndSaveImage(".\\DebugOutput\\highFreqOnly", highDisplay); // 노이즈 영역만 시각화
+
+        double totalEnergy = cv::sum(magnitudeImage)[0];
+        //double lowFreqEnergy = cv::sum(magnitudeImage, lowFreqMask)[0];
+        double lowFreqEnergy = cv::sum(masked)[0];  // 이제 안전하게 합산 가능
+        double highFreqEnergy = totalEnergy - lowFreqEnergy;
+
+        if (totalEnergy > 0.0)
+            noiseScore = highFreqEnergy / totalEnergy * 100.0;
+    }
+
+
+    // 6. JSON 출력
     QualityMetrics quality;
     quality.fourierNoise = noiseScore;
 

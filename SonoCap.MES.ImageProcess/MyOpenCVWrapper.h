@@ -11,6 +11,8 @@ namespace MyOpenCVWrapper {
             setOpenCVLogLevel();
             Console::WriteLine("Instance Constructor Called");
         }*/
+
+        static void RunInspection(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer, int testPart);
         // AlignProcess 함수 정의
         static void AlignProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
 

@@ -40,6 +40,8 @@ namespace HsnLibraryCS
 		System::Double getTargetIPFrameRate();
 
 		const double MAX_FPS = 60.0;
+
+		void SetRotationAngle(double angleDeg);
 	private:
 		ReceiveBuffer^ _receiveBuffer;
 		array<System::Byte>^ _buffer;
@@ -65,5 +67,6 @@ namespace HsnLibraryCS
 		void Render();
 		void RenderRoutine();
 
+		double _rotation_angle = 0.0;
 	};
 }

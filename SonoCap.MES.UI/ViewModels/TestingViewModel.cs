@@ -4,8 +4,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SonoCap.Commons;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
+using SonoCap.MES.Models.Inspection;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Model;
@@ -16,6 +18,7 @@ using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -186,7 +189,8 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         private Action<IntPtr, int, int, IntPtr, IntPtr> processFunction = default!;
-        
+        private Action<IntPtr, int, int, IntPtr, IntPtr, int> inspectionFunction = default!;
+
         [ObservableProperty]
         private string _title = default!;
 
@@ -195,6 +199,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private bool _messageIsPopupOpen = false;
+
 
         [ObservableProperty]
         private string _currentTime = DateTime.Today.ToString("yyyy-MM-dd");
@@ -714,6 +719,19 @@ namespace SonoCap.MES.UI.ViewModels
                     await NextCommand.ExecuteAsync(null);
                 }
             }
+            else if (key == Key.Left)
+            {
+                _rotationAngle -= 10;
+                usRenderer?.SetRotationAngle(_rotationAngle);
+                Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
+            }
+            else if (key == Key.Right)
+            {
+                _rotationAngle += 10;
+                usRenderer?.SetRotationAngle(_rotationAngle);
+                Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
+            }
+
         }
 
         [RelayCommand]
@@ -793,8 +811,136 @@ namespace SonoCap.MES.UI.ViewModels
             return Task.CompletedTask;
         }
 
+        // 변경된 ForcePassAsync 흐름
         [RelayCommand]
         private async Task ForcePassAsync(CellPositions position)
+        {
+            Log.Information($"{nameof(ForcePassAsync)} click {position}");
+            int row = (int)position / 10;
+            _testCategory = (TestCategories)row;
+
+            bool proceed = Controls.MessageBox.Show("강제 검사", "강제 검사 실행?");
+            if (!proceed)
+            {
+                ResLogs.Add("강제 검사 취소");
+                return;
+            }
+
+            // 이미지 캡처 및 RunInspection 실행
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+                //ResImg = SrcImg;
+            });
+
+            // BitmapSource를 byte array로 변환하고 IntPtr로 전달
+            BitmapSource bitmapSource = (BitmapSource)SnapshotImg;
+            GCHandle imageHandle;
+            IntPtr imageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out imageHandle);
+
+            // 결과 이미지 저장 배열
+            int resultImageSize = bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4;
+            byte[] resultImageArray = new byte[resultImageSize];
+            GCHandle resultHandle = GCHandle.Alloc(resultImageArray, GCHandleType.Pinned);
+            IntPtr resultBufferPtr = resultHandle.AddrOfPinnedObject();
+
+            // 텍스트 데이터 저장 배열
+            byte[] textArray = new byte[1024];
+            GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
+            IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
+
+            inspectionFunction = MyOpenCVWrapper.OpenCVWrapper.RunInspection;
+            Utilities.InspectionImage(inspectionFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr, (int)InspectionPartType.All);
+
+            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
+            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
+            string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
+
+            // 결과 이미지 변환 및 저장
+            BitmapSource resultBitmapSource = BitmapSource.Create(
+                bitmapSource.PixelWidth,
+                bitmapSource.PixelHeight,
+                512, 512,
+                PixelFormats.Bgr32,
+                null,
+                resultImageArray,
+                bitmapSource.PixelWidth * 4
+            );
+            //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
+            Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
+            Utilities.SaveBitmap(resultBitmapSource, resultImagePath);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+                ResImg = resultBitmapSource;
+            });
+            // 결과 텍스트 출력
+            string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
+            Log.Information($"resultText: {resultText}");
+            ResLogs.Add(resultText);
+            ResTxt = resultText;
+            // 메모리 해제
+            imageHandle.Free();
+            resultHandle.Free();
+            textHandle.Free();
+
+            ////ResImg = default!;
+            //TestResult = -2;
+            //ValidationDict[nameof(TestResult)].IsEnabled = false;
+            //OnTDSnChanged(TDSn);
+            //TDSnIsPopupOpen = false;
+
+            var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
+            if (parsed != null)
+            {
+                await SaveForceTestResultsAsync(parsed, OriginalImgName, resultImagePath);
+            }
+        }
+
+        // 강제 패스 저장
+        private async Task SaveForceTestResultsAsync(InspectionResult parsed, string originalImg, string changedImg)
+        {
+            // 저장 대상 리스트 (1=Gray, 2=Res, 3=Geo)
+            var testTypeIds = new[] { 1, 2, 3 };
+
+            foreach (int typeId in testTypeIds)
+            {
+                var newTest = new Test
+                {
+                    TestCategoryId = (int)_testCategory,
+                    TesterId = _tester.Id,
+                    OriginalImg = originalImg,
+                    ChangedImg = changedImg,
+                    Result = 100,
+                    Method = 2,
+                    TestTypeId = typeId,
+                    ChangedImgMetadata = typeId switch
+                    {
+                        1 => parsed.Gray.ToJson(),
+                        2 => parsed.Res.ToJson(),
+                        3 => parsed.Geo.ToJson(),
+                        _ => "{}"
+                    }
+                };
+
+                PrepareTest(_testCategory, newTest);
+
+                if (await _testingManagementService.SaveAsync(newTest))
+                {
+                    ResLogs.Add($"검사 저장: TestTypeId = {typeId}");
+                }
+            }
+
+            //ResImg = default!;
+            TestResult = -2;
+            ValidationDict[nameof(TestResult)].IsEnabled = false;
+            OnTDSnChanged(TDSn);
+            TDSnIsPopupOpen = false;
+
+        }
+
+        //[RelayCommand]
+        private async Task ForcePassAsync2(CellPositions position)
         {
             Log.Information($"{nameof(ForcePassAsync)} click {position}");
             int row = (int)position / 10;
@@ -811,7 +957,7 @@ namespace SonoCap.MES.UI.ViewModels
                     //BlinkingCellIndex = (int)CellPositions.Row1_Column1;
                     if (_transducer != null)
                     {
-                        await ForceAllPassAsync(TestCategories.Processing);
+                        await ForceAllPassAsync2(TestCategories.Processing);
                     }
                     else
                     {
@@ -823,7 +969,7 @@ namespace SonoCap.MES.UI.ViewModels
                     //BlinkingCellIndex = (int)CellPositions.Row2_Column1;
                     if (_transducerModule != null)
                     {
-                        await ForceAllPassAsync(TestCategories.Process);
+                        await ForceAllPassAsync2(TestCategories.Process);
                     }
                     else
                     {
@@ -834,7 +980,7 @@ namespace SonoCap.MES.UI.ViewModels
                     //BlinkingCellIndex = (int)CellPositions.Row3_Column1;
                     if (_probe != null)
                     {
-                        await ForceAllPassAsync(TestCategories.Dispatch);
+                        await ForceAllPassAsync2(TestCategories.Dispatch);
                     }
                     else
                     {
@@ -860,7 +1006,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         //td tdmd probe 입력 값이 달라서 곤란
-        private async Task ForceAllPassAsync(TestCategories testCategory)
+        private async Task ForceAllPassAsync2(TestCategories testCategory)
         {
             //throw new NotImplementedException();
             //검사하고 없는 것만 검사 데이터 추가
@@ -1445,6 +1591,8 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         private USRenderService usRenderer;
+        
+        private double _rotationAngle = 0.0;
 
         public void RenderStart()
         {

@@ -615,6 +615,13 @@ namespace SonoCap.MES.UI.Commons
             processFunction(imageBufferPtr, width, height, resultBufferPtr, textBufferPtr);
         }
 
+        public static void InspectionImage(Action<IntPtr, int, int, IntPtr, IntPtr, int> inspectionFunction,
+                                 IntPtr imageBufferPtr, int width, int height,
+                                 IntPtr resultBufferPtr, IntPtr textBufferPtr, int testPartFlags)
+        {
+            inspectionFunction(imageBufferPtr, width, height, resultBufferPtr, textBufferPtr, testPartFlags);
+        }
+
         public static IntPtr BitmapSourceToByteArray(BitmapSource bitmapSource, out GCHandle handle)
         {
             int stride = bitmapSource.PixelWidth * ((bitmapSource.Format.BitsPerPixel + 7) / 8);

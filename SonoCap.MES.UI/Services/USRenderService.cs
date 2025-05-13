@@ -37,6 +37,11 @@ namespace SonoCap.MES.UI.Services
             offScreenView.Start(LoadImage);
         }
 
+        public void SetRotationAngle(double angle)
+        {
+            offScreenView?.SetRotationAngle(angle);
+        }
+
         public void RenderEnd()
         {
             //pboxes = null;

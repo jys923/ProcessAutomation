@@ -4,6 +4,11 @@
 #include "GeometricDistortionProcess.h"
 #include "GrayProcess.h"
 #include "UltrasoundQualityAnalyzer.h"
+#include "RunInspection.h"
+
+void MyOpenCVWrapper::OpenCVWrapper::RunInspection(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer, int testPart) {
+	MyOpenCVWrapper::RunInspection(buffer, width, height, resultBuffer, textBuffer, testPart);
+}
 
 void MyOpenCVWrapper::OpenCVWrapper::AlignProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer) {
     MyOpenCVWrapper::AlignProcess(buffer, width, height, resultBuffer, textBuffer);

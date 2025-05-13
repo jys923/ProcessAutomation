@@ -9,7 +9,7 @@
 #include <numeric>
 #include <nlohmann/json.hpp>
 
-#define ENABLE_IMAGE_DISPLAY true
+#define ENABLE_IMAGE_DISPLAY false
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);
@@ -20,6 +20,78 @@ const cv::Scalar cyan(255, 255, 0);
 const cv::Scalar magenta(255, 0, 255);
 const cv::Scalar white(255, 255, 255);
 const cv::Scalar black(0, 0, 0);
+
+const cv::Scalar RedA = cv::Scalar(0, 0, 255, 255);
+const cv::Scalar GreenA = cv::Scalar(0, 255, 0, 255);
+const cv::Scalar BlueA = cv::Scalar(255, 0, 0, 255);
+const cv::Scalar YellowA = cv::Scalar(0, 255, 255, 255);
+const cv::Scalar CyanA = cv::Scalar(255, 255, 0, 255);
+const cv::Scalar MagentaA = cv::Scalar(255, 0, 255, 255);
+const cv::Scalar WhiteA = cv::Scalar(255, 255, 255, 255);
+const cv::Scalar BlackA = cv::Scalar(0, 0, 0, 255);
+
+// Gray 검사 결과
+struct GrayResult {
+    double mean1 = -1;
+    double mean2 = -1;
+    double mean3 = -1;
+};
+
+inline void to_json(nlohmann::json& j, const GrayResult& g) {
+    j = nlohmann::json::object();
+    if (g.mean1 >= 0) j["mean1"] = g.mean1;
+    if (g.mean2 >= 0) j["mean2"] = g.mean2;
+    if (g.mean3 >= 0) j["mean3"] = g.mean3;
+}
+
+// Res 검사 결과
+struct ResResult {
+    double edgeDensity1 = -1;
+    double edgeDensity2 = -1;
+    double edgeDensity3 = -1;
+    double horizontalDist = -1;
+    double verticalDist = -1;
+};
+
+inline void to_json(nlohmann::json& j, const ResResult& r) {
+    j = nlohmann::json::object();
+    if (r.edgeDensity1 >= 0) j["edgeDensity1"] = r.edgeDensity1;
+    if (r.edgeDensity2 >= 0) j["edgeDensity2"] = r.edgeDensity2;
+    if (r.edgeDensity3 >= 0) j["edgeDensity3"] = r.edgeDensity3;
+    if (r.horizontalDist >= 0) j["horizontalDist"] = r.horizontalDist;
+    if (r.verticalDist >= 0) j["verticalDist"] = r.verticalDist;
+}
+
+// Geo 검사 결과
+struct GeoResult {
+    double meanBrightness = -1;
+    double stdBrightness = -1;
+};
+
+inline void to_json(nlohmann::json& j, const GeoResult& g) {
+    j = nlohmann::json::object();
+    if (g.meanBrightness >= 0) j["meanBrightness"] = g.meanBrightness;
+    if (g.stdBrightness >= 0) j["stdBrightness"] = g.stdBrightness;
+}
+
+// 전체 검사 결과
+struct InspectionResult {
+    GrayResult Gray;
+    ResResult Res;
+    GeoResult Geo;
+};
+
+inline void to_json(nlohmann::json& j, const InspectionResult& r) {
+    j = nlohmann::json::object();
+    nlohmann::json jGray, jRes, jGeo;
+    to_json(jGray, r.Gray);
+    to_json(jRes, r.Res);
+    to_json(jGeo, r.Geo);
+
+    if (!jGray.empty()) j["Gray"] = jGray;
+    if (!jRes.empty())  j["Res"] = jRes;
+    if (!jGeo.empty())  j["Geo"] = jGeo;
+}
 
 struct SharpnessMetrics {
     double tenengrad = -1;
