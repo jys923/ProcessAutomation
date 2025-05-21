@@ -48,8 +48,6 @@ void MyOpenCVWrapper::AnalyzeSharpness(System::IntPtr inputBuffer, int imageWidt
 
 	std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeContrast(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -73,8 +71,6 @@ void MyOpenCVWrapper::AnalyzeContrast(System::IntPtr inputBuffer, int imageWidth
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeBrightness(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -118,8 +114,6 @@ void MyOpenCVWrapper::AnalyzeBrightness(System::IntPtr inputBuffer, int imageWid
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 
@@ -142,8 +136,6 @@ void MyOpenCVWrapper::AnalyzeSNR(System::IntPtr inputBuffer, int imageWidth, int
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeSpeckleIndex(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -165,8 +157,6 @@ void MyOpenCVWrapper::AnalyzeSpeckleIndex(System::IntPtr inputBuffer, int imageW
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeEntropy(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -199,8 +189,6 @@ void MyOpenCVWrapper::AnalyzeEntropy(System::IntPtr inputBuffer, int imageWidth,
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeEdgeDensity(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -223,8 +211,6 @@ void MyOpenCVWrapper::AnalyzeEdgeDensity(System::IntPtr inputBuffer, int imageWi
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeLocalVariance(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -266,8 +252,6 @@ void MyOpenCVWrapper::AnalyzeLocalVariance(System::IntPtr inputBuffer, int image
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeCNR(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -307,8 +291,6 @@ void MyOpenCVWrapper::AnalyzeCNR(System::IntPtr inputBuffer, int imageWidth, int
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
 
 void MyOpenCVWrapper::AnalyzeFFT(System::IntPtr inputBuffer, int imageWidth, int imageHeight, System::IntPtr textBuffer)
@@ -410,6 +392,5 @@ void MyOpenCVWrapper::AnalyzeFFT(System::IntPtr inputBuffer, int imageWidth, int
 
     std::string jsonString = objectToJsonString(quality);
     memcpy(textBuffer.ToPointer(), jsonString.c_str(), jsonString.size() + 1);
-
-    std::cout << "[" << __func__ << "] " << jsonString << std::endl;
+    //std::cout << "[" << __func__ << "] " << jsonString << std::endl;
 }
