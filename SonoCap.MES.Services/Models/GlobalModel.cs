@@ -1,8 +1,7 @@
 ﻿using Serilog;
 using SonoCap.MES.Models.Enums;
-using System;
 
-namespace SonoCap.MES.UI.Model
+namespace SonoCap.MES.Services.Model
 {
     public class GlobalModel
     {

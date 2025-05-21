@@ -1,11 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
-using SonoCap.MES.UI.Commons;
-using SonoCap.MES.UI.Model;
-using SonoCap.MES.UI.Services;
-using SonoCap.MES.UI.Services.Interfaces;
-using SonoCap.MES.UI.ViewModels.Base;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,14 +14,15 @@ using System.Windows.Interop;
 using System.IO;
 using System.Windows.Threading;
 using System.ComponentModel;
-using static SonoCap.MES.UI.Commons.Utilities;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
 using SonoCap.MES.Services;
 using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.PreviewUI.ViewModels.Base;
 using SonoCap.MES.Services.Model;
+using SonoCap.WpfCommons;
 
-namespace SonoCap.MES.UI.ViewModels
+namespace SonoCap.MES.PreviewUI.ViewModels
 {
     public partial class PreviewSaveViewModel : ViewModelBase
     {
@@ -35,18 +31,15 @@ namespace SonoCap.MES.UI.ViewModels
         // Fields
         private readonly GlobalModel _model;
         private readonly IMotorService _motorService;
-        private readonly IViewService _viewService;
         private USRenderService _usRenderer;
         private double _rotationAngle = 0.0;
 
         // Constructor
         public PreviewSaveViewModel(
-            IViewService viewService,
             GlobalModel model,
             IMotorService motorService)
         {
             RecorderStatus = RecorderStatus.Idle;
-            _viewService = viewService;
             _model = model;
             _motorService = motorService;
 
@@ -205,7 +198,8 @@ namespace SonoCap.MES.UI.ViewModels
             //string path = $"{App.appSettings.Path.ExportImg}{DateTime.Now:yyyyMMdd_HHmmss}_capture.png";
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
+            //string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
+            string path = Utilities.BuildPath("./image/", prefix, "png");
             BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
             Log.Information($"grayBitmap: {grayBitmap.Format}");
             //Utilities.SavePng(grayBitmap, path);
@@ -266,7 +260,8 @@ namespace SonoCap.MES.UI.ViewModels
             //_finalVideoPath = Utilities.BuildPath(App.appSettings.Path.ExportVideo,$"{SerialNumber.Trim()}_{DateTime.Now:yyyyMMdd_HHmmss}","mp4");
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            _finalVideoPath = Utilities.BuildPath(App.appSettings.Path.ExportVideo, prefix, "mp4");
+            //_finalVideoPath = Utilities.BuildPath(App.appSettings.Path.ExportVideo, prefix, "mp4");
+            _finalVideoPath = Utilities.BuildPath("./video/", prefix, "mp4");
 
             // 비디오 인코더 설정
             IVideoEncoder videoEncoder = new H264VideoEncoder
@@ -524,7 +519,7 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 //Window? focusedWindow = System.Windows.Input.Keyboard.FocusedElement as Window;
                 //focusedWindow?.Close();
-                Controls.MessageBox.Show("Get Video Fail", $"Open Video App First");
+                //Controls.MessageBox.Show("Get Video Fail", $"Open Video App First");
                 var windows = Application.Current.Windows.OfType<Window>();
                 var window = windows.FirstOrDefault(w => w.DataContext == this);
                 window?.Close();

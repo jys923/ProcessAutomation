@@ -1,12 +1,7 @@
 ﻿using HsnLibraryCS;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 
-namespace SonoCap.MES.UI.Services
+namespace SonoCap.MES.Services
 {
     public class USRenderService
     {
@@ -15,14 +10,14 @@ namespace SonoCap.MES.UI.Services
         private int _width;
         private int _height;
         private int _length;
-        private byte[] _buffer;
+        //private byte[] _buffer;
         
         public USRenderService(int width, int height)
         {
             _width = width;
             _height = height;
             _length = _width * _height * 4;
-            _buffer = new byte[_length];
+            //_buffer = new byte[_length];
         }
 
         Action<BitmapSource>? renderToTarget = null;
@@ -72,15 +67,19 @@ namespace SonoCap.MES.UI.Services
 
             int stride = width * 4;
 
+            // 버퍼를 복사하여 BitmapSource의 버퍼로 사용 (GC 안전)
+            byte[] copy = new byte[length];
+            Buffer.BlockCopy(buffer, 0, copy, 0, length);
+
             // byte[] 배열을 직접 BitmapSource로 변환
-            App.Current.Dispatcher.BeginInvoke(new Action(() =>
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 BitmapSource bitmapSource = BitmapSource.Create(
                     width, height,
                     96, 96,
                     System.Windows.Media.PixelFormats.Bgr32,
                     null,
-                    buffer,
+                    copy,
                     stride
                 );
                 renderToTarget?.Invoke(bitmapSource);

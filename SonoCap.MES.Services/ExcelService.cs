@@ -1,12 +1,11 @@
 ﻿using MiniExcelLibs;
 using Serilog;
 using SonoCap.MES.Models;
-using SonoCap.MES.Models.Base;
 using SonoCap.MES.Models.Converts;
-using SonoCap.MES.UI.Services.Interfaces;
+using SonoCap.MES.Services.Interfaces;
 using System.IO;
 
-namespace SonoCap.MES.UI.Services
+namespace SonoCap.MES.Services
 {
     public class ExcelService : IExcelService
     {

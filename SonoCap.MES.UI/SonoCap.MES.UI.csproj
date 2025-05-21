@@ -58,11 +58,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HsnlibraryCS\HsnlibraryCS.vcxproj" />
     <ProjectReference Include="..\SonoCap.Interceptors\SonoCap.Interceptors.csproj" />
     <ProjectReference Include="..\SonoCap.MES.ImageProcess\SonoCap.MES.ImageProcess.vcxproj" />
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Repositories\SonoCap.MES.Repositories.csproj" />
+    <ProjectReference Include="..\SonoCap.MES.Services\SonoCap.MES.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -102,6 +102,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Commons\" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using SonoCap.MES.Models;
 
-namespace SonoCap.MES.UI.Services.Interfaces
+namespace SonoCap.MES.Services.Interfaces
 {
     public interface IExcelService
     {

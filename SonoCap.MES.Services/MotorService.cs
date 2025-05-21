@@ -1,8 +1,8 @@
 ﻿using Serilog;
-using SonoCap.MES.UI.Services.Interfaces;
+using SonoCap.MES.Services.Interfaces;
 using System.IO.Ports;
 
-namespace SonoCap.MES.UI.Services
+namespace SonoCap.MES.Services
 {
     public class MotorService : IMotorService, IDisposable
     {

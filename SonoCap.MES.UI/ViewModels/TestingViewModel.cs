@@ -9,6 +9,8 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Models.Inspection;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.Services;
+using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.Commons;
 using SonoCap.MES.UI.Model;
 using SonoCap.MES.UI.Services;
@@ -41,7 +43,7 @@ namespace SonoCap.MES.UI.ViewModels
         private TestTypes _testType { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
 
-        private GlobalModel _model;
+        private MES.Services.Model.GlobalModel _model;
         private readonly TestingManagementService _testingManagementService;
         private readonly IMotorService _motorService;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -50,7 +52,7 @@ namespace SonoCap.MES.UI.ViewModels
         public TestingViewModel(
             IViewService viewService,
             TestingManagementService testingManagementService,
-            GlobalModel model,
+            MES.Services.Model.GlobalModel model,
             IMotorService motorService,
             IMotorModuleRepository motorModuleRepository)
         {

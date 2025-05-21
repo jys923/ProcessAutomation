@@ -15,7 +15,7 @@ namespace SonoCap.MES.UI.ViewModels
 {
     public partial class FirstViewModel : ViewModelBase
     {
-        private readonly IExcelService _excelService;
+        private readonly SonoCap.MES.Services.Interfaces.IExcelService _excelService;
         private readonly IViewService _viewService;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -247,7 +247,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         public FirstViewModel(
-            IExcelService excelService,
+            SonoCap.MES.Services.Interfaces.IExcelService excelService,
             IViewService viewService,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,

@@ -1,6 +1,6 @@
 ﻿using System.IO.Ports;
 
-namespace SonoCap.MES.UI.Services
+namespace SonoCap.MES.Services
 {
     public interface ISerialPortWrapper
     {

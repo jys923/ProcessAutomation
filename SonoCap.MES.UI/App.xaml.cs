@@ -10,7 +10,6 @@ using SonoCap.Commons;
 using System.Windows.Threading;
 using AspectCore.Configuration;
 using SonoCap.Interceptors;
-using SonoCap.MES.UI.Services;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +17,9 @@ using SonoCap.MES.UI.Commons;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SonoCap.MES.UI.Model;
-using SonoCap.MES.UI.Services.Interfaces;
-using System.IO.Ports;
-using ControlzEx.Standard;
 using System.Diagnostics;
+using SonoCap.MES.UI.Services;
+using SonoCap.MES.UI.Services.Interfaces;
 
 namespace SonoCap.MES.UI
 {
@@ -35,7 +33,7 @@ namespace SonoCap.MES.UI
 
         public IServiceProvider Services { get; }
 
-        private readonly IMotorService _motorService;
+        private readonly SonoCap.MES.Services.Interfaces.IMotorService _motorService;
 
         public static AppSettings appSettings { get; set; } = new AppSettings();
 
@@ -46,7 +44,7 @@ namespace SonoCap.MES.UI
             sw = Stopwatch.StartNew();
             Services = ConfigureServices();
             Log.Information($"SonoCap.MES.UI 시작 : {sw.ElapsedMilliseconds}ms");
-            _motorService = Services.GetRequiredService<IMotorService>(); // 싱글톤 유지
+            _motorService = Services.GetRequiredService<SonoCap.MES.Services.Interfaces.IMotorService>(); // 싱글톤 유지
         }
 
         protected override async void OnStartup(StartupEventArgs e)
@@ -160,15 +158,15 @@ namespace SonoCap.MES.UI
 
         public static void RegisterModels(IServiceCollection services)
         {
-            services.AddSingleton<GlobalModel>(); // 다른 모델이 있다면 여기에 추가
+            services.AddSingleton<MES.Services.Model.GlobalModel>(); // 다른 모델이 있다면 여기에 추가
         }
 
         private static void RegisterServices(IServiceCollection services)
         {
             services.AddTransient<TestingManagementService>();
-            services.AddTransient<ISerialPortWrapper, SerialPortWrapper>();
-            services.AddTransient<IExcelService, ExcelService>();
-            services.AddTransient<IMotorService, MotorService>();
+            services.AddTransient<SonoCap.MES.Services.ISerialPortWrapper, SonoCap.MES.Services.SerialPortWrapper>();
+            services.AddTransient<SonoCap.MES.Services.Interfaces.IExcelService, SonoCap.MES.Services.ExcelService>();
+            services.AddTransient<SonoCap.MES.Services.Interfaces.IMotorService, SonoCap.MES.Services.MotorService>();
             services.AddSingleton<IViewService, ViewService>();
         }
 

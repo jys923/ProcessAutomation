@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MiniExcel" Version="1.38.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HsnlibraryCS\HsnlibraryCS.vcxproj" />
+    <ProjectReference Include="..\SonoCap.Commons\SonoCap.Commons.csproj" />
+    <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,18 +1,18 @@
-﻿using Serilog;
-using SonoCap.MES.Models;
-using System.Drawing.Imaging;
-using System.Drawing;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Security.Cryptography;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Reflection;
+using Serilog;
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Security.Cryptography;
+using SonoCap.MES.Models;
 
-namespace SonoCap.MES.UI.Commons
+namespace SonoCap.WpfCommons
 {
     public static class Utilities
     {

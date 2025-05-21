@@ -1,6 +1,4 @@
-﻿using static SonoCap.MES.UI.Services.MotorService;
-
-namespace SonoCap.MES.UI.Services.Interfaces
+﻿namespace SonoCap.MES.Services.Interfaces
 {
     public interface IMotorService
     {

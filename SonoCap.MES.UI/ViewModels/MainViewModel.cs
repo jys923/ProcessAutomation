@@ -30,7 +30,7 @@ namespace SonoCap.MES.UI.ViewModels
         private ProbeListView? _probeListView = default!;
         private TestListView? _testListView = default!;
         private TestingView? _testingView = default!;
-        private readonly IExcelService _excelService;
+        private readonly SonoCap.MES.Services.Interfaces.IExcelService _excelService;
         private readonly IViewService _viewService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IMotorModuleRepository _motorModuleRepository;
@@ -55,7 +55,7 @@ namespace SonoCap.MES.UI.ViewModels
         private TcpClient _client = default!;
 
         public MainViewModel(
-            IExcelService excelService,
+            SonoCap.MES.Services.Interfaces.IExcelService excelService,
             IViewService viewService,
             IServiceProvider serviceProvider,
             IMotorModuleRepository motorModuleRepository,

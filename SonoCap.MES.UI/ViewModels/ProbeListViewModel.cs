@@ -5,7 +5,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Commons;
-using SonoCap.MES.UI.Services.Interfaces;
+using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
