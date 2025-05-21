@@ -708,7 +708,20 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
             Log.Information($"{nameof(KeyDownAsync)} key: {key}");
-            if (key == Key.F10)
+            
+            if (key == Key.Left)
+            {
+                _rotationAngle = (_rotationAngle - 10 + 360) % 360;
+                usRenderer?.SetRotationAngle(_rotationAngle);
+                Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
+            }
+            else if (key == Key.Right)
+            {
+                _rotationAngle = (_rotationAngle + 10) % 360;
+                usRenderer?.SetRotationAngle(_rotationAngle);
+                Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
+            }
+            else if (key == Key.F10)
             {
                 // NextCommand CanExecute 상태를 갱신합니다.
                 (NextCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
@@ -718,18 +731,6 @@ namespace SonoCap.MES.UI.ViewModels
                 {
                     await NextCommand.ExecuteAsync(null);
                 }
-            }
-            else if (key == Key.Left)
-            {
-                _rotationAngle -= 10;
-                usRenderer?.SetRotationAngle(_rotationAngle);
-                Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
-            }
-            else if (key == Key.Right)
-            {
-                _rotationAngle += 10;
-                usRenderer?.SetRotationAngle(_rotationAngle);
-                Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
             }
 
         }

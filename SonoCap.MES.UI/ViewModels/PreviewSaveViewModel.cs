@@ -21,6 +21,7 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using static SonoCap.MES.UI.Commons.Utilities;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -33,6 +34,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IMotorService _motorService;
         private readonly IViewService _viewService;
         private USRenderService _usRenderer;
+        private double _rotationAngle = 0.0;
 
         // Constructor
         public PreviewSaveViewModel(
@@ -166,6 +168,26 @@ namespace SonoCap.MES.UI.ViewModels
                 _model.Subsetting = value.Item1;
                 DRMin = _model.DRMin;
                 DRMax = _model.DRMax;
+            }
+        }
+
+        [RelayCommand]
+        public void KeyDown(KeyEventArgs keyEventArgs)
+        {
+            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
+            Log.Information($"{nameof(KeyDown)} key: {key}");
+
+            if (key == Key.Left)
+            {
+                _rotationAngle = (_rotationAngle - 10 + 360) % 360;
+                _usRenderer?.SetRotationAngle(_rotationAngle);
+                Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
+            }
+            else if (key == Key.Right)
+            {
+                _rotationAngle = (_rotationAngle + 10) % 360;
+                _usRenderer?.SetRotationAngle(_rotationAngle);
+                Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
             }
         }
 
@@ -321,45 +343,45 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 SrcImg = bitmapSource;
 
-                //// 10프레임마다 한 번 분석 수행
-                //_frameCounter++;
-                //if (_frameCounter % AnalysisFrameInterval == 0)
-                //{
-                //    try
-                //    {
-                //        int width = bitmapSource.PixelWidth;
-                //        int height = bitmapSource.PixelHeight;
+                // 10프레임마다 한 번 분석 수행
+                _frameCounter++;
+                if (_frameCounter % AnalysisFrameInterval == 0)
+                {
+                    try
+                    {
+                        int width = bitmapSource.PixelWidth;
+                        int height = bitmapSource.PixelHeight;
 
-                //        int stride = width * 4; // Assume PixelFormat is BGRA32
-                //        byte[] pixels = new byte[height * stride];
-                //        bitmapSource.CopyPixels(pixels, stride, 0);
+                        int stride = width * 4; // Assume PixelFormat is BGRA32
+                        byte[] pixels = new byte[height * stride];
+                        bitmapSource.CopyPixels(pixels, stride, 0);
 
-                //        // unmanaged 메모리로 복사
-                //        IntPtr buffer = Marshal.AllocHGlobal(pixels.Length);
-                //        Marshal.Copy(pixels, 0, buffer, pixels.Length);
+                        // unmanaged 메모리로 복사
+                        IntPtr buffer = Marshal.AllocHGlobal(pixels.Length);
+                        Marshal.Copy(pixels, 0, buffer, pixels.Length);
 
-                //        // 결과를 받을 버퍼
-                //        IntPtr textBuffer = Marshal.AllocHGlobal(4096); // 충분히 큰 버퍼
+                        // 결과를 받을 버퍼
+                        IntPtr textBuffer = Marshal.AllocHGlobal(4096); // 충분히 큰 버퍼
 
-                //        // 품질 분석 호출
-                //        MyOpenCVWrapper.OpenCVWrapper.AnalyzeBrightness(buffer, width, height, textBuffer);
-                //        //MyOpenCVWrapper.OpenCVWrapper.AnalyzeFFT(buffer, width, height, textBuffer);
+                        // 품질 분석 호출
+                        MyOpenCVWrapper.OpenCVWrapper.AnalyzeBrightness(buffer, width, height, textBuffer);
+                        //MyOpenCVWrapper.OpenCVWrapper.AnalyzeFFT(buffer, width, height, textBuffer);
 
-                //        // 결과 문자열로 변환
-                //        string result = Marshal.PtrToStringAnsi(textBuffer) ?? "";
+                        // 결과 문자열로 변환
+                        string result = Marshal.PtrToStringAnsi(textBuffer) ?? "";
 
-                //        // 로그 갱신
-                //        NoiseLog = result;
+                        // 로그 갱신
+                        NoiseLog = result;
 
-                //        // 메모리 해제
-                //        Marshal.FreeHGlobal(buffer);
-                //        Marshal.FreeHGlobal(textBuffer);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Log.Error($"FFT 분석 실패: {ex.Message}");
-                //    }
-                //}
+                        // 메모리 해제
+                        Marshal.FreeHGlobal(buffer);
+                        Marshal.FreeHGlobal(textBuffer);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"영상 분석 실패: {ex.Message}");
+                    }
+                }
             });
         }
 
