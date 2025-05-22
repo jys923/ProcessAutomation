@@ -2,7 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
-using SonoCap.MES.UI.Commons;
+using SonoCap.WpfCommons;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows.Input;
 using System.Windows.Media;

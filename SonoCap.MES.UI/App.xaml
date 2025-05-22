@@ -1,4 +1,4 @@
-﻿<Application x:Class="SonoCap.MES.UI.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SonoCap.MES.UI" xmlns:views="clr-namespace:SonoCap.MES.UI.Views" xmlns:viewmodels="clr-namespace:SonoCap.MES.UI.ViewModels" xmlns:converters="clr-namespace:SonoCap.MES.UI.Converters" xmlns:Behaviors="clr-namespace:SonoCap.MES.UI.Behaviors" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" ShutdownMode="OnMainWindowClose">
+﻿<Application x:Class="SonoCap.MES.UI.App" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="clr-namespace:SonoCap.MES.UI" xmlns:views="clr-namespace:SonoCap.MES.UI.Views" xmlns:viewmodels="clr-namespace:SonoCap.MES.UI.ViewModels" xmlns:converters="clr-namespace:SonoCap.WpfCommons.Converters;assembly=SonoCap.WpfCommons" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
             <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
@@ -11,7 +11,8 @@
             <converters:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />
             <converters:IntToBooleanConverter x:Key="IntToBooleanConverter" />
             <converters:DoubleToBooleanConverter x:Key="DoubleToBooleanConverter" />
-            <Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
+            <!--<Behaviors:DataGridBehavior x:Key="DataGridBehavior" />
+            <Behaviors:BlinkingBehavior x:Key="BlinkingBehavior" />-->
 
             <SolidColorBrush x:Key="CellHeaderBrush" Color="RoyalBlue" />
             <SolidColorBrush x:Key="CellBodyBrush" Color="LightGray" />

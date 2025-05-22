@@ -18,8 +18,6 @@ namespace SonoCap.MES.UI.Services.Interfaces
         
         void ShowProbeListView();
 
-        void ShowPreviewSaveView();
-
         void ShowFirstView();
 
         TResult? ShowDialogView<TView, TViewModel, TResult>(Func<TViewModel, TResult?> getResult, object? parameter = null)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xaml.Behaviors;
 using System.Windows.Controls;
 
-namespace SonoCap.MES.UI.Behaviors
+namespace SonoCap.WpfCommons.Behaviors
 {
     /// <summary>
     /// DataGridBehavior

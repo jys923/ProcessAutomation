@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace SonoCap.MES.UI.Behaviors
+namespace SonoCap.WpfCommons.Behaviors
 {
     public class PlaceholderBehavior : Behavior<TextBox>
     {

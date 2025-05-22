@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace SonoCap.MES.PreviewUI.Converters
+namespace SonoCap.WpfCommons.Converters
 {
     public class RowIndexConverter : IValueConverter
     {

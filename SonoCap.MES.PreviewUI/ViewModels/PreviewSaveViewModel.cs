@@ -1,15 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
-using System;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ScreenRecorderLib;
-using System.Diagnostics;
 using System.Windows.Interop;
 using System.IO;
 using System.Windows.Threading;
@@ -198,8 +194,8 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             //string path = $"{App.appSettings.Path.ExportImg}{DateTime.Now:yyyyMMdd_HHmmss}_capture.png";
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            //string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
-            string path = Utilities.BuildPath("./image/", prefix, "png");
+            string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
+            //string path = Utilities.BuildPath("./image/", prefix, "png");
             BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
             Log.Information($"grayBitmap: {grayBitmap.Format}");
             //Utilities.SavePng(grayBitmap, path);
@@ -260,8 +256,8 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             //_finalVideoPath = Utilities.BuildPath(App.appSettings.Path.ExportVideo,$"{SerialNumber.Trim()}_{DateTime.Now:yyyyMMdd_HHmmss}","mp4");
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            //_finalVideoPath = Utilities.BuildPath(App.appSettings.Path.ExportVideo, prefix, "mp4");
-            _finalVideoPath = Utilities.BuildPath("./video/", prefix, "mp4");
+            _finalVideoPath = Utilities.BuildPath(App.appSettings.Path.ExportVideo, prefix, "mp4");
+            //_finalVideoPath = Utilities.BuildPath("./video/", prefix, "mp4");
 
             // 비디오 인코더 설정
             IVideoEncoder videoEncoder = new H264VideoEncoder

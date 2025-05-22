@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace SonoCap.MES.UI.Converters
+namespace SonoCap.WpfCommons.Converters
 {
     public class EnabledToVisibilityConverter : IValueConverter
     {

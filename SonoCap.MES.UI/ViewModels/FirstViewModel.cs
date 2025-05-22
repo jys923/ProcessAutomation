@@ -5,7 +5,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.UI.Commons;
+using SonoCap.WpfCommons;
 using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows.Media;
@@ -51,13 +51,6 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information($"Click {nameof(GoProbeListView)}");
             _viewService.ShowProbeListView();
-        }
-
-        [RelayCommand]
-        private void GoPreviewSaveView()
-        {
-            Log.Information($"Click {nameof(GoPreviewSaveView)}");
-            _viewService.ShowPreviewSaveView();
         }
 
         [RelayCommand]

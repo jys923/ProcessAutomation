@@ -4,7 +4,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Microsoft.Xaml.Behaviors;
 
-namespace SonoCap.MES.UI.Behaviors
+namespace SonoCap.WpfCommons.Behaviors
 {
     public class BlinkingBehavior : Behavior<Button>
     {

@@ -78,12 +78,6 @@ namespace SonoCap.MES.UI.Services
                 ShowView<ProbeListView, ProbeListViewModel>();
         }
 
-        public void ShowPreviewSaveView()
-        {
-            if (!ActivateView<PreviewSaveView>())
-                ShowView<PreviewSaveView, PreviewSaveViewModel>();
-        }
-
         public void ShowAboutView()
         {
             if (!ActivateView<AboutView>())

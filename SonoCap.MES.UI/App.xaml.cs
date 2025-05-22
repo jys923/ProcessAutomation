@@ -13,13 +13,12 @@ using SonoCap.Interceptors;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
-using SonoCap.MES.UI.Commons;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SonoCap.MES.UI.Model;
 using System.Diagnostics;
 using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Services.Interfaces;
+using SonoCap.WpfCommons;
 
 namespace SonoCap.MES.UI
 {
@@ -196,7 +195,6 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(TestingViewModel));
             services.AddTransient(typeof(TestViewModel));
             services.AddTransient(typeof(ProbeViewModel));
-            services.AddTransient(typeof(PreviewSaveViewModel));
             services.AddTransient(typeof(AboutViewModel));
         }
 
@@ -210,7 +208,6 @@ namespace SonoCap.MES.UI
             services.AddTransient(typeof(TestingView));
             services.AddTransient(typeof(TestView));
             services.AddTransient(typeof(ProbeView));
-            services.AddTransient(typeof(PreviewSaveView));
             services.AddTransient(typeof(AboutView));
             //services.AddTransient(s => new MainView() { DataContext = s.GetRequiredService<MainViewModel>() });
             //services.AddTransient(s => new FirstView() { DataContext = s.GetRequiredService<FirstViewModel>() });

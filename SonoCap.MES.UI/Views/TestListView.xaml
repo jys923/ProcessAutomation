@@ -8,8 +8,7 @@
         xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
         d:DataContext="{d:DesignInstance Type={x:Type vm:TestListViewModel}}"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:Behavior="clr-namespace:SonoCap.MES.UI.Behaviors"
-        xmlns:Converter="clr-namespace:SonoCap.MES.UI.Converters"
+        xmlns:Behavior="clr-namespace:SonoCap.WpfCommons.Behaviors;assembly=SonoCap.WpfCommons" 
         xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
         WindowState="Maximized"
         Title="{Binding Title}" Height="1080" Width="1920">

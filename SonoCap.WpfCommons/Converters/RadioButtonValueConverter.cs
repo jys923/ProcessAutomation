@@ -1,24 +1,20 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
 
-namespace SonoCap.MES.UI.Converters
+namespace SonoCap.WpfCommons.Converters
 {
-    public class RadioButtonIndexConverter : IValueConverter
+    public class RadioButtonValueConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int selectedIndex && int.TryParse(parameter?.ToString(), out int targetIndex))
-            {
-                return selectedIndex == targetIndex;
-            }
-            return false;
+            return value?.ToString() == parameter?.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool isChecked && isChecked)
             {
-                return int.Parse(parameter?.ToString());
+                return parameter?.ToString();
             }
             return Binding.DoNothing;
         }

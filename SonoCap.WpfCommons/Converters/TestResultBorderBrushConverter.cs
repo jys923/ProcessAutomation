@@ -2,7 +2,7 @@
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace SonoCap.MES.UI.Converters
+namespace SonoCap.WpfCommons.Converters
 {
     public class TestResultBorderBrushConverter : IValueConverter
     {

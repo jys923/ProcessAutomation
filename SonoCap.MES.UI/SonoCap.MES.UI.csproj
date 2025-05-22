@@ -63,6 +63,7 @@
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Repositories\SonoCap.MES.Repositories.csproj" />
     <ProjectReference Include="..\SonoCap.MES.Services\SonoCap.MES.Services.csproj" />
+    <ProjectReference Include="..\SonoCap.WpfCommons\SonoCap.WpfCommons.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -102,10 +103,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Commons\" />
   </ItemGroup>
 
 </Project>

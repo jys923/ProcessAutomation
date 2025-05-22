@@ -4,8 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SonoCap.MES.UI.Views"
-        xmlns:Converter="clr-namespace:SonoCap.MES.UI.Converters"
-        xmlns:Behavior="clr-namespace:SonoCap.MES.UI.Behaviors"
         xmlns:vm="clr-namespace:SonoCap.MES.UI.ViewModels"
         WindowState="Maximized"
         mc:Ignorable="d"
@@ -28,7 +26,6 @@
                 <Button Content="Testing" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestingViewCommand}" Visibility="Visible" />
                 <Button Content="Tests" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoTestListViewCommand}" Visibility="Visible" />
                 <Button Content="Probes" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoProbeListViewCommand}" Visibility="Visible" />
-                <Button Content="Preview" FontSize="15" Margin="5" IsDefault="True" Command="{Binding GoPreviewSaveViewCommand}"  Visibility="Visible" />
             </StackPanel>
         </StackPanel>
         
