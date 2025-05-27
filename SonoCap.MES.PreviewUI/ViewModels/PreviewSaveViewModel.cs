@@ -29,6 +29,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         private readonly IMotorService _motorService;
         private USRenderService _usRenderer;
         private double _rotationAngle = 0.0;
+        //private bool _flipVertical = false;
 
         // Constructor
         public PreviewSaveViewModel(
@@ -164,10 +165,11 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         }
 
         [RelayCommand]
-        public void KeyDown(KeyEventArgs keyEventArgs)
+        public void KeyDown(KeyEventArgs e)
         {
-            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
-            Log.Information($"{nameof(KeyDown)} key: {key}");
+            e.Handled = true;
+
+            var key = e.Key == Key.System ? e.SystemKey : e.Key;
 
             if (key == Key.Left)
             {
@@ -180,6 +182,16 @@ namespace SonoCap.MES.PreviewUI.ViewModels
                 _rotationAngle = (_rotationAngle + 10) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
+            }
+            else if (key == Key.Up)
+            {
+                _usRenderer?.SetVerticalFlip(true);
+                Log.Information($"[Flip Vertical] → true (↑)");
+            }
+            else if (key == Key.Down)
+            {
+                _usRenderer?.SetVerticalFlip(false);
+                Log.Information($"[Flip Vertical] → false (↓)");
             }
         }
 

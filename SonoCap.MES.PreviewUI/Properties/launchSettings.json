@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SonoCap.MES.PreviewUI": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

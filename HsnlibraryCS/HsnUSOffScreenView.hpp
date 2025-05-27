@@ -42,6 +42,7 @@ namespace HsnLibraryCS
 		const double MAX_FPS = 60.0;
 
 		void SetRotationAngle(double angleDeg);
+		void SetVerticalFlip(bool enable);
 	private:
 		ReceiveBuffer^ _receiveBuffer;
 		array<System::Byte>^ _buffer;
@@ -68,5 +69,6 @@ namespace HsnLibraryCS
 		void RenderRoutine();
 
 		double _rotation_angle = 0.0;
+		bool _flip_vertical = false;
 	};
 }

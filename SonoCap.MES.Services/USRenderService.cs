@@ -37,6 +37,11 @@ namespace SonoCap.MES.Services
             offScreenView?.SetRotationAngle(angle);
         }
 
+        public void SetVerticalFlip(bool flip)
+        {
+            offScreenView?.SetVerticalFlip(flip);
+        }
+
         public void RenderEnd()
         {
             //pboxes = null;

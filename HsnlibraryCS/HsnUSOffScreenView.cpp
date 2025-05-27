@@ -129,6 +129,12 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::SetRotationAngle(double angleDeg)
 	_rotation_angle = angleDeg;
 }
 
+void HsnLibraryCS::HsnUltrasoundOffScreenView::SetVerticalFlip(bool enable)
+{
+	msclr::lock lock{ _mutex };
+	_flip_vertical = enable;
+}
+
 void HsnLibraryCS::HsnUltrasoundOffScreenView::setDuration(double fps)
 {
 	_time_duration_us = (double)1e6 / fps;
@@ -247,25 +253,36 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Render()
 		// OpenCV 기반 회전 처리
 		try {
 			cv::Mat src(_height, _width, CV_8UC4, buffer_ptr);
+			cv::Mat flipped;
 			cv::Mat dst;
 
+			bool do_flip = false;
 			double angle = 0.0;
 			{
-				msclr::lock angle_lock{ _mutex };
+				msclr::lock lock{ _mutex };
 				angle = _rotation_angle;
+				do_flip = _flip_vertical;
+			}
+
+			if (do_flip) {
+				cv::flip(src, flipped, 0); // flipCode = 0 → 상하 반전
+			}
+			else {
+				flipped = src; // 복사 아님, 얕은 참조
 			}
 
 			if (std::abs(angle) >= 1.0)
 			{
-				cv::Mat src(_height, _width, CV_8UC4, buffer_ptr);
-				cv::Mat dst;
-
 				cv::Point2f center(_width / 2.0f, _height / 2.0f);
 				cv::Mat rotMat = cv::getRotationMatrix2D(center, -angle, 1.0);
-
-				cv::warpAffine(src, dst, rotMat, src.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0, 255));
-				std::memcpy(buffer_ptr, dst.data, _width * _height * 4);
+				cv::warpAffine(flipped, dst, rotMat, src.size(), cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(0, 0, 0, 255));
 			}
+			else
+			{
+				dst = flipped;
+			}
+
+			std::memcpy(buffer_ptr, dst.data, _width * _height * 4);
 		}
 		catch (const std::exception& ex) {
 			// 회전 실패 시 무시
