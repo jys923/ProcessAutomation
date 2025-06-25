@@ -66,12 +66,18 @@ inline void to_json(nlohmann::json& j, const ResResult& r) {
 struct GeoResult {
     double meanBrightness = -1;
     double stdBrightness = -1;
+    double maxSliceMean = -1;
+    double maxSliceVariance = -1;
+    double brightnessContrast = -1;
 };
 
 inline void to_json(nlohmann::json& j, const GeoResult& g) {
     j = nlohmann::json::object();
     if (g.meanBrightness >= 0) j["meanBrightness"] = g.meanBrightness;
     if (g.stdBrightness >= 0) j["stdBrightness"] = g.stdBrightness;
+    if (g.maxSliceMean >= 0) j["maxSliceMean"] = g.maxSliceMean;
+    if (g.maxSliceVariance >= 0) j["maxSliceVariance"] = g.maxSliceVariance;
+    if (g.brightnessContrast >= 0) j["brightnessContrast"] = g.brightnessContrast;
 }
 
 // 전체 검사 결과
@@ -226,12 +232,15 @@ std::string objectToJsonString(const T& dataObject) {
     return nlohmann::json(dataObject).dump(-1); // 4 = 들여쓰기
 }
 
-// 함수 선언 (알파벳 순으로 정렬)
+// 함수 선언
+float estimateRotationByORB(const cv::Mat& reference, const cv::Mat& rotated);
+float estimateRotationByCircularShift(const cv::Mat& reference, const cv::Mat& rotated);
+float estimateRotationByPhaseCorrelation(const cv::Mat& reference, const cv::Mat& rotated);
+float estimateVerticalShiftByFFT(const cv::Mat& ref, const cv::Mat& target, int angleResolution = 1024);
 double calculateCircleMean(const cv::Mat& grayImage, cv::Point center, int radius);
 double evaluateContourStraightness(const std::vector<cv::Point>& contour, cv::Mat& resultImage);
 double calculateContourStraightnessMSE(const std::vector<cv::Point>& contour, cv::Mat& resultImage);
 double calculateContourStraightnessRANSAC(const std::vector<cv::Point>& contour, cv::Mat& resultImage, int iterations = 100, double threshold = 2.0);
-void processLogNormalization(const cv::Mat& input, cv::Mat& output, double dr_min, double dr_max);
 
 void showAndSaveImage(const std::string& windowName, const cv::Mat& image);
 
@@ -261,7 +270,7 @@ std::vector<int> calculateRadii(const std::vector<std::vector<cv::Point>>& conto
 
 cv::Mat createCircularMask(const cv::Size& size, int innerRadius, int outerRadius);
 
-cv::Mat rotateImage(const cv::Mat& image, double angle);
+cv::Mat rotateImage(const cv::Mat& image, float angle);
 
 std::vector<cv::Point> extractCirclePoints(int radius, const cv::Point& center);
 
@@ -282,3 +291,11 @@ void drawPreciseCirclePoints();
 void drawCircleUsingOpenCV();
 
 void drawExtractedCirclePoints();
+
+void ApplyLogNormalization(const cv::Mat& inputGray, cv::Mat& outputUint8, double dr_min_percent, double dr_max_percent);
+
+void ApplyLinearDRClip(const cv::Mat& inputGray, cv::Mat& outputUint8, double dr_min_percent, double dr_max_percent, bool normalize = true);
+
+inline double clamp(double val, double min_val, double max_val) {
+    return std::max(min_val, std::min(val, max_val));
+}

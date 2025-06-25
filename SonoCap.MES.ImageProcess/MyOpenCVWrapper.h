@@ -1,50 +1,76 @@
-#pragma once
-#include "util.h"
+ï»¿#pragma once  
+#include "util.h"  
 
-using namespace System;
+using namespace System;  
 
-namespace MyOpenCVWrapper {
+namespace MyOpenCVWrapper {  
 
-    public ref class OpenCVWrapper {
-    public:
-        /*OpenCVWrapper() {
-            setOpenCVLogLevel();
-            Console::WriteLine("Instance Constructor Called");
-        }*/
+   public ref class OpenCVWrapper {  
+   public:  
+       /*OpenCVWrapper() {  
+           setOpenCVLogLevel();  
+           Console::WriteLine("Instance Constructor Called");  
+       }*/  
 
-        static void RunInspection(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer, int testPart);
-        // AlignProcess ÇÔ¼ö Á¤ÀÇ
-        static void AlignProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
+       static void RunInspection(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer, int testPart);  
+       // AlignProcess í•¨ìˆ˜ ì •ì˜  
+       static void AlignProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);  
 
-        // ResolutionProcess ÇÔ¼ö Á¤ÀÇ
-        static void ResolutionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
-        
-        static void GeometricDistortionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
+       // ResolutionProcess í•¨ìˆ˜ ì •ì˜  
+       static void ResolutionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);  
 
-        static void GrayProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);
-        
-        static void AnalyzeSharpness(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeContrast(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeBrightness(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeSNR(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeSpeckleIndex(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeEntropy(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeEdgeDensity(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeLocalVariance(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeCNR(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
-        static void AnalyzeFFT(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+       static void GeometricDistortionProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);  
 
-    private:
-        // Á¤Àû »ı¼ºÀÚ Ãß°¡ (Å¬·¡½º ·Îµå ½Ã ÇÑ ¹ø¸¸ ½ÇÇàµÊ)
-        static OpenCVWrapper() {
-            setOpenCVLogLevel();
-            Console::WriteLine("Static Constructor Called");
-        }
-        // ³»ºÎ ÇÔ¼ö·Î OpenCV ·Î±× ·¹º§ ¼³Á¤
-        static void setOpenCVLogLevel() {
-            // OpenCV ·Î±ë ·¹º§ ¼³Á¤
-            cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_ERROR);
-        }
-    };
+       static void GrayProcess(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer);  
+
+       static void AnalyzeSharpness(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeContrast(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeBrightness(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeSNR(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeSpeckleIndex(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeEntropy(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeEdgeDensity(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeLocalVariance(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeCNR(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);  
+       static void AnalyzeFFT(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer);
+       static void SetAnalyzeConfigJson(System::String^ json)
+       {
+           System::IntPtr ptr = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(json);
+           const char* nativeStr = static_cast<const char*>(ptr.ToPointer());
+           //::SetAnalyzeConfigJson(nativeStr); // native C++ í•¨ìˆ˜ í˜¸ì¶œ
+           System::Runtime::InteropServices::Marshal::FreeHGlobal(ptr);
+       };
+       static cv::Mat& GetReferenceImage();
+       static void SetReferenceImage(System::String^ path);
+       //static void SetReferenceImage(String^ path) {
+       //    System::IntPtr ptr = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(path);
+       //    const char* nativePath = static_cast<const char*>(ptr.ToPointer());
+
+       //    Console::WriteLine("ë ˆí¼ëŸ°ìŠ¤ ì´ë¯¸ì§€ ê²½ë¡œ: {0}", path);
+
+       //    *referenceImage = cv::imread(nativePath, cv::IMREAD_GRAYSCALE);
+       //    if (referenceImage->empty()) {
+       //        Console::WriteLine("ë ˆí¼ëŸ°ìŠ¤ ì´ë¯¸ì§€ ë¡œë”© ì‹¤íŒ¨");
+       //    }
+       //    else {
+       //        Console::WriteLine("ë ˆí¼ëŸ°ìŠ¤ ì´ë¯¸ì§€ ë¡œë”© ì™„ë£Œ");
+       //    }
+
+       //    System::Runtime::InteropServices::Marshal::FreeHGlobal(ptr); // ğŸ’¡ ë©”ëª¨ë¦¬ ëˆ„ìˆ˜ ë°©ì§€
+       //};
+
+   private:  
+       //static cv::Mat* referenceImage; // í¬ì¸í„°ë¡œ ë³€ê²½í•˜ì—¬ ë¹„ ê´€ë¦¬ í˜•ì‹ì„ í—ˆìš©  
+       // ì •ì  ìƒì„±ì ì¶”ê°€ (í´ë˜ìŠ¤ ë¡œë“œ ì‹œ í•œ ë²ˆë§Œ ì‹¤í–‰ë¨)  
+       static OpenCVWrapper() {  
+           setOpenCVLogLevel();  
+           //referenceImage = new cv::Mat(); // í¬ì¸í„° ì´ˆê¸°í™”  
+           Console::WriteLine("Static Constructor Called");  
+       }  
+       // ë‚´ë¶€ í•¨ìˆ˜ë¡œ OpenCV ë¡œê·¸ ë ˆë²¨ ì„¤ì •  
+       static void setOpenCVLogLevel() {  
+           // OpenCV ë¡œê¹… ë ˆë²¨ ì„¤ì •  
+           cv::utils::logging::setLogLevel(cv::utils::logging::LOG_LEVEL_ERROR);  
+       }  
+   };  
 }
-

@@ -47,7 +47,7 @@ namespace SonoCap.MES.ImageProcess.Test
     {
         static readonly List<InspectionPartType> SelectedInspectionParts = new()
         {
-            //InspectionPartType.All,
+            InspectionPartType.All,
             //InspectionPartType.Geo,
             //InspectionPartType.Gray,
             //InspectionPartType.Res
@@ -63,21 +63,25 @@ namespace SonoCap.MES.ImageProcess.Test
 
         static readonly List<ImageAnalyzeType> SelectedAnalyzes = new()
         {
-            ImageAnalyzeType.Sharpness,
-            ImageAnalyzeType.Brightness,
-            ImageAnalyzeType.Contrast,
-            ImageAnalyzeType.SNR,
-            ImageAnalyzeType.SpeckleIndex,
-            ImageAnalyzeType.Entropy,
-            ImageAnalyzeType.EdgeDensity,
-            ImageAnalyzeType.LocalVariance,
-            ImageAnalyzeType.CNR,
-            ImageAnalyzeType.FFT
+            //ImageAnalyzeType.Sharpness,
+            //ImageAnalyzeType.Brightness,
+            //ImageAnalyzeType.Contrast,
+            //ImageAnalyzeType.SNR,
+            //ImageAnalyzeType.SpeckleIndex,
+            //ImageAnalyzeType.Entropy,
+            //ImageAnalyzeType.EdgeDensity,
+            //ImageAnalyzeType.LocalVariance,
+            //ImageAnalyzeType.CNR,
+            //ImageAnalyzeType.FFT
         };
 
         static void Main()
         {
-            string imagePath = "../../../../TestImg/1745825466417_ori.bmp";
+            string refImgPath = "./referenceImage.bmp";
+            MyOpenCVWrapper.OpenCVWrapper.SetReferenceImage(refImgPath);
+
+            //string imagePath = "../../../../TestImg/SN00001_20250613_160340.bmp";
+            string imagePath = "./rotate2.bmp";
             string processFolder = MakeResultFolder(imagePath);
 
             BitmapSource bitmapSource = LoadBitmap(imagePath);

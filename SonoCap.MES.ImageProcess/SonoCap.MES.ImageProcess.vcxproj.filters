@@ -116,5 +116,9 @@
     <None Include="resolution.md" />
     <None Include="result.md" />
     <None Include="함수 파라미터 추가 방법.md" />
+    <None Include="기하학적왜곡.md" />
+    <None Include="로그 스케일.md" />
+    <None Include="ORB 기반 회전 추정.md" />
+    <None Include="Polar 변환 기반 회전 추정.md" />
   </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@
 #include "GeoInspection.h"
 #include "GrayInspection.h"
 #include "ResInspection.h"
+#include "MyOpenCVWrapper.h"
 
 #define INSPECT_GEO  (1 << 0)
 #define INSPECT_GRAY (1 << 1)
@@ -23,8 +24,25 @@ void MyOpenCVWrapper::RunInspection(System::IntPtr inputBuffer, int imageWidth, 
         memcpy(textBuffer.ToPointer(), errorText.c_str(), errorText.size() + 1);
         return;
     }
-
+    
     cv::Mat resultImage = inputImage.clone();
+
+    showAndSaveImage("origin", resultImage);
+
+    cv::Mat gray;
+    cv::cvtColor(resultImage, gray, cv::COLOR_BGRA2GRAY);
+	cv::Mat referenceImage = MyOpenCVWrapper::OpenCVWrapper::GetReferenceImage();
+    //float angle = estimateRotationByPhaseCorrelation(referenceImage, gray); //오류
+    //float angle = estimateVerticalShiftByFFT(referenceImage, gray); // 검출 이상 안됨
+    //float angle = estimateRotationByCircularShift(referenceImage, gray); //느림
+    float angle = estimateRotationByORB(referenceImage, gray);
+
+	Console::WriteLine("Estimated angle: {0}", angle);
+
+    resultImage = rotateImage(resultImage, angle); // or -anglePolar
+
+    showAndSaveImage("rotate", resultImage);
+
     int halfW = imageWidth / 2;
     int halfH = imageHeight / 2;
 

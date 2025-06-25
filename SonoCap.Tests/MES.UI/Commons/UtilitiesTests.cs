@@ -1,4 +1,6 @@
-﻿namespace SonoCap.MES.UI.Commons.Tests
+﻿using SonoCap.WpfCommons;
+
+namespace SonoCap.MES.UI.Commons.Tests
 {
     public class UtilitiesTests : IDisposable
     {

@@ -65,3 +65,28 @@ void MyOpenCVWrapper::OpenCVWrapper::AnalyzeCNR(System::IntPtr buffer, int width
 void MyOpenCVWrapper::OpenCVWrapper::AnalyzeFFT(System::IntPtr buffer, int width, int height, System::IntPtr textBuffer) {
 	MyOpenCVWrapper::AnalyzeFFT(buffer, width, height, textBuffer);
 }
+
+// ref class 바깥, 전역 공간에 위치
+static cv::Mat g_referenceImage;
+
+cv::Mat& MyOpenCVWrapper::OpenCVWrapper::GetReferenceImage() {
+    return g_referenceImage;
+}
+
+void MyOpenCVWrapper::OpenCVWrapper::SetReferenceImage(System::String^ path) {
+    System::IntPtr ptr = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(path);
+    const char* nativePath = static_cast<const char*>(ptr.ToPointer());
+
+    Console::WriteLine("레퍼런스 이미지 경로: {0}", path);
+
+	g_referenceImage = cv::imread(nativePath, cv::IMREAD_GRAYSCALE);
+
+    if (g_referenceImage.empty()) {
+        Console::WriteLine("레퍼런스 이미지 로딩 실패");
+    }
+    else {
+        Console::WriteLine("레퍼런스 이미지 로딩 완료");
+    }
+
+    System::Runtime::InteropServices::Marshal::FreeHGlobal(ptr);
+}

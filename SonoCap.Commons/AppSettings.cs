@@ -32,7 +32,6 @@ namespace SonoCap.Commons
 
     public class MesPath
     {
-        public string ImportExcel { get; set; } = @"./report/";
         public string ExportExcel { get; set; } = @"./report/";
         //public string ExportImg { get; set; } = @"./img/";
         public string ExportImg { get; set; } = @"./capture/images/";

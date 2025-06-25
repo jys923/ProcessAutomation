@@ -109,7 +109,10 @@
     public enum TestTypes
     {
         None = 0,
-        Align = 1,
+        Gray,
+        Res,
+        Geo,
+        Align,
         Axial,
         Lateral,
     }

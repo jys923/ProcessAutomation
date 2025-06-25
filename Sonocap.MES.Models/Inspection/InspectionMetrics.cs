@@ -50,7 +50,17 @@ namespace SonoCap.MES.Models.Inspection
 
         [JsonPropertyName("stdBrightness")]
         public double StdBrightness { get; set; } = -1;
+
+        [JsonPropertyName("brightnessContrast")]
+        public double BrightnessContrast { get; set; } = -1;
+
+        [JsonPropertyName("maxSliceMean")]
+        public double MaxSliceMean { get; set; } = -1;
+
+        [JsonPropertyName("maxSliceVariance")]
+        public double MaxSliceVariance { get; set; } = -1;
     }
+
 
     public class InspectionResult
     {

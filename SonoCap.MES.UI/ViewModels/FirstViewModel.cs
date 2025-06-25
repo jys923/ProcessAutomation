@@ -3,19 +3,19 @@ using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
-using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.WpfCommons;
 using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using SonoCap.MES.Services.Interfaces;
 
 namespace SonoCap.MES.UI.ViewModels
 {
     public partial class FirstViewModel : ViewModelBase
     {
-        private readonly SonoCap.MES.Services.Interfaces.IExcelService _excelService;
+        private readonly IExcelService _excelService;
         private readonly IViewService _viewService;
         private readonly IMotorModuleRepository _motorModuleRepository;
         private readonly IPcRepository _pcRepository;
@@ -63,9 +63,9 @@ namespace SonoCap.MES.UI.ViewModels
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
             await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Gray" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Res" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
         }
@@ -240,7 +240,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         public FirstViewModel(
-            SonoCap.MES.Services.Interfaces.IExcelService excelService,
+            IExcelService excelService,
             IViewService viewService,
             IMotorModuleRepository motorModuleRepository,
             IPcRepository pcRepository,

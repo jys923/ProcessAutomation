@@ -8,6 +8,277 @@
 using namespace cv;
 using namespace std;
 
+// ORB 기반 회전 추정 함수
+float estimateRotationByORB(const cv::Mat& reference, const cv::Mat& rotated) {
+    cv::Ptr<cv::ORB> orb = cv::ORB::create(500);
+    std::vector<cv::KeyPoint> kp1, kp2;
+    cv::Mat des1, des2;
+    orb->detectAndCompute(reference, cv::noArray(), kp1, des1);
+    orb->detectAndCompute(rotated, cv::noArray(), kp2, des2);
+
+    if (des1.empty() || des2.empty()) return 0.0f;
+
+    std::vector<cv::DMatch> matches;
+    cv::BFMatcher matcher(cv::NORM_HAMMING);
+    matcher.match(des1, des2, matches);
+
+    std::sort(matches.begin(), matches.end(), [](const auto& a, const auto& b) {
+        return a.distance < b.distance;
+        });
+
+    if (matches.size() < 10) return 0.0f;
+
+    std::vector<cv::Point2f> pts1, pts2;
+    for (int i = 0; i < std::min(50, (int)matches.size()); ++i) {
+        pts1.push_back(kp1[matches[i].queryIdx].pt);
+        pts2.push_back(kp2[matches[i].trainIdx].pt);
+    }
+
+    cv::Mat affine = cv::estimateAffinePartial2D(pts2, pts1);
+    if (affine.empty()) return 0.0f;
+
+    float angleRad = std::atan2(affine.at<double>(0, 1), affine.at<double>(0, 0));
+    return angleRad * 180.0f / CV_PI;
+}
+
+float estimateRotationByPhaseCorrelation(const cv::Mat& reference, const cv::Mat& rotated) {
+    int radius = std::min(reference.cols, reference.rows) / 2;
+    cv::Point2f center(reference.cols / 2.0f, reference.rows / 2.0f);
+
+    // 해상도 설정 (각도 방향이 세로, 고정)
+    int angleResolution = 1024;
+
+    // Polar 변환
+    cv::Mat refPolar, rotPolar;
+    cv::warpPolar(reference, refPolar, cv::Size(radius, angleResolution), center, radius, cv::WARP_POLAR_LINEAR);
+    cv::warpPolar(rotated, rotPolar, cv::Size(radius, angleResolution), center, radius, cv::WARP_POLAR_LINEAR);
+
+    // 회전 정합: phase correlation (Y 방향 이동량 측정)
+    cv::Point2d shift = cv::phaseCorrelate(refPolar, rotPolar);
+    double yShift = shift.y;
+
+    // 회전 각도 계산
+    float angle = -360.0f * static_cast<float>(yShift) / angleResolution;
+    if (angle < 0) angle += 360.0f; // 0~360으로 보정
+
+    return -angle; // 외부 사용 시 CCW 기준 음수 반환
+}
+
+float estimateVerticalShiftByFFT(const cv::Mat& ref, const cv::Mat& target, int angleResolution)
+{
+    // 1. float 변환 + 평균 제거
+    cv::Mat fRef, fTarget;
+    ref.convertTo(fRef, CV_32F);
+    target.convertTo(fTarget, CV_32F);
+    fRef -= cv::mean(fRef);
+    fTarget -= cv::mean(fTarget);
+
+    // 2. 행 방향(=Y축) FFT
+    cv::dft(fRef, fRef, cv::DFT_ROWS | cv::DFT_COMPLEX_OUTPUT);
+    cv::dft(fTarget, fTarget, cv::DFT_ROWS | cv::DFT_COMPLEX_OUTPUT);
+
+    // 3. Cross Power Spectrum 계산
+    cv::Mat crossPower;
+    cv::mulSpectrums(fTarget, fRef, crossPower, 0, true);
+    cv::normalize(crossPower, crossPower);
+
+    // 4. 역 DFT → correlation peak 추정
+    cv::Mat corr;
+    cv::dft(crossPower, corr, cv::DFT_INVERSE | cv::DFT_ROWS | cv::DFT_REAL_OUTPUT | cv::DFT_SCALE);
+
+    // 5. 최대 상관 위치 → shift
+    cv::Point maxLoc;
+    cv::minMaxLoc(corr, nullptr, nullptr, nullptr, &maxLoc);
+    int shift = maxLoc.y;
+
+    // 6. shift → angle 변환 (Polar 이미지의 세로축 = 각도)
+    float angle = -360.0f * shift / angleResolution;
+    if (angle < 0) angle += 360.0f;
+    return -angle; // 다른 알고리즘과 부호 맞추기
+}
+
+
+
+cv::Mat circShiftX(const cv::Mat& src, int shift) {
+    int w = src.cols;
+    shift = ((shift % w) + w) % w; // 음수 대응 안전 모듈러
+
+    // 예외 처리
+    if (w == 0 || shift < 0 || shift >= w) {
+        std::cerr << "[CircularShift] Invalid shift value: " << shift << ", src.cols: " << w << std::endl;
+        return src.clone();
+    }
+
+    if (shift == 0)
+        return src.clone();  // 0이면 그대로 반환
+
+    // 안전하게 split 후 concat
+    cv::Mat part1 = src.colRange(shift, w).clone(); // clone으로 안전 확보
+    cv::Mat part2 = src.colRange(0, shift).clone();
+
+    cv::Mat result;
+    cv::hconcat(part1, part2, result);
+    return result;
+}
+
+cv::Mat circShiftY(const cv::Mat& src, int shift) {
+    int h = src.rows;
+    shift = ((shift % h) + h) % h; // 음수 대응 안전 모듈러
+
+    if (h == 0 || shift < 0 || shift >= h) {
+        std::cerr << "[CircularShiftY] Invalid shift value: " << shift << ", src.rows: " << h << std::endl;
+        return src.clone();
+    }
+
+    if (shift == 0)
+        return src.clone();
+
+    // 위쪽과 아래쪽을 분리해서 붙이기
+    cv::Mat part1 = src.rowRange(shift, h).clone();
+    cv::Mat part2 = src.rowRange(0, shift).clone();
+
+    cv::Mat result;
+    cv::vconcat(part1, part2, result); // ← 가로 말고 세로 연결
+    return result;
+}
+ 
+// 정규화 상관계수 계산
+float computeNormalizedCorrelation(const cv::Mat& a, const cv::Mat& b) {
+    cv::Mat a32f, b32f;
+    a.convertTo(a32f, CV_32F);
+    b.convertTo(b32f, CV_32F);
+
+    cv::Scalar meanA = cv::mean(a32f);
+    cv::Scalar meanB = cv::mean(b32f);
+    a32f -= meanA;
+    b32f -= meanB;
+
+    double num = cv::sum(a32f.mul(b32f))[0];
+    double denom = std::sqrt(cv::sum(a32f.mul(a32f))[0] * cv::sum(b32f.mul(b32f))[0]);
+    if (denom == 0) return 0;
+    return static_cast<float>(num / denom);
+}
+
+// 회전 추정 함수 (Polar 변환 + Y 방향 순환 시프트)
+float estimateRotationByCircularShift(const cv::Mat& reference, const cv::Mat& rotated) {
+    int radius = std::min(reference.cols, reference.rows) / 2;
+    cv::Point2f center(reference.cols / 2.0f, reference.rows / 2.0f);
+
+    int angleResolution = 1024;
+    cv::Mat refPolar, rotPolar;
+    cv::warpPolar(reference, refPolar, cv::Size(radius, angleResolution), center, radius, cv::WARP_POLAR_LINEAR);
+    cv::warpPolar(rotated, rotPolar, cv::Size(radius, angleResolution), center, radius, cv::WARP_POLAR_LINEAR);
+
+    // 상관계수 리스트 저장
+    std::vector<float> corrList(angleResolution);
+    float bestCorr = -1.0f;
+    int bestShift = 0;
+
+    for (int shift = 0; shift < angleResolution; ++shift) {
+        cv::Mat shifted = circShiftY(rotPolar, shift);
+        float corr = computeNormalizedCorrelation(refPolar, shifted);
+        corrList[shift] = corr;
+        if (corr > bestCorr) {
+            bestCorr = corr;
+            bestShift = shift;
+        }
+    }
+
+    // 서브픽셀 보정 (parabolic interpolation)
+    float subpixelShift = static_cast<float>(bestShift);
+    if (bestShift > 0 && bestShift < angleResolution - 1) {
+        float y1 = corrList[bestShift - 1];
+        float y2 = corrList[bestShift];
+        float y3 = corrList[bestShift + 1];
+        float denom = 2 * (2 * y2 - y1 - y3);
+        if (denom != 0.0f) {
+            float delta = (y1 - y3) / denom;
+            subpixelShift += delta;
+        }
+    }
+
+    // 시각화 (원하는 경우)
+    cv::imshow("refPolar", refPolar);
+    cv::imshow("rotPolar", rotPolar);
+    cv::imshow("shifted best", circShiftY(rotPolar, static_cast<int>(subpixelShift + 0.5f)));
+    cv::waitKey();
+
+    // 각도 계산 (음수: 반시계)
+    float angle = -360.0f * subpixelShift / angleResolution;
+    if (angle < 0) angle += 360.0f;  // 항상 0~360 범위로 보정
+    return -angle;
+}
+
+void ApplyLinearDRClip(const cv::Mat& inputGray, cv::Mat& outputUint8, double dr_min_percent, double dr_max_percent, bool normalize)
+{
+    CV_Assert(inputGray.type() == CV_8UC1);
+    CV_Assert(0 <= dr_min_percent && dr_min_percent < dr_max_percent && dr_max_percent <= 100);
+
+    // 퍼센트 → 값 변환
+    int min_val = static_cast<int>(dr_min_percent * 255.0 / 100.0);
+    int max_val = static_cast<int>(dr_max_percent * 255.0 / 100.0);
+    if (max_val <= min_val)
+        max_val = min_val + 1;
+
+    // 클리핑
+    cv::Mat clipped;
+    cv::threshold(inputGray, clipped, max_val, max_val, cv::THRESH_TRUNC);
+    cv::threshold(clipped, clipped, min_val, min_val, cv::THRESH_TOZERO);
+
+    if (normalize)
+    {
+        // 정규화: (x - min_val) / (max_val - min_val) * 255
+        cv::Mat float_img;
+        clipped.convertTo(float_img, CV_32F);
+        float_img = (float_img - min_val) / (max_val - min_val) * 255.0f;
+        float_img.convertTo(outputUint8, CV_8U);
+    }
+    else
+    {
+        // 정규화 없이 그대로 출력
+        outputUint8 = clipped.clone();
+    }
+}
+
+void ApplyLogNormalization(const cv::Mat& inputGray, cv::Mat& outputUint8, double dr_min_percent, double dr_max_percent)
+{
+    CV_Assert(inputGray.type() == CV_8UC1 || inputGray.type() == CV_16UC1);
+    CV_Assert(0 <= dr_min_percent && dr_min_percent < dr_max_percent && dr_max_percent <= 100);
+
+    // 1. 입력을 float32로 변환
+    cv::Mat floatInput;
+    inputGray.convertTo(floatInput, CV_32F);
+
+    // 2. log 변환 전에 0 방지
+    cv::Mat logInput = cv::max(floatInput, 1.0f);
+
+    // 3. log 변환 (자연로그 사용)
+    cv::Mat logResult;
+    cv::log(logInput, logResult);
+
+    // 4. log -> dB 변환
+    const float ln10_inv_mul20 = 8.68589f;
+    logResult *= ln10_inv_mul20;
+
+    // 5. DR 범위 설정
+    const float absolute_max_db = std::log10(std::sqrt(2.0f) * 32768.0f) * 20.0f;
+    float dr_min_db = absolute_max_db * dr_min_percent / 100.0f;
+    float dr_max_db = absolute_max_db * dr_max_percent / 100.0f;
+
+    // 6. DR min 조정
+    logResult -= dr_min_db;
+    cv::threshold(logResult, logResult, 0, 0, cv::THRESH_TOZERO); // max(x, 0)
+
+    // 7. 정규화 to 0~255
+    logResult = logResult / (dr_max_db - dr_min_db) * 255.0f;
+    cv::threshold(logResult, logResult, 255.0, 255.0, cv::THRESH_TRUNC); // min(x, 255)
+
+    // 8. 반올림 후 uint8로 변환
+    cv::Mat rounded;
+    cv::add(logResult, 0.5, logResult);            // +0.5
+    logResult.convertTo(outputUint8, CV_8U);       // 정수형으로 내림 (truncation → 반올림 효과)
+}
+
 // 원 내부의 모든 픽셀값 평균을 계산하는 함수
 double calculateCircleMean(const Mat& grayImage, Point center, int radius) {
     if (grayImage.empty()) {
@@ -272,68 +543,6 @@ double calculateContourStraightnessRANSAC(const vector<Point>& contour, Mat& res
 
     return rmse;  // RMSE 값을 반환 (값이 작을수록 직선에 가까움)
 }
-
-void processLogNormalization(const cv::Mat& input, cv::Mat& output, double dr_min, double dr_max) {
-    // 상수값 설정
-    const double ln10_inv_mul20 = 8.685890; // 20 / ln(10)
-    const double absolute_max_db = std::log10(std::sqrt(2.0) * 32768) * 20;
-
-    // 사용자 정의 DR min/max를 dB로 변환
-    double dr_min_db = absolute_max_db * (dr_min / 100.0);
-    double dr_max_db = absolute_max_db * (dr_max / 100.0);
-
-    // 입력 데이터를 float으로 변환
-    cv::Mat floatInput;
-    input.convertTo(floatInput, CV_32F);
-
-    // 로그 변환 적용 (log(1.0) 이상으로 보정)
-    cv::Mat logResult;
-    cv::log(cv::max(floatInput, 1.0), logResult);
-
-    // dB 변환 및 동적 범위 조정
-    logResult = logResult * ln10_inv_mul20 - dr_min_db;
-    cv::max(logResult, 0.0, logResult); // 최소값 보정
-
-    // 0~255 정규화
-    logResult = (logResult / (dr_max_db - dr_min_db)) * 255.0;
-    cv::min(logResult, 255.0, logResult); // 최대값 보정
-    logResult.convertTo(output, CV_8U); // uint8 변환
-}
-
-//void processLogNormalization(const cv::Mat& input, cv::Mat& output, double dr_min, double dr_max) {
-//    // 상수값 설정
-//    const double ln10_inv_mul20 = 8.685890; // 20 / ln(10)
-//    const double absolute_max_db = std::log10(std::sqrt(2.0) * 32768) * 20;
-//
-//    // 사용자 정의 DR min/max를 dB로 변환
-//    double dr_min_db = absolute_max_db * (dr_min / 100.0);
-//    double dr_max_db = absolute_max_db * (dr_max / 100.0);
-//
-//    // RGBA → Grayscale 변환 (모든 채널이 동일한 값을 가지므로, 하나만 사용)
-//    cv::Mat grayInput;
-//    cv::cvtColor(input, grayInput, cv::COLOR_BGRA2GRAY);
-//
-//    // float 변환
-//    cv::Mat floatInput;
-//    grayInput.convertTo(floatInput, CV_32F);
-//
-//    // 로그 변환 (log(1.0) 이상으로 보정)
-//    floatInput += 1.0f; // 최소값 보정
-//    cv::log(floatInput, floatInput);
-//
-//    // dB 변환 및 동적 범위 조정
-//    cv::Mat logResult = (floatInput * ln10_inv_mul20) - dr_min_db;
-//    cv::max(logResult, 0.0, logResult); // 최소값 보정
-//
-//    // 0~255 정규화
-//    logResult = (logResult / (dr_max_db - dr_min_db)) * 255.0;
-//    cv::min(logResult, 255.0, logResult); // 최대값 보정
-//    logResult.convertTo(logResult, CV_8U); // uint8 변환
-//
-//    // 다시 RGBA로 변환
-//    cv::Mat channels[] = { logResult, logResult, logResult, cv::Mat::ones(logResult.size(), CV_8U) * 255 };
-//    cv::merge(channels, 4, output);
-//}
 
 #if ENABLE_IMAGE_DISPLAY
 void showAndSaveImage(const std::string& windowName, const cv::Mat& image) {
@@ -641,7 +850,7 @@ void drawPoints(const cv::Mat& inputImage, cv::Mat& outputImage, const std::vect
     }
 }
 
-cv::Mat rotateImage(const cv::Mat& image, double angle)
+cv::Mat rotateImage(const cv::Mat& image, float angle)
 {
     // 이미지의 중심 점 계산
     cv::Point2f center(image.cols / 2.0F, image.rows / 2.0F);

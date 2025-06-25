@@ -26,6 +26,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
+using System.IO;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -34,6 +35,7 @@ namespace SonoCap.MES.UI.ViewModels
     public partial class TestingViewModel : ViewModelBase, IParameterReceiver
     {
         private Transducer? _transducer { get; set; } = default!;
+
         private TransducerModule? _transducerModule { get; set; } = default!;
         private MotorModule? _motorModule { get; set; } = default!;
         private Probe? _probe { get; set; } = default!;
@@ -41,6 +43,8 @@ namespace SonoCap.MES.UI.ViewModels
         private TestCategories _testCategory { get; set; } = default!;
         private TestTypes _testType { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
+
+        private Test? _test { get; set; } = default!;
 
         private MES.Services.Model.GlobalModel _model;
         private readonly TestingManagementService _testingManagementService;
@@ -73,6 +77,9 @@ namespace SonoCap.MES.UI.ViewModels
             InitUI();
             InitImg();
             InitTimer();
+            string refImgPath = "Resources/refImg.bmp";
+            MyOpenCVWrapper.OpenCVWrapper.SetReferenceImage(refImgPath);
+            inspectionFunction = MyOpenCVWrapper.OpenCVWrapper.RunInspection;
         }
 
         private void InitUI()
@@ -98,6 +105,12 @@ namespace SonoCap.MES.UI.ViewModels
 
             SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
 
+            ApplicationList = new ObservableCollection<Tuple<int, string>>(_model.Applications);
+            SelectedApplication = ApplicationList.FirstOrDefault(x => x.Item1 == _model.Application);
+
+            PresetList = new ObservableCollection<Tuple<int, string>>(_model.Presets);
+            SelectedPreset = PresetList.FirstOrDefault(x => x.Item1 == _model.Setting);
+
             // 허용할 파일명 목록
             var allowList = new HashSet<string>
             {
@@ -122,10 +135,10 @@ namespace SonoCap.MES.UI.ViewModels
         }
         private void InitImg()
         {
-            _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
+            _defaultImg = Utilities.LoadBitmapFromResource("refImg.bmp");
 
             // 이미지 파일 경로 설정
-            string imagePath = "Resources/usImg.bmp";
+            string imagePath = "Resources/refImg.bmp";
 
             // 이미지 로드
             //SrcImg = new BitmapImage(new Uri(imagePath, UriKind.RelativeOrAbsolute));
@@ -226,6 +239,11 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private int _blinkingCellIndex = (int)CellPositions.Row0_Column0;
+
+        partial void OnBlinkingCellIndexChanged(int value)
+        {
+            Log.Information($"[DEBUG] BlinkingCellIndex changed to {value}");
+        }
 
         private int _oldRow = -1;
         private int _oldCol = -1;
@@ -669,11 +687,34 @@ namespace SonoCap.MES.UI.ViewModels
 
         private BitmapImage _defaultImg = default!;
 
-        [ObservableProperty]
-        private ObservableCollection<Tuple<int, string>> _subSettingList;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _applicationList;
+        [ObservableProperty] private Tuple<int, string> _selectedApplication;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _presetList;
+        [ObservableProperty] private Tuple<int, string> _selectedPreset;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _subSettingList;
+        [ObservableProperty] private Tuple<int, string> _selectedSubSetting;
 
-        [ObservableProperty]
-        private Tuple<int,string> _selectedSubSetting;
+        partial void OnSelectedApplicationChanged(Tuple<int, string> value)
+        {
+            if (_model.Application != value.Item1)
+            {
+                _model.Application = value.Item1;
+
+                DRMin = _model.DRMin;
+                DRMax = _model.DRMax;
+            }
+        }
+
+        partial void OnSelectedPresetChanged(Tuple<int, string> value)
+        {
+            if (_model.Setting != value.Item1)
+            {
+                _model.Setting = value.Item1;
+
+                DRMin = _model.DRMin;
+                DRMax = _model.DRMax;
+            }
+        }
 
         partial void OnSelectedSubSettingChanged(Tuple<int, string> value)
         {
@@ -712,13 +753,13 @@ namespace SonoCap.MES.UI.ViewModels
             
             if (key == Key.Left)
             {
-                _rotationAngle = (_rotationAngle - 10 + 360) % 360;
+                _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
             }
             else if (key == Key.Right)
             {
-                _rotationAngle = (_rotationAngle + 10) % 360;
+                _rotationAngle = (_rotationAngle + 1) % 360;
                 usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
             }
@@ -764,39 +805,39 @@ namespace SonoCap.MES.UI.ViewModels
             {
                 case CellPositions.Row1_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column1;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row1_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column2;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
                     break;
                 case CellPositions.Row1_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column3;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
                     break;
                 case CellPositions.Row2_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column1;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row2_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column2;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
                     break;
                 case CellPositions.Row2_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column3;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
                     break;
                 case CellPositions.Row3_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column1;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
                     break;
                 case CellPositions.Row3_Column2:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column2;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
                     break;
                 case CellPositions.Row3_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column3;
-                    processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
                     break;
                 default:
                     break;
@@ -821,10 +862,24 @@ namespace SonoCap.MES.UI.ViewModels
             int row = (int)position / 10;
             _testCategory = (TestCategories)row;
 
-            bool proceed = Controls.MessageBox.Show("강제 검사", "강제 검사 실행?");
+            bool proceed = Controls.MessageBox.Show("통합 검사", "통합 검사 실행?");
             if (!proceed)
             {
-                ResLogs.Add("강제 검사 취소");
+                ResLogs.Add("통합 검사 취소");
+                return;
+            }
+
+            // 검사 이력 확인
+            var allTypeIds = new[] { 1, 2, 3 };
+            var existingTypes = _testingManagementService.GetExistingTestTypeIds(
+                _testCategory, _transducer, _transducerModule, _probe
+            );
+            var missingTypes = allTypeIds.Except(existingTypes).ToList();
+
+            if (missingTypes.Count == 0)
+            {
+                Controls.MessageBox.Show("검사 생략", "모든 항목이 이미 검사되어\n추가로 저장할 항목이 없습니다.");
+                ResLogs.Add("검사 생략 - 저장할 항목 없음");
                 return;
             }
 
@@ -851,12 +906,14 @@ namespace SonoCap.MES.UI.ViewModels
             GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
             IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
 
-            inspectionFunction = MyOpenCVWrapper.OpenCVWrapper.RunInspection;
             Utilities.InspectionImage(inspectionFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr, (int)InspectionPartType.All);
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
-            string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
+            //string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
+            //string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
+
+            string OriginalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
+            string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
 
             // 결과 이미지 변환 및 저장
             BitmapSource resultBitmapSource = BitmapSource.Create(
@@ -870,7 +927,7 @@ namespace SonoCap.MES.UI.ViewModels
             );
             //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
             Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
-            Utilities.SaveBitmap(resultBitmapSource, resultImagePath);
+            Utilities.SavePng(resultBitmapSource, resultImagePath);
             App.Current.Dispatcher.Invoke(() =>
             {
                 //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
@@ -895,12 +952,79 @@ namespace SonoCap.MES.UI.ViewModels
             var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
             if (parsed != null)
             {
-                await SaveForceTestResultsAsync(parsed, OriginalImgName, resultImagePath);
+                await SaveForceTestResultsAsync(parsed, Path.GetFileName(OriginalImgName), Path.GetFileName(resultImagePath));
+                Log.Information("Calling TryActivateNextCategoryAsync");
+                await TryActivateNextCategoryAsync();
+
+                TestResult = -2;
+                ValidationDict[nameof(TestResult)].IsEnabled = false;
+                OnTDSnChanged(TDSn);
+                TDSnIsPopupOpen = false;
             }
         }
 
-        // 강제 패스 저장
         private async Task SaveForceTestResultsAsync(InspectionResult parsed, string originalImg, string changedImg)
+        {
+            var allTypeIds = new[] { 1, 2, 3 };
+
+            var existingTypes = _testingManagementService.GetExistingTestTypeIds(
+                _testCategory,
+                _transducer,
+                _transducerModule,
+                _probe
+            );
+
+            Log.Information("existingTypes = {Existing}", string.Join(", ", existingTypes));
+
+            var missingTypes = allTypeIds.Except(existingTypes).ToList();
+            Log.Information("missingTypes = {Missing}", string.Join(", ", missingTypes));
+
+            foreach (int typeId in allTypeIds.Except(existingTypes))
+            {
+                var resultScore = typeId switch
+                {
+                    1 => InspectionCalculator.CalculateGrayScore(parsed.Gray),
+                    2 => InspectionCalculator.CalculateResScore(parsed.Res),
+                    3 => InspectionCalculator.CalculateGeoScore(parsed.Geo),
+                    _ => 0
+                };
+
+                var newTest = new Test
+                {
+                    TestCategoryId = (int)_testCategory,
+                    TesterId = _tester.Id,
+                    OriginalImg = originalImg,
+                    ChangedImg = changedImg,
+                    Result = 100,
+                    Method = 2,
+                    TestTypeId = typeId,
+                    ChangedImgMetadata = typeId switch
+                    {
+                        1 => parsed.Gray.ToJson(),
+                        2 => parsed.Res.ToJson(),
+                        3 => parsed.Geo.ToJson(),
+                        _ => "{}"
+                    },
+                };
+
+                PrepareTest(_testCategory, newTest);
+
+                if (await _testingManagementService.SaveAsync(newTest))
+                {
+                    ResLogs.Add($"강제 검사 저장: TestTypeId = {typeId}");
+                    Utilities.MoveTempImageToExport(
+                        originalImg, App.appTempDir, App.appSettings.Path.ExportImg
+                    );
+                    Utilities.MoveTempImageToExport(
+                        changedImg, App.appTempDir, App.appSettings.Path.ExportImg
+                    );
+                }
+            }
+            Log.Information("SaveForceTestResultsAsync done");
+        }
+
+        // 강제 패스 저장
+        private async Task SaveForceTestResultsAsync2(InspectionResult parsed, string originalImg, string changedImg)
         {
             // 저장 대상 리스트 (1=Gray, 2=Res, 3=Geo)
             var testTypeIds = new[] { 1, 2, 3 };
@@ -1183,12 +1307,13 @@ namespace SonoCap.MES.UI.ViewModels
                 }
                 else
                 {
-                    BlinkingCellIndex = (int)_oldCell;
+                    //BlinkingCellIndex = (int)_oldCell;
                     TdCellIsEnabled = true;
                     //셀버튼 _td _tdMd _p 각각 널이면 가로로 한줄을 끔
                     await SetBySnAsync(SnType.Transducer, value);
                     ValidationService.ValidateField(ValidationDict, nameof(TDSn));
 
+                    Log.Information("Calling GetTestByIdAsync");
                     tests = await _testingManagementService.GetTestByIdAsync(SnType.Transducer, _transducer!.Id);
                     foreach (var item in tests)
                     {
@@ -1262,7 +1387,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         private bool CanTest()
-       {
+        {
             Log.Information(nameof(CanTest));
             List<int> validIndices = new List<int>
             {
@@ -1277,6 +1402,9 @@ namespace SonoCap.MES.UI.ViewModels
         private Task TestAsync()
         {
             Log.Information($"TestAsync response");
+
+            if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
+                return Task.CompletedTask;
             //App.Current.Dispatcher.Invoke(() =>
             //{
             //ResImg = Utilities.CopyImageSource(SrcImg);
@@ -1308,12 +1436,21 @@ namespace SonoCap.MES.UI.ViewModels
             GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
             IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
 
-            // OpenCV 처리 함수 실행 (ProcessImage 내부에는 오직 이 한 줄만 있음)
-            Utilities.ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
+            InspectionPartType partType = _testType switch
+            {
+                TestTypes.Gray => InspectionPartType.Gray,
+                TestTypes.Res => InspectionPartType.Res,
+                TestTypes.Geo => InspectionPartType.Geo,
+                _ => InspectionPartType.None
+            };
+            Utilities.InspectionImage(inspectionFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr, (int)partType);
 
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
-            string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
+            //string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
+            //string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
+            string OriginalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
+            string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
+
 
             // 결과 이미지 변환 및 저장
             BitmapSource resultBitmapSource = BitmapSource.Create(
@@ -1327,7 +1464,7 @@ namespace SonoCap.MES.UI.ViewModels
             );
             //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
             Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
-            Utilities.SaveBitmap(resultBitmapSource, resultImagePath);
+            Utilities.SavePng(resultBitmapSource, resultImagePath);
             App.Current.Dispatcher.Invoke(() =>
             {
                 //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
@@ -1338,6 +1475,33 @@ namespace SonoCap.MES.UI.ViewModels
             Log.Information($"resultText: {resultText}");
             ResLogs.Add(resultText);
             ResTxt = resultText;
+
+            var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
+
+            int resultScore = _testType switch
+            {
+                TestTypes.Gray => InspectionCalculator.CalculateGrayScore(parsed.Gray),
+                TestTypes.Res  => InspectionCalculator.CalculateResScore(parsed.Res),
+                TestTypes.Geo  => InspectionCalculator.CalculateGeoScore(parsed.Geo),
+                _ => 0
+            };
+
+            TestResult = 100;
+
+            _test = new Test
+            {
+                TestCategoryId = (int)_testCategory,
+                TestTypeId = (int)_testType,
+                TesterId = _tester.Id,
+                Result = resultScore, // 여기서 검사 로직 통해서 계산하거나 임시 -2 등
+                Method = 1,
+                ChangedImgMetadata = resultText,
+                OriginalImg = Path.GetFileName(OriginalImgName),
+                ChangedImg = Path.GetFileName(resultImagePath),
+            };
+
+            PrepareTest(_testCategory, _test);
+
             // 메모리 해제
             imageHandle.Free();
             resultHandle.Free();
@@ -1363,47 +1527,36 @@ namespace SonoCap.MES.UI.ViewModels
         private async Task NextAsync()
         {
             Log.Information($"{nameof(NextAsync)}");
-            //Log.Information($"ValidateAll(_testCategory) : {ValidateAll(_testCategory)}");
-
-            PTRView? tmpPTR = null;
-
-            if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
-                return;
-
-            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
-            string ChangedImgName = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
-
-            Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
-            Utilities.ImageSourceToPng(ResImg, ChangedImgName);
-
-            Test insertTest = new Test
+            _test.Result = TestResult;
+            if (await _testingManagementService.SaveAsync(_test))
             {
-                TestCategoryId = (int)_testCategory,
-                TestTypeId = (int)_testType,
-                TesterId = _tester.Id,
-                OriginalImg = OriginalImgName,
-                ChangedImg = ChangedImgName,
-                ChangedImgMetadata = ResTxt,
-                Result = TestResult,
-                Method = 1,
-            };
-
-            PrepareTest(_testCategory, insertTest);
-
-            if (await _testingManagementService.SaveAsync(insertTest))
-            {
-                string tmp = insertTest.ToString();
-                Log.Information(insertTest.ToString());
+                string tmp = _test.ToString();
+                Log.Information(tmp);
                 ResLogs.Add($"Add test : {tmp}");
+
+                Utilities.MoveTempImageToExport(
+                    _test.OriginalImg, App.appTempDir, App.appSettings.Path.ExportImg
+                );
+
+                Utilities.MoveTempImageToExport(
+                    _test.ChangedImg, App.appTempDir, App.appSettings.Path.ExportImg
+                );
+                ResTxt = "";
+
+                CellPositions cellPosition = (CellPositions)((int)_testCategory * 10 + (int)_testType);
+                SetCellPassFail(_test, cellPosition);
+                await TryActivateNextCategoryAsync();
             }
 
-            //검사 결과 삭제
-            ResTxt = "";
+            ResImg = default!;
+            TestResult = -2;
+            ValidationDict[nameof(TestResult)].IsEnabled = false;
+            OnTDSnChanged(TDSn);
+            TDSnIsPopupOpen = false;
+        }
 
-            CellPositions cellPosition = (CellPositions)((int)_testCategory * 10 + (int)_testType);
-            SetCellPassFail(insertTest, cellPosition);
-
+        private async Task TryActivateNextCategoryAsync()
+        {
             SharedSeqNo? seqNo = await _testingManagementService.GetSeqNoAsync();
 
             bool existNext = false;
@@ -1473,12 +1626,6 @@ namespace SonoCap.MES.UI.ViewModels
                     }
                     break;
             }
-
-            ResImg = default!;
-            TestResult = -2;
-            ValidationDict[nameof(TestResult)].IsEnabled = false;
-            OnTDSnChanged(TDSn);
-            TDSnIsPopupOpen = false;
         }
 
         private void SetCellPassFail(Test item, CellPositions cellPosition)
@@ -1574,6 +1721,8 @@ namespace SonoCap.MES.UI.ViewModels
             _transducerModule = testingData.TransducerModule;
             _transducer = testingData.Transducer;
             _pTRView = testingData.PTRView;
+
+            Log.Information("SetBySnAsync done");
         }
 
         private void PrepareTest(TestCategories testCategory, Test insertTest)

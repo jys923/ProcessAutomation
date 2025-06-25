@@ -32,6 +32,7 @@
   
   <ItemGroup>
     <None Remove="Resources\logo.png" />
+    <None Remove="Resources\refImg.bmp" />
     <None Remove="Resources\usImg.bmp" />
   </ItemGroup>
 
@@ -68,10 +69,13 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\refImg.bmp">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\usImg.bmp">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 

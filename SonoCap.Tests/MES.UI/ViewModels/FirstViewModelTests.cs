@@ -1,13 +1,10 @@
-﻿using System.Threading.Tasks;
-using Moq;
-using Xunit;
+﻿using Moq;
 using SonoCap.MES.Models;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.MES.UI.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Models.Enums;
 using System.Windows.Media.Imaging;
 using SonoCap.MES.UI.Services.Interfaces;
+using SonoCap.MES.Services.Interfaces;
 
 namespace SonoCap.MES.UI.ViewModels.Tests
 {

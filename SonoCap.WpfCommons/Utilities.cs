@@ -16,6 +16,26 @@ namespace SonoCap.WpfCommons
 {
     public static class Utilities
     {
+        public static string MoveTempImageToExport(string fileName, string tempPath, string exportPath)
+        {
+            string sourcePath = Path.Combine(tempPath, fileName);
+            string destPath = Path.Combine(exportPath, fileName);
+
+            try
+            {
+                if (!Directory.Exists(exportPath))
+                    Directory.CreateDirectory(exportPath);
+
+                File.Move(sourcePath, destPath);
+                return destPath;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"파일 이동 실패: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
         /// <summary>
         /// 경로 + 파일명(.확장자)을 안전하게 생성해줍니다.
         /// 폴더가 없으면 자동 생성되며, 슬래시 문제도 자동 처리됩니다.
@@ -28,6 +48,22 @@ namespace SonoCap.WpfCommons
         {
             Directory.CreateDirectory(baseDir);
             return Path.Combine(baseDir, $"{fileNameWithPrefix}.{ext}");
+        }
+        public static bool ResetFolder(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                    Directory.Delete(path, recursive: true);
+
+                Directory.CreateDirectory(path);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"ResetFolder failed for {path}: {ex.Message}");
+                return false;
+            }
         }
 
         public static bool EnsureFolderExists(string folderName)

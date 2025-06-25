@@ -19,11 +19,14 @@ using System.Diagnostics;
 using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.WpfCommons;
+using System.Reflection;
 
 namespace SonoCap.MES.UI
 {
     public partial class App : Application
     {
+        public static string appTempDir = Path.Combine(Path.GetTempPath(), Assembly.GetEntryAssembly()?.GetName().Name ?? "SonoCap.MES.UI");
+
         public new static App Current => (App)Application.Current;
 
         private DispatcherTimer _timer = default!;
@@ -50,6 +53,7 @@ namespace SonoCap.MES.UI
         {
             base.OnStartup(e); // 기본 OnStartup 메서드를 호출하여 기본 초기화 수행
 
+            Utilities.ResetFolder(appTempDir);
             // 비동기 초기화 작업을 시작합니다.
             //await Task.Run(() => InitializeAsync());
             //await Task.Run(() => SetTestThreshold());
@@ -258,7 +262,6 @@ namespace SonoCap.MES.UI
 
         private void SetPath()
         {
-            Utilities.EnsureFolderExists(appSettings.Path.ImportExcel);
             Utilities.EnsureFolderExists(appSettings.Path.ExportExcel);
             Utilities.EnsureFolderExists(appSettings.Path.ExportImg);
         }

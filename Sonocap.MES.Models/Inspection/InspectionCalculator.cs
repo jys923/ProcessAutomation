@@ -1,59 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// 파일명: InspectionCalculator.cs
 
 namespace SonoCap.MES.Models.Inspection
 {
     public class InspectionCalculator
     {
-        private static readonly Gray grayThreshold = new Gray
+        // 기준값 외부 주입
+        public static Gray GrayThreshold { get; set; } = new Gray { Mean1 = 125.0, Mean2 = 150.0, Mean3 = 175.0 };
+        public static Geo GeoThreshold { get; set; } = new Geo
         {
-            Mean1 = 125.0,
-            Mean2 = 150.0,
-            Mean3 = 175.0
+            MeanBrightness = 180.0,
+            StdBrightness = 15.0,
+            BrightnessContrast = 0.25,
+            MaxSliceMean = 200.0,
+            MaxSliceVariance = 500.0   // 최대 허용 분산
         };
-        public static bool IsGrayPass(Gray score)
+        public static Res ResThreshold { get; set; } = new Res { HorizontalDist = 20.0, VerticalDist = 20.0 };
+
+        // 통과 기준 점수 (DB에서 외부 주입 가정)
+        public static int PassThresholdGray { get; set; } = 70;
+        public static int PassThresholdGeo { get; set; } = 70;
+        public static int PassThresholdRes { get; set; } = 70;
+
+        // Gray 검사 점수
+        public static int CalculateGrayScore(Gray score)
         {
-            bool p1 = Math.Abs(score.Mean1 - grayThreshold.Mean1) <= 10;
-            bool p2 = Math.Abs(score.Mean2 - grayThreshold.Mean2) <= 10;
-            bool p3 = Math.Abs(score.Mean3 - grayThreshold.Mean3) <= 10;
+            double s1 = ScoreByDeviation(score.Mean1, GrayThreshold.Mean1, 20);
+            double s2 = ScoreByDeviation(score.Mean2, GrayThreshold.Mean2, 20);
+            double s3 = ScoreByDeviation(score.Mean3, GrayThreshold.Mean3, 20);
 
-            int passCount = new[] { p1, p2, p3 }.Count(p => p);
-
-            return passCount >= 2;
+            return (int)Math.Round((s1 + s2 + s3) / 3.0);
         }
 
-        public static int CalculateResScore(double edge1, double edge2, double edge3, double hDist, double vDist)
+        public static bool IsGrayPass(Gray score) =>
+            CalculateGrayScore(score) >= PassThresholdGray;
+
+        // Geo 검사 점수
+
+        public static int CalculateGeoScore(Geo score)
         {
-            // 점수 정책 미정 - 임시 0 출력
-            return 0;
+            double s1 = ScoreByDeviation(score.MeanBrightness, GeoThreshold.MeanBrightness, 30) * 0.1;
+            double s2 = ScoreByDeviation(score.StdBrightness, GeoThreshold.StdBrightness, 20) * 0.15;
+            double s3 = ScoreByDeviation(score.BrightnessContrast, GeoThreshold.BrightnessContrast, 0.1) * 0.15;
+
+            double s4 = score.MaxSliceMean <= GeoThreshold.MaxSliceMean
+                ? 100.0
+                : Math.Max(0.0, 100.0 * (1.0 - (score.MaxSliceMean - GeoThreshold.MaxSliceMean) / 50.0));
+            s4 *= 0.1;
+
+            double s5 = Math.Max(0.0, 100.0 * (1.0 - score.MaxSliceVariance / (GeoThreshold.MaxSliceVariance * 1.5)));
+            s5 *= 0.5;
+
+            return (int)Math.Round(s1 + s2 + s3 + s4 + s5);
         }
 
-        public static int CalculateGeoScore(double meanBrightness, double stdBrightness)
+        public static bool IsGeoPass(Geo score) =>
+            CalculateGeoScore(score) >= PassThresholdGeo;
+
+        // Res 검사 점수
+        public static int CalculateResScore(Res score)
         {
-            // 점수 정책 미정 - 임시 0 출력
-            return 0;
+            double s1 = ScoreByDeviation(score.HorizontalDist, ResThreshold.HorizontalDist, 10);
+            double s2 = ScoreByDeviation(score.VerticalDist, ResThreshold.VerticalDist, 10);
+
+            return (int)Math.Round((s1 + s2) / 2.0);
         }
 
-        // 예시: 최종 점수 집계
-        public static void AnalyzeSample()
+        public static bool IsResPass(Res score) =>
+            CalculateResScore(score) >= PassThresholdRes;
+
+        // 오차 기반 점수 (0~100), 최대 허용 오차 = maxDeviation
+        private static double ScoreByDeviation(double actual, double expected, double maxDeviation)
         {
-            //double mean1 = 123.4, mean2 = 127.8, mean3 = 125.1;
-
-            //int grayScore = CalculateGrayScore(mean1, mean2, mean3);
-
-            //Console.WriteLine($"GrayScore (packed): {grayScore}");
-
-            //// 분해 출력
-            //int g1 = grayScore / 10000;
-            //int g2 = (grayScore / 100) % 100;
-            //int g3 = grayScore % 100;
-
-            //Console.WriteLine($"  mean1: {g1}");
-            //Console.WriteLine($"  mean2: {g2}");
-            //Console.WriteLine($"  mean3: {g3}");
+            double diff = Math.Abs(actual - expected);
+            return Math.Max(0.0, 100.0 * (1.0 - diff / maxDeviation));
         }
     }
 }

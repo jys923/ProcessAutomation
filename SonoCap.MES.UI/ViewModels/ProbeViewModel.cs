@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -98,32 +99,33 @@ namespace SonoCap.MES.UI.ViewModels
 
             _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
 
-            SrcImg00 = Utilities.GetFileToImageSource(PTRView.Test01.OriginalImg) ?? _defaultImg;
-            ResImg00 = Utilities.GetFileToImageSource(PTRView.Test01.ChangedImg) ?? _defaultImg;
+            SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.OriginalImg)) ?? _defaultImg;
+            ResImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.ChangedImg)) ?? _defaultImg;
 
-            SrcImg01 = Utilities.GetFileToImageSource(PTRView.Test02.OriginalImg) ?? _defaultImg;
-            ResImg01 = Utilities.GetFileToImageSource(PTRView.Test02.ChangedImg) ?? _defaultImg;
+            SrcImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.OriginalImg)) ?? _defaultImg;
+            ResImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.ChangedImg)) ?? _defaultImg;
 
-            SrcImg02 = Utilities.GetFileToImageSource(PTRView.Test03.OriginalImg) ?? _defaultImg;
-            ResImg02 = Utilities.GetFileToImageSource(PTRView.Test03.ChangedImg) ?? _defaultImg;
+            SrcImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.OriginalImg)) ?? _defaultImg;
+            ResImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.ChangedImg)) ?? _defaultImg;
 
-            SrcImg10 = Utilities.GetFileToImageSource(PTRView.Test04.OriginalImg) ?? _defaultImg;
-            ResImg10 = Utilities.GetFileToImageSource(PTRView.Test04.ChangedImg) ?? _defaultImg;
+            SrcImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.OriginalImg)) ?? _defaultImg;
+            ResImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.ChangedImg)) ?? _defaultImg;
 
-            SrcImg11 = Utilities.GetFileToImageSource(PTRView.Test05.OriginalImg) ?? _defaultImg;
-            ResImg11 = Utilities.GetFileToImageSource(PTRView.Test05.ChangedImg) ?? _defaultImg;
+            SrcImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.OriginalImg)) ?? _defaultImg;
+            ResImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.ChangedImg)) ?? _defaultImg;
 
-            SrcImg12 = Utilities.GetFileToImageSource(PTRView.Test06.OriginalImg) ?? _defaultImg;
-            ResImg12 = Utilities.GetFileToImageSource(PTRView.Test06.ChangedImg) ?? _defaultImg;
+            SrcImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.OriginalImg)) ?? _defaultImg;
+            ResImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.ChangedImg)) ?? _defaultImg;
 
-            SrcImg20 = Utilities.GetFileToImageSource(PTRView.Test07?.OriginalImg ?? null ) ?? _defaultImg;
-            ResImg20 = Utilities.GetFileToImageSource(PTRView.Test07?.ChangedImg ?? null ) ?? _defaultImg;
+            SrcImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.OriginalImg)) ?? _defaultImg;
+            ResImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.ChangedImg)) ?? _defaultImg;
 
-            SrcImg21 = Utilities.GetFileToImageSource(PTRView.Test08?.OriginalImg ?? null ) ?? _defaultImg;
-            ResImg21 = Utilities.GetFileToImageSource(PTRView.Test08?.ChangedImg ?? null ) ?? _defaultImg;
+            SrcImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.OriginalImg)) ?? _defaultImg;
+            ResImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.ChangedImg)) ?? _defaultImg;
 
-            SrcImg22 = Utilities.GetFileToImageSource(PTRView.Test09?.OriginalImg ?? null) ?? _defaultImg;
-            ResImg22 = Utilities.GetFileToImageSource(PTRView.Test09?.ChangedImg ?? null) ?? _defaultImg;
+            SrcImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.OriginalImg)) ?? _defaultImg;
+            ResImg22 = PTRView.Test09 == null ? _defaultImg : 
+                Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.ChangedImg)) ?? _defaultImg;
         }
     }
 }

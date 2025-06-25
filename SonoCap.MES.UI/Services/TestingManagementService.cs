@@ -276,6 +276,31 @@ namespace SonoCap.MES.UI.Services
             }
         }
 
+        public HashSet<int> GetExistingTestTypeIds(TestCategories category, Transducer? transducer, TransducerModule? transducerModule, Probe? probe)
+        {
+            // 하나만 존재하므로 category 기준으로 정확히 분기
+            IEnumerable<Test> existing = category switch
+            {
+                TestCategories.Processing when transducer is not null =>
+                    _testRepository.GetLatestTests(transducer: transducer),
+
+                TestCategories.Process when transducerModule is not null =>
+                    _testRepository.GetLatestTests(transducerModule: transducerModule),
+
+                TestCategories.Dispatch when probe is not null =>
+                    _testRepository.GetLatestTests(probe: probe),
+
+                _ => Enumerable.Empty<Test>()
+            };
+
+            return existing
+                .Where(t => t.TestCategoryId == (int)category)
+                .Select(t => t.TestTypeId)
+                .Distinct()
+                .ToHashSet();
+        }
+
+
         public IEnumerable<Test> GetLatestTests(Transducer? transducer = null, TransducerModule? transducerModule = null, Probe? probe = null)
         {
             if (transducer is not null)
