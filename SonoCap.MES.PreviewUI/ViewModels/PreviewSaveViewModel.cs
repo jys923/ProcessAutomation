@@ -71,6 +71,12 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
         private void InitUI()
         {
+            ApplicationList = new ObservableCollection<Tuple<int, string>>(_model.Applications);
+            SelectedApplication = ApplicationList.FirstOrDefault(x => x.Item1 == _model.Application);
+
+            PresetList = new ObservableCollection<Tuple<int, string>>(_model.Presets);
+            SelectedPreset = PresetList.FirstOrDefault(x => x.Item1 == _model.Setting);
+
             // 허용할 파일명 목록
             var allowList = new HashSet<string>
             {
@@ -110,8 +116,22 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         [ObservableProperty] private string _message;
         [ObservableProperty] private bool _messageIsPopupOpen;
         [ObservableProperty] private int _calibrationOffset;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _applicationList;
+        [ObservableProperty] private Tuple<int, string> _selectedApplication;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _presetList;
+        [ObservableProperty] private Tuple<int, string> _selectedPreset;
         [ObservableProperty] private ObservableCollection<Tuple<int, string>> _subSettingList;
         [ObservableProperty] private Tuple<int, string> _selectedSubSetting;
+        [ObservableProperty] private bool _isNoiseLogEnabled;
+
+        partial void OnIsNoiseLogEnabledChanged(bool value)
+        {
+            if (!value)
+            {
+                NoiseLog = string.Empty; // Clear log when disabling
+            }
+        }
+
         [ObservableProperty] private string _noiseLog;
         [ObservableProperty] private ImageSource _srcImg;
         [ObservableProperty] private ImageSource _snapshotImg;
@@ -153,6 +173,22 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             set { if (value >= DRMin + 2) { _model.DRMax = value; OnPropertyChanged(); } }
         }
 
+        partial void OnSelectedApplicationChanged(Tuple<int, string> value)
+        {
+            if (_model.Application != value.Item1)
+            {
+                _model.Application = value.Item1;
+            }
+        }
+
+        partial void OnSelectedPresetChanged(Tuple<int, string> value)
+        {
+            if (_model.Setting != value.Item1)
+            {
+                _model.Setting = value.Item1;
+            }
+        }
+
         // Events
         partial void OnSelectedSubSettingChanged(Tuple<int, string> value)
         {
@@ -173,13 +209,13 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
             if (key == Key.Left)
             {
-                _rotationAngle = (_rotationAngle - 10 + 360) % 360;
+                _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
             }
             else if (key == Key.Right)
             {
-                _rotationAngle = (_rotationAngle + 10) % 360;
+                _rotationAngle = (_rotationAngle + 1) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
             }
@@ -206,10 +242,10 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             //string path = $"{App.appSettings.Path.ExportImg}{DateTime.Now:yyyyMMdd_HHmmss}_capture.png";
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "png");
-            //string path = Utilities.BuildPath("./image/", prefix, "png");
-            BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
+            //BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
+            BitmapSource grayBitmap = (BitmapSource)SnapshotImg;
             Log.Information($"grayBitmap: {grayBitmap.Format}");
+            string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "bmp");
             //Utilities.SavePng(grayBitmap, path);
             Utilities.SaveBitmap(grayBitmap, path);
             ShowSnackbarWithOpen(path);
@@ -332,7 +368,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         // Public Methods
         public void RenderStart()
         {
-            _usRenderer = new USRenderService(900, 900);
+            _usRenderer = new USRenderService(512, 512);
             _usRenderer.connectRenderToTargetFunction(UpdateImageSource);
             _usRenderer.RenderStart();
         }
@@ -351,7 +387,9 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
                 // 10프레임마다 한 번 분석 수행
                 _frameCounter++;
-                if (_frameCounter % AnalysisFrameInterval == 0)
+                if (
+                    IsNoiseLogEnabled && 
+                    _frameCounter % AnalysisFrameInterval == 0)
                 {
                     try
                     {
