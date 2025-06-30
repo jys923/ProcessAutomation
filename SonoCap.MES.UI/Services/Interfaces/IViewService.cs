@@ -25,6 +25,8 @@ namespace SonoCap.MES.UI.Services.Interfaces
             where TViewModel : ViewModelBase;
 
         MotorModule? ShowInputBoxMotorView(string title, string prompt);
+
+        string? ShowInputBoxProbeView(string title, string prompt);
         void ShowAboutView();
     }
 }

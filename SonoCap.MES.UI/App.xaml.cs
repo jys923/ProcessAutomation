@@ -191,6 +191,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterViewModels(IServiceCollection services)
         {
+            services.AddTransient(typeof(InputBoxProbeViewModel));
             services.AddTransient(typeof(InputBoxMotorViewModel));
             services.AddTransient(typeof(MainViewModel));
             services.AddTransient(typeof(FirstViewModel));
@@ -204,6 +205,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterViews(IServiceCollection services)
         {
+            services.AddTransient(typeof(InputBoxProbeView));
             services.AddTransient(typeof(InputBoxMotorView));
             services.AddTransient(typeof(MainView));
             services.AddTransient(typeof(FirstView));

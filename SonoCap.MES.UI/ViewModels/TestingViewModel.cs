@@ -1602,6 +1602,9 @@ namespace SonoCap.MES.UI.ViewModels
                         //_motorModule = Controls.InputBoxMotor.Show("Motor Module", "Input Motor Module Lot", _motorModuleRepository);
                         _motorModule = _viewService.ShowInputBoxMotorView("Motor Module", "Input Motor Module Lot");
                         if (_motorModule is null) break;
+
+                        //_viewService.ShowInputBoxProbeView("Probe List", "Input Probe");
+
                         Probe probe = new Probe { Sn = $"UPA{_transducer.TransducerType.Code}{DateTime.Today.ToString("yyMMdd")}{seqNo.ProbeNo.ToString().PadLeft(3, '0')}", TransducerModuleId = id, MotorModuleId = _motorModule.Id };
                         if (await _testingManagementService.InsertProbeAsync(probe))
                         {

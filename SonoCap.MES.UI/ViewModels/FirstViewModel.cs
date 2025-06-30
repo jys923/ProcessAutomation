@@ -54,6 +54,17 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
+        private void ShowInputBoxProbeView()
+        {
+            Log.Information($"Click {nameof(ShowInputBoxProbeView)}");
+            var aa = _viewService.ShowInputBoxProbeView("Probe List", "Input Probe");
+            if (aa != null)
+            {
+                Log.Information($"Probe Sn : {aa}");
+            }
+        }
+
+        [RelayCommand]
         private async Task AddMasterDataAsync()
         {
             Log.Information($"Click {nameof(AddMasterDataAsync)}");

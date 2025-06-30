@@ -110,6 +110,17 @@ namespace SonoCap.MES.UI.Services
                 param
             );
         }
+
+        public string? ShowInputBoxProbeView(string title, string prompt)
+        {
+            var param = new LabelInput { Title = title, Prompt = prompt };
+
+            return ShowDialogView<InputBoxProbeView, InputBoxProbeViewModel, string>(
+                vm => vm.Response,
+                param
+            );
+        }
+
         //public MotorModule? ShowInputBoxMotorView(string title, string prompt)
         //{
         //    var param = new InputBoxParameter { Title = title, Prompt = prompt };
