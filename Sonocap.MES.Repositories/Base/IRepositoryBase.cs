@@ -12,6 +12,9 @@
         Task<bool> DeleteAsync(T entity);
         Task<bool> DeleteByIdAsync(int id);
         IQueryable<T> GetBySn(string sn);
+        Task<bool> IsExistsBySnAsync(string sn);
+        Task<T?> GetSingleBySnAsync(string sn);
+
         Task<int> UpsertAsync(T entity);
         T? GetById(int id);
         IQueryable<T> GetFilterItems(string sn, int limit = 10);

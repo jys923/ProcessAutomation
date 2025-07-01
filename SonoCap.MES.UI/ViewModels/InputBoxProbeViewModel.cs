@@ -6,6 +6,7 @@ using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -44,6 +45,8 @@ namespace SonoCap.MES.UI.ViewModels
         public InputBoxProbeViewModel(IProbeRepository probeRepository)
         {
             _probeRepository = probeRepository;
+
+
             ValidationDict[nameof(ProbeSn)] = new ValidationItem
             {
                 IsEnabled = true,
@@ -51,16 +54,40 @@ namespace SonoCap.MES.UI.ViewModels
                 Message = "존재하지 않는 SN입니다.",
                 WaterMarkText = $"{nameof(ProbeSn)}을 입력하세요."
             };
+
+            ProbeSn = "UPAG";
         }
 
         partial void OnProbeSnChanged(string value)
         {
             OkEnabled = false;
             Response = null;
-            ProbeSnFilterItems();
-            ProbeSnIsPopupOpen = !string.IsNullOrWhiteSpace(value) && ProbeSnFilteredItems.Any();
-            ValidationService.ValidateField(ValidationDict, nameof(ProbeSn));
+
+            if (!Regex.IsMatch(value, @"^UPAG[12]\d{6}\d{3}$"))
+            {
+                ValidationDict[nameof(ProbeSn)].Message = "ex)UPAG1250701001";
+                return;
+            }
+
+            _ = CheckDuplicateSnAsync(value);
         }
+
+        private async Task CheckDuplicateSnAsync(string sn)
+        {
+            var exists = await _probeRepository.GetSingleBySnAsync(sn) != null;
+            if (exists)
+            {
+                ValidationDict[nameof(ProbeSn)].Message = "이미 등록된 SN입니다.";
+                OkEnabled = false;
+                return;
+            }
+
+            ValidationDict[nameof(ProbeSn)].Message = string.Empty;
+            OkEnabled = true;
+            Response = sn;
+        }
+
+
 
         private void ProbeSnFilterItems()
         {
@@ -73,6 +100,19 @@ namespace SonoCap.MES.UI.ViewModels
                 var items = _probeRepository.GetFilterItems(ProbeSn).Select(x => x.Sn).ToList();
                 ProbeSnFilteredItems = new ObservableCollection<string>(items);
             }
+        }
+
+        [RelayCommand]
+        private void ProbeSnFocus()
+        {
+            var recentItems = _probeRepository.GetQueryable()
+                .OrderByDescending(p => p.Id)
+                .Take(5)
+                .Select(p => p.Sn)
+                .ToList();
+
+            ProbeSnFilteredItems = new ObservableCollection<string>(recentItems);
+            ProbeSnIsPopupOpen = ProbeSnFilteredItems.Any();
         }
 
         [RelayCommand]
@@ -110,12 +150,18 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand]
         private void ProbeSnFilteredItemsMouseDoubleClick(string selectedItem)
         {
-            Log.Information($"ProbeSnFilteredItemsMouseDoubleClick : {selectedItem}");
             ProbeSn = selectedItem;
-            Response = selectedItem;
+            Response = null;
+
+            if (selectedItem.Length == 11)
+            {
+                // 자동으로 연번 제안 흐름 유도
+                OnProbeSnChanged(selectedItem);
+                return;
+            }
+
+            _ = CheckDuplicateSnAsync(selectedItem);
             ProbeSnIsPopupOpen = false;
-            OkEnabled = true;
-            ValidationService.ValidateField(ValidationDict, nameof(ProbeSn));
         }
 
         [RelayCommand]

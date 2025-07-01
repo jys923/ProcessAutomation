@@ -143,12 +143,12 @@ namespace SonoCap.MES.UI
                 {
                     builder.AddSerilog(dispose: true);
                     builder.AddFilter((category, level) =>
-                        category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information);
+                        category == DbLoggerCategory.Database.Command.Name && level >= LogLevel.Information);
                 });
 
                 options.UseLoggerFactory(loggerFactory);
                 options.UseLazyLoadingProxies(true);
-                options.EnableSensitiveDataLogging();
+                options.EnableSensitiveDataLogging(false);
 
                 options.UseMySql(appSettings.ConnectionStrings.MariaDBConnection, ServerVersion.AutoDetect(appSettings.ConnectionStrings.MariaDBConnection), options => options.CommandTimeout(30));
             }, ServiceLifetime.Transient);

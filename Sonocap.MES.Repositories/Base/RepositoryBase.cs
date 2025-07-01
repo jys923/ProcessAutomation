@@ -1,6 +1,7 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SonoCap.MES.Models;
 using SonoCap.MES.Models.Base;
 using SonoCap.MES.Repositories.Context;
 
@@ -59,6 +60,28 @@ namespace SonoCap.MES.Repositories.Base
             if (typeof(ISn).IsAssignableFrom(typeof(T)))
             {
                 return _dbSet.OfType<ISn>().Where(e => e.Sn.Equals(sn)).Cast<T>();
+            }
+
+            throw new InvalidOperationException("T does not implement ISn interface.");
+        }
+        public async Task<bool> IsExistsBySnAsync(string sn)
+        {
+            if (typeof(ISn).IsAssignableFrom(typeof(T)))
+            {
+                return await _dbSet.OfType<ISn>().AnyAsync(e => e.Sn == sn);
+            }
+
+            throw new InvalidOperationException("T does not implement ISn interface.");
+        }
+
+        public async Task<T?> GetSingleBySnAsync(string sn)
+        {
+            if (typeof(ISn).IsAssignableFrom(typeof(T)))
+            {
+                return await _dbSet
+                    .Where(e => ((ISn)e).Sn == sn)
+                    .OrderByDescending(e => e.Id) // ModelBase.Id
+                    .FirstOrDefaultAsync();
             }
 
             throw new InvalidOperationException("T does not implement ISn interface.");

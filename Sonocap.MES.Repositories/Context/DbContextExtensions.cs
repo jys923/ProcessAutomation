@@ -29,9 +29,9 @@ namespace SonoCap.MES.Repositories.Context
             if (!context.TestTypes.Any())
             {
                 await context.TestTypes.AddRangeAsync(
-                    new TestType { Name = "Align" },
-                    new TestType { Name = "Axial" },
-                    new TestType { Name = "Lateral" }
+                    new TestType { Name = "Gray" },
+                    new TestType { Name = "Res" },
+                    new TestType { Name = "Align" }
                 );
             }
 
