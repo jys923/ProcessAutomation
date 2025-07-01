@@ -10,6 +10,8 @@ using SonoCap.MES.UI.ViewModels.Base;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.Repositories.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -23,7 +25,7 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ITestTypeRepository _testTypeRepository;
         private readonly ITransducerRepository _transducerRepository;
         private readonly ITransducerTypeRepository _transducerTypeRepository;
-        
+        private readonly MESDbContext _context;
         [ObservableProperty]
         private string _title = default!;
 
@@ -68,17 +70,8 @@ namespace SonoCap.MES.UI.ViewModels
         private async Task AddMasterDataAsync()
         {
             Log.Information($"Click {nameof(AddMasterDataAsync)}");
-            await _pcRepository.InsertAsync(new Pc { Name = "left" });
-            await _pcRepository.InsertAsync(new Pc { Name = "middle" });
-            await _pcRepository.InsertAsync(new Pc { Name = "right" });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Gray" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Res" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
-            await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
+            
+            await _context.SeedAsync();
         }
 
         [RelayCommand]
@@ -251,6 +244,7 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         public FirstViewModel(
+            MESDbContext context,
             IExcelService excelService,
             IViewService viewService,
             IMotorModuleRepository motorModuleRepository,
@@ -260,6 +254,7 @@ namespace SonoCap.MES.UI.ViewModels
             ITransducerRepository transducerRepository,
             ITransducerTypeRepository transducerTypeRepository)
         {
+            _context = context;
             _excelService = excelService;
             _viewService = viewService;
             _motorModuleRepository = motorModuleRepository;
@@ -268,7 +263,7 @@ namespace SonoCap.MES.UI.ViewModels
             _testTypeRepository = testTypeRepository;
             _transducerRepository = transducerRepository;
             _transducerTypeRepository = transducerTypeRepository;
-            
+
             Title = this.GetType().Name;
 
             _defaultLogo = Utilities.LoadBitmapFromResource("logo.png");

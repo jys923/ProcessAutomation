@@ -9,7 +9,7 @@
         d:DataContext="{d:DesignInstance Type={x:Type vm:TestListViewModel}}"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:Behavior="clr-namespace:SonoCap.WpfCommons.Behaviors;assembly=SonoCap.WpfCommons" 
-        xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
+        xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator" 
         WindowState="Maximized"
         Title="{Binding Title}" Height="1080" Width="1920">
     <Window.Style>
@@ -102,7 +102,7 @@
                 <Label Grid.Column="9" Content="" HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
                 <Label Grid.Column="10" Content="etc" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 <Button Grid.Column="10" Content="검색" HorizontalAlignment="Left" Grid.Row="1" VerticalAlignment="Stretch" Command="{Binding SearchCommand}"/>
-                <Button Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Stretch" Command="{Binding ExportCommand}" Margin="0,0,10,0" Visibility="Collapsed"/>
+                <Button Grid.Column="10" Content="내보내기" HorizontalAlignment="Right" Grid.Row="1" VerticalAlignment="Stretch" Command="{Binding ExportCommand}" Margin="0,0,10,0" />
             </Grid>
             <DataGrid Grid.Row="1" x:Name="dataGrid" ItemsSource="{Binding TestProbes}" AutoGenerateColumns="False" IsReadOnly="True" RowHeaderWidth="90" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" EnableColumnVirtualization="True" EnableRowVirtualization="True" ScrollViewer.HorizontalScrollBarVisibility="Auto">
                 <b:Interaction.Triggers>

@@ -12,11 +12,26 @@ namespace SonoCap.MES.Services
         public void ExportToExcel(IEnumerable<PTRView> data, string filePath)
         {
             if (data.Count() < 1)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException("엑셀로 내보낼 데이터가 비어 있습니다.", nameof(data));
 
             IEnumerable<IDictionary<string, object>> probes = PTRViewToExportProbe.ToDictionaryList(data);
             MiniExcel.SaveAs(filePath, probes);
         }
+
+        public void ExportToExcel<T>(IEnumerable<T> data, string filePath)
+        {
+            if (data == null || !data.Any())
+                throw new ArgumentException("엑셀로 내보낼 데이터가 비어 있습니다.", nameof(data));
+
+            //IEnumerable<IDictionary<string, object>> exportData = data.Select(item =>
+            //    item!.GetType()
+            //        .GetProperties()
+            //        .ToDictionary(p => p.Name, p => p.GetValue(item) ?? "")
+            //);
+
+            MiniExcel.SaveAs(filePath, data);
+        }
+
 
         public bool IsExcelFile(string filePath)
         {

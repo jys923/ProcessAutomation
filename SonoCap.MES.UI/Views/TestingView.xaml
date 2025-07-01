@@ -166,7 +166,7 @@
                     </Border>
 
                     <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="부 품" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1" />
+                        <TextBlock Text="공 정" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1" />
                     </Border>
                     <Border Grid.Column="1" Grid.Row="1" Background="{Binding BorderBackgrounds[11].Value}" />
                     <Border Grid.Column="2" Grid.Row="1" Background="{Binding BorderBackgrounds[12].Value}" />
@@ -182,7 +182,7 @@
                     <Border Grid.Column="4" Grid.Row="2" Background="{StaticResource CellBodyBrush}" />
 
                     <Border Grid.Column="0" Grid.Row="3" Background="{StaticResource CellHeaderBrush}">
-                        <TextBlock Text="성 능" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" />
+                        <TextBlock Text="최 종" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="2" />
                     </Border>
                     <Border Grid.Column="1" Grid.Row="3" Background="{Binding BorderBackgrounds[31].Value}" />
                     <Border Grid.Column="2" Grid.Row="3" Background="{Binding BorderBackgrounds[32].Value}" />
@@ -445,17 +445,28 @@
             <StackPanel>
                 <TextBlock Text="" FontSize="35" Foreground="DarkSlateGray" FontFamily="Digital-7" />
                 <Label Style="{StaticResource LabelLargeStyle}" HorizontalContentAlignment="Center" Margin="0,0,0,15" Content="초 음 파  영 상" />
-                <Grid Width="512" Height="512">
+                <Grid x:Name="ImageFocusArea" Width="512" Height="512" Focusable="True" Background="Transparent" MouseLeftButtonDown="ImageFocusArea_MouseLeftButtonDown" KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.TabNavigation="None">
+
+                    <!-- 검사 결과 이미지 -->
                     <Image x:Name="SnapshotImg" Stretch="None" Source="{Binding SnapshotImg}" Width="512" Height="512" />
+
+                    <!-- 원본 이미지 -->
                     <Image x:Name="SrcImg" Stretch="None" Source="{Binding SrcImg}" Width="512" Height="512" />
+
                     <!-- 오버레이 선 -->
                     <Canvas>
-                        <!-- 수직선 (화면 세로 2분할) -->
                         <Line X1="256" Y1="0" X2="256" Y2="512" Stroke="Tomato" StrokeThickness="1" />
-                        <!-- 수평선 (화면 가로 2분할) -->
                         <Line X1="0" Y1="256" X2="512" Y2="256" Stroke="Tomato" StrokeThickness="1" />
                     </Canvas>
+
+                    <!-- 키 이벤트 연결 -->
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="PreviewKeyDown">
+                            <b:InvokeCommandAction Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Grid>
+
             </StackPanel>
         </GroupBox>
 

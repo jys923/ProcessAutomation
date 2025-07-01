@@ -176,12 +176,12 @@ namespace SonoCap.MES.UI.ViewModels
             await _pcRepository.InsertAsync(new Pc { Name = "left" });
             await _pcRepository.InsertAsync(new Pc { Name = "middle" });
             await _pcRepository.InsertAsync(new Pc { Name = "right" });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.완제품.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종.ToString() });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Gray" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Res" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
         }
@@ -222,9 +222,9 @@ namespace SonoCap.MES.UI.ViewModels
 
             //_probeRepository--
 
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.완제품.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종.ToString() });
 
             pcIds = Enumerable.Range(1, 3).ToList();
 
@@ -237,9 +237,9 @@ namespace SonoCap.MES.UI.ViewModels
             }
             await _testerRepository.BulkInsertAsync(tester);
 
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Gray" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Res" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });
@@ -422,9 +422,9 @@ namespace SonoCap.MES.UI.ViewModels
 
             //_probeRepository--
 
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종용.ToString() });
-            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.출하용.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.공정.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.완제품.ToString() });
+            await _testCategoryRepository.InsertAsync(new TestCategory { Name = TestCategoriesKor.최종.ToString() });
 
             pcIds = Enumerable.Range(1, 3).ToList();
 
@@ -437,9 +437,9 @@ namespace SonoCap.MES.UI.ViewModels
             }
             await _testerRepository.BulkInsertAsync(testers);
 
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Gray" });
+            await _testTypeRepository.InsertAsync(new TestType { Name = "Res" });
             await _testTypeRepository.InsertAsync(new TestType { Name = "Align" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Axial" });
-            await _testTypeRepository.InsertAsync(new TestType { Name = "Lateral" });
 
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G1.ToString(), Type = "5Mhz" });
             await _transducerTypeRepository.InsertAsync(new TransducerType { Code = TransducerTypes.G2.ToString(), Type = "7.5Mhz" });

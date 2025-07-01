@@ -5,11 +5,13 @@ using SonoCap.MES.Models.Enums;
 using System.Windows.Media.Imaging;
 using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.Repositories.Context;
 
 namespace SonoCap.MES.UI.ViewModels.Tests
 {
     public class FirstViewModelTests : IDisposable
     {
+        private readonly Mock<MESDbContext> _mockMesDbContext;
         private readonly Mock<IExcelService> _mockExcelService;
         private readonly Mock<IViewService> _mockViewService;
         private readonly Mock<IMotorModuleRepository> _mockMotorModuleRepository;
@@ -22,6 +24,7 @@ namespace SonoCap.MES.UI.ViewModels.Tests
 
         public FirstViewModelTests()
         {
+            _mockMesDbContext = new Mock<MESDbContext>();
             _mockExcelService = new Mock<IExcelService>();
             _mockViewService = new Mock<IViewService>();
             _mockMotorModuleRepository = new Mock<IMotorModuleRepository>();
@@ -32,6 +35,7 @@ namespace SonoCap.MES.UI.ViewModels.Tests
             _mockTransducerTypeRepository = new Mock<ITransducerTypeRepository>();
 
             _viewModel = new FirstViewModel(
+                _mockMesDbContext.Object,
                 _mockExcelService.Object,
                 _mockViewService.Object,
                 _mockMotorModuleRepository.Object,
@@ -104,12 +108,12 @@ namespace SonoCap.MES.UI.ViewModels.Tests
             _mockPcRepository.Verify(r => r.InsertAsync(It.Is<Pc>(pc => pc.Name == "left")), Times.Once);
             _mockPcRepository.Verify(r => r.InsertAsync(It.Is<Pc>(pc => pc.Name == "middle")), Times.Once);
             _mockPcRepository.Verify(r => r.InsertAsync(It.Is<Pc>(pc => pc.Name == "right")), Times.Once);
-            _mockTestCategoryRepository.Verify(r => r.InsertAsync(It.Is<TestCategory>(tc => tc.Name == TestCategoriesKor.공정용.ToString())), Times.Once);
-            _mockTestCategoryRepository.Verify(r => r.InsertAsync(It.Is<TestCategory>(tc => tc.Name == TestCategoriesKor.최종용.ToString())), Times.Once);
-            _mockTestCategoryRepository.Verify(r => r.InsertAsync(It.Is<TestCategory>(tc => tc.Name == TestCategoriesKor.출하용.ToString())), Times.Once);
+            _mockTestCategoryRepository.Verify(r => r.InsertAsync(It.Is<TestCategory>(tc => tc.Name == TestCategoriesKor.공정.ToString())), Times.Once);
+            _mockTestCategoryRepository.Verify(r => r.InsertAsync(It.Is<TestCategory>(tc => tc.Name == TestCategoriesKor.완제품.ToString())), Times.Once);
+            _mockTestCategoryRepository.Verify(r => r.InsertAsync(It.Is<TestCategory>(tc => tc.Name == TestCategoriesKor.최종.ToString())), Times.Once);
+            _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Gray")), Times.Once);
+            _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Res")), Times.Once);
             _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Align")), Times.Once);
-            _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Axial")), Times.Once);
-            _mockTestTypeRepository.Verify(r => r.InsertAsync(It.Is<TestType>(tt => tt.Name == "Lateral")), Times.Once);
             _mockTransducerTypeRepository.Verify(r => r.InsertAsync(It.Is<TransducerType>(tt => tt.Code == TransducerTypes.G1.ToString() && tt.Type == "5Mhz")), Times.Once);
             _mockTransducerTypeRepository.Verify(r => r.InsertAsync(It.Is<TransducerType>(tt => tt.Code == TransducerTypes.G2.ToString() && tt.Type == "7.5Mhz")), Times.Once);
         }

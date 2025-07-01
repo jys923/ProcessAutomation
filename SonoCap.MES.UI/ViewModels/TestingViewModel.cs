@@ -750,32 +750,45 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
             Log.Information($"{nameof(KeyDownAsync)} key: {key}");
-            
+
             if (key == Key.Left)
             {
                 _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
+                keyEventArgs.Handled = true; // ⬅️ 핵심
             }
             else if (key == Key.Right)
             {
                 _rotationAngle = (_rotationAngle + 1) % 360;
                 usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
+                keyEventArgs.Handled = true; // ⬅️ 핵심
+            }
+            else if (key == Key.Up)
+            {
+                usRenderer?.SetVerticalFlip(true);
+                Log.Information($"[Flip Vertical] → true (↑)");
+                keyEventArgs.Handled = true; // ⬅️ 핵심
+            }
+            else if (key == Key.Down)
+            {
+                usRenderer?.SetVerticalFlip(false);
+                Log.Information($"[Flip Vertical] → false (↓)");
+                keyEventArgs.Handled = true; // ⬅️ 핵심
             }
             else if (key == Key.F10)
             {
-                // NextCommand CanExecute 상태를 갱신합니다.
                 (NextCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
 
-                // Next 메서드를 호출합니다.
                 if (NextCommand.CanExecute(null))
                 {
                     await NextCommand.ExecuteAsync(null);
+                    keyEventArgs.Handled = true; // ⬅️ 이것도 넣는 게 안전
                 }
             }
-
         }
+
 
         [RelayCommand]
         private Task CellClickAsync(CellPositions position)
@@ -996,7 +1009,7 @@ namespace SonoCap.MES.UI.ViewModels
                     OriginalImg = originalImg,
                     ChangedImg = changedImg,
                     Result = 100,
-                    Method = 2,
+                    Method = 0,
                     TestTypeId = typeId,
                     ChangedImgMetadata = typeId switch
                     {

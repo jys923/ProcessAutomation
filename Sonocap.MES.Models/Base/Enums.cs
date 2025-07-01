@@ -95,9 +95,9 @@
     {
         All = -1,
         None = 0,
-        공정용 = 1,
-        최종용,
-        출하용,
+        공정 = 1,
+        완제품,
+        최종,
     }
 
     public enum TestModes

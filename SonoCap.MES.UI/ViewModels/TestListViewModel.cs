@@ -1,19 +1,27 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
+using SonoCap.MES.Converters;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Repositories.Interfaces;
+using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
+using SonoCap.WpfCommons;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace SonoCap.MES.UI.ViewModels
 {
     public partial class TestListViewModel : ViewModelBase
     {
+        private readonly IExcelService _excelService;
         private readonly ITestRepository _testRepository;
-
+        private readonly ITestCategoryRepository _testCategoryRepository;
+        private readonly IPcRepository _pcRepository;
+        private readonly ITestTypeRepository _testTypeRepository;
         [ObservableProperty]
         private bool _isBusy = false;
 
@@ -69,25 +77,25 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [ObservableProperty]
-        private ObservableCollection<string> _testCategories;
+        private ObservableCollection<string> _testCategories = new();
 
         [ObservableProperty]
         private string _testCategory = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _testTypes;
+        private ObservableCollection<string> _testTypes = new();
 
         [ObservableProperty]
         private string _testType = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _testResults;
+        private ObservableCollection<string> _testResults = new();
 
         [ObservableProperty]
         private string _testResult = default!;
 
         [ObservableProperty]
-        private ObservableCollection<string> _pcs;
+        private ObservableCollection<string> _pcs = new();
 
         [ObservableProperty]
         private string _pc = default!;
@@ -172,12 +180,32 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         [RelayCommand]
-        private async Task ExportAsync()
+        private void Export()
         {
-            Log.Information($"{nameof(ExportAsync)}");
+            Log.Information("Export");
             IsBusy = true;
-            await Task.Delay(1000);  // 10초 동안 대기
-            IsBusy = false;
+            string exportPath = $"{App.appSettings.Path.ExportExcel}{Utilities.GetCurrentUnixTimestampMilliseconds()}.xlsx";
+
+            try
+            {
+                if (Utilities.EnsureFolderExists(App.appSettings.Path.ExportExcel))
+                {
+                    var exportData = tests.Select(TestToExportTest.Convert);//.ToList();
+                    _excelService.ExportToExcel(exportData, exportPath);
+                    // 성공 메시지 출력
+                    Controls.MessageBox.Show("Export Successful", $"File exported to: {exportPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Export failed");
+                // 실패 메시지 출력
+                Controls.MessageBox.Show("Export Failed", "An error occurred during export.");
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand]
@@ -207,30 +235,33 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        public TestListViewModel(ITestRepository testRepository)
+        public TestListViewModel(
+            IPcRepository pcRepository,
+            ITestTypeRepository testTypeRepository,
+            ITestCategoryRepository testCategoryRepository,
+            IExcelService excelService,
+            ITestRepository testRepository)
         {
             Title = this.GetType().Name;
-            this._testRepository = testRepository;
+            _pcRepository = pcRepository;
+            _testTypeRepository = testTypeRepository;
+            _testCategoryRepository = testCategoryRepository;
+            _excelService = excelService;
+            _testRepository = testRepository;
 
-            TestCategories = new ObservableCollection<string>
-            {
-                "ALL",//0
-                "공정용",
-                "출하용",
-                "최종용",
-            };
+        }
 
-            TestCategory = TestCategories[0];
+        public async Task InitializeAsync()
+        {
+            var categories = await _testCategoryRepository.GetAllAsync();
+            TestCategories = new ObservableCollection<string>(
+                new[] { "ALL" }.Concat(categories.Select(c => c.Name))
+            );
 
-            TestTypes = new ObservableCollection<string>
-            {
-                "ALL",//0
-                "Aline",
-                "Axial",
-                "Lateral",
-            };
-
-            TestType = TestTypes[0];
+            var types = await _testTypeRepository.GetAllAsync();
+            TestTypes = new ObservableCollection<string>(
+                new[] { "ALL" }.Concat(types.Select(t => t.Name))
+            );
 
             TestResults = new ObservableCollection<string>
             {
@@ -239,32 +270,16 @@ namespace SonoCap.MES.UI.ViewModels
                 "FAIL",
             };
 
+            // Pc는 Enum 또는 DB 테이블 존재 여부에 따라 다르게 처리
+            var pcs = await _pcRepository.GetAllAsync();
+            Pcs = new ObservableCollection<string>(
+                new[] { "ALL" }.Concat(pcs.Select(p => p.Name))
+            );
+
+            TestCategory = TestCategories[0];
+            TestType = TestTypes[0];
             TestResult = TestResults[0];
-            //출력
-
-            Pcs = new ObservableCollection<string>
-            {
-                "ALL",
-                "Left",
-                "Middle",
-                "Right",
-            };
-
             Pc = Pcs[0];
-
-            //Tester = "yoon";
-
-            //ProbeSn = "P S/N";
-
-            //TDMdSn = "transducer Module";
-
-            //MTMdSn = "motor";
-
-            //db 조회
-
-            //TestProbes = new ObservableCollection<TestProbe>();
-
-            //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
 
         [RelayCommand]
@@ -285,6 +300,22 @@ namespace SonoCap.MES.UI.ViewModels
 
                 //await SearchAsync();
             }
+        }
+
+        protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
+        {
+            Log.Information($"{nameof(OnWindowLoaded)}");
+            _ = InitializeAsync();
+        }
+
+        protected override void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            Log.Information($"{nameof(OnWindowClosing)}");
+        }
+
+        protected override void OnWindowActivated(object? sender, EventArgs e)
+        {
+            Log.Information($"{nameof(OnWindowActivated)}");
         }
     }
 }

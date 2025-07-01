@@ -84,17 +84,17 @@
             <Label Style="{StaticResource LabelMediumStyle}" Grid.Column="2" HorizontalAlignment="Center" Content="Axial"/>
             <Label Style="{StaticResource LabelMediumStyle}" Grid.Column="3" HorizontalAlignment="Center" Content="Leteral"/>
 
-            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="1" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="공정용">
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="1" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="공정">
                 <Label.RenderTransform>
                     <RotateTransform Angle="-90"/>
                 </Label.RenderTransform>
             </Label>
-            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="2" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="최종용">
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="2" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="완제품">
                 <Label.RenderTransform>
                     <RotateTransform Angle="-90"/>
                 </Label.RenderTransform>
             </Label>
-            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="3" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="출하용">
+            <Label Style="{StaticResource LabelMediumStyle}" Grid.Row="3" Height="40" Width="120" RenderTransformOrigin="0.5,0.5" Margin="-40 0 0 0" Content="최종">
                 <Label.RenderTransform>
                     <RotateTransform Angle="-90"/>
                 </Label.RenderTransform>

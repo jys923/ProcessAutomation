@@ -20,9 +20,9 @@ namespace SonoCap.MES.Repositories.Context
             if (!context.TestCategories.Any())
             {
                 await context.TestCategories.AddRangeAsync(
-                    new TestCategory { Name = "공정용" },
-                    new TestCategory { Name = "최종용" },
-                    new TestCategory { Name = "출하용" }
+                    new TestCategory { Name = "공정" },
+                    new TestCategory { Name = "완제품" },
+                    new TestCategory { Name = "최종" }
                 );
             }
 

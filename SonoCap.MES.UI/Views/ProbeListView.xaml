@@ -115,10 +115,10 @@
                 <DataGridTextColumn Header="공정&#13;T11" Width=".2*" Binding="{Binding TestResult1}" />
                 <DataGridTextColumn Header="&#13;T12" Width=".2*" Binding="{Binding TestResult2}" />
                 <DataGridTextColumn Header="&#13;T13" Width=".2*" Binding="{Binding TestResult3}" />
-                <DataGridTextColumn Header="최종&#13;T21" Width=".2*" Binding="{Binding TestResult4}" />
+                <DataGridTextColumn Header="완제품&#13;T21" Width=".2*" Binding="{Binding TestResult4}" />
                 <DataGridTextColumn Header="&#13;T22" Width=".2*" Binding="{Binding TestResult5}" />
                 <DataGridTextColumn Header="&#13;T23" Width=".2*" Binding="{Binding TestResult6}" />
-                <DataGridTextColumn Header="출하&#13;T31" Width=".2*" Binding="{Binding TestResult7}" />
+                <DataGridTextColumn Header="최종&#13;T31" Width=".2*" Binding="{Binding TestResult7}" />
                 <DataGridTextColumn Header="&#13;T32" Width=".2*" Binding="{Binding TestResult8}" />
                 <DataGridTextColumn Header="&#13;T33" Width=".2*" Binding="{Binding TestResult9}" />
             </DataGrid.Columns>
