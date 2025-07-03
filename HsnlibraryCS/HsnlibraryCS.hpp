@@ -5,6 +5,7 @@
 namespace HsnlibraryCS {
 	using namespace System;
 	using namespace System::Collections::Generic;
+	using namespace System::Runtime::InteropServices;
 
 	////device connection handle
 
@@ -113,7 +114,18 @@ namespace HsnlibraryCS {
 		static void setEdgeEnhanceEnable(bool value);
 		static bool getIpCapsuleIsInnerVisible();
 		static void setIpCapsuleIsInnerVisible(bool value);
-		static int calibrateDeviceCapsuleScanline(int offset);
+		//static void setCapsuleCalibrateOffset(int value);
+		//static int getCapsuleCalibrateOffset();
+		//static void setCapsuleAutoCalibrateTrigCount(int value);
+		//static int getCapsuleAutoCalibrateTrigCount();
+		//static int runCapsuleManualCalibration();
+		//static void setCapsuleAutoCalibrateEnable(bool value);
+		//static bool getCapsuleAutoCalibrateEnable();
+		////r->g->b order
+		//static bool setIpMonitorColormap(array<float>^ rgb);
+		//static bool getIpMonitorColormap([Out] array<float>^% rgb);
+		//static void setIpIsMonitorGammaTableVisible(bool value);
+		//static bool getIpIsMonitorGammaTableVisible();
 	private:
 	};
 

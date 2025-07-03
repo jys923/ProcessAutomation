@@ -678,7 +678,6 @@ namespace SonoCap.MES.UI.ViewModels
         private void CalibrateButton()
         {
             Log.Information($"{nameof(CalibrateButton)}");
-            //Log.Information($"{nameof(CalibrateButton)} key: {}");
             _model.CalibrateScanline(CalibrationOffset);
         }
 

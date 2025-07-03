@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using SonoCap.MES.Models.Enums;
+using System.Windows;
 
 namespace SonoCap.MES.Services.Model
 {
@@ -277,13 +278,74 @@ namespace SonoCap.MES.Services.Model
 
         public int CalibrateScanline(int offset)
         {
-            int ret = HsnlibraryCS.HsnInterface.calibrateDeviceCapsuleScanline(offset);
-            if (ret < 0)
-            {
-                System.Windows.MessageBox.Show("Calibration timeout occured");
-            }
-            return ret;
+            return offset;
+            //return HsnlibraryCS.HsnInterface.calibrateDeviceCapsuleScanline(offset);
         }
+
+        //public int CalibrationOffset
+        //{
+        //    get { return HsnlibraryCS.HsnInterface.getCapsuleCalibrateOffset(); }
+        //    set
+        //    {
+        //        HsnlibraryCS.HsnInterface.setCapsuleCalibrateOffset(value);
+        //    }
+        //}
+
+        //public int CalibrationAutoTrigCount
+        //{
+        //    get { return HsnlibraryCS.HsnInterface.getCapsuleAutoCalibrateTrigCount(); }
+        //    set
+        //    {
+        //        HsnlibraryCS.HsnInterface.setCapsuleAutoCalibrateTrigCount(value);
+        //    }
+        //}
+
+        //public bool AutoCalibrateEnable
+        //{
+        //    get { return HsnlibraryCS.HsnInterface.getCapsuleAutoCalibrateEnable(); }
+        //    set
+        //    {
+        //        HsnlibraryCS.HsnInterface.setCapsuleAutoCalibrateEnable(value);
+        //    }
+        //}
+
+        //public bool MonitorColorTestModeEnable
+        //{
+        //    get
+        //    {
+        //        return HsnlibraryCS.HsnInterface.getIpIsMonitorGammaTableVisible();
+        //    }
+        //    set
+        //    {
+        //        HsnlibraryCS.HsnInterface.setIpIsMonitorGammaTableVisible(value);
+        //    }
+        //}
+
+        //public float[] MonitorColorMapRGB
+        //{
+        //    get
+        //    {
+        //        if (HsnlibraryCS.HsnInterface.getIpMonitorColormap(out float[] rgb))
+        //        {
+        //            return rgb;
+        //        }
+        //        return null;
+        //    }
+        //    set
+        //    {
+        //        HsnlibraryCS.HsnInterface.setIpMonitorColormap(value);
+        //    }
+        //}
+
+        //public int RunManualCalibrate()
+        //{
+        //    int ret = HsnlibraryCS.HsnInterface.runCapsuleManualCalibration();
+        //    if (ret < 0)
+        //    {
+        //        MessageBox.Show("Calibration timeout occured");
+        //    }
+        //    return ret;
+        //}
 
         private void DeviceDettached(object sender, EventArgs e)
         {
@@ -299,6 +361,21 @@ namespace SonoCap.MES.Services.Model
 
         private void ProbeStateCallback(int state)
         {
+            switch ((ProbeStateInfoEnum)state)
+            {
+                case ProbeStateInfoEnum.DIsabled:
+                    break;
+                case ProbeStateInfoEnum.Enabled:
+                    break;
+                case ProbeStateInfoEnum.Connected:
+                    break;
+                case ProbeStateInfoEnum.Activated:
+                    break;
+                case ProbeStateInfoEnum.Ready:
+                    break;
+                case ProbeStateInfoEnum.Streaming:
+                    break;
+            }
             previousState = (ProbeStateInfoEnum)state;
         }
 
