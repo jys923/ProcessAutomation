@@ -74,3 +74,84 @@ namespace SonoCap.MES.Models.Inspection
         public Geo Geo { get; set; } = new();
     }
 }
+
+
+/*
+// 파일명: InspectionMetrics.cs
+using System.Text.Json.Serialization;
+
+namespace SonoCap.MES.Models.Inspection
+{
+    [Flags]
+    public enum InspectionPartType
+    {
+        None = 0,
+        Geo = 1 << 0,
+        Gray = 1 << 1,
+        Res = 1 << 2,
+        All = Geo | Gray | Res
+    }
+
+    public class Gray
+    {
+        [JsonPropertyName("mean1")]
+        public double? Mean1 { get; set; }
+
+        [JsonPropertyName("mean2")]
+        public double? Mean2 { get; set; }
+
+        [JsonPropertyName("mean3")]
+        public double? Mean3 { get; set; }
+    }
+
+    public class Res
+    {
+        [JsonPropertyName("edgeDensity1")]
+        public double? EdgeDensity1 { get; set; }
+
+        [JsonPropertyName("edgeDensity2")]
+        public double? EdgeDensity2 { get; set; } = -1;
+
+        [JsonPropertyName("edgeDensity3")]
+        public double? EdgeDensity3 { get; set; }
+
+        [JsonPropertyName("horizontalDist")]
+        public double? HorizontalDist { get; set; }
+
+        [JsonPropertyName("verticalDist")]
+        public double? VerticalDist { get; set; }
+    }
+
+    public class Geo
+    {
+        [JsonPropertyName("meanBrightness")]
+        public double? MeanBrightness { get; set; }
+
+        [JsonPropertyName("stdBrightness")]
+        public double? StdBrightness { get; set; }
+
+        [JsonPropertyName("brightnessContrast")]
+        public double? BrightnessContrast { get; set; }
+
+        [JsonPropertyName("maxSliceMean")]
+        public double? MaxSliceMean { get; set; }
+
+        [JsonPropertyName("maxSliceVariance")]
+        public double? MaxSliceVariance { get; set; }
+    }
+
+
+    public class InspectionResult
+    {
+        [JsonPropertyName("Gray")]
+        public Gray? Gray { get; set; }
+
+        [JsonPropertyName("Res")]
+        public Res? Res { get; set; }
+
+        [JsonPropertyName("Geo")]
+        public Geo? Geo { get; set; }
+    }
+}
+
+*/

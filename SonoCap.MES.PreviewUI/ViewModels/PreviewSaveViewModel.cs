@@ -201,33 +201,36 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         }
 
         [RelayCommand]
-        public void KeyDown(KeyEventArgs e)
+        public void KeyDown(KeyEventArgs keyEventArgs)
         {
-            e.Handled = true;
-
-            var key = e.Key == Key.System ? e.SystemKey : e.Key;
+            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
+            Log.Information($"{nameof(KeyDown)} key: {key}");
 
             if (key == Key.Left)
             {
                 _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
+                keyEventArgs.Handled = true;
             }
             else if (key == Key.Right)
             {
                 _rotationAngle = (_rotationAngle + 1) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
+                keyEventArgs.Handled = true;
             }
             else if (key == Key.Up)
             {
                 _usRenderer?.SetVerticalFlip(true);
                 Log.Information($"[Flip Vertical] → true (↑)");
+                keyEventArgs.Handled = true;
             }
             else if (key == Key.Down)
             {
                 _usRenderer?.SetVerticalFlip(false);
                 Log.Information($"[Flip Vertical] → false (↓)");
+                keyEventArgs.Handled = true;
             }
         }
 

@@ -11,11 +11,29 @@ using System.Drawing.Imaging;
 using System.Drawing;
 using System.Security.Cryptography;
 using SonoCap.MES.Models;
+using System.Text.Json;
 
 namespace SonoCap.WpfCommons
 {
     public static class Utilities
     {
+        public static string FormatJson(string json)
+        {
+            try
+            {
+                using var jdoc = JsonDocument.Parse(json);
+                return JsonSerializer.Serialize(jdoc, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+            }
+            catch
+            {
+                // 실패 시 원본 그대로 반환 (비정상 JSON 등)
+                return json;
+            }
+        }
+
         public static string MoveTempImageToExport(string fileName, string tempPath, string exportPath)
         {
             string sourcePath = Path.Combine(tempPath, fileName);

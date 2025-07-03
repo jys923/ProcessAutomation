@@ -238,6 +238,7 @@ namespace SonoCap.MES.UI.ViewModels
         private ObservableDictionary<int, ObservableBrush> _borderBackgrounds = new();
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(TestCommand))]
         private int _blinkingCellIndex = (int)CellPositions.Row0_Column0;
 
         partial void OnBlinkingCellIndexChanged(int value)
@@ -736,8 +737,19 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private ImageSource _resImg = default!;
 
-        [ObservableProperty]
-        private string _resTxt = default!;
+        //[ObservableProperty]
+        //private string _resTxt = default!;
+
+        private string _resTxt;
+        public string ResTxt
+        {
+            get => _resTxt;
+            set
+            {
+                _resTxt = Utilities.FormatJson(value);
+                OnPropertyChanged(nameof(ResTxt));
+            }
+        }
 
         [ObservableProperty]
         private TimeStampedObservableCollection<string> _resLogs = new TimeStampedObservableCollection<string>();
@@ -746,46 +758,36 @@ namespace SonoCap.MES.UI.ViewModels
         private string _selectedLogItem = default!;
 
         [RelayCommand]
-        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
+        public void KeyDown(KeyEventArgs keyEventArgs)
         {
             Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
-            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
+            Log.Information($"{nameof(KeyDown)} key: {key}");
 
             if (key == Key.Left)
             {
                 _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
-                keyEventArgs.Handled = true; // ⬅️ 핵심
+                keyEventArgs.Handled = true;
             }
             else if (key == Key.Right)
             {
                 _rotationAngle = (_rotationAngle + 1) % 360;
                 usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
-                keyEventArgs.Handled = true; // ⬅️ 핵심
+                keyEventArgs.Handled = true;
             }
             else if (key == Key.Up)
             {
                 usRenderer?.SetVerticalFlip(true);
                 Log.Information($"[Flip Vertical] → true (↑)");
-                keyEventArgs.Handled = true; // ⬅️ 핵심
+                keyEventArgs.Handled = true;
             }
             else if (key == Key.Down)
             {
                 usRenderer?.SetVerticalFlip(false);
                 Log.Information($"[Flip Vertical] → false (↓)");
-                keyEventArgs.Handled = true; // ⬅️ 핵심
-            }
-            else if (key == Key.F10)
-            {
-                (NextCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-
-                if (NextCommand.CanExecute(null))
-                {
-                    await NextCommand.ExecuteAsync(null);
-                    keyEventArgs.Handled = true; // ⬅️ 이것도 넣는 게 안전
-                }
+                keyEventArgs.Handled = true;
             }
         }
 
@@ -882,19 +884,19 @@ namespace SonoCap.MES.UI.ViewModels
                 return;
             }
 
-            // 검사 이력 확인
-            var allTypeIds = new[] { 1, 2, 3 };
-            var existingTypes = _testingManagementService.GetExistingTestTypeIds(
-                _testCategory, _transducer, _transducerModule, _probe
-            );
-            var missingTypes = allTypeIds.Except(existingTypes).ToList();
+            //// 검사 이력 확인
+            //var allTypeIds = new[] { 1, 2, 3 };
+            //var existingTypes = _testingManagementService.GetExistingTestTypeIds(
+            //    _testCategory, _transducer, _transducerModule, _probe
+            //);
+            //var missingTypes = allTypeIds.Except(existingTypes).ToList();
 
-            if (missingTypes.Count == 0)
-            {
-                Controls.MessageBox.Show("검사 생략", "모든 항목이 이미 검사되어\n추가로 저장할 항목이 없습니다.");
-                ResLogs.Add("검사 생략 - 저장할 항목 없음");
-                return;
-            }
+            //if (missingTypes.Count == 0)
+            //{
+            //    Controls.MessageBox.Show("검사 생략", "모든 항목이 이미 검사되어\n추가로 저장할 항목이 없습니다.");
+            //    ResLogs.Add("검사 생략 - 저장할 항목 없음");
+            //    return;
+            //}
 
             // 이미지 캡처 및 RunInspection 실행
             App.Current.Dispatcher.Invoke(() =>
@@ -980,19 +982,20 @@ namespace SonoCap.MES.UI.ViewModels
         {
             var allTypeIds = new[] { 1, 2, 3 };
 
-            var existingTypes = _testingManagementService.GetExistingTestTypeIds(
-                _testCategory,
-                _transducer,
-                _transducerModule,
-                _probe
-            );
+            //var existingTypes = _testingManagementService.GetExistingTestTypeIds(
+            //    _testCategory,
+            //    _transducer,
+            //    _transducerModule,
+            //    _probe
+            //);
 
-            Log.Information("existingTypes = {Existing}", string.Join(", ", existingTypes));
+            //Log.Information("existingTypes = {Existing}", string.Join(", ", existingTypes));
 
-            var missingTypes = allTypeIds.Except(existingTypes).ToList();
-            Log.Information("missingTypes = {Missing}", string.Join(", ", missingTypes));
+            //var missingTypes = allTypeIds.Except(existingTypes).ToList();
+            //Log.Information("missingTypes = {Missing}", string.Join(", ", missingTypes));
 
-            foreach (int typeId in allTypeIds.Except(existingTypes))
+            //foreach (int typeId in allTypeIds.Except(existingTypes))
+            foreach (int typeId in allTypeIds)
             {
                 var resultScore = typeId switch
                 {
@@ -1024,7 +1027,7 @@ namespace SonoCap.MES.UI.ViewModels
 
                 if (await _testingManagementService.SaveAsync(newTest))
                 {
-                    ResLogs.Add($"강제 검사 저장: TestTypeId = {typeId}");
+                    ResLogs.Add($"통합 검사 저장: TestTypeId = {typeId}");
                     Utilities.MoveTempImageToExport(
                         originalImg, App.appTempDir, App.appSettings.Path.ExportImg
                     );
@@ -1485,11 +1488,21 @@ namespace SonoCap.MES.UI.ViewModels
             });
             // 결과 텍스트 출력
             string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
-            Log.Information($"resultText: {resultText}");
-            ResLogs.Add(resultText);
-            ResTxt = resultText;
 
             var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
+
+            // 내부 내용만 따로 JSON 직렬화
+            string metadataOnly = _testType switch
+            {
+                TestTypes.Gray => JsonSerializer.Serialize(parsed.Gray),
+                TestTypes.Res => JsonSerializer.Serialize(parsed.Res),
+                TestTypes.Geo => JsonSerializer.Serialize(parsed.Geo),
+                _ => "{}"
+            };
+
+            Log.Information($"metadataOnly: {metadataOnly}");
+            ResLogs.Add(metadataOnly);
+            ResTxt = metadataOnly;
 
             int resultScore = _testType switch
             {
@@ -1508,7 +1521,7 @@ namespace SonoCap.MES.UI.ViewModels
                 TesterId = _tester.Id,
                 Result = resultScore, // 여기서 검사 로직 통해서 계산하거나 임시 -2 등
                 Method = 1,
-                ChangedImgMetadata = resultText,
+                ChangedImgMetadata = metadataOnly,
                 OriginalImg = Path.GetFileName(OriginalImgName),
                 ChangedImg = Path.GetFileName(resultImagePath),
             };
@@ -1554,14 +1567,14 @@ namespace SonoCap.MES.UI.ViewModels
                 Utilities.MoveTempImageToExport(
                     _test.ChangedImg, App.appTempDir, App.appSettings.Path.ExportImg
                 );
-                ResTxt = "";
+                //ResTxt = "";
 
                 CellPositions cellPosition = (CellPositions)((int)_testCategory * 10 + (int)_testType);
                 SetCellPassFail(_test, cellPosition);
                 await TryActivateNextCategoryAsync();
             }
 
-            ResImg = default!;
+            //ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
