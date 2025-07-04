@@ -31,17 +31,18 @@ void MyOpenCVWrapper::RunInspection(System::IntPtr inputBuffer, int imageWidth, 
 
     cv::Mat gray;
     cv::cvtColor(resultImage, gray, cv::COLOR_BGRA2GRAY);
-	cv::Mat referenceImage = MyOpenCVWrapper::OpenCVWrapper::GetReferenceImage();
-    //float angle = estimateRotationByPhaseCorrelation(referenceImage, gray); //오류
-    //float angle = estimateVerticalShiftByFFT(referenceImage, gray); // 검출 이상 안됨
-    //float angle = estimateRotationByCircularShift(referenceImage, gray); //느림
-    float angle = estimateRotationByORB(referenceImage, gray);
 
-	Console::WriteLine("Estimated angle: {0}", angle);
+	//cv::Mat referenceImage = MyOpenCVWrapper::OpenCVWrapper::GetReferenceImage();
+ //   //float angle = estimateRotationByPhaseCorrelation(referenceImage, gray); //오류
+ //   //float angle = estimateVerticalShiftByFFT(referenceImage, gray); // 검출 이상 안됨
+ //   //float angle = estimateRotationByCircularShift(referenceImage, gray); //느림
+ //   float angle = estimateRotationByORB(referenceImage, gray);
 
-    resultImage = rotateImage(resultImage, angle); // or -anglePolar
+	//Console::WriteLine("Estimated angle: {0}", angle);
 
-    showAndSaveImage("rotate", resultImage);
+ //   resultImage = rotateImage(resultImage, angle); // or -anglePolar
+
+ //   showAndSaveImage("rotate", resultImage);
 
     int halfW = imageWidth / 2;
     int halfH = imageHeight / 2;

@@ -1,9 +1,9 @@
 ﻿#include "ResInspection.h"
 
 #define ROI_X 175
-#define ROI_Y 200
-#define ROI_W 25
-#define ROI_H 35
+#define ROI_Y 185
+#define ROI_W 40
+#define ROI_H 45
 
 #define USE_DENSITY  // 또는 주석처리하고 평균 밝기 쓸 수도 있음
 //#define USE_FAST_CENTER
@@ -85,7 +85,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
         count++;
     }
-
+    cv::rectangle(roiImage, roi, YellowA, 1);  // 밝은 노란색 1px 테두리
     showAndSaveImage("ResInspection", roiImage);
 
     if (centers.size() != 3) {
