@@ -34,15 +34,69 @@ namespace SonoCap.WpfCommons
             }
         }
 
-        public static string MoveTempImageToExport(string fileName, string tempPath, string exportPath)
+        public static string GenImgName(string prefix, string exportDirectory)
+        {
+            if (!Directory.Exists(exportDirectory))
+                Directory.CreateDirectory(exportDirectory);
+
+            var existingFiles = Directory.EnumerateFiles(exportDirectory, $"{prefix}_*.bmp")
+                .Concat(Directory.EnumerateFiles(exportDirectory, $"{prefix}_*.png"))
+                .Select(path => Path.GetFileNameWithoutExtension(path))
+                .Where(name => name.StartsWith(prefix + "_"))
+                .Select(name =>
+                {
+                    string[] parts = name.Split('_');
+                    if (parts.Length >= 2 && int.TryParse(parts.Last(), out int num))
+                        return num;
+                    return 0;
+                });
+
+            int maxIndex = existingFiles.Any() ? existingFiles.Max() : 0;
+            int newIndex = maxIndex + 1;
+
+            return $"{prefix}_{newIndex:D3}";
+        }
+
+        public static ImageSource LoadOrDefault(string basePath, string? fileName, ImageSource defaultImage)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return defaultImage;
+
+            string path = Path.Combine(basePath, fileName);
+            return GetFileToImageSource(path) ?? defaultImage;
+        }
+
+        public static string GetExportImgPath(string basePath, Dictionary<string, string> phases, int testCategory)
+        {
+            string phaseKey = testCategory switch
+            {
+                1 => "Process",
+                2 => "Product",
+                3 => "Final",
+                _ => "Unknown"
+            };
+
+            if (phases.TryGetValue(phaseKey, out string? phaseFolder))
+            {
+                return Path.Combine(basePath, phaseFolder);
+            }
+
+            return basePath;
+        }
+
+        public static string MoveTempImageToExport(string fileName, string tempPath, string exportPath, string newFileName)
         {
             string sourcePath = Path.Combine(tempPath, fileName);
-            string destPath = Path.Combine(exportPath, fileName);
+            string destPath = Path.Combine(exportPath, newFileName);
 
             try
             {
                 if (!Directory.Exists(exportPath))
                     Directory.CreateDirectory(exportPath);
+
+                // 기존 파일이 있으면 삭제
+                if (File.Exists(destPath))
+                    File.Delete(destPath);
 
                 File.Move(sourcePath, destPath);
                 return destPath;

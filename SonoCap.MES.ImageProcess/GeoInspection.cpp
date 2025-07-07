@@ -105,9 +105,9 @@ void MyOpenCVWrapper::GeoInspection2(cv::Mat& roiImage, GeoResult& result)
 
 }
 
-#define NUM_SLICES 4
+#define NUM_SLICES 5
 #define ROI_X  60
-#define ROI_Y  (300 - 256)
+#define ROI_Y  (330 - 256)
 #define ROI_W  400
 #define ROI_H  (NUM_SLICES * 10)
 

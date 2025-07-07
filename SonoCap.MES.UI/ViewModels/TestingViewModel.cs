@@ -981,19 +981,23 @@ namespace SonoCap.MES.UI.ViewModels
         {
             var allTypeIds = new[] { 1, 2, 3 };
 
-            //var existingTypes = _testingManagementService.GetExistingTestTypeIds(
-            //    _testCategory,
-            //    _transducer,
-            //    _transducerModule,
-            //    _probe
-            //);
+            var basePath = App.appSettings.Path.ExportImg;
+            var phaseMap = App.appSettings.Path.ExportImgPhase;
 
-            //Log.Information("existingTypes = {Existing}", string.Join(", ", existingTypes));
+            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory);
 
             //var missingTypes = allTypeIds.Except(existingTypes).ToList();
             //Log.Information("missingTypes = {Missing}", string.Join(", ", missingTypes));
 
-            //foreach (int typeId in allTypeIds.Except(existingTypes))
+            // prefix = 예: "probeSn_gray"
+            var sn = GetSnByCategory(_testCategory);
+            string prefix = $"{sn}_all";
+            string finalName = Utilities.GenImgName(prefix, exportPath);
+
+            string finalOriginalName = finalName + ".bmp";
+            string finalChangedName = finalName + ".png";
+
+            bool anySaved = false;
             foreach (int typeId in allTypeIds)
             {
                 var resultScore = typeId switch
@@ -1008,8 +1012,8 @@ namespace SonoCap.MES.UI.ViewModels
                 {
                     TestCategoryId = (int)_testCategory,
                     TesterId = _tester.Id,
-                    OriginalImg = originalImg,
-                    ChangedImg = changedImg,
+                    OriginalImg = finalOriginalName,
+                    ChangedImg = finalChangedName,
                     Result = 100,
                     Method = 0,
                     TestTypeId = typeId,
@@ -1026,14 +1030,15 @@ namespace SonoCap.MES.UI.ViewModels
 
                 if (await _testingManagementService.SaveAsync(newTest))
                 {
+                    anySaved = true;
                     ResLogs.Add($"통합 검사 저장: TestTypeId = {typeId}");
-                    Utilities.MoveTempImageToExport(
-                        originalImg, App.appTempDir, App.appSettings.Path.ExportImg
-                    );
-                    Utilities.MoveTempImageToExport(
-                        changedImg, App.appTempDir, App.appSettings.Path.ExportImg
-                    );
                 }
+            }
+
+            if (anySaved)
+            {
+                Utilities.MoveTempImageToExport(originalImg, App.appTempDir, exportPath, finalOriginalName);
+                Utilities.MoveTempImageToExport(changedImg, App.appTempDir, exportPath, finalChangedName);
             }
             Log.Information("SaveForceTestResultsAsync done");
         }
@@ -1553,32 +1558,51 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information($"{nameof(NextAsync)}");
             _test.Result = TestResult;
+
+            var basePath = App.appSettings.Path.ExportImg;
+            var phaseMap = App.appSettings.Path.ExportImgPhase;
+
+            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory);
+
+            string sn = GetSnByCategory(_testCategory);
+            string typeSuffix = _test.TestTypeId switch
+            {
+                1 => "gray",
+                2 => "res",
+                3 => "align",
+                _ => "unk"
+            };
+            string prefix = $"{sn}_{typeSuffix}";
+            string baseName = Utilities.GenImgName(prefix, exportPath); // 예: "probe123_gray_001"
+            string finalOriginalName = baseName + ".bmp";
+            string finalChangedName = baseName + ".png";
+
+            // --- 파일 이동 및 이름 변경 ---
+            Utilities.MoveTempImageToExport(_test.OriginalImg, App.appTempDir, exportPath, finalOriginalName);
+            Utilities.MoveTempImageToExport(_test.ChangedImg, App.appTempDir, exportPath, finalChangedName);
+
+            // --- 이동 후 이름을 저장용 객체에 반영 ---
+            _test.OriginalImg = finalOriginalName;
+            _test.ChangedImg = finalChangedName;
+
+            // --- DB 저장 ---
             if (await _testingManagementService.SaveAsync(_test))
             {
                 string tmp = _test.ToString();
                 Log.Information(tmp);
                 ResLogs.Add($"Add test : {tmp}");
 
-                Utilities.MoveTempImageToExport(
-                    _test.OriginalImg, App.appTempDir, App.appSettings.Path.ExportImg
-                );
-
-                Utilities.MoveTempImageToExport(
-                    _test.ChangedImg, App.appTempDir, App.appSettings.Path.ExportImg
-                );
-                //ResTxt = "";
-
                 CellPositions cellPosition = (CellPositions)((int)_testCategory * 10 + (int)_testType);
                 SetCellPassFail(_test, cellPosition);
                 await TryActivateNextCategoryAsync();
             }
 
-            //ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
         }
+
 
         private async Task TryActivateNextCategoryAsync()
         {
@@ -1752,6 +1776,17 @@ namespace SonoCap.MES.UI.ViewModels
             _pTRView = testingData.PTRView;
 
             Log.Information("SetBySnAsync done");
+        }
+
+        private string GetSnByCategory(TestCategories category)
+        {
+            return category switch
+            {
+                TestCategories.Processing => _transducer!.Sn,
+                TestCategories.Process => _transducerModule!.Sn,
+                TestCategories.Dispatch => _probe!.Sn,
+                _ => throw new ArgumentOutOfRangeException(nameof(category))
+            };
         }
 
         private void PrepareTest(TestCategories testCategory, Test insertTest)

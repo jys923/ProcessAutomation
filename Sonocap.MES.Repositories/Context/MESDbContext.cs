@@ -3,8 +3,6 @@
 using SonoCap.MES.Models;
 using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Models.Base;
-using Microsoft.Extensions.Logging;
-using Serilog;
 
 namespace SonoCap.MES.Repositories.Context
 {

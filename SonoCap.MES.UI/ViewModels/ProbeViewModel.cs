@@ -4,11 +4,13 @@ using Serilog;
 using SonoCap.MES.Models;
 using SonoCap.WpfCommons;
 using SonoCap.MES.UI.ViewModels.Base;
-using System.Drawing;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
+using SonoCap.MES.UI.Services;
+using CommunityToolkit.Mvvm.Messaging;
+using SonoCap.MES.UI.Messages;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -74,58 +76,157 @@ namespace SonoCap.MES.UI.ViewModels
 
         [ObservableProperty]
         private ImageSource _resImg22 = default!;
+        
+        private readonly ProbeService _probeService;
 
+        public Action? CloseAction { get; set; }
 
         [RelayCommand]
-        private void KeyDown(KeyEventArgs keyEventArgs)
+        private async Task DeleteAsync()
         {
-            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
-            Log.Information($"{nameof(KeyDown)} {nameof(key)}: {key}");
-            if (key == Key.Escape)
+            Log.Information($"{nameof(DeleteAsync)}");
+            bool proceed = Controls.MessageBox.Show($"{PTRView.ProbeSn} 데이터 삭제", $"{PTRView.ProbeSn} 데이터 삭제 실행?");
+            if (!proceed)
             {
-                App.Current.MainWindow.Close();
+                return;
             }
+
+            Log.Information($"Deleting {PTRView.ProbeSn} data...");
+
+            await _probeService.DeleteProbe(PTRView);
+
+            //CloseAction?.Invoke();  // 창 닫기
+            Window?.Close(); // 이 한 줄이면 끝
+
+            WeakReferenceMessenger.Default.Send(
+                new ViewModelActionMessage(nameof(ProbeListViewModel), "Refresh")
+            );
+
         }
 
-        public ProbeViewModel()
-        {
-            Title = this.GetType().Name;
-        }
-
-        public ProbeViewModel(string title, PTRView pTRView)
+        public void Initialize2(string title, PTRView pTRView)
         {
             Title = title;
-            _pTRView = pTRView;
+            PTRView = pTRView;
 
             _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
 
-            SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.OriginalImg)) ?? _defaultImg;
-            ResImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.ChangedImg)) ?? _defaultImg;
+            var basePath = App.appSettings.Path.ExportImg;
+            var phaseMap = App.appSettings.Path.ExportImgPhase;
 
-            SrcImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.OriginalImg)) ?? _defaultImg;
-            ResImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.ChangedImg)) ?? _defaultImg;
+            string exportPath01 = Utilities.GetExportImgPath(basePath, phaseMap, 1);
+            string exportPath02 = Utilities.GetExportImgPath(basePath, phaseMap, 2);
+            string exportPath03 = Utilities.GetExportImgPath(basePath, phaseMap, 3);
 
-            SrcImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.OriginalImg)) ?? _defaultImg;
-            ResImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.ChangedImg)) ?? _defaultImg;
+            SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test01.OriginalImg)) ?? _defaultImg;
+            ResImg00 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test01.ChangedImg)) ?? _defaultImg;
 
-            SrcImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.OriginalImg)) ?? _defaultImg;
-            ResImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.ChangedImg)) ?? _defaultImg;
+            SrcImg01 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test02.OriginalImg)) ?? _defaultImg;
+            ResImg01 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test02.ChangedImg)) ?? _defaultImg;
 
-            SrcImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.OriginalImg)) ?? _defaultImg;
-            ResImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.ChangedImg)) ?? _defaultImg;
+            SrcImg02 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test03.OriginalImg)) ?? _defaultImg;
+            ResImg02 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test03.ChangedImg)) ?? _defaultImg;
 
-            SrcImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.OriginalImg)) ?? _defaultImg;
-            ResImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.ChangedImg)) ?? _defaultImg;
+            SrcImg10 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test04.OriginalImg)) ?? _defaultImg;
+            ResImg10 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test04.ChangedImg)) ?? _defaultImg;
 
-            SrcImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.OriginalImg)) ?? _defaultImg;
-            ResImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.ChangedImg)) ?? _defaultImg;
+            SrcImg11 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test05.OriginalImg)) ?? _defaultImg;
+            ResImg11 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test05.ChangedImg)) ?? _defaultImg;
 
-            SrcImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.OriginalImg)) ?? _defaultImg;
-            ResImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.ChangedImg)) ?? _defaultImg;
+            SrcImg12 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test06.OriginalImg)) ?? _defaultImg;
+            ResImg12 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test06.ChangedImg)) ?? _defaultImg;
 
-            SrcImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.OriginalImg)) ?? _defaultImg;
-            ResImg22 = PTRView.Test09 == null ? _defaultImg : 
-                Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.ChangedImg)) ?? _defaultImg;
+            SrcImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test07.OriginalImg)) ?? _defaultImg;
+            ResImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test07.ChangedImg)) ?? _defaultImg;
+
+            SrcImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test08.OriginalImg)) ?? _defaultImg;
+            ResImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test08.ChangedImg)) ?? _defaultImg;
+
+            SrcImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test09.OriginalImg)) ?? _defaultImg;
+            ResImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test09.ChangedImg)) ?? _defaultImg;
+        }
+
+        public void Initialize(string title, PTRView pTRView)
+        {
+            Title = title;
+            PTRView = pTRView;
+
+            _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
+            var basePath = App.appSettings.Path.ExportImg;
+            var phaseMap = App.appSettings.Path.ExportImgPhase;
+
+            string path1 = Utilities.GetExportImgPath(basePath, phaseMap, 1);
+            string path2 = Utilities.GetExportImgPath(basePath, phaseMap, 2);
+            string path3 = Utilities.GetExportImgPath(basePath, phaseMap, 3);
+
+            // Load images safely
+            SrcImg00 = Utilities.LoadOrDefault(path1, PTRView.Test01?.OriginalImg, _defaultImg);
+            ResImg00 = Utilities.LoadOrDefault(path1, PTRView.Test01?.ChangedImg, _defaultImg);
+
+            SrcImg01 = Utilities.LoadOrDefault(path1, PTRView.Test02?.OriginalImg, _defaultImg);
+            ResImg01 = Utilities.LoadOrDefault(path1, PTRView.Test02?.ChangedImg, _defaultImg);
+
+            SrcImg02 = Utilities.LoadOrDefault(path1, PTRView.Test03?.OriginalImg, _defaultImg);
+            ResImg02 = Utilities.LoadOrDefault(path1, PTRView.Test03?.ChangedImg, _defaultImg);
+
+            SrcImg10 = Utilities.LoadOrDefault(path2, PTRView.Test04?.OriginalImg, _defaultImg);
+            ResImg10 = Utilities.LoadOrDefault(path2, PTRView.Test04?.ChangedImg, _defaultImg);
+
+            SrcImg11 = Utilities.LoadOrDefault(path2, PTRView.Test05?.OriginalImg, _defaultImg);
+            ResImg11 = Utilities.LoadOrDefault(path2, PTRView.Test05?.ChangedImg, _defaultImg);
+
+            SrcImg12 = Utilities.LoadOrDefault(path2, PTRView.Test06?.OriginalImg, _defaultImg);
+            ResImg12 = Utilities.LoadOrDefault(path2, PTRView.Test06?.ChangedImg, _defaultImg);
+
+            SrcImg20 = Utilities.LoadOrDefault(path3, PTRView.Test07?.OriginalImg, _defaultImg);
+            ResImg20 = Utilities.LoadOrDefault(path3, PTRView.Test07?.ChangedImg, _defaultImg);
+
+            SrcImg21 = Utilities.LoadOrDefault(path3, PTRView.Test08?.OriginalImg, _defaultImg);
+            ResImg21 = Utilities.LoadOrDefault(path3, PTRView.Test08?.ChangedImg, _defaultImg);
+
+            SrcImg22 = Utilities.LoadOrDefault(path3, PTRView.Test09?.OriginalImg, _defaultImg);
+            ResImg22 = Utilities.LoadOrDefault(path3, PTRView.Test09?.ChangedImg, _defaultImg);
+        }
+
+        public ProbeViewModel(
+            ProbeService probeService
+            //string title, 
+            //PTRView pTRView
+            )
+        {
+            _probeService = probeService;
+            //Title = title;
+            //_pTRView = pTRView;
+
+            //_defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
+
+            //SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.OriginalImg)) ?? _defaultImg;
+            //ResImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.OriginalImg)) ?? _defaultImg;
+            //ResImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.OriginalImg)) ?? _defaultImg;
+            //ResImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.OriginalImg)) ?? _defaultImg;
+            //ResImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.OriginalImg)) ?? _defaultImg;
+            //ResImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.OriginalImg)) ?? _defaultImg;
+            //ResImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.OriginalImg)) ?? _defaultImg;
+            //ResImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.OriginalImg)) ?? _defaultImg;
+            //ResImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.ChangedImg)) ?? _defaultImg;
+
+            //SrcImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.OriginalImg)) ?? _defaultImg;
+            //ResImg22 = PTRView.Test09 == null ? _defaultImg : 
+            //    Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.ChangedImg)) ?? _defaultImg;
         }
     }
 }

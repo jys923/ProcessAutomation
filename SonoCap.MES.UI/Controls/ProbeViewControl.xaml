@@ -24,12 +24,6 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <b:Interaction.Triggers>
-        <b:EventTrigger EventName="KeyDown">
-            <b:InvokeCommandAction Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True">
-            </b:InvokeCommandAction>
-        </b:EventTrigger>
-    </b:Interaction.Triggers>
     <Grid Margin="10 10 10 0">
         <Grid.RowDefinitions>
             <RowDefinition Height=".2*"/>
@@ -318,7 +312,10 @@
             </Grid>
         </Grid>
         <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0 0 -5 0" >
-            <Button Width="100" Content="Close" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="30" IsCancel="True" Cursor="Hand" Style="{StaticResource MetroPinkButtonStyle}"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Width="100" Command="{Binding DeleteCommand}" Content="Del" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="30" Style="{StaticResource MetroBlueButtonStyle}" />
+                <Button Width="100" Content="Close" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="30" IsCancel="True" Cursor="Hand" Style="{StaticResource MetroPinkButtonStyle}" />
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

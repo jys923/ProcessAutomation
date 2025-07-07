@@ -166,6 +166,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterServices(IServiceCollection services)
         {
+            services.AddTransient<ProbeService>();
             services.AddTransient<TestingManagementService>();
             services.AddTransient<SonoCap.MES.Services.ISerialPortWrapper, SonoCap.MES.Services.SerialPortWrapper>();
             services.AddTransient<SonoCap.MES.Services.Interfaces.IExcelService, SonoCap.MES.Services.ExcelService>();

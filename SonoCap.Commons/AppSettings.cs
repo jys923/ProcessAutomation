@@ -36,6 +36,13 @@ namespace SonoCap.Commons
         //public string ExportImg { get; set; } = @"./img/";
         public string ExportImg { get; set; } = @"./capture/images/";
         public string ExportVideo { get; set; } = @"./capture/videos/";
+
+        public Dictionary<string, string> ExportImgPhase { get; set; } = new()
+        {
+            { "Process", "공정" },
+            { "Product", "완제품" },
+            { "Final", "최종" }
+        };
     }
 
     public class SerilogSettings

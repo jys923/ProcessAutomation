@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SonoCap.MES.UI.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,13 @@ namespace SonoCap.MES.UI.Views
         public ProbeView()
         {
             InitializeComponent();
+
+            this.Loaded += (_, __) =>
+            {
+                if (DataContext is ProbeViewModel vm)
+                    //vm.CloseAction = this.Close;
+                    vm.SetWindow(this);
+            };
         }
     }
 }

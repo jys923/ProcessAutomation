@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using MaterialDesignThemes.Wpf;
 using SonoCap.WpfCommons;
 using System.ComponentModel;
@@ -62,6 +63,13 @@ namespace SonoCap.MES.UI.ViewModels.Base
         {
             Window = window;
             AddLifecycleHander();
+        }
+
+        protected void RegisterMessageHandler<TMessage>(
+            Action<TMessage> handler
+        ) where TMessage : class
+        {
+            WeakReferenceMessenger.Default.Register<TMessage>(this, (_, m) => handler(m));
         }
     }
 }

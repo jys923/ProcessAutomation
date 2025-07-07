@@ -10,7 +10,7 @@
 #include <nlohmann/json.hpp>
 
 #ifdef _DEBUG
-#define ENABLE_IMAGE_DISPLAY true
+#define ENABLE_IMAGE_DISPLAY false
 #else
 #define ENABLE_IMAGE_DISPLAY false
 #endif

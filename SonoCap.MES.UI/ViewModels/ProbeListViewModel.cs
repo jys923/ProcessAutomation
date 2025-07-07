@@ -9,6 +9,8 @@ using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using SonoCap.MES.UI.Messages;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -200,6 +202,16 @@ namespace SonoCap.MES.UI.ViewModels
             _excelService = excelService;
             _probeRepository = probeRepository;
             _pTRViewRepository = pTRViewRepository;
+
+            RegisterMessageHandler<ViewModelActionMessage>(msg =>
+            {
+                if (msg.Value.TargetViewModel == nameof(ProbeListViewModel) && msg.Value.Action == "Refresh")
+                {
+                    Log.Information($"{nameof(ProbeListViewModel)} Refresh");
+                    _ = SearchAsync();
+                }
+            });
+
             //TestCategories = new ObservableCollection<string>
             //{
             //    "ALL",

@@ -48,13 +48,12 @@ namespace SonoCap.MES.UI.ViewModels
 
             _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
 
-            SrcImg = Utilities.GetFileToImageSource(
-                Path.Combine(App.appSettings.Path.ExportImg, Test.OriginalImg)
-            ) ?? _defaultImg;
+            var basePath = App.appSettings.Path.ExportImg;
+            var phaseMap = App.appSettings.Path.ExportImgPhase;
+            string path = Utilities.GetExportImgPath(basePath, phaseMap, Test.TestCategoryId);
 
-            ResImg = Utilities.GetFileToImageSource(
-                Path.Combine(App.appSettings.Path.ExportImg, Test.ChangedImg)
-            ) ?? _defaultImg;
+            SrcImg = Utilities.LoadOrDefault(path, Test.OriginalImg, _defaultImg);
+            ResImg = Utilities.LoadOrDefault(path, Test.ChangedImg, _defaultImg);
 
             _cellColors = new Color[9];
             // Initialize all cells to LightBlue

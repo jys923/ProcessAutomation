@@ -47,10 +47,10 @@ namespace SonoCap.MES.ImageProcess.Test
     {
         static readonly List<InspectionPartType> SelectedInspectionParts = new()
         {
-            InspectionPartType.All,
+            //InspectionPartType.All,
             //InspectionPartType.Geo,
             //InspectionPartType.Gray,
-            //InspectionPartType.Res
+            InspectionPartType.Res
         };
 
         static readonly List<ImageProcessType> SelectedProcesses = new()
@@ -80,8 +80,8 @@ namespace SonoCap.MES.ImageProcess.Test
             string refImgPath = "./referenceImage.bmp";
             MyOpenCVWrapper.OpenCVWrapper.SetReferenceImage(refImgPath);
 
-            //string imagePath = "../../../../TestImg/SN00001_20250613_160340.bmp";
-            string imagePath = "./rotate2.bmp";
+            string imagePath = "../../../../TestImg/images/1751434018403_ori.bmp";
+            //string imagePath = "./rotate2.bmp";
             string processFolder = MakeResultFolder(imagePath);
 
             BitmapSource bitmapSource = LoadBitmap(imagePath);

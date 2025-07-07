@@ -1,9 +1,9 @@
 ﻿#include "ResInspection.h"
 
-#define ROI_X 175
+#define ROI_X 165
 #define ROI_Y 185
-#define ROI_W 40
-#define ROI_H 45
+#define ROI_W 50
+#define ROI_H 60
 
 #define USE_DENSITY  // 또는 주석처리하고 평균 밝기 쓸 수도 있음
 //#define USE_FAST_CENTER
