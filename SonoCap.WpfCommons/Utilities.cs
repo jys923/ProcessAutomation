@@ -66,7 +66,7 @@ namespace SonoCap.WpfCommons
             return GetFileToImageSource(path) ?? defaultImage;
         }
 
-        public static string GetExportImgPath(string basePath, Dictionary<string, string> phases, int testCategory)
+        public static string GetExportImgPath(string basePath, Dictionary<string, string> phases, int testCategory, string sn)
         {
             string phaseKey = testCategory switch
             {
@@ -78,7 +78,7 @@ namespace SonoCap.WpfCommons
 
             if (phases.TryGetValue(phaseKey, out string? phaseFolder))
             {
-                return Path.Combine(basePath, phaseFolder);
+                return Path.Combine(basePath, phaseFolder, sn);
             }
 
             return basePath;

@@ -27,6 +27,8 @@ using System.Windows.Media.Imaging;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using System.IO;
+using SonoCap.MES.UI.Messages;
+using System.Threading.Channels;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -983,14 +985,14 @@ namespace SonoCap.MES.UI.ViewModels
 
             var basePath = App.appSettings.Path.ExportImg;
             var phaseMap = App.appSettings.Path.ExportImgPhase;
+            var sn = GetSnByCategory(_testCategory);
 
-            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory);
+            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory, sn);
 
             //var missingTypes = allTypeIds.Except(existingTypes).ToList();
             //Log.Information("missingTypes = {Missing}", string.Join(", ", missingTypes));
 
             // prefix = 예: "probeSn_gray"
-            var sn = GetSnByCategory(_testCategory);
             string prefix = $"{sn}_all";
             string finalName = Utilities.GenImgName(prefix, exportPath);
 
@@ -1561,10 +1563,10 @@ namespace SonoCap.MES.UI.ViewModels
 
             var basePath = App.appSettings.Path.ExportImg;
             var phaseMap = App.appSettings.Path.ExportImgPhase;
-
-            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory);
-
             string sn = GetSnByCategory(_testCategory);
+
+            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory, sn);
+
             string typeSuffix = _test.TestTypeId switch
             {
                 1 => "gray",
@@ -1899,8 +1901,25 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        protected override void AddMsg()
+        {
+            var currentViewModelTypeName = GetType().Name;
+
+            RegisterMessageHandler<ViewModelActionMessage>(msg =>
+            {
+                if (msg.Value.TargetViewModel == currentViewModelTypeName && msg.Value.Action == "Refresh")
+                {
+                    Log.Information($"currentViewModelTypeName Refresh");
+                    //_ = SearchAsync()
+                    TDSn = string.Empty;
+                    OnTDSnChanged(TDSn);
+                }
+            });
+        }
+
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
         {
+            base.OnWindowClosing(sender, e);
             Log.Information($"{nameof(OnWindowClosing)}");
             _motorService.StopMotor();
             Task.Delay(100);
@@ -1913,6 +1932,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         protected override void OnWindowActivated(object? sender, EventArgs e)
         {
+            base.OnWindowActivated(sender, e);
             Log.Information($"{nameof(OnWindowActivated)}");
             _motorService.StartMotor();
             Task.Delay(100);

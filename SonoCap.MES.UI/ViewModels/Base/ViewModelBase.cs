@@ -49,12 +49,15 @@ namespace SonoCap.MES.UI.ViewModels.Base
 
         protected virtual void OnWindowActivated(object? sender, EventArgs e)
         {
+            AddMsg();
         }
 
         protected virtual void OnWindowClosing(object? sender, CancelEventArgs e)
         {
+            RmMsg();
         }
 
+        
         protected virtual void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
         }
@@ -70,6 +73,27 @@ namespace SonoCap.MES.UI.ViewModels.Base
         ) where TMessage : class
         {
             WeakReferenceMessenger.Default.Register<TMessage>(this, (_, m) => handler(m));
+        }
+
+        // ViewModelBase 내부에 추가
+        protected void UnregisterMessagesOfType<TMessage>()
+            where TMessage : class
+        {
+            WeakReferenceMessenger.Default.Unregister<TMessage>(this);
+        }
+
+        protected void UnregisterAllMessages()
+        {
+            WeakReferenceMessenger.Default.UnregisterAll(this);
+        }
+
+        protected virtual void AddMsg()
+        {
+        }
+
+        protected virtual void RmMsg()
+        {
+            WeakReferenceMessenger.Default.UnregisterAll(this);
         }
     }
 }

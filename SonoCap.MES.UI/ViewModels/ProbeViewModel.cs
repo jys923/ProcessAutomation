@@ -100,6 +100,15 @@ namespace SonoCap.MES.UI.ViewModels
 
             WeakReferenceMessenger.Default.Send(
                 new ViewModelActionMessage(nameof(ProbeListViewModel), "Refresh")
+
+            );
+
+            WeakReferenceMessenger.Default.Send(
+                new ViewModelActionMessage(nameof(TestListViewModel), "Refresh")
+            );
+
+            WeakReferenceMessenger.Default.Send(
+                new ViewModelActionMessage(nameof(TestingViewModel), "Refresh")
             );
 
         }
@@ -114,9 +123,9 @@ namespace SonoCap.MES.UI.ViewModels
             var basePath = App.appSettings.Path.ExportImg;
             var phaseMap = App.appSettings.Path.ExportImgPhase;
 
-            string exportPath01 = Utilities.GetExportImgPath(basePath, phaseMap, 1);
-            string exportPath02 = Utilities.GetExportImgPath(basePath, phaseMap, 2);
-            string exportPath03 = Utilities.GetExportImgPath(basePath, phaseMap, 3);
+            string exportPath01 = Utilities.GetExportImgPath(basePath, phaseMap, 1, pTRView.TransducerSn);
+            string exportPath02 = Utilities.GetExportImgPath(basePath, phaseMap, 2, pTRView.TransducerModuleSn);
+            string exportPath03 = Utilities.GetExportImgPath(basePath, phaseMap, 3, pTRView.ProbeSn);
 
             SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test01.OriginalImg)) ?? _defaultImg;
             ResImg00 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test01.ChangedImg)) ?? _defaultImg;
@@ -155,9 +164,9 @@ namespace SonoCap.MES.UI.ViewModels
             var basePath = App.appSettings.Path.ExportImg;
             var phaseMap = App.appSettings.Path.ExportImgPhase;
 
-            string path1 = Utilities.GetExportImgPath(basePath, phaseMap, 1);
-            string path2 = Utilities.GetExportImgPath(basePath, phaseMap, 2);
-            string path3 = Utilities.GetExportImgPath(basePath, phaseMap, 3);
+            string path1 = Utilities.GetExportImgPath(basePath, phaseMap, 1, pTRView.TransducerSn);
+            string path2 = Utilities.GetExportImgPath(basePath, phaseMap, 2, pTRView.TransducerModuleSn);
+            string path3 = Utilities.GetExportImgPath(basePath, phaseMap, 3, pTRView.ProbeSn);
 
             // Load images safely
             SrcImg00 = Utilities.LoadOrDefault(path1, PTRView.Test01?.OriginalImg, _defaultImg);

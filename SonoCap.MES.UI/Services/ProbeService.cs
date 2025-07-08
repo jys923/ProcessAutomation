@@ -119,16 +119,28 @@ namespace SonoCap.MES.UI.Services
             {
                 try
                 {
+                    string? sn = test.TransducerModule?.Sn
+                        ?? test.Probe?.Sn
+                        ?? test.Transducer?.Sn;
+
                     string dir = Utilities.GetExportImgPath(
                         App.appSettings.Path.ExportImg,
                         App.appSettings.Path.ExportImgPhase,
-                        test.TestCategoryId);
+                        test.TestCategoryId,
+                        sn);
 
                     string origPath = Path.Combine(dir, test.OriginalImg);
                     string changedPath = Path.Combine(dir, test.ChangedImg);
 
                     if (File.Exists(origPath)) File.Delete(origPath);
                     if (File.Exists(changedPath)) File.Delete(changedPath);
+
+                    // 이미지 파일 삭제 후 폴더가 비었으면 SN 폴더 삭제
+                    if (Directory.Exists(dir) && !Directory.EnumerateFileSystemEntries(dir).Any())
+                    {
+                        Directory.Delete(dir);
+                        Log.Information($"[DeleteProbe] 빈 검사 폴더 삭제됨: {dir}");
+                    }
                 }
                 catch (Exception ex)
                 {

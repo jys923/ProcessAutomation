@@ -6,6 +6,7 @@ using SonoCap.MES.Models;
 using SonoCap.MES.Models.Converts;
 using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.Services.Interfaces;
+using SonoCap.MES.UI.Messages;
 using SonoCap.MES.UI.ViewModels.Base;
 using SonoCap.WpfCommons;
 using System.Collections.ObjectModel;
@@ -282,24 +283,18 @@ namespace SonoCap.MES.UI.ViewModels
             Pc = Pcs[0];
         }
 
-        [RelayCommand]
-        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
+        protected override void AddMsg()
         {
-            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
-            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
-            if (key == Key.Enter)
+            var currentViewModelTypeName = GetType().Name;
+
+            RegisterMessageHandler<ViewModelActionMessage>(msg =>
             {
-                //// NextCommand CanExecute 상태를 갱신합니다.
-                //(SearchCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
-
-                //// Next 메서드를 호출합니다.
-                //if (SearchCommand.CanExecute(null))
-                //{
-                //    await SearchCommand.ExecuteAsync(null);
-                //}
-
-                //await SearchAsync();
-            }
+                if (msg.Value.TargetViewModel == currentViewModelTypeName && msg.Value.Action == "Refresh")
+                {
+                    Log.Information($"currentViewModelTypeName Refresh");
+                    _ = SearchAsync();
+                }
+            });
         }
 
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -310,11 +305,13 @@ namespace SonoCap.MES.UI.ViewModels
 
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
         {
+            base.OnWindowClosing(sender, e);
             Log.Information($"{nameof(OnWindowClosing)}");
         }
 
         protected override void OnWindowActivated(object? sender, EventArgs e)
         {
+            base.OnWindowActivated(sender, e);
             Log.Information($"{nameof(OnWindowActivated)}");
         }
     }

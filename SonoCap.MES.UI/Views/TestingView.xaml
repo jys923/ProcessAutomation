@@ -4,12 +4,6 @@
     <!--<Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding KeyDownCommand}"/>
     </Window.InputBindings>-->
-    <b:Interaction.Triggers>
-        <b:EventTrigger EventName="KeyDown">
-            <b:InvokeCommandAction Command="{Binding KeyDownCommand}" PassEventArgsToCommand="True">
-            </b:InvokeCommandAction>
-        </b:EventTrigger>
-    </b:Interaction.Triggers>
     <Grid x:Name="MainGrid" Margin="15">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />

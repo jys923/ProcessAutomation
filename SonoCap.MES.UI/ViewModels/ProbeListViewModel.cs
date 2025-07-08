@@ -9,15 +9,15 @@ using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using SonoCap.MES.UI.Messages;
+using System.ComponentModel;
+using System.Windows;
 
 namespace SonoCap.MES.UI.ViewModels
 {
     public partial class ProbeListViewModel : ViewModelBase
     {
         private readonly IExcelService _excelService;
-        private readonly IProbeRepository _probeRepository;
         private readonly IPTRViewRepository _pTRViewRepository;
 
         [ObservableProperty]
@@ -195,77 +195,50 @@ namespace SonoCap.MES.UI.ViewModels
 
         public ProbeListViewModel(
             IExcelService excelService,
-            IProbeRepository probeRepository,
             IPTRViewRepository pTRViewRepository)
         {
             Title = this.GetType().Name;
             _excelService = excelService;
-            _probeRepository = probeRepository;
             _pTRViewRepository = pTRViewRepository;
+            
+            
+        }
+
+        protected override void AddMsg()
+        {
+            var currentViewModelTypeName = GetType().Name;
 
             RegisterMessageHandler<ViewModelActionMessage>(msg =>
             {
-                if (msg.Value.TargetViewModel == nameof(ProbeListViewModel) && msg.Value.Action == "Refresh")
+                if (msg.Value.TargetViewModel == currentViewModelTypeName && msg.Value.Action == "Refresh")
                 {
-                    Log.Information($"{nameof(ProbeListViewModel)} Refresh");
+                    Log.Information($"currentViewModelTypeName Refresh");
                     _ = SearchAsync();
                 }
             });
-
-            //TestCategories = new ObservableCollection<string>
-            //{
-            //    "ALL",
-            //    "공정용",
-            //    "출하용",
-            //};
-
-            //TestCategory = TestCategories[0];
-
-            //TestResults = new ObservableCollection<string>
-            //{
-            //    "ALL",
-            //    "FAIL",
-            //    "PASS",
-            //};
-
-            //TestResult = TestResults[0];
-            ////출력
-
-            //PcNo = 1;
-
-            //Tester = "yoon";
-
-            ProbeSn = "";
-
-            TDMdSn = "";
-
-            TDSn = "";
-
-            MTMdSn = "";
-
-            //db 조회
-
-            //Probes.Add(new Probe { ProbeSn = ProbeSn, });
         }
 
-        [RelayCommand]
-        public async Task KeyDownAsync(KeyEventArgs keyEventArgs)
+
+        protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            Key key = keyEventArgs.Key == Key.System ? keyEventArgs.SystemKey : keyEventArgs.Key;
-            Log.Information($"{nameof(KeyDownAsync)} key: {key}");
-            if (key == Key.Enter)
-            {
-                // NextCommand CanExecute 상태를 갱신합니다.
-                //(SearchCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
+            Log.Information($"{nameof(OnWindowLoaded)}");
+            //_ = InitializeAsync();
+            ProbeSn = "";
+            TDMdSn = "";
+            TDSn = "";
+            MTMdSn = "";
+        }
 
-                //// Next 메서드를 호출합니다.
-                //if (SearchCommand.CanExecute(null))
-                //{
-                //    await SearchCommand.ExecuteAsync(null);
-                //}
+        protected override void OnWindowClosing(object? sender, CancelEventArgs e)
+        {
+            base.OnWindowClosing(sender, e);
+            Log.Information($"{nameof(OnWindowClosing)}");
+        }
 
-                //await SearchAsync();
-            }
+        protected override void OnWindowActivated(object? sender, EventArgs e)
+        {
+            base.OnWindowActivated(sender, e);
+            Log.Information($"{nameof(OnWindowActivated)}");
         }
     }
 }
