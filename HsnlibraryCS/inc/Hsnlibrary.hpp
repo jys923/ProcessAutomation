@@ -144,18 +144,18 @@ namespace Hsnlibrary
 	extern HSNLIBRARYEND_API bool getIpCapsuleIsInnerVisible();
 	extern HSNLIBRARYEND_API void setIpCapsuleIsInnerVisible(bool value);
 
-	//extern HSNLIBRARYEND_API void setCapsuleCalibrateOffset(int value);
-	//extern HSNLIBRARYEND_API int getCapsuleCalibrateOffset();
-	//extern HSNLIBRARYEND_API void setCapsuleAutoCalibrateTrigCount(int value);
-	//extern HSNLIBRARYEND_API int getCapsuleAutoCalibrateTrigCount();
+	extern HSNLIBRARYEND_API void setCapsuleCalibrateOffset(int value);
+	extern HSNLIBRARYEND_API int getCapsuleCalibrateOffset();
+	extern HSNLIBRARYEND_API void setCapsuleAutoCalibrateTrigCount(int value);
+	extern HSNLIBRARYEND_API int getCapsuleAutoCalibrateTrigCount();
 
-	//extern HSNLIBRARYEND_API int runCapsuleManualCalibration();
-	//extern HSNLIBRARYEND_API void setCapsuleAutoCalibrateEnable(bool value);
-	//extern HSNLIBRARYEND_API bool getCapsuleAutoCalibrateEnable();
-	//// monitor color map
-	//// 0.0 ~ 255.0 value
-	//extern HSNLIBRARYEND_API bool setIpMonitorColormap(const std::vector<float>& r, const std::vector<float>& g, const std::vector<float>& b);
-	//extern HSNLIBRARYEND_API bool getIpMonitorColormap(std::vector<float>& r, std::vector<float>& g, std::vector<float>& b);
-	//extern HSNLIBRARYEND_API void setIpIsMonitorGammaTableVisible(bool value);
-	//extern HSNLIBRARYEND_API bool getIpIsMonitorGammaTableVisible();
+	extern HSNLIBRARYEND_API int runCapsuleManualCalibration();
+	extern HSNLIBRARYEND_API void setCapsuleAutoCalibrateEnable(bool value);
+	extern HSNLIBRARYEND_API bool getCapsuleAutoCalibrateEnable();
+	// monitor color map
+	// 0.0 ~ 255.0 value
+	extern HSNLIBRARYEND_API bool setIpMonitorColormap(const std::vector<float>& r, const std::vector<float>& g, const std::vector<float>& b);
+	extern HSNLIBRARYEND_API bool getIpMonitorColormap(std::vector<float>& r, std::vector<float>& g, std::vector<float>& b);
+	extern HSNLIBRARYEND_API void setIpIsMonitorGammaTableVisible(bool value);
+	extern HSNLIBRARYEND_API bool getIpIsMonitorGammaTableVisible();
 }

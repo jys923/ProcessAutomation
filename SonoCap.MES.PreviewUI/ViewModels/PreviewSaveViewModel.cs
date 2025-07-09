@@ -29,6 +29,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         private readonly IMotorService _motorService;
         private USRenderService _usRenderer;
         private double _rotationAngle = 0.0;
+        private int _verticalShift = 0;
         //private bool _flipVertical = false;
 
         // Constructor
@@ -135,12 +136,34 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         [ObservableProperty] private string _noiseLog;
         [ObservableProperty] private ImageSource _srcImg;
         [ObservableProperty] private ImageSource _snapshotImg;
+        [ObservableProperty] private ImageSource _envImg;
 
-        // Manual Properties
+        // SelectedViewDepth 속성이 정의된 클래스 (예: ViewModel 클래스) 내부에 추가
+        private static readonly Dictionary<double, int> _depthToScanlineMap = new Dictionary<double, int>
+        {
+            { 7, 480 },
+            { 6, 576 },
+            { 5, 720 },
+            { 4, 768 },
+            { 3, 960 }
+        };
+
         public double SelectedViewDepth
         {
             get => _model.ViewDepthCm;
-            set { _model.ViewDepthCm = value; OnPropertyChanged(); }
+            set { 
+                _model.ViewDepthCm = value;
+                if (_depthToScanlineMap.TryGetValue(value, out int scanlineValue))
+                {
+                    _usRenderer?.SetScanline(scanlineValue);
+                }
+                else
+                {
+                    // 매칭되는 값이 없을 경우 처리 (예: 로그 출력, 기본값 설정 등)
+                    // Console.WriteLine($"Warning: No scanline mapping found for depth: {value}");
+                    // _usRenderer?.SetScanline(기본_값_또는_계산된_값);
+                }
+                OnPropertyChanged(); }
         }
 
         public int SelectedLineDensity
@@ -164,13 +187,19 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         public float DRMin
         {
             get => _model.DRMin;
-            set { if (value <= DRMax - 2) { _model.DRMin = value; OnPropertyChanged(); } }
+            set { if (value <= DRMax - 2) { 
+                    _model.DRMin = value;
+                    _usRenderer.DRMin = value;
+                    OnPropertyChanged(); } }
         }
 
         public float DRMax
         {
             get => _model.DRMax;
-            set { if (value >= DRMin + 2) { _model.DRMax = value; OnPropertyChanged(); } }
+            set { if (value >= DRMin + 2) { 
+                    _model.DRMax = value;
+                    _usRenderer.DRMax = value;
+                    OnPropertyChanged(); } }
         }
 
         partial void OnSelectedApplicationChanged(Tuple<int, string> value)
@@ -210,6 +239,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             {
                 _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
+                _usRenderer.VerticalShift = --_verticalShift;
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
                 keyEventArgs.Handled = true;
             }
@@ -217,6 +247,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             {
                 _rotationAngle = (_rotationAngle + 1) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
+                _usRenderer.VerticalShift = ++_verticalShift;
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
                 keyEventArgs.Handled = true;
             }
@@ -247,10 +278,15 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
             //BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
             BitmapSource grayBitmap = (BitmapSource)SnapshotImg;
-            Log.Information($"grayBitmap: {grayBitmap.Format}");
             string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "bmp");
             //Utilities.SavePng(grayBitmap, path);
             Utilities.SaveBitmap(grayBitmap, path);
+
+            //BitmapSource envBitmap = (BitmapSource)EnvImg;
+            string envPath = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix + "_env", "bmp");
+            //Utilities.SavePng(envBitmap, envPath);
+            Utilities.SaveBitmap((BitmapSource)EnvImg, envPath);
+
             ShowSnackbarWithOpen(path);
         }
 
@@ -372,7 +408,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         public void RenderStart()
         {
             _usRenderer = new USRenderService(512, 512);
-            _usRenderer.connectRenderToTargetFunction(UpdateImageSource);
+            _usRenderer.connectRenderToTargetFunction(UpdateImageSource, UpdateEnvImageSource);
             _usRenderer.RenderStart();
         }
 
@@ -432,6 +468,15 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             });
         }
 
+        int cnt = 0;
+
+        public void UpdateEnvImageSource(BitmapSource bitmapSource)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                EnvImg = bitmapSource;
+            });
+        }
 
         private void Rec_OnRecordingComplete(object? sender, RecordingCompleteEventArgs e)
         {

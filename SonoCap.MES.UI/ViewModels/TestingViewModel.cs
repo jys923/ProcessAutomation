@@ -1814,7 +1814,7 @@ namespace SonoCap.MES.UI.ViewModels
         public void RenderStart()
         {
             usRenderer = new USRenderService(512, 512);
-            usRenderer.connectRenderToTargetFunction(UpdateImageSource);
+            usRenderer.connectRenderToTargetFunction(UpdateImageSource, UpdateEnvImageSource);
             usRenderer.RenderStart();
         }
 
@@ -1835,6 +1835,14 @@ namespace SonoCap.MES.UI.ViewModels
                 //SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
                 SrcImg = bitmapSource;
             });
+        }
+
+        public void UpdateEnvImageSource(BitmapSource bitmapSource)
+        {
+            //App.Current.Dispatcher.Invoke(() =>
+            //{
+            //    EnvImg = bitmapSource;
+            //});
         }
 
         // 메시지를 표시할 메서드 예시
@@ -1886,6 +1894,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
+            base.OnWindowLoaded(sender, e);
             Log.Information($"{nameof(OnWindowLoaded)}");
             //Init();
             //LogIn();

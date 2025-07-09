@@ -17,6 +17,44 @@ namespace SonoCap.WpfCommons
 {
     public static class Utilities
     {
+
+        public static void ShiftBytesCircularly(byte[] data, int shiftLength)
+        {
+            if (data == null || data.Length == 0)
+            {
+                // 데이터가 없으면 아무것도 하지 않습니다.
+                return;
+            }
+
+            int totalLength = data.Length;
+
+            // 실제 이동시킬 바이트 길이 계산 (배열 길이를 넘어가지 않도록 모듈로 연산)
+            int actualShift = shiftLength % totalLength;
+            if (actualShift < 0)
+            {
+                actualShift += totalLength; // 음수 결과를 양수로 보정하여 항상 0 이상 totalLength 미만의 값으로 만듭니다.
+            }
+
+            // 이동할 필요가 없으면 바로 종료합니다.
+            if (actualShift == 0)
+            {
+                return;
+            }
+
+            // 임시 저장 공간 (이동시킬 블록의 크기만큼만 필요)
+            byte[] temp = new byte[actualShift];
+
+            // --- 순환 이동 로직 ---
+            // 1. 이동시킬 앞부분(또는 뒷부분) 데이터를 임시 공간에 복사
+            Buffer.BlockCopy(data, 0, temp, 0, actualShift);
+
+            // 2. 나머지 데이터를 이동시킬 방향으로 옮김
+            Buffer.BlockCopy(data, actualShift, data, 0, totalLength - actualShift);
+
+            // 3. 임시 공간에 있던 데이터를 나머지 부분에 붙여넣음
+            Buffer.BlockCopy(temp, 0, data, totalLength - actualShift, actualShift);
+        }
+
         public static string FormatJson(string json)
         {
             try

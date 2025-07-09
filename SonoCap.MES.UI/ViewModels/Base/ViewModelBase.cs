@@ -42,14 +42,18 @@ namespace SonoCap.MES.UI.ViewModels.Base
 
         private void AddLifecycleHander()
         {
+            //Window!.Initialized += OnWindowInitialized;
             Window!.Loaded += OnWindowLoaded;
-            Window!.Closing += OnWindowClosing;
+            //Window!.ContentRendered += OnWindowContentRendered;
             Window!.Activated += OnWindowActivated;
+            //Window!.Deactivated += OnWindowDeactivated;
+            Window!.Closing += OnWindowClosing;
+            //Window!.Closed += OnWindowClosed;
+            //Window!.Unloaded += OnWindowUnloaded;
         }
 
         protected virtual void OnWindowActivated(object? sender, EventArgs e)
         {
-            AddMsg();
         }
 
         protected virtual void OnWindowClosing(object? sender, CancelEventArgs e)
@@ -60,6 +64,7 @@ namespace SonoCap.MES.UI.ViewModels.Base
         
         protected virtual void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
+            AddMsg();
         }
 
         internal void SetWindow(Window window)

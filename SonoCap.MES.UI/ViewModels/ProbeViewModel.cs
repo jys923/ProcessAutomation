@@ -100,7 +100,6 @@ namespace SonoCap.MES.UI.ViewModels
 
             WeakReferenceMessenger.Default.Send(
                 new ViewModelActionMessage(nameof(ProbeListViewModel), "Refresh")
-
             );
 
             WeakReferenceMessenger.Default.Send(

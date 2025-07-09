@@ -299,6 +299,7 @@ namespace SonoCap.MES.UI.ViewModels
 
         protected override void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
+            base.OnWindowLoaded(sender, e);
             Log.Information($"{nameof(OnWindowLoaded)}");
             _ = InitializeAsync();
         }

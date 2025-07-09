@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+#include <fstream>
 
 namespace HsnLibraryCS
 {
@@ -31,9 +32,10 @@ namespace HsnLibraryCS
 			Release();
 		}
 
+		delegate void ReceiveEnvBuffer(array<System::Byte>^ buffer, int width, int height, int length, MetadataInfo^ metadata);
 		delegate void ReceiveBuffer(array<System::Byte>^ buffer, int width, int height, int length, MetadataInfo^ metadata);
 
-		System::Void Start(ReceiveBuffer^ receiveBuffer);
+		System::Void Start(ReceiveBuffer^ receiveBuffer, ReceiveEnvBuffer^ receiveEnvBuffer);
 		System::Void End();
 		System::Void Resize(int new_width, int new_height);
 		System::Boolean setTargetIPFrameRate(double fps);
@@ -43,7 +45,15 @@ namespace HsnLibraryCS
 
 		void SetRotationAngle(double angleDeg);
 		void SetVerticalFlip(bool enable);
+		void SetScanline(int envdata_height);
 	private:
+		ReceiveEnvBuffer^ _receiveEnvBuffer;
+		array<System::Byte>^ _envdata_buffer;
+
+		int _envdata_width = 512;
+		int _envdata_height = 480;
+		int _envdata_buffer_size = _envdata_width * _envdata_height * 2;
+
 		ReceiveBuffer^ _receiveBuffer;
 		array<System::Byte>^ _buffer;
 

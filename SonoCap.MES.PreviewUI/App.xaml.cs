@@ -63,6 +63,7 @@ namespace SonoCap.MES.PreviewUI
 
             services.AddTransient<PreviewSaveViewModel>();
             services.AddTransient<PreviewSaveView>();
+            //services.AddSingleton<USRenderService>(provider =>new USRenderService(512, 512));
 
             return services.BuildServiceProvider();
         }

@@ -38,6 +38,12 @@ static String^ getLastErrorMessage()
 
 HsnLibraryCS::HsnUltrasoundOffScreenView::HsnUltrasoundOffScreenView(int initial_width, int initial_height)
 {
+	_envdata_buffer = gcnew array<System::Byte>(_envdata_width * 960 * 2);
+	if (_envdata_buffer == nullptr)
+	{
+		throw gcnew Exception(getLastErrorMessage());
+	}
+
 	_width = initial_width;
 	_height = initial_height;
 	_length = _width * _height * 4;
@@ -73,8 +79,9 @@ HsnLibraryCS::HsnUltrasoundOffScreenView::HsnUltrasoundOffScreenView(int initial
 
 }
 
-System::Void HsnLibraryCS::HsnUltrasoundOffScreenView::Start(ReceiveBuffer^ receiveBuffer)
+System::Void HsnLibraryCS::HsnUltrasoundOffScreenView::Start(ReceiveBuffer^ receiveBuffer, ReceiveEnvBuffer^ receiveEnvBuffer)
 {
+	_receiveEnvBuffer = receiveEnvBuffer;
 	_receiveBuffer = receiveBuffer;
 	{
 		msclr::lock lock{ _mutex };
@@ -92,6 +99,7 @@ System::Void HsnLibraryCS::HsnUltrasoundOffScreenView::End()
 		_is_running = false;
 	}
 	_render_routine->Join();
+	_receiveEnvBuffer = nullptr;
 	_receiveBuffer = nullptr;
 }
 
@@ -133,6 +141,13 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::SetVerticalFlip(bool enable)
 {
 	msclr::lock lock{ _mutex };
 	_flip_vertical = enable;
+}
+
+void HsnLibraryCS::HsnUltrasoundOffScreenView::SetScanline(int envdata_height)
+{
+	msclr::lock lock{ _mutex };
+	_envdata_height = envdata_height;
+	_envdata_buffer_size = _envdata_width * _envdata_height * 2;
 }
 
 void HsnLibraryCS::HsnUltrasoundOffScreenView::setDuration(double fps)
@@ -235,6 +250,9 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Render()
 {
 	do{
 		msclr::lock lock{ _buffer_mtx };
+		pin_ptr<System::Byte> charPointerEnv = &_envdata_buffer[0];
+		char* env_buffer_ptr = reinterpret_cast<char*>(charPointerEnv);
+
 		pin_ptr<System::Byte> charPointer = &_buffer[0];
 		char* buffer_ptr = reinterpret_cast<char*>(charPointer);
 		if (!Hsnlibrary::ipResize(_width, _height))
@@ -245,7 +263,15 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Render()
 		size_t final_image_length;
 		std::string output_metadata;
 
-		final_image_length = Hsnlibrary::ipRenderWithCapture(buffer_ptr, _length, 0, 0, output_metadata);
+		//size_t 
+		bool envelope_data_capture_needed = true;
+		if (envelope_data_capture_needed) {
+			final_image_length = Hsnlibrary::ipRenderWithCapture(buffer_ptr, _length, env_buffer_ptr, _envdata_buffer_size, output_metadata);
+		}
+		else {
+			final_image_length = Hsnlibrary::ipRenderWithCapture(buffer_ptr, _length, 0, 0, output_metadata);
+		}
+
 		if (final_image_length == 0u)
 		{
 			break;
@@ -286,6 +312,7 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Render()
 		}
 		catch (const std::exception& ex) {
 			// 회전 실패 시 무시
+			std::cerr << "Caught std::exception: " << ex.what() << std::endl;
 		}
 
 		//metadata parse
@@ -306,9 +333,46 @@ void HsnLibraryCS::HsnUltrasoundOffScreenView::Render()
 			MetadataInfo^ metadata = gcnew MetadataInfo();
 			metadata->unitMmPerPixel = unit_mm_per_pixel;
 			_receiveBuffer(_buffer, _width, _height, _length, metadata);
-		}
-		catch (std::exception e) {
+			if (envelope_data_capture_needed) {
+				_receiveEnvBuffer(_envdata_buffer, _envdata_width, _envdata_height, _envdata_buffer_size, metadata);
+			}
+			if (envelope_data_capture_needed && false) {
+				auto env_data_sample_count = json_data["rawdata_sample_no"].get<int32_t>();
+				auto env_data_scanline_count = json_data["rawdata_scanline_no"].get<int32_t>();
+				auto env_data_byte_per_sample = json_data["rawdata_byte_per_sample"].get<int32_t>();
+				size_t total_env_byte = env_data_sample_count * env_data_scanline_count * env_data_byte_per_sample;
+				//use envdata_buffer with above informations
+				//envdata_buffer
 
+				//data order.
+				//each sample is 2byte (uint16_t)
+				//sample(s) -> scanline(sc)
+				//sc0s0 -> sc0s1 -> sc0s2 -> ...sc0s511 -> sc1s0 -> ....
+
+				{
+					////test output
+					std::ofstream out;
+					static int out_index = 0;
+					if (out_index % 100 == 0) {
+						if (total_env_byte > 0) {
+							std::string path = "env/env_data_" + std::to_string(out_index) + ".bin";
+							out.open(path.c_str(), std::ios::binary);
+							if (out.is_open()) {
+								out.write((char*)&env_data_sample_count, sizeof(int32_t));
+								out.write((char*)&env_data_scanline_count, sizeof(int32_t));
+								out.write((char*)&env_data_byte_per_sample, sizeof(int32_t));
+								pin_ptr<System::Byte> pEnvData = &_envdata_buffer[0]; // 배열의 첫 번째 요소 주소를 핀
+								out.write(reinterpret_cast<char*>(pEnvData), total_env_byte); // 핀된 포인터 사용
+								out.close();
+							}
+						}
+					}
+					out_index++;
+				}
+			}
+		}
+		catch (const std::exception& ex) {
+			std::cerr << "Caught std::exception: " << ex.what() << std::endl;
 		}
 	} while (false);
 	if (!SwapBuffers(_device_context))

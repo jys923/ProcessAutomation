@@ -12,6 +12,8 @@ using System.Windows.Media.Imaging;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.MES.Repositories.Context;
 using Microsoft.EntityFrameworkCore;
+using CommunityToolkit.Mvvm.Messaging;
+using SonoCap.MES.UI.Messages;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -241,6 +243,23 @@ namespace SonoCap.MES.UI.ViewModels
         {
             Log.Information($"Click {nameof(GoAboutView)}");
             _viewService.ShowAboutView();
+        }
+
+        [RelayCommand]
+        private void SendMsg()
+        {
+            Log.Information($"Click {nameof(SendMsg)}");
+            WeakReferenceMessenger.Default.Send(
+                new ViewModelActionMessage(nameof(ProbeListViewModel), "Refresh")
+            );
+
+            WeakReferenceMessenger.Default.Send(
+                new ViewModelActionMessage(nameof(TestListViewModel), "Refresh")
+            );
+
+            WeakReferenceMessenger.Default.Send(
+                new ViewModelActionMessage(nameof(TestingViewModel), "Refresh")
+            );
         }
 
         public FirstViewModel(

@@ -16,6 +16,7 @@
     <ProjectReference Include="..\HsnlibraryCS\HsnlibraryCS.vcxproj" />
     <ProjectReference Include="..\SonoCap.Commons\SonoCap.Commons.csproj" />
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
+    <ProjectReference Include="..\SonoCap.WpfCommons\SonoCap.WpfCommons.csproj" />
   </ItemGroup>
 
 </Project>
