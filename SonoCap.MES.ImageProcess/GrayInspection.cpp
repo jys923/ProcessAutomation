@@ -98,7 +98,7 @@ void MyOpenCVWrapper::GrayInspection2(cv::Mat& roiImage, GrayResult& result)
 #define ROI_WIDTH     14
 #define ROI_HEIGHT    14
 
-#define RADIUS        140           // 적절한 반지름
+#define RADIUS        75           // 적절한 반지름
 #define ANGLE_CENTER  (CV_PI / 8)   // 22.5도
 #define ANGLE_OFFSET  (CV_PI / 12)  // ±15도
 
@@ -114,7 +114,7 @@ void MyOpenCVWrapper::GrayInspection(cv::Mat& roiImage, GrayResult& result)
 
     std::vector<double> angles = {
         ANGLE_CENTER - ANGLE_OFFSET,  // 7.5도
-        ANGLE_CENTER,                 // 22.5도
+        //ANGLE_CENTER,                 // 22.5도
         ANGLE_CENTER + ANGLE_OFFSET   // 37.5도
     };
 

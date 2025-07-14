@@ -26,7 +26,7 @@ static void convertListTupleToCSharp(std::vector<std::tuple<int32_t, std::string
 		std::string temp_name = std::get<1>(output);
 		String^ name = toCSharpString(temp_name);
 
-		auto tuple = gcnew Tuple<int, String^>(id, name);  
+		auto tuple = gcnew Tuple<int, String^>(id, name);
 		csharp_item->Add(tuple);
 	}
 }
@@ -44,7 +44,7 @@ static void runDeviceDetached() {
 
 bool HsnlibraryCS::HsnInterface::initialize()
 {
-	bool ret= Hsnlibrary::initialize();
+	bool ret = Hsnlibrary::initialize();
 	//register handle
 	Hsnlibrary::registerCallback_DeviceAttached(runDeviceAttached);
 	Hsnlibrary::registerCallback_DeviceRemoved(runDeviceDetached);
@@ -96,7 +96,7 @@ bool HsnlibraryCS::HsnInterface::listApplication(List<Tuple<int, String^>^>^% ap
 bool HsnlibraryCS::HsnInterface::listPreset(int32_t application_id, List<Tuple<int, String^>^>^% preset_list)
 {
 	std::vector<std::tuple<int32_t, std::string>> cpp_items;
-	bool ret = Hsnlibrary::listPreset(application_id,cpp_items);
+	bool ret = Hsnlibrary::listPreset(application_id, cpp_items);
 	if (!ret)
 		return false;
 	convertListTupleToCSharp(cpp_items, preset_list);
@@ -117,7 +117,7 @@ bool HsnlibraryCS::HsnInterface::saveAsUserSetting(String^ setting_name, int32_t
 {
 	auto cpp_str = toCppString(setting_name);
 	int cpp_int = 0;
-	auto ret=Hsnlibrary::saveAsUserSetting(cpp_str, cpp_int);
+	auto ret = Hsnlibrary::saveAsUserSetting(cpp_str, cpp_int);
 	setting_id = cpp_int;
 	return ret;
 }
@@ -347,7 +347,7 @@ int32_t HsnlibraryCS::HsnInterface::getDeviceDensityFactor()
 
 void HsnlibraryCS::HsnInterface::setDeviceViewdepthDensity(double viewdepth, int32_t density)
 {
-	return Hsnlibrary::set_device_viewdepth_and_density(viewdepth,density);
+	return Hsnlibrary::set_device_viewdepth_and_density(viewdepth, density);
 }
 
 int32_t HsnlibraryCS::HsnInterface::getIpGain()
@@ -511,33 +511,29 @@ void HsnlibraryCS::HsnInterface::setIpCapsuleIsInnerVisible(bool value)
 	return Hsnlibrary::setIpCapsuleIsInnerVisible(value);
 }
 
-//void HsnlibraryCS::HsnInterface::setCapsuleCalibrateOffset(int value) {
-//	return Hsnlibrary::setCapsuleCalibrateOffset(value);
-//}
-//
-//int HsnlibraryCS::HsnInterface::getCapsuleCalibrateOffset() {
-//	return Hsnlibrary::getCapsuleCalibrateOffset();
-//}
-//
-//void HsnlibraryCS::HsnInterface::setCapsuleAutoCalibrateTrigCount(int value) {
-//	return Hsnlibrary::setCapsuleAutoCalibrateTrigCount(value);
-//}
-//
-//int HsnlibraryCS::HsnInterface::getCapsuleAutoCalibrateTrigCount() {
-//	return Hsnlibrary::getCapsuleAutoCalibrateTrigCount();
-//}
-//
-//int HsnlibraryCS::HsnInterface::runCapsuleManualCalibration() {
-//	return Hsnlibrary::runCapsuleManualCalibration();
-//}
-//
-//void HsnlibraryCS::HsnInterface::setCapsuleAutoCalibrateEnable(bool value) {
-//	return Hsnlibrary::setCapsuleAutoCalibrateEnable(value);
-//}
-//
-//bool HsnlibraryCS::HsnInterface::getCapsuleAutoCalibrateEnable() {
-//	return Hsnlibrary::getCapsuleAutoCalibrateEnable();
-//}
+
+
+void HsnlibraryCS::HsnInterface::setCapsuleCalibrateOffset(int value) {
+	return Hsnlibrary::setCapsuleCalibrateOffset(value);
+}
+int HsnlibraryCS::HsnInterface::getCapsuleCalibrateOffset() {
+	return Hsnlibrary::getCapsuleCalibrateOffset();
+}
+void HsnlibraryCS::HsnInterface::setCapsuleAutoCalibrateTrigCount(int value) {
+	return Hsnlibrary::setCapsuleAutoCalibrateTrigCount(value);
+}
+int HsnlibraryCS::HsnInterface::getCapsuleAutoCalibrateTrigCount() {
+	return Hsnlibrary::getCapsuleAutoCalibrateTrigCount();
+}
+int HsnlibraryCS::HsnInterface::runCapsuleManualCalibration() {
+	return Hsnlibrary::runCapsuleManualCalibration();
+}
+void HsnlibraryCS::HsnInterface::setCapsuleAutoCalibrateEnable(bool value) {
+	return Hsnlibrary::setCapsuleAutoCalibrateEnable(value);
+}
+bool HsnlibraryCS::HsnInterface::getCapsuleAutoCalibrateEnable() {
+	return Hsnlibrary::getCapsuleAutoCalibrateEnable();
+}
 
 void HsnlibraryCS::Callback::registerLoadingCallback(Callback::LoadingStateCallback^ callback)
 {
@@ -605,68 +601,69 @@ void HsnlibraryCS::Callback::registerENDMotorCallback(Callback::ENDMotorCallback
 	if (callback != nullptr) {
 		GCHandle gch = GCHandle::Alloc(callback);
 		IntPtr ip = Marshal::GetFunctionPointerForDelegate(callback);
-		void(__stdcall * cb)(int,int) = static_cast<void(__stdcall*)(int,int)>(ip.ToPointer());
+		void(__stdcall * cb)(int, int) = static_cast<void(__stdcall*)(int, int)>(ip.ToPointer());
 		Hsnlibrary::registerCallback_ENDMotorSpeed(cb);
 		GC::KeepAlive(gch);
 		//GC::Collect();
 		//gch.Free();
 	}
 	else {
-		auto cb = static_cast<void(__stdcall*)(int,int)>(nullptr);
+		auto cb = static_cast<void(__stdcall*)(int, int)>(nullptr);
 		Hsnlibrary::registerCallback_ENDMotorSpeed(cb);
 	}
 }
 
-//bool HsnlibraryCS::HsnInterface::setIpMonitorColormap(array<float>^ rgb)
-//{
-//	if (rgb->Length != 256 * 3)
-//		return false;
-//	std::vector<float> r(256);
-//	std::vector<float> g(256);
-//	std::vector<float> b(256);
-//	for (int i = 0; i < 256; i++)
-//	{
-//		r[i] = rgb[i + 0];
-//		g[i] = rgb[i + 256];
-//		b[i] = rgb[i + 256 * 2];
-//	}
-//	return Hsnlibrary::setIpMonitorColormap(r, g, b);
-//}
-//
-//bool HsnlibraryCS::HsnInterface::getIpMonitorColormap([Out] array<float>^% rgb)
-//{
-//	auto arr = gcnew array<float>(256 * 3);
-//	std::vector<float> r;
-//	std::vector<float> g;
-//	std::vector<float> b;
-//	Hsnlibrary::getIpMonitorColormap(r, g, b);
-//	for (int c = 0; c < 3; c++)
-//	{
-//		float* pbuf;
-//		switch (c)
-//		{
-//		case 0: pbuf = r.data();
-//			break;
-//		case 1: pbuf = g.data();
-//			break;
-//		case 2: pbuf = b.data();
-//			break;
-//		}
-//		for (int i = 0; i < 256; i++)
-//		{
-//			arr[i + c * 256] = pbuf[i];
-//		}
-//	}
-//	rgb = arr;
-//	return true;
-//}
-//
-//void HsnlibraryCS::HsnInterface::setIpIsMonitorGammaTableVisible(bool value)
-//{
-//	Hsnlibrary::setIpIsMonitorGammaTableVisible(value);
-//}
-//
-//bool HsnlibraryCS::HsnInterface::getIpIsMonitorGammaTableVisible()
-//{
-//	return Hsnlibrary::getIpIsMonitorGammaTableVisible();
-//}
+
+bool HsnlibraryCS::HsnInterface::setIpMonitorColormap(array<float>^ rgb)
+{
+	if (rgb->Length != 256 * 3)
+		return false;
+	std::vector<float> r(256);
+	std::vector<float> g(256);
+	std::vector<float> b(256);
+	for (int i = 0; i < 256; i++)
+	{
+		r[i] = rgb[i + 0];
+		g[i] = rgb[i + 256];
+		b[i] = rgb[i + 256 * 2];
+	}
+	return Hsnlibrary::setIpMonitorColormap(r, g, b);
+}
+
+bool HsnlibraryCS::HsnInterface::getIpMonitorColormap([Out] array<float>^% rgb)
+{
+	auto arr = gcnew array<float>(256 * 3);
+	std::vector<float> r;
+	std::vector<float> g;
+	std::vector<float> b;
+	Hsnlibrary::getIpMonitorColormap(r, g, b);
+	for (int c = 0; c < 3; c++)
+	{
+		float* pbuf;
+		switch (c)
+		{
+		case 0: pbuf = r.data();
+			break;
+		case 1: pbuf = g.data();
+			break;
+		case 2: pbuf = b.data();
+			break;
+		}
+		for (int i = 0; i < 256; i++)
+		{
+			arr[i + c * 256] = pbuf[i];
+		}
+	}
+	rgb = arr;
+	return true;
+}
+
+void HsnlibraryCS::HsnInterface::setIpIsMonitorGammaTableVisible(bool value)
+{
+	Hsnlibrary::setIpIsMonitorGammaTableVisible(value);
+}
+
+bool HsnlibraryCS::HsnInterface::getIpIsMonitorGammaTableVisible()
+{
+	return Hsnlibrary::getIpIsMonitorGammaTableVisible();
+}

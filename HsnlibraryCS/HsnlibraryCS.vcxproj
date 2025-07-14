@@ -94,7 +94,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>MSVCRTD.lib;flatbuffers.lib;abseil_dll.lib;opengl32.lib;gdi32.lib;Hsnlibrary_ENDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\HsbLib\$(Configuration)\;$(SolutionDir)\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\HsnLib\$(Configuration)\;$(SolutionDir)\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -130,7 +130,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>MSVCRT.lib;flatbuffers.lib;abseil_dll.lib;opengl32.lib;gdi32.lib;Hsnlibrary_END.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\HsbLib\$(Configuration)\;$(SolutionDir)\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\HsnLib\$(Configuration)\;$(SolutionDir)\$(Configuration)\$(Platform)\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

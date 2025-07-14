@@ -267,7 +267,11 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
         // Commands
         [RelayCommand]
-        private void CalibrateButton() => _model.CalibrateScanline(CalibrationOffset);
+        private void CalibrateButton()
+        {
+            //_model.CalibrateScanline(CalibrationOffset);
+
+        }
 
         [RelayCommand]
         private void Capture()

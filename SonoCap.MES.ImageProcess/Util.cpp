@@ -8,6 +8,401 @@
 using namespace cv;
 using namespace std;
 
+std::vector<cv::Point> removeOutliersIQR(const std::vector<cv::Point>& points, double k_factor)
+{
+    if (points.empty()) {
+        return {};
+    }
+
+    // 1. Y 좌표만 추출하여 정렬
+    std::vector<int> y_coords;
+    for (const auto& p : points) {
+        y_coords.push_back(p.y);
+    }
+    std::sort(y_coords.begin(), y_coords.end());
+
+    // 2. Q1 (1사분위수) 및 Q3 (3사분위수) 계산
+    // 배열 크기가 짝수일 경우 중앙값 계산 방식에 따라 다를 수 있으나,
+    // 여기서는 간단히 인덱스를 기반으로 합니다.
+    int q1_idx = y_coords.size() / 4;
+    int q3_idx = (y_coords.size() * 3) / 4;
+
+    double Q1 = y_coords[q1_idx];
+    double Q3 = y_coords[q3_idx];
+
+    // 3. IQR (사분위 범위) 계산
+    double IQR = Q3 - Q1;
+
+    // 4. 이상치 경계 계산
+    double lower_bound = Q1 - k_factor * IQR;
+    double upper_bound = Q3 + k_factor * IQR;
+
+    // 5. 이상치 제거 (경계 내에 있는 점들만 포함)
+    std::vector<cv::Point> filtered_points;
+    for (const auto& p : points) {
+        if (p.y >= lower_bound && p.y <= upper_bound) {
+            filtered_points.push_back(p);
+        }
+    }
+    return filtered_points;
+}
+
+// 스플라인 근사 함수 (OpenCV에 직접적인 스플라인 피팅 없음, 근사로 대체)
+void fitSplineApproximationAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
+    const cv::Scalar& color)
+{
+    if (contour.size() < 2) return;
+
+    // 윤곽선을 근사하여 제어점 수를 줄임 (스플라인에 사용할 제어점)
+    // epsilon 값 조정으로 근사 정도 조절
+    double epsilon = cv::arcLength(contour, false) * 0.01; // 윤곽선 길이의 1%
+    std::vector<cv::Point> approxCurve;
+    cv::approxPolyDP(contour, approxCurve, epsilon, false);
+
+    // 근사된 점들을 연결하여 곡선처럼 그리기
+    // 실제 스플라인 보간은 아니지만, 시각적으로 곡선 형태를 보여줌
+    for (size_t i = 0; i < approxCurve.size() - 1; ++i) {
+        cv::line(roiImage, approxCurve[i], approxCurve[i + 1], color, 2, cv::LINE_AA);
+    }
+    // 스플라인의 경우 곡률 계산이 다소 복잡하므로, 여기서는 생략하거나
+    // 필요 시 다항식 피팅 후 곡률 계산 로직을 여기에 통합해야 합니다.
+    // 현재 함수에서는 result 구조체에 곡률 정보를 업데이트하지 않습니다.
+}
+
+void fitPolynomialAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
+    int start_x, int end_x, const cv::Scalar& color, GeoResult& result)
+{
+    // 1.1. 상단 윤곽선 추출 및 분리 (핵심 개선)
+    // 파란색 윤곽선 전체에서 '위쪽' 라인만 분리하여 피팅에 사용합니다.
+    // 이는 x_min에서 x_max까지 각 x 값에 대해 최소 y (가장 위쪽 점)를 찾는 방식입니다.
+    std::map<int, int> topPointsMap; // x -> min_y
+
+    for (const auto& p : contour) {
+        if (topPointsMap.find(p.x) == topPointsMap.end() || p.y < topPointsMap[p.x]) {
+            topPointsMap[p.x] = p.y;
+        }
+    }
+
+    std::vector<cv::Point> topContour;
+    for (const auto& pair : topPointsMap) {
+        topContour.push_back(cv::Point(pair.first, pair.second));
+    }
+
+    // 추출된 상단 윤곽선 점들을 x 좌표 기준으로 정렬 (피팅을 위해 필요)
+    std::sort(topContour.begin(), topContour.end(), [](const cv::Point& a, const cv::Point& b) {
+        return a.x < b.x;
+        });
+
+    // ✨✨✨ 새로 추가된 부분 ✨✨✨
+    // 추출된 topContour에서 Y 좌표 기준 이상치 제거
+    // k_factor는 필요에 따라 조절 (예: 1.5, 2.0 등)
+    std::vector<cv::Point> filteredTopContour = removeOutliersIQR(topContour, 1.5);
+
+    // 이제부터 filteredTopContour를 사용합니다.
+    // 충분한 점이 없으면 종료 (topContour 대신 filteredTopContour 사용)
+    if (filteredTopContour.size() < 3) {
+        result.avgCurvature = 0.0;
+        result.maxCurvature = 0.0;
+        result.isCurvedObjectFound = false;
+        return;
+    }
+
+    // 2.3. cv::approxPolyDP를 이용한 윤곽선 단순화 적용 (필요시 epsilon 값 조정)
+    // 상단 윤곽선에 대해서만 단순화 적용
+    std::vector<cv::Point> processedContour = filteredTopContour;
+    if (filteredTopContour.size() > 3) {
+        // epsilon 값은 컨투어 길이에 비례하여 조정 (0.01은 예시, 테스트 필요)
+        double epsilon = cv::arcLength(filteredTopContour, false) * 0.01;
+        cv::approxPolyDP(filteredTopContour, processedContour, epsilon, false);
+    }
+
+    // 단순화 후에도 점이 부족하면 종료
+    if (processedContour.size() < 3) {
+        result.avgCurvature = 0.0;
+        result.maxCurvature = 0.0;
+        result.isCurvedObjectFound = false;
+        return;
+    }
+
+    // 1.2. 데이터 정규화(Normalization) 적용
+    // 이제 x를 독립 변수로 사용하므로 x의 min/max를 기준으로 정규화합니다.
+    double min_x = processedContour[0].x, max_x = processedContour[0].x;
+    double min_y = processedContour[0].y, max_y = processedContour[0].y; // y도 범위 확인용
+    for (const auto& p : processedContour) {
+        if (p.x < min_x) min_x = p.x;
+        if (p.x > max_x) max_x = p.x;
+        if (p.y < min_y) min_y = p.y; // Y 범위도 필요
+        if (p.y > max_y) max_y = p.y;
+    }
+
+    // 정규화 스케일 계산 (분모가 0이 되는 경우 방지)
+    double scale_x = (max_x - min_x > 0) ? (max_x - min_x) : 1.0;
+    double scale_y = (max_y - min_y > 0) ? (max_y - min_y) : 1.0; // Y 스케일도 필요
+
+    // 2.1. 독립 변수/종속 변수 변경 (y = Ax^3 + Bx^2 + Cx + D 형태로 변경) (핵심 개선)
+    // 1.1. 다항식 차수 증가 검토 (3차 다항식으로 변경)
+    // M * P = Y  ->  [x^3 x^2 x 1] * [A B C D]' = [y]
+    int poly_order = 3; // 3차 다항식 (y = Ax^3 + Bx^2 + Cx + D)
+    cv::Mat M(processedContour.size(), poly_order + 1, CV_64F); // [x^3, x^2, x, 1]
+    cv::Mat Y_mat(processedContour.size(), 1, CV_64F); // [y]
+
+    for (int i = 0; i < processedContour.size(); ++i) {
+        // 정규화된 x 값 사용
+        double x_norm = (static_cast<double>(processedContour[i].x) - min_x) / scale_x;
+
+        M.at<double>(i, 0) = x_norm * x_norm * x_norm; // x^3
+        M.at<double>(i, 1) = x_norm * x_norm;           // x^2
+        M.at<double>(i, 2) = x_norm;                   // x
+        M.at<double>(i, 3) = 1.0;                      // 1
+
+        // 정규화된 y 값 사용
+        Y_mat.at<double>(i, 0) = (static_cast<double>(processedContour[i].y) - min_y) / scale_y;
+    }
+
+    cv::Mat coefficients; // A, B, C, D
+    cv::solve(M, Y_mat, coefficients, cv::DECOMP_SVD);
+
+    double A = coefficients.at<double>(0, 0);
+    double B = coefficients.at<double>(1, 0);
+    double C = coefficients.at<double>(2, 0);
+    double D = coefficients.at<double>(3, 0); // 3차 항의 상수
+
+    // 1.3. 이상치 필터링 (간접 적용):
+    // RANSAC과 같은 명시적인 이상치 필터링은 직접 구현이 복잡하므로,
+    // 여기서는 cv::solve의 DECOMP_SVD를 통해 어느 정도 안정성을 확보하고,
+    // 전처리(`approxPolyDP`와 모폴로지)로 이상치를 줄이는 데 집중합니다.
+
+    // 피팅된 곡선 그리기
+    std::vector<cv::Point> curve_points;
+    // x 값 범위는 이미지의 ROI_X에서 ROI_X + ROI_W까지 또는 컨투어의 min_x, max_x를 기준으로 합니다.
+    // 여기서는 컨투어의 x_min, x_max 범위를 사용합니다.
+    for (int x_pixel = static_cast<int>(min_x); x_pixel <= static_cast<int>(max_x); ++x_pixel) {
+        // 정규화된 x 값으로 변환
+        double x_norm = (static_cast<double>(x_pixel) - min_x) / scale_x;
+
+        // 정규화된 y 값 계산
+        double y_norm_calculated = A * x_norm * x_norm * x_norm + B * x_norm * x_norm + C * x_norm + D;
+
+        // 역정규화하여 실제 픽셀 y 값으로 변환
+        double y_pixel_calculated = y_norm_calculated * scale_y + min_y;
+
+        // 이미지 경계 내에서만 점을 추가
+        if (x_pixel >= 0 && x_pixel < roiImage.cols && y_pixel_calculated >= 0 && y_pixel_calculated < roiImage.rows) {
+            curve_points.push_back(cv::Point(x_pixel, static_cast<int>(y_pixel_calculated)));
+        }
+    }
+
+    // 곡률 계산 (3차 다항식 y = Ax^3 + Bx^2 + Cx + D 에 대한 곡률 공식)
+    // 1차 미분: y' = 3Ax^2 + 2Bx + C
+    // 2차 미분: y'' = 6Ax + 2B
+    // 곡률 K = |y''| / (1 + (y')^2)^(3/2)
+    std::vector<double> curvatures;
+    for (const auto& p : processedContour) { // 처리된 윤곽선 내의 각 점에서 곡률 계산
+        double x_pixel = static_cast<double>(p.x);
+        // 정규화된 x 값 사용
+        double x_norm = (x_pixel - min_x) / scale_x;
+
+        double first_derivative_norm = 3 * A * x_norm * x_norm + 2 * B * x_norm + C;
+        double second_derivative_norm = 6 * A * x_norm + 2 * B;
+
+        // 역정규화 스케일 반영
+        // y' = (dy_norm/dx_norm) * (scale_y / scale_x)
+        // y'' = (d2y_norm/dx_norm^2) * (scale_y / (scale_x * scale_x))
+
+        double first_derivative = first_derivative_norm * (scale_y / scale_x);
+        double second_derivative = second_derivative_norm * (scale_y / (scale_x * scale_x));
+
+        double curvature = std::abs(second_derivative) / std::pow((1 + first_derivative * first_derivative), 1.5);
+
+        // 무한대나 NaN 값 방지 및 유효한 곡률 값만 저장
+        if (!std::isnan(curvature) && !std::isinf(curvature) && curvature < 1e5) { // 과도하게 큰 값 필터링
+            curvatures.push_back(curvature);
+        }
+    }
+
+    if (!curvatures.empty()) {
+        double sum_curvature = 0;
+        double max_curv = 0;
+        for (double c : curvatures) {
+            sum_curvature += c;
+            if (c > max_curv) max_curv = c;
+        }
+        result.avgCurvature = sum_curvature / curvatures.size();
+        result.maxCurvature = max_curv;
+
+        // 곡률을 기반으로 곡선 객체 여부 판단 (임계값은 이미지 특성에 따라 조정 필요)
+        // '직선이다'를 판단하기 위한 임계값은 0.001 (이전 제안)보다 약간 더 유연하게 조정될 수 있습니다.
+        // 예를 들어, 더 작은 값으로 설정하거나, 평균 곡률도 함께 고려합니다.
+        if (result.maxCurvature > 0.00005) { // 곡률이 매우 작으면 직선으로 간주, 특정 임계값 이상이면 곡선
+            result.isCurvedObjectFound = true;
+        }
+        else {
+            result.isCurvedObjectFound = false;
+        }
+    }
+    else {
+        result.avgCurvature = 0.0;
+        result.maxCurvature = 0.0;
+        result.isCurvedObjectFound = false;
+    }
+
+    // 곡선 점들을 연결하여 그리기
+    // curve_points가 정렬되어 있지 않을 수 있으므로, 그리기 전에 정렬
+    std::sort(curve_points.begin(), curve_points.end(), [](const cv::Point& a, const cv::Point& b) {
+        return a.x < b.x;
+        });
+
+    /*for (size_t i = 0; i < curve_points.size() - 1; ++i) {
+        cv::line(roiImage, curve_points[i], curve_points[i + 1], color, 2, cv::LINE_AA);
+    }*/
+}
+
+void fitLineAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
+    int start_x, int end_x, const cv::Scalar& color)
+{
+    cv::Vec4f line_params; // [vx, vy, x0, y0] - 방향 벡터 (vx, vy), 직선 위의 한 점 (x0, y0)
+    cv::fitLine(contour, line_params, cv::DIST_L12, 0, 0.01, 0.01);
+
+    cv::Point p1, p2;
+
+    if (std::abs(line_params[0]) < 1e-6) { // 수직선에 가까운 경우
+        p1.x = static_cast<int>(line_params[2]);
+        p1.y = 0;
+        p2.x = static_cast<int>(line_params[2]);
+        p2.y = roiImage.rows - 1;
+    }
+    else {
+        p1.x = start_x;
+        p1.y = static_cast<int>(line_params[3] + (line_params[1] / line_params[0]) * (start_x - line_params[2]));
+        p2.x = end_x;
+        p2.y = static_cast<int>(line_params[3] + (line_params[1] / line_params[0]) * (end_x - line_params[2]));
+    }
+
+    cv::line(roiImage, p1, p2, color, 2, cv::LINE_AA);
+}
+
+// 전역 변수 정의 (값을 여기서 초기화)
+cv::Mat g_srcImage;
+cv::Mat g_dstImage;
+std::string g_windowName;
+int g_drmin = 0; // 초기 dr min 값
+int g_drmax = 100; // 초기 dr max 값
+
+// 공통 처리 함수 (중복 코드를 줄이기 위해)
+void processAndDisplayImage() {
+    if (g_drmin >= g_drmax) {
+        return;
+    }
+    ApplyLinearDRClip(g_srcImage, g_dstImage, g_drmin, g_drmax, true);
+    cv::imshow(g_windowName, g_dstImage);
+}
+
+// DR Min 트랙바 콜백 함수
+void onTrackbarMin(int, void*) {
+    if (g_drmin >= g_drmax) {
+        g_drmax = g_drmin + 1; // DR Min이 DR Max보다 커지면, DR Max를 DR Min + 1로 설정
+        if (g_drmax > 100) { // DR Max가 100을 넘지 않도록
+            g_drmax = 100;
+            g_drmin = g_drmax - 1; // DR Max가 100이 되면 DR Min은 99로 제한
+            if (g_drmin < 0) g_drmin = 0; // 최소값 0 보장
+            cv::setTrackbarPos("DR Min", g_windowName, g_drmin);
+        }
+        cv::setTrackbarPos("DR Max", g_windowName, g_drmax);
+    }
+    processAndDisplayImage();
+}
+
+// DR Max 트랙바 콜백 함수
+void onTrackbarMax(int, void*) {
+    if (g_drmax <= g_drmin) {
+        g_drmin = g_drmax - 1; // DR Max가 DR Min보다 작아지면, DR Min을 DR Max - 1로 설정
+        if (g_drmin < 0) { // DR Min이 0보다 작아지지 않도록
+            g_drmin = 0;
+            g_drmax = g_drmin + 1; // DR Min이 0이 되면 DR Max는 1로 제한
+            if (g_drmax > 100) g_drmax = 100; // 최대값 100 보장
+            cv::setTrackbarPos("DR Max", g_windowName, g_drmax);
+        }
+        cv::setTrackbarPos("DR Min", g_windowName, g_drmin);
+    }
+    processAndDisplayImage();
+}
+
+#if ENABLE_IMAGE_DISPLAY
+void showAndThreshold(const std::string& windowName, const cv::Mat& image) {
+    if (image.empty()) {
+        std::cerr << "Error: Image is empty!" << std::endl;
+        return;
+    }
+
+    g_windowName = windowName;
+    g_srcImage = image.clone();
+
+    if (g_srcImage.channels() == 3) {
+        cv::cvtColor(g_srcImage, g_srcImage, cv::COLOR_BGR2GRAY);
+    }
+
+    cv::namedWindow(g_windowName, cv::WINDOW_AUTOSIZE);
+
+    cv::createTrackbar("DR Min", g_windowName, &g_drmin, 100, onTrackbarMin);
+    cv::createTrackbar("DR Max", g_windowName, &g_drmax, 100, onTrackbarMax);
+
+    processAndDisplayImage();
+
+    cv::waitKey(0);
+}
+#else
+// 빈 함수 정의 (호출은 남아있지만 아무 동작 안 함)
+void showAndThreshold(const std::string&, const cv::Mat&) {}
+#endif
+
+// 트랙바 콜백 함수 정의
+void onTrackbar(int, void*) {
+    // 임계값 조정: g_drmin이 g_drmax보다 커지지 않도록 합니다.
+    if (g_drmin >= g_drmax) {
+        //g_drmin = g_drmax - 1;
+        //cv::setTrackbarPos("DR Min", g_windowName, g_drmin);
+		return; // 트랙바 위치를 조정한 후 함수 종료
+    }
+
+    // 이진화(Thresholding) 수행
+    //cv::threshold(g_srcImage, g_dstImage, g_drmin, g_drmax, cv::THRESH_BINARY);
+    ApplyLinearDRClip(g_srcImage, g_dstImage, g_drmin, g_drmax, true);
+
+    // 결과를 화면에 표시
+    cv::imshow(g_windowName, g_dstImage);
+}
+
+// 이미지 표시 및 임계값 조절 함수 정의
+//void showAndThreshold(const std::string& windowName, const cv::Mat& image) {
+//    if (image.empty()) {
+//        std::cerr << "Error: Image is empty!" << std::endl;
+//        return;
+//    }
+//
+//    g_windowName = windowName;
+//    g_srcImage = image.clone(); // 원본 이미지를 복사하여 전역 변수에 저장
+//
+//    // 임계값 처리를 위해 이미지를 그레이스케일로 변환 (필요한 경우)
+//    if (g_srcImage.channels() == 3) {
+//        cv::cvtColor(g_srcImage, g_srcImage, cv::COLOR_BGR2GRAY);
+//    }
+//
+//    cv::namedWindow(g_windowName, cv::WINDOW_AUTOSIZE); // 창 생성
+//
+//    // 트랙바 생성 (이름 변경: "DR Min", "DR Max")
+//    cv::createTrackbar("DR Min", g_windowName, &g_drmin, 100, onTrackbar);
+//    cv::createTrackbar("DR Max", g_windowName, &g_drmax, 100, onTrackbar);
+//
+//    // 초기 트랙바 위치에 따라 한 번 콜백 함수 호출
+//    onTrackbar(0, 0);
+//
+//    // 사용자가 키를 누를 때까지 대기
+//    cv::waitKey(0);
+//
+//    // 창 닫기 (선택 사항)
+//    //cv::destroyWindow(g_windowName);
+//}
+
 // ORB 기반 회전 추정 함수
 float estimateRotationByORB(const cv::Mat& reference, const cv::Mat& rotated) {
     cv::Ptr<cv::ORB> orb = cv::ORB::create(500);

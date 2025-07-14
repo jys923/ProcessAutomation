@@ -10,10 +10,32 @@
 #include <nlohmann/json.hpp>
 
 #ifdef _DEBUG
-#define ENABLE_IMAGE_DISPLAY false
+#define ENABLE_IMAGE_DISPLAY true
 #else
 #define ENABLE_IMAGE_DISPLAY false
 #endif
+
+// ContourData 구조체 정의 (Util.h 또는 ResInspection.h에 정의되어 있어야 함)
+ struct ContourData {
+     cv::Point2f center_abs;           // roiImage 기준의 절대 좌표 중심점
+     double quality;
+     double area;                      // 면적을 저장하여 정렬에 사용
+     std::vector<cv::Point> originalContour_rel; // roiGray 기준의 상대 윤곽선
+     double distance_from_ref;         // 기준점 (W-1, H-1)까지의 거리
+     double angle_from_ref_rad;        // 기준점 (W-1, H-1)까지의 각도 (라디안)
+     double angle_from_ref_deg;        // 기준점 (W-1, H-1)까지의 각도 (도)
+ };
+
+// 전역 변수 선언 (extern 키워드 사용)
+extern cv::Mat g_srcImage;
+extern cv::Mat g_dstImage;
+extern std::string g_windowName;
+extern int g_drmin; // dr min 값
+extern int g_drmax; // dr max 값
+
+void showAndThreshold(const std::string& windowName, const cv::Mat& image);
+void onTrackbar(int, void*);
+
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);
@@ -32,6 +54,7 @@ const cv::Scalar YellowA = cv::Scalar(0, 255, 255, 255);
 const cv::Scalar CyanA = cv::Scalar(255, 255, 0, 255);
 const cv::Scalar MagentaA = cv::Scalar(255, 0, 255, 255);
 const cv::Scalar WhiteA = cv::Scalar(255, 255, 255, 255);
+const cv::Scalar GrayA = cv::Scalar(128, 128, 128, 255);
 const cv::Scalar BlackA = cv::Scalar(0, 0, 0, 255);
 
 // Gray 검사 결과
@@ -73,7 +96,14 @@ struct GeoResult {
     double maxSliceMean = -1;
     double maxSliceVariance = -1;
     double brightnessContrast = -1;
+    double elongatedObjectAspectRatio = -1; // 길쭉한 객체의 종횡비 (직선성 지표)
+    bool isElongatedObjectFound = -1;       // 길쭉한 객체 발견 여부
+    double maxCurvature = -1; // 최대 곡률
+    double avgCurvature = -1; // 평균 곡률
+    bool isCurvedObjectFound = -1; // 곡선 객체 찾음 여부
 };
+
+
 
 inline void to_json(nlohmann::json& j, const GeoResult& g) {
     j = nlohmann::json::object();
@@ -303,3 +333,14 @@ void ApplyLinearDRClip(const cv::Mat& inputGray, cv::Mat& outputUint8, double dr
 inline double clamp(double val, double min_val, double max_val) {
     return std::max(min_val, std::min(val, max_val));
 }
+
+void fitSplineApproximationAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
+    const cv::Scalar& color);
+
+void fitLineAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
+    int start_x, int end_x, const cv::Scalar& color);
+
+void fitPolynomialAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
+    int start_x, int end_x, const cv::Scalar& color, GeoResult& result);
+
+std::vector<cv::Point> removeOutliersIQR(const std::vector<cv::Point>& points, double k_factor);

@@ -276,76 +276,71 @@ namespace SonoCap.MES.Services.Model
             set { HsnlibraryCS.HsnInterface.setIpCapsuleIsInnerVisible(value); }
         }
 
-        public int CalibrateScanline(int offset)
+
+        public int CalibrationOffset
         {
-            return offset;
-            //return HsnlibraryCS.HsnInterface.calibrateDeviceCapsuleScanline(offset);
+            get { return HsnlibraryCS.HsnInterface.getCapsuleCalibrateOffset(); }
+            set
+            {
+                HsnlibraryCS.HsnInterface.setCapsuleCalibrateOffset(value);
+            }
         }
 
-        //public int CalibrationOffset
-        //{
-        //    get { return HsnlibraryCS.HsnInterface.getCapsuleCalibrateOffset(); }
-        //    set
-        //    {
-        //        HsnlibraryCS.HsnInterface.setCapsuleCalibrateOffset(value);
-        //    }
-        //}
+        public int CalibrationAutoTrigCount
+        {
+            get { return HsnlibraryCS.HsnInterface.getCapsuleAutoCalibrateTrigCount(); }
+            set
+            {
+                HsnlibraryCS.HsnInterface.setCapsuleAutoCalibrateTrigCount(value);
+            }
+        }
 
-        //public int CalibrationAutoTrigCount
-        //{
-        //    get { return HsnlibraryCS.HsnInterface.getCapsuleAutoCalibrateTrigCount(); }
-        //    set
-        //    {
-        //        HsnlibraryCS.HsnInterface.setCapsuleAutoCalibrateTrigCount(value);
-        //    }
-        //}
+        public bool AutoCalibrateEnable
+        {
+            get { return HsnlibraryCS.HsnInterface.getCapsuleAutoCalibrateEnable(); }
+            set
+            {
+                HsnlibraryCS.HsnInterface.setCapsuleAutoCalibrateEnable(value);
+            }
+        }
 
-        //public bool AutoCalibrateEnable
-        //{
-        //    get { return HsnlibraryCS.HsnInterface.getCapsuleAutoCalibrateEnable(); }
-        //    set
-        //    {
-        //        HsnlibraryCS.HsnInterface.setCapsuleAutoCalibrateEnable(value);
-        //    }
-        //}
+        public bool MonitorColorTestModeEnable
+        {
+            get
+            {
+                return HsnlibraryCS.HsnInterface.getIpIsMonitorGammaTableVisible();
+            }
+            set
+            {
+                HsnlibraryCS.HsnInterface.setIpIsMonitorGammaTableVisible(value);
+            }
+        }
 
-        //public bool MonitorColorTestModeEnable
-        //{
-        //    get
-        //    {
-        //        return HsnlibraryCS.HsnInterface.getIpIsMonitorGammaTableVisible();
-        //    }
-        //    set
-        //    {
-        //        HsnlibraryCS.HsnInterface.setIpIsMonitorGammaTableVisible(value);
-        //    }
-        //}
+        public float[] MonitorColorMapRGB
+        {
+            get
+            {
+                if (HsnlibraryCS.HsnInterface.getIpMonitorColormap(out float[] rgb))
+                {
+                    return rgb;
+                }
+                return null;
+            }
+            set
+            {
+                HsnlibraryCS.HsnInterface.setIpMonitorColormap(value);
+            }
+        }
 
-        //public float[] MonitorColorMapRGB
-        //{
-        //    get
-        //    {
-        //        if (HsnlibraryCS.HsnInterface.getIpMonitorColormap(out float[] rgb))
-        //        {
-        //            return rgb;
-        //        }
-        //        return null;
-        //    }
-        //    set
-        //    {
-        //        HsnlibraryCS.HsnInterface.setIpMonitorColormap(value);
-        //    }
-        //}
-
-        //public int RunManualCalibrate()
-        //{
-        //    int ret = HsnlibraryCS.HsnInterface.runCapsuleManualCalibration();
-        //    if (ret < 0)
-        //    {
-        //        MessageBox.Show("Calibration timeout occured");
-        //    }
-        //    return ret;
-        //}
+        public int RunManualCalibrate()
+        {
+            int ret = HsnlibraryCS.HsnInterface.runCapsuleManualCalibration();
+            if (ret < 0)
+            {
+                MessageBox.Show("Calibration timeout occured");
+            }
+            return ret;
+        }
 
         private void DeviceDettached(object sender, EventArgs e)
         {

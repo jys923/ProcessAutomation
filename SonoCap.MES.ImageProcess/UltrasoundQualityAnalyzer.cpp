@@ -102,7 +102,7 @@ void MyOpenCVWrapper::AnalyzeBrightness(System::IntPtr inputBuffer, int imageWid
         cv::cvtColor(display, display, cv::COLOR_GRAY2BGRA);
         showAndSaveImage(".\\Gray\\brightness_exclude_center", display);*/
         cv::cvtColor(maskedGray, maskedGray, cv::COLOR_GRAY2BGRA);
-        showAndSaveImage(".\\Gray\\brightness_exclude_center", maskedGray);
+        //showAndSaveImage(".\\Gray\\brightness_exclude_center", maskedGray);
     }
 
     // 마스크 영역 제외하고 평균 계산
