@@ -24,12 +24,12 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     //showAndSaveImage("ResInspection_Gray", gray); // 이름 변경 (겹치지 않게)
 
     // showAndThreshold 함수를 통해 사용자 대화형으로 DR 값 조절
-    //showAndThreshold("ResInspection_DR_Adjust", gray); // 이름 변경
+    showAndThreshold("ResInspection_DR_Adjust", gray); // 이름 변경
 
     // DR 클리핑 적용 (고정된 값 65, 70으로 다시 처리)
     ApplyLinearDRClip(gray, gray, 65, 70, true);
     
-    //showAndSaveImage("ResInspection_DR_Clipped", gray); // 이름 변경
+    showAndSaveImage("ResInspection_DR_Clipped", gray); // 이름 변경
 
     // ROI 설정
     cv::Rect roi(ROI_X, ROI_Y, ROI_W, ROI_H);
@@ -50,7 +50,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
     // 모폴로지 오프닝 (침식 후 팽창)
     cv::Mat eroded, restored;
-    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     cv::erode(binary, eroded, kernel);
     cv::dilate(eroded, restored, kernel);
     showAndSaveImage("ResInspection_Morphology", restored); // 이름 변경
@@ -103,16 +103,21 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     }
 
     // 디버깅 목적: 모든 유효 윤곽선 데이터 출력
-    std::cout << "--- All Contour Data Collected ---" << std::endl;
+    Logger::Information("--- All Contour Data Collected ---");
     for (size_t i = 0; i < allContourData.size(); ++i) {
         const auto& data = allContourData[i];
-        std::cout << "Contour " << i << ": Center(" << data.center_abs.x << ", " << data.center_abs.y << ")"
-            << ", Dist: " << data.distance_from_ref
-            << ", Angle(deg): " << data.angle_from_ref_deg
-            << ", Area: " << data.area
-            << ", Quality: " << data.quality << std::endl;
+        Logger::Information(
+            "Contour {0}: Center({1}, {2}), Dist: {3}, Angle(deg): {4}, Area: {5}, Quality: {6}",
+            (int)i, // size_t를 int로 캐스팅하여 Serilog의 {0}에 맞춤
+            data.center_abs.x,
+            data.center_abs.y,
+            data.distance_from_ref,
+            data.angle_from_ref_deg,
+            data.area,
+            data.quality
+        );
     }
-    std::cout << "----------------------------------" << std::endl;
+    Logger::Information("----------------------------------");
 
     ContourData p1_data, p2_data, p3_data;
     bool p1_found = false, p2_found = false, p3_found = false;
@@ -216,17 +221,43 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         cv::circle(roiImage, p3_data.center_abs, 2, selected_colors[2], -1);
 
         // 선택된 P1, P2, P3의 정보 출력
-        std::cout << "\n--- Selected Points (P1, P2, P3) ---" << std::endl;
-        std::cout << "P1: Center(" << p1_data.center_abs.x << ", " << p1_data.center_abs.y << ")"
-            << ", Dist: " << p1_data.distance_from_ref
-            << ", Angle(deg): " << p1_data.angle_from_ref_deg << ", Area: " << p1_data.area << ", Quality: " << p1_data.quality << std::endl;
-        std::cout << "P2: Center(" << p2_data.center_abs.x << ", " << p2_data.center_abs.y << ")"
-            << ", Dist: " << p2_data.distance_from_ref
-            << ", Angle(deg): " << p2_data.angle_from_ref_deg << ", Area: " << p2_data.area << ", Quality: " << p2_data.quality << std::endl;
-        std::cout << "P3: Center(" << p3_data.center_abs.x << ", " << p3_data.center_abs.y << ")"
-            << ", Dist: " << p3_data.distance_from_ref
-            << ", Angle(deg): " << p3_data.angle_from_ref_deg << ", Area: " << p3_data.area << ", Quality: " << p3_data.quality << std::endl;
-        std::cout << "-------------------------------------" << std::endl;
+        Logger::Information("--- Selected Points (P1, P2, P3) ---");
+
+        // P1 데이터 로깅
+        Logger::Information(
+            "P1: Center({0}, {1}), Dist: {2}, Angle(deg): {3}, Area: {4}, Quality: {5}",
+            p1_data.center_abs.x,
+            p1_data.center_abs.y,
+            p1_data.distance_from_ref,
+            p1_data.angle_from_ref_deg,
+            p1_data.area,
+            p1_data.quality
+        );
+
+        // P2 데이터 로깅
+        Logger::Information(
+            "P2: Center({0}, {1}), Dist: {2}, Angle(deg): {3}, Area: {4}, Quality: {5}",
+            p2_data.center_abs.x,
+            p2_data.center_abs.y,
+            p2_data.distance_from_ref,
+            p2_data.angle_from_ref_deg,
+            p2_data.area,
+            p2_data.quality
+        );
+
+        // P3 데이터 로깅
+        Logger::Information(
+            "P3: Center({0}, {1}), Dist: {2}, Angle(deg): {3}, Area: {4}, Quality: {5}",
+            p3_data.center_abs.x,
+            p3_data.center_abs.y,
+            p3_data.distance_from_ref,
+            p3_data.angle_from_ref_deg,
+            p3_data.area,
+            p3_data.quality
+        );
+
+        // 종료 메시지 로깅
+        Logger::Information("-------------------------------------");
 
         // 결과 할당
         result.verticalDist = cv::norm(p1_data.center_abs - p2_data.center_abs);
@@ -237,7 +268,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
     }
     else {
-        std::cerr << "Warning: Could not find all 3 required points (P1, P2, P3) matching criteria. Returning -1 for distances and qualities." << std::endl;
+        Logger::Information("Warning: Could not find all 3 required points (P1, P2, P3) matching criteria. Returning -1 for distances and qualities.");
         result.verticalDist = -1;
         result.horizontalDist = -1;
         result.edgeDensity1 = -1;

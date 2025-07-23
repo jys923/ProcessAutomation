@@ -20,10 +20,21 @@ void MyOpenCVWrapper::RunInspection(System::IntPtr inputBuffer, int imageWidth, 
     uchar* imageData = static_cast<uchar*>(inputBuffer.ToPointer());
     cv::Mat inputImage(imageHeight, imageWidth, CV_8UC4, imageData);
     if (inputImage.empty()) {
-        std::string errorText = R"({"error":"invalid image"})";
-        memcpy(textBuffer.ToPointer(), errorText.c_str(), errorText.size() + 1);
+        Logger::Error("Image loading failed: Input image is empty. Image Size: {0}x{1}", imageHeight, imageWidth);
+        //std::string errorText = R"({"error":"invalid image"})";
+        //memcpy(textBuffer.ToPointer(), errorText.c_str(), errorText.size() + 1);
         return;
     }
+
+    /*std::string statusMsg = "Image Load completed.";
+    Logger::Information(
+        gcnew System::String(statusMsg.c_str())
+    );*/
+
+	Logger::Information(
+		"Image size: {0}x{1}, Channels: {2}",
+		imageWidth, imageHeight, inputImage.channels()
+	);
     
     cv::Mat resultImage = inputImage.clone();
 

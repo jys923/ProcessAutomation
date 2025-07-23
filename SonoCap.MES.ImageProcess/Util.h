@@ -9,6 +9,8 @@
 #include <numeric>
 #include <nlohmann/json.hpp>
 
+using namespace SonoCap::Commons::Logging;
+
 #ifdef _DEBUG
 #define ENABLE_IMAGE_DISPLAY true
 #else

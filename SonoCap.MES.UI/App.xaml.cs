@@ -20,6 +20,7 @@ using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Services.Interfaces;
 using SonoCap.WpfCommons;
 using System.Reflection;
+using SonoCap.Commons.Logging;
 
 namespace SonoCap.MES.UI
 {
@@ -111,6 +112,7 @@ namespace SonoCap.MES.UI
             configuration.Bind(appSettings);
 
             LoggingConfigurator.Configure(appSettings.Serilog); // ← 이렇게 바뀜
+            Logger.Initialize(Log.Logger);
 
             IServiceCollection services = new ServiceCollection();
 
@@ -129,9 +131,12 @@ namespace SonoCap.MES.UI
 
         private static IConfiguration ConfigureAppSettings()
         {
+            var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production"; // 기본값은 Production
+
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                //.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true) // 환경별 파일 로드
                 .Build();
         }
 

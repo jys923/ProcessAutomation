@@ -21,9 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <EnableManagedPackageReferenceSupport>true</EnableManagedPackageReferenceSupport>
-    <ProjectGuid>{2F45389C-DF69-4625-9286-DD9A4DBDDAED}</ProjectGuid>
+    <ProjectGuid>{ECD23A34-1E74-A156-AC29-CEB662AE68F8}</ProjectGuid>
     <Keyword>NetCoreCProj</Keyword>
-    <RootNamespace>SonoCapMESImageProcess</RootNamespace>
+    <RootNamespace>SonoCapCommonsLoggingCli</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <TargetFramework>net8.0</TargetFramework>
     <WindowsTargetPlatformMinVersion>8.0</WindowsTargetPlatformMinVersion>
@@ -78,13 +78,13 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>MSVCRTD.lib;flatbuffers.lib;abseil_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -111,51 +111,29 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>MSVCRT.lib;flatbuffers.lib;abseil_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies />
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AlignProcess.h" />
-    <ClInclude Include="GeoInspection.h" />
-    <ClInclude Include="GeometricDistortionProcess.h" />
-    <ClInclude Include="GrayInspection.h" />
-    <ClInclude Include="GrayProcess.h" />
-    <ClInclude Include="MyOpenCVWrapper.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RandomUtilities.h" />
-    <ClInclude Include="ResInspection.h" />
-    <ClInclude Include="ResolutionProcess.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="RunInspection.h" />
-    <ClInclude Include="UltrasoundQualityAnalyzer.h" />
-    <ClInclude Include="Util.h" />
+    <ClInclude Include="SonoCap.Commons.Logging.Cli.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AlignProcess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
-    <ClCompile Include="GeoInspection.cpp" />
-    <ClCompile Include="GeometricDistortionProcess.cpp" />
-    <ClCompile Include="GrayInspection.cpp" />
-    <ClCompile Include="GrayProcess.cpp" />
-    <ClCompile Include="MyOpenCVWrapper.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RandomUtilities.cpp" />
-    <ClCompile Include="ResInspection.cpp" />
-    <ClCompile Include="ResolutionProcess.cpp" />
-    <ClCompile Include="RunInspection.cpp" />
-    <ClCompile Include="UltrasoundQualityAnalyzer.cpp" />
-    <ClCompile Include="Util.cpp" />
+    <ClCompile Include="SonoCap.Commons.Logging.Cli.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc" />
@@ -164,18 +142,15 @@
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ORB 기반 회전 추정.md" />
-    <None Include="Polar 변환 기반 회전 추정.md" />
-    <None Include="resolution.md" />
-    <None Include="result.md" />
-    <None Include="기하학적왜곡.md" />
-    <None Include="로그 스케일.md" />
-    <None Include="함수 파라미터 추가 방법.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SonoCap.Commons.Logging.Cli\SonoCap.Commons.Logging.Cli.vcxproj">
-      <Project>{ecd23a34-1e74-a156-ac29-ceb662ae68f8}</Project>
-    </ProjectReference>
+    <PackageReference Include="Serilog">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Serilog.Sinks.Console">
+      <Version>5.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Serilog.Sinks.File">
+      <Version>5.0.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

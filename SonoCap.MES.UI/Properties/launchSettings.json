@@ -2,6 +2,9 @@
   "profiles": {
     "SonoCap.MES.UI": {
       "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      },
       "nativeDebugging": false,
       "sqlDebugging": false
     }

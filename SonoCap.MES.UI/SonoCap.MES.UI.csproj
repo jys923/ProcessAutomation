@@ -54,11 +54,13 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
     <PackageReference Include="MiniExcel" Version="1.38.0" />
     <PackageReference Include="ScreenRecorderLib" Version="6.5.1" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SonoCap.Commons.Logging.Cli\SonoCap.Commons.Logging.Cli.vcxproj" />
     <ProjectReference Include="..\SonoCap.Interceptors\SonoCap.Interceptors.csproj" />
     <ProjectReference Include="..\SonoCap.MES.ImageProcess\SonoCap.MES.ImageProcess.vcxproj" />
     <ProjectReference Include="..\Sonocap.MES.Models\SonoCap.MES.Models.csproj" />
@@ -100,7 +102,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json">
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Production.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Properties\Settings.settings">

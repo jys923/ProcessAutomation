@@ -349,6 +349,8 @@ void showAndThreshold(const std::string& windowName, const cv::Mat& image) {
     processAndDisplayImage();
 
     cv::waitKey(0);
+
+    cv::destroyWindow(windowName);
 }
 #else
 // 빈 함수 정의 (호출은 남아있지만 아무 동작 안 함)
@@ -949,10 +951,10 @@ void showAndSaveImage(const std::string& windowName, const cv::Mat& image) {
     cv::imshow(windowName, image);
     cv::waitKey(0);
 
-    cv::destroyWindow(windowName); // 특정 창만 닫기
+    cv::destroyWindow(windowName);
 
-    std::string filename = windowName + ".bmp";
-    cv::imwrite(filename, image);
+    //std::string filename = windowName + ".bmp";
+    //cv::imwrite(filename, image);
 }
 #else
 // 빈 함수 정의 (호출은 남아있지만 아무 동작 안 함)
