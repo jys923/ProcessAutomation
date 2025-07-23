@@ -5,7 +5,7 @@
 #define ROI_W 50
 #define ROI_H 60
 
-#define USE_DENSITY // 또는 주석처리하고 평균 밝기 쓸 수도 있음
+#define USE_DENSITY false// 또는 주석처리하고 평균 밝기 쓸 수도 있음
 //#define USE_FAST_CENTER
 
 void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
@@ -21,15 +21,15 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
     cv::Mat gray;
     cv::cvtColor(roiImage, gray, cv::COLOR_BGRA2GRAY);
-    showAndSaveImage("ResInspection_Gray", gray); // 이름 변경 (겹치지 않게)
+    //showAndSaveImage("ResInspection_Gray", gray); // 이름 변경 (겹치지 않게)
 
     // showAndThreshold 함수를 통해 사용자 대화형으로 DR 값 조절
-    showAndThreshold("ResInspection_DR_Adjust", gray); // 이름 변경
+    //showAndThreshold("ResInspection_DR_Adjust", gray); // 이름 변경
 
     // DR 클리핑 적용 (고정된 값 65, 70으로 다시 처리)
     ApplyLinearDRClip(gray, gray, 65, 70, true);
     
-    showAndSaveImage("ResInspection_DR_Clipped", gray); // 이름 변경
+    //showAndSaveImage("ResInspection_DR_Clipped", gray); // 이름 변경
 
     // ROI 설정
     cv::Rect roi(ROI_X, ROI_Y, ROI_W, ROI_H);
@@ -46,11 +46,11 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     cv::Mat roiGray = gray(roi);
     cv::Mat binary;
     cv::threshold(roiGray, binary, 100, 255, cv::THRESH_BINARY);
-    showAndSaveImage("ResInspection_BinaryROI", binary); // 이름 변경
+    //showAndSaveImage("ResInspection_BinaryROI", binary); // 이름 변경
 
     // 모폴로지 오프닝 (침식 후 팽창)
     cv::Mat eroded, restored;
-    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
+    cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
     cv::erode(binary, eroded, kernel);
     cv::dilate(eroded, restored, kernel);
     showAndSaveImage("ResInspection_Morphology", restored); // 이름 변경
@@ -66,7 +66,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     // 모든 유효 윤곽선 데이터 수집
     for (const auto& contour : contours) {
         double currentArea = cv::contourArea(contour);
-        if (currentArea < 4) { // 면적 임계값: 4 (필요시 조정)
+        if (currentArea < 10) { // 면적 임계값: 4 (필요시 조정)
             continue;
         }
 
@@ -82,7 +82,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         cv::Mat mask = cv::Mat::zeros(roiGray.size(), CV_8UC1);
         cv::drawContours(mask, std::vector<std::vector<cv::Point>>{contour}, -1, 255, cv::FILLED);
 
-#ifdef USE_DENSITY
+#if USE_DENSITY
         cv::Mat edge, edgeMasked;
         cv::Canny(roiGray, edge, 100, 200); // Canny 임계값 (필요시 조정)
         edge.copyTo(edgeMasked, mask);
@@ -99,6 +99,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         double angle_from_ref_deg = angle_from_ref_rad * 180.0 / CV_PI;
 
         allContourData.push_back({ absoluteCenter, currentQuality, currentArea, contour, distance_from_ref, angle_from_ref_rad, angle_from_ref_deg });
+        showAndSaveImage("ResInspection_Mask", mask); // 이름 변경
     }
 
     // 디버깅 목적: 모든 유효 윤곽선 데이터 출력
@@ -142,14 +143,28 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     if (p1_found) {
         // 2. P2 찾기: P1을 제외하고, P1보다 거리가 크며, 면적이 가장 큰 점
         double max_p2_area = -1.0;
+
+        // 각도 톨러런스 정의 (예: 5도)
+        // 이 값은 실제 패턴의 각도 분포에 따라 조정해야 합니다.
+        const double ANGLE_TOLERANCE_DEG = 5.0; // 5도 톨러런스
+        const double ANGLE_TOLERANCE_RAD = ANGLE_TOLERANCE_DEG * CV_PI / 180.0; // 라디안으로 변환
+
         for (const auto& data : allContourData) {
             if (data.center_abs == p1_data.center_abs) continue; // P1 제외
 
+            // 조건 1: P1보다 거리가 더 큰지 확인
             if (data.distance_from_ref > p1_data.distance_from_ref) {
-                if (data.area > max_p2_area) {
-                    p2_data = data;
-                    max_p2_area = data.area;
-                    p2_found = true;
+                // 조건 2: P1의 각도와 현재 데이터의 각도 차이가 톨러런스 이내인지 확인
+                // 각도 차이 계산 시 360도(또는 2*PI 라디안) 회전 오차 고려가 필요할 수 있음
+                double angle_diff = std::abs(data.angle_from_ref_rad - p1_data.angle_from_ref_rad);
+
+                if (angle_diff <= ANGLE_TOLERANCE_RAD) { // 각도 톨러런스 적용
+                    // 조건 3: 조건 1과 2를 만족하는 후보들 중에서 면적이 가장 큰 점 선택
+                    if (data.area > max_p2_area) {
+                        p2_data = data;
+                        max_p2_area = data.area;
+                        p2_found = true;
+                    }
                 }
             }
         }
@@ -231,6 +246,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     }
 
     cv::rectangle(roiImage, roi, YellowA, 1); // ROI 테두리 그리기
+    showAndSaveImage("ResInspection_End", roiImage); // 이름 변경
 }
 
 void MyOpenCVWrapper::ResInspection4(cv::Mat& roiImage, ResResult& result)

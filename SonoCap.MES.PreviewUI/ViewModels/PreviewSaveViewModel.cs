@@ -239,7 +239,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             {
                 _rotationAngle = (_rotationAngle - 1 + 360) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
-                _usRenderer.VerticalShift = --_verticalShift;
+                _usRenderer?.SetVerticalShift((int)_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
                 keyEventArgs.Handled = true;
             }
@@ -247,7 +247,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             {
                 _rotationAngle = (_rotationAngle + 1) % 360;
                 _usRenderer?.SetRotationAngle(_rotationAngle);
-                _usRenderer.VerticalShift = ++_verticalShift;
+                _usRenderer?.SetVerticalShift((int)_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
                 keyEventArgs.Handled = true;
             }

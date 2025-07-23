@@ -1,6 +1,7 @@
 ﻿using HsnLibraryCS;
 using SonoCap.WpfCommons;
 using System.Diagnostics;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace SonoCap.MES.Services
@@ -13,7 +14,7 @@ namespace SonoCap.MES.Services
         private int _height;
         private int _length;
         //private byte[] _buffer;
-        public int VerticalShift { get; set; } = 0;
+        private int _verticalShift { get; set; } = 0;
 
         public float DRMin { get; set; } = 0;
         public float DRMax { get; set; } = 100;
@@ -56,6 +57,10 @@ namespace SonoCap.MES.Services
         {
             offScreenView?.SetScanline(envdata_height);
         }
+        public void SetVerticalShift(int currentStep)
+        {
+            _verticalShift = currentStep;
+        }
 
         public void RenderEnd()
         {
@@ -70,6 +75,26 @@ namespace SonoCap.MES.Services
 
         static double framerate_acc_val = 0;
         static DateTime prev_time = DateTime.Now;
+
+        public BitmapSource ResizeBitmapSource(BitmapSource source, int width, int height)
+        {
+            // 원본 BitmapSource의 너비와 높이를 가져옵니다.
+            double originalWidth = source.PixelWidth;
+            double originalHeight = source.PixelHeight;
+
+            // 스케일 비율을 계산합니다.
+            double scaleX = width / originalWidth;
+            double scaleY = height / originalHeight;
+
+            // TransformedBitmap을 사용하여 스케일 변환을 적용합니다.
+            TransformedBitmap resizedBitmap = new TransformedBitmap(
+                source,
+                new ScaleTransform(scaleX, scaleY)
+            );
+
+            return resizedBitmap;
+        }
+
         private void LoadImage(byte[] buffer, int width, int height, int length, MetadataInfo metadata)
         {
             var curr_time = DateTime.Now;
@@ -103,6 +128,7 @@ namespace SonoCap.MES.Services
                     copy,
                     stride
                 );
+
                 renderToTarget?.Invoke(bitmapSource);
             }));
         }
@@ -168,8 +194,12 @@ namespace SonoCap.MES.Services
             return argb_buffer; // 최종 4바이트 BGRA 비트맵 데이터 반환
         }
 
+        private double _verticalShiftOffset = 0.0;
+
         public void LoadEnv(byte[] buffer, int width, int height, int length, MetadataInfo metadata)
         {
+            _verticalShiftOffset = height / 360.0;
+
             byte[] processedEnvBitmapData = CreateNormalizedBitmapDataFromRaw2Byte(
                 buffer,        // 2바이트 원본 데이터
                 width,
@@ -181,7 +211,7 @@ namespace SonoCap.MES.Services
             // 4바이트 BGRA 비트맵 데이터의 스트라이드 (width * bytes_per_pixel)
             int stride = width * 4;
 
-            Utilities.ShiftBytesCircularly(processedEnvBitmapData, stride * VerticalShift);
+            Utilities.ShiftBytesCircularly(processedEnvBitmapData, stride * (int)(_verticalShiftOffset * _verticalShift));
 
             // UI 스레드에서 BitmapSource 생성 및 렌더링 (LoadImage와 유사)
             System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>

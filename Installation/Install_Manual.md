@@ -28,6 +28,7 @@
 4.  **`CP210x_Universal_Windows_Driver.zip` 압축 해제 및 드라이버 설치:**
     * `CP210x_Universal_Windows_Driver.zip` 파일을 마우스 오른쪽 버튼으로 클릭한 후 **"모두 압축 풀기(Extract All)"**를 선택하여 압축을 해제합니다.
     * 압축 해제된 폴더로 이동합니다. 이 드라이버는 별도의 설치 파일이 없으므로, **`silabser.inf` 파일을 마우스 오른쪽 버튼으로 클릭한 후 "설치(Install)"**를 선택하여 드라이버를 수동으로 설치합니다.
+    ![inf_install][inf_install]
 
 ---
 
@@ -40,10 +41,15 @@
 1.  **`mariadb-11.7.2-winx64.msi` 실행:**
     * `mariadb-11.7.2-winx64.msi` 파일을 찾아 실행합니다.
     * 설치 마법사의 지시에 따라 진행합니다.
+    ![db_install][db_install]
     * **"Set root password"** 단계에서 `root` 계정의 비밀번호를 **`Endolfin12!@`** 로 설정합니다.
+    ![set_db_id_pw][set_db_id_pw]
     * **"Database features"** 또는 유사한 설정 단계에서 **"Use UTF8 as default server's character set"** 옵션이 있다면 **체크**하여 기본 문자셋을 UTF8로 설정합니다.
     * **"Remote access for 'root' user"** 또는 유사한 옵션이 있다면 **체크**하여 원격에서 root 계정으로 접속할 수 있도록 허용합니다.
     * 설치가 완료되면, 데이터베이스 `sonocap_mes`를 생성해야 합니다. 설치 마법사 내에 데이터베이스 생성 옵션이 있다면 해당 옵션을 활용하고, 없다면 설치 완료 후 별도의 SQL 클라이언트(예: HeidiSQL, DBeaver)를 사용하여 `CREATE DATABASE sonocap_mes;` 명령어를 실행하여 생성합니다.
+    ![connect_db][connect_db]
+    ![create_db_1][create_db_1]
+    ![create_db_2][create_db_2]
 
 ---
 
@@ -83,3 +89,11 @@
 **참고:** 모든 설치 과정에서 **관리자 권한**이 필요할 수 있습니다. 설치 파일 실행 시 "사용자 계정 컨트롤" 메시지가 나타나면 **"예(Yes)"**를 클릭하여 진행하십시오.
 
 위 단계를 모두 완료하면 시스템이 프로그램 실행에 필요한 환경을 갖추게 되며, `SonoCap.MES.UI` 프로그램도 올바르게 설치 및 설정됩니다.
+
+
+[set_db_id_pw]: ./images/set_db_id_pw.png "set_db_id_pw"
+[db_install]: ./images/db_install.png "db_install"
+[connect_db]: ./images/connect_db.png "connect_db"
+[create_db_1]: ./images/create_db_1.png "create_db_1"
+[create_db_2]: ./images/create_db_2.png "create_db_2"
+[inf_install]: ./images/inf_install.png "inf_install"
