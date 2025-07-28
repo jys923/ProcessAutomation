@@ -164,6 +164,7 @@
     <Image Include="app.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cv_quality.md" />
     <None Include="ORB 기반 회전 추정.md" />
     <None Include="Polar 변환 기반 회전 추정.md" />
     <None Include="resolution.md" />

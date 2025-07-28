@@ -126,8 +126,7 @@ namespace SonoCap.MES.UI.Services
                     string dir = Utilities.GetExportImgPath(
                         App.appSettings.Path.ExportImg,
                         App.appSettings.Path.ExportImgPhase,
-                        test.TestCategoryId,
-                        sn);
+                        test.TestCategoryId);
 
                     string origPath = Path.Combine(dir, test.OriginalImg);
                     string changedPath = Path.Combine(dir, test.ChangedImg);

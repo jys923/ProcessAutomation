@@ -112,48 +112,6 @@ namespace SonoCap.MES.UI.ViewModels
 
         }
 
-        public void Initialize2(string title, PTRView pTRView)
-        {
-            Title = title;
-            PTRView = pTRView;
-
-            _defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
-
-            var basePath = App.appSettings.Path.ExportImg;
-            var phaseMap = App.appSettings.Path.ExportImgPhase;
-
-            string exportPath01 = Utilities.GetExportImgPath(basePath, phaseMap, 1, pTRView.TransducerSn);
-            string exportPath02 = Utilities.GetExportImgPath(basePath, phaseMap, 2, pTRView.TransducerModuleSn);
-            string exportPath03 = Utilities.GetExportImgPath(basePath, phaseMap, 3, pTRView.ProbeSn);
-
-            SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test01.OriginalImg)) ?? _defaultImg;
-            ResImg00 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test01.ChangedImg)) ?? _defaultImg;
-
-            SrcImg01 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test02.OriginalImg)) ?? _defaultImg;
-            ResImg01 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test02.ChangedImg)) ?? _defaultImg;
-
-            SrcImg02 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test03.OriginalImg)) ?? _defaultImg;
-            ResImg02 = Utilities.GetFileToImageSource(Path.Combine(exportPath01, PTRView.Test03.ChangedImg)) ?? _defaultImg;
-
-            SrcImg10 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test04.OriginalImg)) ?? _defaultImg;
-            ResImg10 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test04.ChangedImg)) ?? _defaultImg;
-
-            SrcImg11 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test05.OriginalImg)) ?? _defaultImg;
-            ResImg11 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test05.ChangedImg)) ?? _defaultImg;
-
-            SrcImg12 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test06.OriginalImg)) ?? _defaultImg;
-            ResImg12 = Utilities.GetFileToImageSource(Path.Combine(exportPath02, PTRView.Test06.ChangedImg)) ?? _defaultImg;
-
-            SrcImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test07.OriginalImg)) ?? _defaultImg;
-            ResImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test07.ChangedImg)) ?? _defaultImg;
-
-            SrcImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test08.OriginalImg)) ?? _defaultImg;
-            ResImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test08.ChangedImg)) ?? _defaultImg;
-
-            SrcImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test09.OriginalImg)) ?? _defaultImg;
-            ResImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(exportPath03, PTRView.Test09.ChangedImg)) ?? _defaultImg;
-        }
-
         public void Initialize(string title, PTRView pTRView)
         {
             Title = title;
@@ -163,9 +121,9 @@ namespace SonoCap.MES.UI.ViewModels
             var basePath = App.appSettings.Path.ExportImg;
             var phaseMap = App.appSettings.Path.ExportImgPhase;
 
-            string path1 = Utilities.GetExportImgPath(basePath, phaseMap, 1, pTRView.TransducerSn);
-            string path2 = Utilities.GetExportImgPath(basePath, phaseMap, 2, pTRView.TransducerModuleSn);
-            string path3 = Utilities.GetExportImgPath(basePath, phaseMap, 3, pTRView.ProbeSn);
+            string path1 = Utilities.GetExportImgPath(basePath, phaseMap, 1);
+            string path2 = Utilities.GetExportImgPath(basePath, phaseMap, 2);
+            string path3 = Utilities.GetExportImgPath(basePath, phaseMap, 3);
 
             // Load images safely
             SrcImg00 = Utilities.LoadOrDefault(path1, PTRView.Test01?.OriginalImg, _defaultImg);
@@ -203,38 +161,6 @@ namespace SonoCap.MES.UI.ViewModels
             )
         {
             _probeService = probeService;
-            //Title = title;
-            //_pTRView = pTRView;
-
-            //_defaultImg = Utilities.LoadBitmapFromResource("usImg.bmp");
-
-            //SrcImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.OriginalImg)) ?? _defaultImg;
-            //ResImg00 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test01.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.OriginalImg)) ?? _defaultImg;
-            //ResImg01 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test02.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.OriginalImg)) ?? _defaultImg;
-            //ResImg02 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test03.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.OriginalImg)) ?? _defaultImg;
-            //ResImg10 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test04.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.OriginalImg)) ?? _defaultImg;
-            //ResImg11 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test05.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.OriginalImg)) ?? _defaultImg;
-            //ResImg12 = Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test06.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.OriginalImg)) ?? _defaultImg;
-            //ResImg20 = PTRView.Test07 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test07.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.OriginalImg)) ?? _defaultImg;
-            //ResImg21 = PTRView.Test08 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test08.ChangedImg)) ?? _defaultImg;
-
-            //SrcImg22 = PTRView.Test09 == null ? _defaultImg : Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.OriginalImg)) ?? _defaultImg;
-            //ResImg22 = PTRView.Test09 == null ? _defaultImg : 
-            //    Utilities.GetFileToImageSource(Path.Combine(App.appSettings.Path.ExportImg, PTRView.Test09.ChangedImg)) ?? _defaultImg;
         }
     }
 }

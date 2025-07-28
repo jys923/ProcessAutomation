@@ -122,6 +122,24 @@ namespace SonoCap.WpfCommons
             return basePath;
         }
 
+        public static string GetExportImgPath(string basePath, Dictionary<string, string> phases, int testCategory)
+        {
+            string phaseKey = testCategory switch
+            {
+                1 => "Process",
+                2 => "Product",
+                3 => "Final",
+                _ => "Unknown"
+            };
+
+            if (phases.TryGetValue(phaseKey, out string? phaseFolder))
+            {
+                return Path.Combine(basePath, phaseFolder);
+            }
+
+            return basePath;
+        }
+
         public static string MoveTempImageToExport(string fileName, string tempPath, string exportPath, string newFileName)
         {
             string sourcePath = Path.Combine(tempPath, fileName);

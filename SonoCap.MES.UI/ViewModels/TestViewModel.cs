@@ -55,7 +55,7 @@ namespace SonoCap.MES.UI.ViewModels
                   ?? test.Probe?.Sn
                   ?? test.Transducer?.Sn;
 
-            string path = Utilities.GetExportImgPath(basePath, phaseMap, Test.TestCategoryId, sn);
+            string path = Utilities.GetExportImgPath(basePath, phaseMap, Test.TestCategoryId);//, sn);
 
             SrcImg = Utilities.LoadOrDefault(path, Test.OriginalImg, _defaultImg);
             ResImg = Utilities.LoadOrDefault(path, Test.ChangedImg, _defaultImg);

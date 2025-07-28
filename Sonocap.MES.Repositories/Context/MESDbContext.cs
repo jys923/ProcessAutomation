@@ -3,11 +3,13 @@
 using SonoCap.MES.Models;
 using Microsoft.EntityFrameworkCore;
 using SonoCap.MES.Models.Base;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace SonoCap.MES.Repositories.Context
 {
     public class MESDbContext : DbContext
     {
+        public DbSet<AppSettings> AppSettings { get; set; }
         public DbSet<MotorModule> MotorModules { get; set; }
         public DbSet<Pc> Pcs { get; set; }
         public DbSet<Probe> Probes { get; set; }
@@ -31,6 +33,19 @@ namespace SonoCap.MES.Repositories.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            // AppSettings 엔티티의 ValueType 속성에 대한 변환 설정
+            modelBuilder.Entity<AppSettings>()
+                .Property(s => s.ValueType)
+                .HasConversion(new EnumToStringConverter<SettingValueType>());
+            // 또는 더 간결하게 .HasConversion<string>(); // 이 경우 EF Core가 적절한 컨버터를 찾아줌
+
+            // SettingKey에 UNIQUE 인덱스 추가 (선택 사항이지만 권장)
+            modelBuilder.Entity<AppSettings>()
+                .HasIndex(s => s.SettingKey)
+                .IsUnique();
+
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(ModelBase).IsAssignableFrom(entityType.ClrType))
@@ -104,8 +119,6 @@ namespace SonoCap.MES.Repositories.Context
                 .WithMany(t => t.PTRViewT09)
                 .HasForeignKey(ptrv => ptrv.TestId09)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            base.OnModelCreating(modelBuilder);
         }
 #if MIGRATION
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -655,6 +655,10 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         protected override void OnWindowActivated(object? sender, EventArgs e)
         {
             Log.Information($"{nameof(OnWindowActivated)}");
+            if( SelectedPower == 140)
+            {
+                SelectedPower = 100;
+            }
             _motorService.StartMotor();
             Task.Delay(100);
         }

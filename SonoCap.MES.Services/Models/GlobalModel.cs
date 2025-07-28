@@ -352,6 +352,16 @@ namespace SonoCap.MES.Services.Model
             HsnlibraryCS.HsnInterface.activateProbe();
         }
 
+        public void ActivateProbe()
+        {
+            HsnlibraryCS.HsnInterface.activateProbe();
+        }
+
+        public void DeactivateProbe()
+        {
+            HsnlibraryCS.HsnInterface.disactivateProbe();
+        }
+
         private ProbeStateInfoEnum previousState = ProbeStateInfoEnum.DIsabled;
 
         private void ProbeStateCallback(int state)

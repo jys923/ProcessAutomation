@@ -14,7 +14,7 @@ remove-migration
 ```
 
 ## Todo
-- [ ] 
+- [ ] probe sn을 rom에 쓰기  
 - [ ] pc sn api server
 - [ ] 온라인 db 서버, 파일 연동 확인
 - [ ] 중국 기하학적 왜곡 기준, 절대값 팬텀 데이터 취득

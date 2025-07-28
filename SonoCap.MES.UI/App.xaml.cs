@@ -148,7 +148,7 @@ namespace SonoCap.MES.UI
                 {
                     builder.AddSerilog(dispose: true);
                     builder.AddFilter((category, level) =>
-                        category == DbLoggerCategory.Database.Command.Name && level >= LogLevel.Information);
+                        category == DbLoggerCategory.Database.Command.Name && level >= LogLevel.Warning);
                 });
 
                 options.UseLoggerFactory(loggerFactory);
@@ -171,6 +171,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterServices(IServiceCollection services)
         {
+            services.AddTransient<ImageService>();
             services.AddTransient<ProbeService>();
             services.AddTransient<TestingManagementService>();
             services.AddTransient<SonoCap.MES.Services.ISerialPortWrapper, SonoCap.MES.Services.SerialPortWrapper>();
@@ -181,6 +182,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterRepositories(IServiceCollection services)
         {
+            services.AddTransient<IAppSettingsRepository, AppSettingsRepository>();
             services.AddTransient<IMotorModuleRepository, MotorModuleRepository>();
             services.AddTransient<IPcRepository, PcRepository>();
             services.AddTransient<IProbeRepository, ProbeRepository>();

@@ -51,21 +51,21 @@ namespace SonoCap.MES.UI.ViewModels
         private MES.Services.Model.GlobalModel _model;
         private readonly TestingManagementService _testingManagementService;
         private readonly IMotorService _motorService;
-        private readonly IMotorModuleRepository _motorModuleRepository;
+        private readonly ImageService _imageService;
         private readonly IViewService _viewService;
 
         public TestingViewModel(
+            ImageService imageService,
             IViewService viewService,
             TestingManagementService testingManagementService,
             MES.Services.Model.GlobalModel model,
-            IMotorService motorService,
-            IMotorModuleRepository motorModuleRepository)
+            IMotorService motorService)
         {
+            _imageService = imageService;
             _viewService = viewService;
             _testingManagementService = testingManagementService;
             _model = model;
             _motorService = motorService;
-            _motorModuleRepository = motorModuleRepository;
 
             Title = this.GetType().Name;
 
@@ -689,12 +689,12 @@ namespace SonoCap.MES.UI.ViewModels
 
         private BitmapImage _defaultImg = default!;
 
-        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _applicationList;
-        [ObservableProperty] private Tuple<int, string> _selectedApplication;
-        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _presetList;
-        [ObservableProperty] private Tuple<int, string> _selectedPreset;
-        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _subSettingList;
-        [ObservableProperty] private Tuple<int, string> _selectedSubSetting;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _applicationList = default!;
+        [ObservableProperty] private Tuple<int, string> _selectedApplication = default!;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _presetList = default!;
+        [ObservableProperty] private Tuple<int, string> _selectedPreset = default!;
+        [ObservableProperty] private ObservableCollection<Tuple<int, string>> _subSettingList = default!;
+        [ObservableProperty] private Tuple<int, string> _selectedSubSetting = default!;
 
         partial void OnSelectedApplicationChanged(Tuple<int, string> value)
         {
@@ -741,7 +741,7 @@ namespace SonoCap.MES.UI.ViewModels
         //[ObservableProperty]
         //private string _resTxt = default!;
 
-        private string _resTxt;
+        private string _resTxt = default!;
         public string ResTxt
         {
             get => _resTxt;
@@ -987,14 +987,15 @@ namespace SonoCap.MES.UI.ViewModels
             var phaseMap = App.appSettings.Path.ExportImgPhase;
             var sn = GetSnByCategory(_testCategory);
 
-            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory, sn);
+            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory);
 
             //var missingTypes = allTypeIds.Except(existingTypes).ToList();
             //Log.Information("missingTypes = {Missing}", string.Join(", ", missingTypes));
 
             // prefix = 예: "probeSn_gray"
             string prefix = $"{sn}_all";
-            string finalName = Utilities.GenImgName(prefix, exportPath);
+            string finalName = await _imageService.GenNextImgNameAsync(prefix);
+            //string finalName = Utilities.GenImgName(prefix, exportPath);
 
             string finalOriginalName = finalName + ".bmp";
             string finalChangedName = finalName + ".png";
@@ -1565,7 +1566,7 @@ namespace SonoCap.MES.UI.ViewModels
             var phaseMap = App.appSettings.Path.ExportImgPhase;
             string sn = GetSnByCategory(_testCategory);
 
-            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory, sn);
+            string exportPath = Utilities.GetExportImgPath(basePath, phaseMap, (int)_testCategory);
 
             string typeSuffix = _test.TestTypeId switch
             {
@@ -1575,7 +1576,8 @@ namespace SonoCap.MES.UI.ViewModels
                 _ => "unk"
             };
             string prefix = $"{sn}_{typeSuffix}";
-            string baseName = Utilities.GenImgName(prefix, exportPath); // 예: "probe123_gray_001"
+            string baseName = await _imageService.GenNextImgNameAsync(prefix);
+            //string baseName = Utilities.GenImgName(prefix, exportPath);
             string finalOriginalName = baseName + ".bmp";
             string finalChangedName = baseName + ".png";
 
@@ -1807,8 +1809,8 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private USRenderService usRenderer;
-        
+        private USRenderService usRenderer = default!;
+
         private double _rotationAngle = 0.0;
 
         public void RenderStart()
@@ -1930,8 +1932,9 @@ namespace SonoCap.MES.UI.ViewModels
         {
             base.OnWindowClosing(sender, e);
             Log.Information($"{nameof(OnWindowClosing)}");
-            _motorService.StopMotor();
-            Task.Delay(100);
+            //_motorService.StopMotor();
+            //Task.Delay(100);
+            _model.DeactivateProbe();
             e.Cancel = true;
             if (sender is Window window) 
             {
@@ -1943,8 +1946,14 @@ namespace SonoCap.MES.UI.ViewModels
         {
             base.OnWindowActivated(sender, e);
             Log.Information($"{nameof(OnWindowActivated)}");
-            _motorService.StartMotor();
-            Task.Delay(100);
+            
+            if (SelectedPower == 140)
+            {
+                SelectedPower = 100;
+            }
+            //_motorService.StartMotor();
+            //Task.Delay(100);
+            _model.ActivateProbe();
         }
     }
 }
