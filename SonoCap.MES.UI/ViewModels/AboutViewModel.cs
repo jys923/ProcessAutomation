@@ -21,7 +21,18 @@ namespace SonoCap.MES.UI.ViewModels
         [ObservableProperty]
         private string _releaseNotes =
     """
-    # SonoCap.MES v1.0.0
+    # SonoCap.MES v1.0.1.0
+    
+    > 버그 수정 및 개선 (2025.07.15)
+
+    ---
+
+    ## 🔧 주요 기능
+    - DB, 파일명 멀티 유저 대응
+    - 검사 알고리즘 디파인 파일 분리
+    ---
+
+    # SonoCap.MES v1.0.0.0
 
     > 최초 릴리즈 (2025.07.01)
 
@@ -117,7 +128,7 @@ namespace SonoCap.MES.UI.ViewModels
     """;
 
 
-        public string BuildDate => "2025.04.22"; // 또는 자동화 가능
+        public string BuildDate => "2025.07.29"; // 또는 자동화 가능
 
         [RelayCommand]
         private void Close()

@@ -355,7 +355,7 @@
             <Border Height="0" />
             <GroupBox Header="Power" Style="{StaticResource GroupBoxLargeStyle}">
                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Width="500">
-                    <Slider Width="450" Minimum="30" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding SelectedPower, Mode=TwoWay}" Height="30" />
+                    <Slider Width="450" Minimum="10" Maximum="140" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding SelectedPower, Mode=TwoWay}" Height="30" />
                     <TextBlock Text="{Binding SelectedPower, StringFormat={}{0:000}}" Margin="5,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
             </GroupBox>
@@ -449,9 +449,17 @@
 
                     <!-- 오버레이 선 -->
                     <Canvas>
+                        <!-- 수직선 (화면 세로 2분할) -->
                         <Line X1="256" Y1="0" X2="256" Y2="512" Stroke="Tomato" StrokeThickness="1" />
+                        <!-- 수평선 (화면 가로 2분할) -->
                         <Line X1="0" Y1="256" X2="512" Y2="256" Stroke="Tomato" StrokeThickness="1" />
+                        <!--대각선 좌하->우상-->
+                        <Line X1="0" Y1="512" X2="512" Y2="0" Stroke="Tomato" StrokeThickness="1" />
+                        <!--대각선 좌상->우하-->
+                        <Line X1="0" Y1="0" X2="512" Y2="512" Stroke="Tomato" StrokeThickness="1" />
                     </Canvas>
+
+                    <Image HorizontalAlignment="Left" VerticalAlignment="Top" x:Name="EnvImg" Stretch="Fill" Source="{Binding EnvImg}" Width="512" Height="512"  Visibility="{Binding IsEnvImgVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
 
                     <!-- 키 이벤트 연결 -->
                     <b:Interaction.Triggers>

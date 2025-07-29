@@ -8,7 +8,6 @@ using SonoCap.Commons;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Models.Inspection;
-using SonoCap.MES.Repositories.Interfaces;
 using SonoCap.MES.Services;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.WpfCommons;
@@ -28,7 +27,8 @@ using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using System.IO;
 using SonoCap.MES.UI.Messages;
-using System.Threading.Channels;
+using SonoCap.MES.UI.Models;
+using SonoCap.MES.UI.Services.TestStrategies;
 
 namespace SonoCap.MES.UI.ViewModels
 {
@@ -81,6 +81,7 @@ namespace SonoCap.MES.UI.ViewModels
             InitTimer();
             string refImgPath = "Resources/refImg.bmp";
             MyOpenCVWrapper.OpenCVWrapper.SetReferenceImage(refImgPath);
+            processFunction = MyOpenCVWrapper.OpenCVWrapper.EnvGeoInspection;
             inspectionFunction = MyOpenCVWrapper.OpenCVWrapper.RunInspection;
         }
 
@@ -728,12 +729,17 @@ namespace SonoCap.MES.UI.ViewModels
                 DRMax = _model.DRMax;
             }
         }
+        [ObservableProperty]
+        private ImageSource _snapshotImg = default!;
 
         [ObservableProperty]
         private ImageSource _srcImg = default!;
 
         [ObservableProperty]
-        private ImageSource _snapshotImg = default!;
+        private ImageSource _envImg = default!;
+
+        [ObservableProperty]
+        private bool _isEnvImgVisible = false;
 
         [ObservableProperty]
         private ImageSource _resImg = default!;
@@ -792,6 +798,21 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
+        private TestTypes ColumnToTestType(int col)
+        {
+            // col 값에 따라 TestTypes를 반환하는 로직 구현
+            switch (col)
+            {
+                case 1: return TestTypes.Gray;
+                case 2: return TestTypes.Res;
+                case 3: return TestTypes.EnvGeo;
+                case 4: return TestTypes.Align;
+                case 5: return TestTypes.Axial;
+                case 6: return TestTypes.Lateral;
+                case 7: return TestTypes.Geo;
+                default: return TestTypes.None;
+            }
+        }
 
         [RelayCommand]
         private Task CellClickAsync(CellPositions position)
@@ -801,7 +822,7 @@ namespace SonoCap.MES.UI.ViewModels
             int col = (int)position % 10;
             Log.Information($"CellClick row:{row} col:{col}");
             _testCategory = (TestCategories)row;
-            _testType = (TestTypes)col;
+            _testType = ColumnToTestType(col);
             bool isRowChanged = _oldRow != row;
             bool isColChanged = _oldCol != col;
 
@@ -816,7 +837,7 @@ namespace SonoCap.MES.UI.ViewModels
             //ResImg = default!;
             //TestResult = -2;
             //ValidationDict[nameof(TestResult)].IsEnabled = false;
-
+            IsEnvImgVisible = false;
             switch (position)
             {
                 case CellPositions.Row1_Column1:
@@ -830,6 +851,7 @@ namespace SonoCap.MES.UI.ViewModels
                 case CellPositions.Row1_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row1_Column3;
                     //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+                    IsEnvImgVisible = true;
                     break;
                 case CellPositions.Row2_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column1;
@@ -842,6 +864,7 @@ namespace SonoCap.MES.UI.ViewModels
                 case CellPositions.Row2_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row2_Column3;
                     //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+                    IsEnvImgVisible = true;
                     break;
                 case CellPositions.Row3_Column1:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column1;
@@ -854,6 +877,7 @@ namespace SonoCap.MES.UI.ViewModels
                 case CellPositions.Row3_Column3:
                     BlinkingCellIndex = (int)CellPositions.Row3_Column3;
                     //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
+                    IsEnvImgVisible = true;
                     break;
                 default:
                     break;
@@ -997,8 +1021,10 @@ namespace SonoCap.MES.UI.ViewModels
             string finalName = await _imageService.GenNextImgNameAsync(prefix);
             //string finalName = Utilities.GenImgName(prefix, exportPath);
 
-            string finalOriginalName = finalName + ".bmp";
-            string finalChangedName = finalName + ".png";
+            //string finalOriginalName = finalName + ".bmp";
+            //string finalChangedName = finalName + ".png";
+            string finalOriginalName = $"{finalName}_{_tester.PcId.ToString("D3")}.bmp"; // 보간 문자열
+            string finalChangedName = $"{finalName}_{_tester.PcId.ToString("D3")}.png"; // 보간 문자열
 
             bool anySaved = false;
             foreach (int typeId in allTypeIds)
@@ -1421,133 +1447,326 @@ namespace SonoCap.MES.UI.ViewModels
             return validIndices.Contains(BlinkingCellIndex) && ValidationService.GetValidating(ValidationDict, nameof(TDSn));
         }
 
+        // ViewModel (예: TestingViewModel.cs)
         [RelayCommand(CanExecute = nameof(CanTest))]
         private Task TestAsync()
         {
             Log.Information($"TestAsync response");
 
-            if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
+            // 1. 공통 준비 단계
+            TestContext context = PrepareTestContext();
+
+            if (context == null)
+            {
+                Log.Error("Test context preparation failed.");
+                ResLogs.Add("Test context preparation failed.");
                 return Task.CompletedTask;
-            //App.Current.Dispatcher.Invoke(() =>
-            //{
-            //ResImg = Utilities.CopyImageSource(SrcImg);
-            //});
+            }
 
-            //await App.Current.Dispatcher.InvokeAsync(async () =>
-            //{
-            //    ResImg = await Utilities.CopyImageSourceAsync(SrcImg);
-            //});
-            App.Current.Dispatcher.Invoke(() =>
+            // 2. 전략 패턴 실행 (핵심 로직)
+            try
             {
-                SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
-                //ResImg = SrcImg;
-            });
-
-            // BitmapSource를 byte array로 변환하고 IntPtr로 전달
-            BitmapSource bitmapSource = (BitmapSource)SnapshotImg;
-            GCHandle imageHandle;
-            IntPtr imageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out imageHandle);
-
-            // 결과 이미지 저장 배열
-            int resultImageSize = bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4;
-            byte[] resultImageArray = new byte[resultImageSize];
-            GCHandle resultHandle = GCHandle.Alloc(resultImageArray, GCHandleType.Pinned);
-            IntPtr resultBufferPtr = resultHandle.AddrOfPinnedObject();
-
-            // 텍스트 데이터 저장 배열
-            byte[] textArray = new byte[1024];
-            GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
-            IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
-
-            InspectionPartType partType = _testType switch
+                // ViewModel에 의존하지 않는 전략 객체 생성
+                ITestStrategy strategy = GetTestStrategy(context.TestType);
+                strategy.Execute(context);
+            }
+            catch (ArgumentException ex)
             {
-                TestTypes.Gray => InspectionPartType.Gray,
-                TestTypes.Res => InspectionPartType.Res,
-                TestTypes.Geo => InspectionPartType.Geo,
-                _ => InspectionPartType.None
-            };
-            Utilities.InspectionImage(inspectionFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr, (int)partType);
-
-            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-            //string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
-            //string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
-            string OriginalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
-            string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
-
-
-            // 결과 이미지 변환 및 저장
-            BitmapSource resultBitmapSource = BitmapSource.Create(
-                bitmapSource.PixelWidth,
-                bitmapSource.PixelHeight,
-                512, 512,
-                PixelFormats.Bgr32,
-                null,
-                resultImageArray,
-                bitmapSource.PixelWidth * 4
-            );
-            //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
-            Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
-            Utilities.SavePng(resultBitmapSource, resultImagePath);
-            App.Current.Dispatcher.Invoke(() =>
+                Log.Error(ex.Message);
+                ResLogs.Add(ex.Message);
+                FinalizeTestContext(context);
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
             {
-                //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
-                ResImg = resultBitmapSource;
-            });
-            // 결과 텍스트 출력
-            string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
+                Log.Error(ex, "An error occurred during test execution.");
+                ResLogs.Add($"Error: {ex.Message}");
+                FinalizeTestContext(context);
+                return Task.CompletedTask;
+            }
 
-            var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
-
-            // 내부 내용만 따로 JSON 직렬화
-            string metadataOnly = _testType switch
-            {
-                TestTypes.Gray => JsonSerializer.Serialize(parsed.Gray),
-                TestTypes.Res => JsonSerializer.Serialize(parsed.Res),
-                TestTypes.Geo => JsonSerializer.Serialize(parsed.Geo),
-                _ => "{}"
-            };
-
-            Log.Information($"metadataOnly: {metadataOnly}");
-            ResLogs.Add(metadataOnly);
-            ResTxt = metadataOnly;
-
-            int resultScore = _testType switch
-            {
-                TestTypes.Gray => InspectionCalculator.CalculateGrayScore(parsed.Gray),
-                TestTypes.Res  => InspectionCalculator.CalculateResScore(parsed.Res),
-                TestTypes.Geo  => InspectionCalculator.CalculateGeoScore(parsed.Geo),
-                _ => 0
-            };
-
-            TestResult = 100;
-
-            _test = new Test
-            {
-                TestCategoryId = (int)_testCategory,
-                TestTypeId = (int)_testType,
-                TesterId = _tester.Id,
-                Result = resultScore, // 여기서 검사 로직 통해서 계산하거나 임시 -2 등
-                Method = 1,
-                ChangedImgMetadata = metadataOnly,
-                OriginalImg = Path.GetFileName(OriginalImgName),
-                ChangedImg = Path.GetFileName(resultImagePath),
-            };
-
-            PrepareTest(_testCategory, _test);
-
-            // 메모리 해제
-            imageHandle.Free();
-            resultHandle.Free();
-            textHandle.Free();
-
-            // 응답 처리
-            // 응답을 받았을 때의 로직
-            //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
-            //ResTxt = settings.ToJson();
+            // 3. 공통 정리 단계
+            FinalizeTestContext(context);
 
             ValidationDict[nameof(TestResult)].IsEnabled = true;
             return Task.CompletedTask;
         }
+
+        // 공통 준비 함수: 이미지 선택 및 메모리 할당까지 완료하여 완전한 컨텍스트를 반환합니다.
+        private TestContext PrepareTestContext()
+        {
+            if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
+                return null;
+
+            var context = new TestContext();
+            context.TestType = _testType;
+            context.TestCategory = _testCategory;
+            context.Tester = _tester;
+            context.ResLogs = ResLogs;
+            context.InspectionFunction = inspectionFunction;
+            context.ProcessFunction = processFunction;
+
+            // 어떤 이미지를 사용할지 ViewModel에서 결정합니다.
+            ImageSource imageSourceToUse = null;
+            if (_testType == TestTypes.EnvGeo)
+            {
+                imageSourceToUse = EnvImg;
+            }
+            else
+            {
+                imageSourceToUse = SrcImg;
+            }
+
+            // 공통 함수를 호출하여 이미지 복사 및 메모리를 준비합니다.
+            PrepareImageAndMemory(context, imageSourceToUse);
+
+            return context;
+        }
+
+        // 새로운 공통 함수: 이미지 복사 및 메모리 할당 로직을 담당합니다.
+        private void PrepareImageAndMemory(TestContext context, ImageSource imageSource)
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                context.SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)imageSource);
+            });
+
+            BitmapSource bitmapSource = (BitmapSource)context.SnapshotImg;
+
+            GCHandle localImageHandle;
+            context.ImageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out localImageHandle);
+            context.ImageHandle = localImageHandle;
+
+            context.ResultImageArray = new byte[bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4];
+            GCHandle localResultHandle = GCHandle.Alloc(context.ResultImageArray, GCHandleType.Pinned);
+            context.ResultBufferPtr = localResultHandle.AddrOfPinnedObject();
+            context.ResultHandle = localResultHandle;
+
+            context.TextArray = new byte[1024];
+            GCHandle localTextHandle = GCHandle.Alloc(context.TextArray, GCHandleType.Pinned);
+            context.TextBufferPtr = localTextHandle.AddrOfPinnedObject();
+            context.TextHandle = localTextHandle;
+        }
+
+        // 공통 정리 함수
+        private void FinalizeTestContext(TestContext context)
+        {
+            if (context == null) return;
+
+            // 결과 텍스트 출력
+            context.ResultText = System.Text.Encoding.UTF8.GetString(context.TextArray).TrimEnd('\0');
+
+            // ViewModel의 속성 업데이트
+            ResTxt = context.ChangedImgMetadata;
+            Log.Information($"metadataOnly: {context.ChangedImgMetadata}");
+            context.ResLogs.Add(context.ChangedImgMetadata);
+
+            // 결과 이미지 변환 및 저장
+            var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
+            string originalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
+            string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
+            Utilities.SaveBitmap((BitmapImage)context.SnapshotImg, originalImgName);
+
+            BitmapSource resultBitmapSource = BitmapSource.Create(
+                context.SnapshotImg.PixelWidth,
+                context.SnapshotImg.PixelHeight,
+                512, 512,
+                PixelFormats.Bgr32,
+                null,
+                context.ResultImageArray,
+                context.SnapshotImg.PixelWidth * 4
+            );
+            Utilities.SavePng(resultBitmapSource, resultImagePath);
+
+            // UI 업데이트
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                ResImg = resultBitmapSource;
+            });
+
+            // DB 저장을 위한 Test 객체 생성
+            _test = new Test
+            {
+                TestCategoryId = (int)context.TestCategory,
+                TestTypeId = (int)context.TestType,
+                TesterId = context.Tester.Id,
+                Result = context.ResultScore,
+                Method = 1,
+                ChangedImgMetadata = context.ChangedImgMetadata,
+                OriginalImg = Path.GetFileName(originalImgName),
+                ChangedImg = Path.GetFileName(resultImagePath),
+            };
+            PrepareTest(context.TestCategory, _test);
+
+            // 메모리 해제
+            if (context.ImageHandle.IsAllocated) context.ImageHandle.Free();
+            if (context.ResultHandle.IsAllocated) context.ResultHandle.Free();
+            if (context.TextHandle.IsAllocated) context.TextHandle.Free();
+        }
+
+        // 테스트 타입에 맞는 전략 객체 반환 (더 이상 ViewModel이나 이미지를 전달하지 않습니다)
+        private ITestStrategy GetTestStrategy(TestTypes type)
+        {
+            return type switch
+            {
+                TestTypes.Gray => new GrayTestStrategy(),
+                TestTypes.Res => new ResTestStrategy(),
+                TestTypes.Geo => new GeoTestStrategy(),
+                TestTypes.EnvGeo => new EnvGeoTestStrategy(),
+                _ => throw new ArgumentException($"Invalid test type: {type}")
+            };
+        }
+
+        //[RelayCommand(CanExecute = nameof(CanTest))]
+        //private Task TestAsync()
+        //{
+        //    Log.Information($"TestAsync response");
+
+        //    if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
+        //        return Task.CompletedTask;
+        //    //App.Current.Dispatcher.Invoke(() =>
+        //    //{
+        //    //ResImg = Utilities.CopyImageSource(SrcImg);
+        //    //});
+
+        //    //await App.Current.Dispatcher.InvokeAsync(async () =>
+        //    //{
+        //    //    ResImg = await Utilities.CopyImageSourceAsync(SrcImg);
+        //    //});
+        //    App.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+        //        //ResImg = SrcImg;
+        //    });
+
+        //    // BitmapSource를 byte array로 변환하고 IntPtr로 전달
+        //    BitmapSource bitmapSource = (BitmapSource)SnapshotImg;
+        //    GCHandle imageHandle;
+        //    IntPtr imageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out imageHandle);
+
+        //    // 결과 이미지 저장 배열
+        //    int resultImageSize = bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4;
+        //    byte[] resultImageArray = new byte[resultImageSize];
+        //    GCHandle resultHandle = GCHandle.Alloc(resultImageArray, GCHandleType.Pinned);
+        //    IntPtr resultBufferPtr = resultHandle.AddrOfPinnedObject();
+
+        //    // 텍스트 데이터 저장 배열
+        //    byte[] textArray = new byte[1024];
+        //    GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
+        //    IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
+
+
+        //    if (_testType == TestTypes.None)
+        //    {
+        //        Log.Error("Test type is not set.");
+        //        ResLogs.Add("Test type is not set.");
+        //        return Task.CompletedTask;
+        //    }
+        //    else 
+        //    if (_testType == TestTypes.Geo)
+        //    {
+        //        Utilities.ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
+        //    }
+        //    else
+        //    {
+        //        InspectionPartType partType = _testType switch
+        //        {
+        //            TestTypes.Gray => InspectionPartType.Gray,
+        //            TestTypes.Res => InspectionPartType.Res,
+        //            //TestTypes.Geo => InspectionPartType.Geo,
+        //            _ => InspectionPartType.None
+        //        };
+
+        //        if (partType == InspectionPartType.None)
+        //        {
+        //            Log.Error($"Invalid test type: {_testType}");
+        //            ResLogs.Add($"Invalid test type: {_testType}");
+        //            return Task.CompletedTask;
+        //        }
+
+        //        Utilities.InspectionImage(inspectionFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr, (int)partType);
+        //    }
+
+        //    var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
+        //    //string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
+        //    //string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
+        //    string OriginalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
+        //    string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
+
+
+        //    // 결과 이미지 변환 및 저장
+        //    BitmapSource resultBitmapSource = BitmapSource.Create(
+        //        bitmapSource.PixelWidth,
+        //        bitmapSource.PixelHeight,
+        //        512, 512,
+        //        PixelFormats.Bgr32,
+        //        null,
+        //        resultImageArray,
+        //        bitmapSource.PixelWidth * 4
+        //    );
+        //    //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
+        //    Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
+        //    Utilities.SavePng(resultBitmapSource, resultImagePath);
+        //    App.Current.Dispatcher.Invoke(() =>
+        //    {
+        //        //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
+        //        ResImg = resultBitmapSource;
+        //    });
+        //    // 결과 텍스트 출력
+        //    string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
+
+        //    var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
+
+        //    // 내부 내용만 따로 JSON 직렬화
+        //    string metadataOnly = _testType switch
+        //    {
+        //        TestTypes.Gray => JsonSerializer.Serialize(parsed.Gray),
+        //        TestTypes.Res => JsonSerializer.Serialize(parsed.Res),
+        //        TestTypes.Geo => JsonSerializer.Serialize(parsed.Geo),
+        //        _ => "{}"
+        //    };
+
+        //    Log.Information($"metadataOnly: {metadataOnly}");
+        //    ResLogs.Add(metadataOnly);
+        //    ResTxt = metadataOnly;
+
+        //    int resultScore = _testType switch
+        //    {
+        //        TestTypes.Gray => InspectionCalculator.CalculateGrayScore(parsed.Gray),
+        //        TestTypes.Res  => InspectionCalculator.CalculateResScore(parsed.Res),
+        //        TestTypes.Geo  => InspectionCalculator.CalculateGeoScore(parsed.Geo),
+        //        _ => 0
+        //    };
+
+        //    TestResult = 100;
+
+        //    _test = new Test
+        //    {
+        //        TestCategoryId = (int)_testCategory,
+        //        TestTypeId = (int)_testType,
+        //        TesterId = _tester.Id,
+        //        Result = resultScore, // 여기서 검사 로직 통해서 계산하거나 임시 -2 등
+        //        Method = 1,
+        //        ChangedImgMetadata = metadataOnly,
+        //        OriginalImg = Path.GetFileName(OriginalImgName),
+        //        ChangedImg = Path.GetFileName(resultImagePath),
+        //    };
+
+        //    PrepareTest(_testCategory, _test);
+
+        //    // 메모리 해제
+        //    imageHandle.Free();
+        //    resultHandle.Free();
+        //    textHandle.Free();
+
+        //    // 응답 처리
+        //    // 응답을 받았을 때의 로직
+        //    //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
+        //    //ResTxt = settings.ToJson();
+
+        //    ValidationDict[nameof(TestResult)].IsEnabled = true;
+        //    return Task.CompletedTask;
+        //}
 
         private bool CanNext()
         {
@@ -1578,8 +1797,11 @@ namespace SonoCap.MES.UI.ViewModels
             string prefix = $"{sn}_{typeSuffix}";
             string baseName = await _imageService.GenNextImgNameAsync(prefix);
             //string baseName = Utilities.GenImgName(prefix, exportPath);
-            string finalOriginalName = baseName + ".bmp";
-            string finalChangedName = baseName + ".png";
+            //string finalOriginalName = baseName + ".bmp";
+            //string finalChangedName = baseName + ".png";
+            //string finalChangedName = baseName + ".png";
+            string finalOriginalName = $"{baseName}_{_tester.PcId.ToString("D3")}.bmp"; // 보간 문자열
+            string finalChangedName = $"{baseName}_{_tester.PcId.ToString("D3")}.png"; // 보간 문자열
 
             // --- 파일 이동 및 이름 변경 ---
             Utilities.MoveTempImageToExport(_test.OriginalImg, App.appTempDir, exportPath, finalOriginalName);
@@ -1605,6 +1827,7 @@ namespace SonoCap.MES.UI.ViewModels
             ValidationDict[nameof(TestResult)].IsEnabled = false;
             OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
+            IsEnvImgVisible = false;
         }
 
 
@@ -1830,8 +2053,6 @@ namespace SonoCap.MES.UI.ViewModels
 
         public void UpdateImageSource(BitmapSource bitmapSource)
         {
-            //SrcImg = bitmapSource;
-
             App.Current.Dispatcher.Invoke(() =>
             {
                 //SrcImg = Utilities.BitmapToImageSource(m_bmpRes);
@@ -1841,10 +2062,10 @@ namespace SonoCap.MES.UI.ViewModels
 
         public void UpdateEnvImageSource(BitmapSource bitmapSource)
         {
-            //App.Current.Dispatcher.Invoke(() =>
-            //{
-            //    EnvImg = bitmapSource;
-            //});
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                EnvImg = bitmapSource;
+            });
         }
 
         // 메시지를 표시할 메서드 예시
@@ -1932,9 +2153,9 @@ namespace SonoCap.MES.UI.ViewModels
         {
             base.OnWindowClosing(sender, e);
             Log.Information($"{nameof(OnWindowClosing)}");
-            //_motorService.StopMotor();
+            _motorService.StopMotor();
             //Task.Delay(100);
-            _model.DeactivateProbe();
+            //_model.DeactivateProbe();
             e.Cancel = true;
             if (sender is Window window) 
             {
@@ -1946,14 +2167,10 @@ namespace SonoCap.MES.UI.ViewModels
         {
             base.OnWindowActivated(sender, e);
             Log.Information($"{nameof(OnWindowActivated)}");
-            
-            if (SelectedPower == 140)
-            {
-                SelectedPower = 100;
-            }
-            //_motorService.StartMotor();
+
+            _motorService.StartMotor();
             //Task.Delay(100);
-            _model.ActivateProbe();
+            //_model.ActivateProbe();
         }
     }
 }

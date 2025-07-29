@@ -113,12 +113,12 @@ void MyOpenCVWrapper::GeoInspection(cv::Mat& roiImage, GeoResult& result)
     cv::Mat grayImage;
     cv::cvtColor(roiImage, grayImage, cv::COLOR_BGRA2GRAY);
 
-    showAndSaveImage("ResInspection_Gray", grayImage);
+    showAndSaveImage("Geo_Gray", grayImage);
 
-    showAndThreshold("ResInspection_DR_Adjust", grayImage);
+    showAndThreshold("Geo_DR_Adjust", grayImage);
 
     ApplyLinearDRClip(grayImage, grayImage, 55, 60, true);
-    showAndSaveImage("ResInspection_DR_Clipped", grayImage); // DR 클리핑된 이진화 이미지
+    showAndSaveImage("Geo_DR_Clipped", grayImage); // DR 클리핑된 이진화 이미지
 
     // --- 2. 마스크로 grayImage에 마스킹 ---
     cv::Mat mask = cv::Mat::zeros(grayImage.size(), CV_8UC1);
@@ -156,13 +156,13 @@ void MyOpenCVWrapper::GeoInspection(cv::Mat& roiImage, GeoResult& result)
     // grayImage에 이 마스크를 적용 (ROI 영역만 남기고 나머지는 검은색으로)
     cv::bitwise_and(grayImage, fullImageMask, grayImage);
 
-    showAndSaveImage("ResInspection_Masked", grayImage); // 마스크 적용 결과 확인
+    showAndSaveImage("Geo_Masked", grayImage); // 마스크 적용 결과 확인
 
     // 커널 정의: 연결 강도를 조절 (작을수록 약하게 연결, 클수록 강하게 연결)
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)); // 3x3 사각형 커널 예시
     cv::dilate(grayImage, grayImage, kernel, cv::Point(-1, -1), 2); // 2번 팽창 (조정 필요)
     cv::erode(grayImage, grayImage, kernel, cv::Point(-1, -1), 2);  // 2번 침식 (조정 필요)
-    showAndSaveImage("ResInspection_Dilated_Eroded", grayImage); // 중간 결과 확인
+    showAndSaveImage("Geo_Dilated_Eroded", grayImage); // 중간 결과 확인
 
     // --- 3. 컨투어 찾아 너무 작은 거 빼고 모든 컨투어 1픽셀로 둘레 그리기 ---
     std::vector<std::vector<cv::Point>> contours;

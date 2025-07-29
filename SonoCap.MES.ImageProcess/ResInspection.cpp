@@ -19,22 +19,35 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         return;
     }
 
+    const ConfigManager& config = ConfigManager::getInstance();
+    const InspectionParams::ResParams& resConfig = config.getInspectionParams().res;
+
+    // 필요한 설정 값들을 함수 초반에 별도 변수로 선언 (가독성 및 편의성 증대)
+    const int drMin = resConfig.drMin;
+    const int drMax = resConfig.drMax;
+    const double minContourArea = resConfig.minContourArea;
+    const double targetDistance = resConfig.targetDistance;
+    const double distanceTolerance = resConfig.distanceTolerance;
+    const double angleToleranceDeg = resConfig.angleToleranceDeg;
+    // ROI도 cv::Rect로 변환하여 사용하는 것이 편리합니다.
+    const cv::Rect roi = resConfig.roi.toCvRect();
+
     cv::Mat gray;
     cv::cvtColor(roiImage, gray, cv::COLOR_BGRA2GRAY);
-    //showAndSaveImage("ResInspection_Gray", gray); // 이름 변경 (겹치지 않게)
+    //showAndSaveImage("Res_Gray", gray); // 이름 변경 (겹치지 않게)
 
     // showAndThreshold 함수를 통해 사용자 대화형으로 DR 값 조절
-    showAndThreshold("ResInspection_DR_Adjust", gray); // 이름 변경
+    showAndThreshold("Res_DR_Adjust", gray); // 이름 변경
 
     // DR 클리핑 적용 (고정된 값 65, 70으로 다시 처리)
-    ApplyLinearDRClip(gray, gray, 65, 70, true);
+    ApplyLinearDRClip(gray, gray, drMin, drMax, true);
     
-    showAndSaveImage("ResInspection_DR_Clipped", gray); // 이름 변경
+    showAndSaveImage("Res_DR_Clipped", gray);
 
     // ROI 설정
-    cv::Rect roi(ROI_X, ROI_Y, ROI_W, ROI_H);
+    //cv::Rect roi(ROI_X, ROI_Y, ROI_W, ROI_H);
     if (roi.x < 0 || roi.y < 0 || roi.x + roi.width > gray.cols || roi.y + roi.height > gray.rows) {
-        std::cerr << "Error: ROI is out of image bounds!" << std::endl;
+		Logger::Error("--- ROI is out of image bounds ---");
         result.verticalDist = -1;
         result.horizontalDist = -1;
         result.edgeDensity1 = -1;
@@ -46,14 +59,14 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     cv::Mat roiGray = gray(roi);
     cv::Mat binary;
     cv::threshold(roiGray, binary, 100, 255, cv::THRESH_BINARY);
-    //showAndSaveImage("ResInspection_BinaryROI", binary); // 이름 변경
+    //showAndSaveImage("Res_BinaryROI", binary);
 
     // 모폴로지 오프닝 (침식 후 팽창)
     cv::Mat eroded, restored;
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     cv::erode(binary, eroded, kernel);
     cv::dilate(eroded, restored, kernel);
-    showAndSaveImage("ResInspection_Morphology", restored); // 이름 변경
+    showAndSaveImage("Res_Morphology", restored);
 
     std::vector<std::vector<cv::Point>> contours;
     cv::findContours(restored, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
@@ -66,7 +79,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     // 모든 유효 윤곽선 데이터 수집
     for (const auto& contour : contours) {
         double currentArea = cv::contourArea(contour);
-        if (currentArea < 10) { // 면적 임계값: 4 (필요시 조정)
+        if (currentArea < minContourArea) { // 면적 임계값: 4 (필요시 조정)
             continue;
         }
 
@@ -76,7 +89,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         }
 
         cv::Point2f relativeCenter(m.m10 / m.m00, m.m01 / m.m00); // roiGray 기준 상대 좌표
-        cv::Point2f absoluteCenter = relativeCenter + cv::Point2f(ROI_X, ROI_Y); // roiImage 기준 절대 좌표
+        cv::Point2f absoluteCenter = relativeCenter + cv::Point2f(roi.x, roi.y); // roiImage 기준 절대 좌표
 
         double currentQuality;
         cv::Mat mask = cv::Mat::zeros(roiGray.size(), CV_8UC1);
@@ -99,7 +112,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         double angle_from_ref_deg = angle_from_ref_rad * 180.0 / CV_PI;
 
         allContourData.push_back({ absoluteCenter, currentQuality, currentArea, contour, distance_from_ref, angle_from_ref_rad, angle_from_ref_deg });
-        showAndSaveImage("ResInspection_Mask", mask); // 이름 변경
+        showAndSaveImage("Res_Mask", mask); // 이름 변경
     }
 
     // 디버깅 목적: 모든 유효 윤곽선 데이터 출력
@@ -126,15 +139,11 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     //const double TARGET_DIST_MIN = 72.0; // 75 - 3
     //const double TARGET_DIST_MAX = 78.0; // 75 + 3
 
-    const double TARGET_DISTANCE = 75.0; // 75 - 3
-    const double DISTANCE_TOLERANCE = 3; // 75 + 3
-
-    // 1. P1 찾기: 거리가 75 근처이고, 면적이 가장 큰 점
     double max_p1_area = -1.0;
     double max_p1_angle_rad = std::numeric_limits<double>::lowest(); // 가장 작은 double 값으로 초기화 (가장 큰 값 찾기 위함)
 
     for (const auto& data : allContourData) {
-        if (std::abs(data.distance_from_ref - TARGET_DISTANCE) <= DISTANCE_TOLERANCE) {
+        if (std::abs(data.distance_from_ref - targetDistance) <= distanceTolerance) {
         //if (data.distance_from_ref >= TARGET_DIST_MIN && data.distance_from_ref <= TARGET_DIST_MAX) {
             //if (data.area > max_p1_area) {
             if (data.angle_from_ref_rad > max_p1_angle_rad) {
@@ -151,8 +160,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
         // 각도 톨러런스 정의 (예: 5도)
         // 이 값은 실제 패턴의 각도 분포에 따라 조정해야 합니다.
-        const double ANGLE_TOLERANCE_DEG = 5.0; // 5도 톨러런스
-        const double ANGLE_TOLERANCE_RAD = ANGLE_TOLERANCE_DEG * CV_PI / 180.0; // 라디안으로 변환
+        const double ANGLE_TOLERANCE_RAD = angleToleranceDeg * CV_PI / 180.0; // 라디안으로 변환
 
         for (const auto& data : allContourData) {
             if (data.center_abs == p1_data.center_abs) continue; // P1 제외
@@ -180,7 +188,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
             if (data.center_abs == p1_data.center_abs || (p2_found && data.center_abs == p2_data.center_abs)) continue; // P1, P2 제외
 
             //if (data.distance_from_ref >= TARGET_DIST_MIN && data.distance_from_ref <= TARGET_DIST_MAX && // 거리 75 근처
-            if (std::abs(data.distance_from_ref - TARGET_DISTANCE) <= DISTANCE_TOLERANCE && // 거리 75 근처
+            if (std::abs(data.distance_from_ref - targetDistance) <= distanceTolerance && // 거리 75 근처
                 (p2_found && data.angle_from_ref_deg < p2_data.angle_from_ref_deg)) // P2보다 각도가 작음 (P2_found 조건 필요)
             {
                 if (data.area > max_p3_area) {
@@ -198,7 +206,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
         // 모든 윤곽선 그리기 (P1, P2, P3은 특별한 색으로, 나머지는 회색)
         for (const auto& data : allContourData) {
-            std::vector<std::vector<cv::Point>> shifted = { data.originalContour_rel };
+            std::vector<std::vector<cv::Point>> shifted = { data.originalContour_rel};
             for (auto& pt : shifted[0])
                 pt += cv::Point(ROI_X, ROI_Y); // ROI 오프셋 적용
 
@@ -216,9 +224,9 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
         }
 
         // P1, P2, P3의 중심에 작은 원 표시
-        cv::circle(roiImage, p1_data.center_abs, 2, selected_colors[0], -1);
-        cv::circle(roiImage, p2_data.center_abs, 2, selected_colors[1], -1);
-        cv::circle(roiImage, p3_data.center_abs, 2, selected_colors[2], -1);
+        cv::circle(roiImage, p1_data.center_abs, 1, selected_colors[0], -1);
+        cv::circle(roiImage, p2_data.center_abs, 1, selected_colors[1], -1);
+        cv::circle(roiImage, p3_data.center_abs, 1, selected_colors[2], -1);
 
         // 선택된 P1, P2, P3의 정보 출력
         Logger::Information("--- Selected Points (P1, P2, P3) ---");
@@ -277,7 +285,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     }
 
     cv::rectangle(roiImage, roi, YellowA, 1); // ROI 테두리 그리기
-    showAndSaveImage("ResInspection_End", roiImage); // 이름 변경
+    showAndSaveImage("Res_End", roiImage); // 이름 변경
 }
 
 void MyOpenCVWrapper::ResInspection4(cv::Mat& roiImage, ResResult& result)

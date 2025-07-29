@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -122,6 +122,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AlignProcess.h" />
+    <ClInclude Include="ConfigManager.h" />
+    <ClInclude Include="EnvGeoInspection.h" />
     <ClInclude Include="GeoInspection.h" />
     <ClInclude Include="GeometricDistortionProcess.h" />
     <ClInclude Include="GrayInspection.h" />
@@ -139,6 +141,8 @@
   <ItemGroup>
     <ClCompile Include="AlignProcess.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="ConfigManager.cpp" />
+    <ClCompile Include="EnvGeoInspection.cpp" />
     <ClCompile Include="GeoInspection.cpp" />
     <ClCompile Include="GeometricDistortionProcess.cpp" />
     <ClCompile Include="GrayInspection.cpp" />
@@ -169,6 +173,9 @@
     <None Include="Polar 변환 기반 회전 추정.md" />
     <None Include="resolution.md" />
     <None Include="result.md" />
+    <CopyFileToFolders Include="SonoCap.MES.ImageProcess.json">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="기하학적왜곡.md" />
     <None Include="로그 스케일.md" />
     <None Include="함수 파라미터 추가 방법.md" />

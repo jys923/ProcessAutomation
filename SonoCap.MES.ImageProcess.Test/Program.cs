@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Serilog;
+using SonoCap.Commons;
+using SonoCap.Commons.Logging;
 using SonoCap.MES.Models.Process; // QualityMetricsRoot, QualityResultManager 등
 
 namespace SonoCap.MES.ImageProcess.Test
@@ -26,7 +29,8 @@ namespace SonoCap.MES.ImageProcess.Test
         Align,
         Resolution,
         GeometricDistortion,
-        Gray
+        Gray,
+        EnvGeo
     }
 
     enum ImageAnalyzeType
@@ -59,6 +63,7 @@ namespace SonoCap.MES.ImageProcess.Test
             //ImageProcessType.Resolution,
             //ImageProcessType.GeometricDistortion,
             //ImageProcessType.Gray
+            ImageProcessType.EnvGeo
         };
 
         static readonly List<ImageAnalyzeType> SelectedAnalyzes = new()
@@ -76,14 +81,17 @@ namespace SonoCap.MES.ImageProcess.Test
         };
 
         // --- 상수 설정 ---
-        private const string ImageDirectory = "../../../../TestImg/images/"; // 처리할 이미지들이 있는 폴더 경로
+        private const string ImageDirectory = "../../../../TestImg/img4/"; // 처리할 이미지들이 있는 폴더 경로
         private const string ImageSearchPattern = "*.bmp"; // 처리할 이미지 파일 확장자 (예: *.bmp, *.png, *.* 등)
         private const string OutputRootDirectory = ".\\DebugOutput\\"; // 결과 파일이 저장될 기본 루트 폴더
         // --- 상수 설정 끝 ---
 
+        public static AppSettings appSettings { get; set; } = new AppSettings();
 
         static void Main()
         {
+            LoggingConfigurator.Configure(appSettings.Serilog);
+            Logger.Initialize(Log.Logger);
             // 출력 디렉토리 생성 (이미 존재하면 아무것도 안 함)
             Directory.CreateDirectory(OutputRootDirectory);
 
@@ -98,7 +106,6 @@ namespace SonoCap.MES.ImageProcess.Test
             {
                 Console.WriteLine($"\n--- Processing image: {Path.GetFileName(imagePath)} ---");
 
-                // 이미지 로드 (예외 처리 없음 - 실패 시 프로그램 중단)
                 BitmapSource bitmapSource = LoadBitmap(imagePath);
                 GCHandle imageHandle;
                 IntPtr imageBufferPtr = BitmapSourceToByteArray(bitmapSource, out imageHandle);
@@ -114,146 +121,183 @@ namespace SonoCap.MES.ImageProcess.Test
 
                 string baseFileName = Path.GetFileNameWithoutExtension(imagePath);
 
-                // 1. Inspection Part 처리
-                foreach (var part in SelectedInspectionParts)
+                // 분리된 함수 호출
+                //ProcessInspections(bitmapSource, imageBufferPtr, resultBufferPtr, textBufferPtr, baseFileName);
+                ProcessImages(bitmapSource, imageBufferPtr, resultBufferPtr, textBufferPtr, baseFileName);
+                //AnalyzeImages(bitmapSource, imageBufferPtr, textBufferPtr, baseFileName);
+
+                // 각 이미지 처리 후 핸들을 해제합니다.
+                if (imageHandle.IsAllocated) imageHandle.Free();
+                if (resultHandle.IsAllocated) resultHandle.Free();
+                if (textHandle.IsAllocated) textHandle.Free();
+            } // foreach (string imagePath in imagePaths) 끝
+        }
+
+        /// <summary>
+        /// Inspection Part 처리를 담당합니다.
+        /// </summary>
+        static void ProcessInspections(BitmapSource bitmapSource, IntPtr imageBufferPtr, IntPtr resultBufferPtr, IntPtr textBufferPtr, string baseFileName)
+        {
+            foreach (var part in SelectedInspectionParts)
+            {
+                string suffix = part.ToString();
+                
+                byte[] zeroBytes = new byte[4096];
+                Marshal.Copy(zeroBytes, 0, textBufferPtr, 4096);
+
+                bool isSuccessful = true;
+                string resultText = string.Empty;
+
+                var inspectFn = GetInspectionFunction(part);
+                inspectFn(imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
+
+                // IntPtr to byte[] 변환을 위해 textBufferPtr에서 다시 읽어와야 함
+                byte[] tempTextArray = new byte[4096];
+                Marshal.Copy(textBufferPtr, tempTextArray, 0, 4096);
+                resultText = System.Text.Encoding.UTF8.GetString(tempTextArray).TrimEnd('\0');
+
+                if (string.IsNullOrWhiteSpace(resultText) || resultText.Contains("-1"))
                 {
-                    string suffix = part.ToString();
-                    Array.Clear(textArray, 0, textArray.Length); // 매번 textArray 초기화
-
-                    bool isSuccessful = true; // 성공 여부를 추적할 플래그
-
-                    // Inspection 함수 호출 (예외 처리 없음 - 실패 시 프로그램 중단)
-                    var inspectFn = GetInspectionFunction(part);
-                    inspectFn(imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
-
-                    string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
-
-                    // JSON 결과 내용 검사: 빈 값, -1 포함 여부, JSON 파싱 오류
-                    if (string.IsNullOrWhiteSpace(resultText) || resultText.Contains("-1"))
+                    isSuccessful = false;
+                    Console.WriteLine($"[Inspection: {suffix}] 결과가 비어있거나 -1을 포함하여 실패로 간주합니다.");
+                }
+                else
+                {
+                    try
                     {
-                        isSuccessful = false;
-                        Console.WriteLine($"[Inspection: {suffix}] 결과가 비어있거나 -1을 포함하여 실패로 간주합니다.");
-                    }
-                    else
-                    {
-                        try // JSON 파싱 시도 중 발생하는 예외는 여기서 처리
-                        {
-                            var inspectionResult = JsonSerializer.Deserialize<QualityMetrics>(resultText);
-                            if (inspectionResult == null)
-                            {
-                                isSuccessful = false;
-                                Console.WriteLine($"[Inspection: {suffix}] JSON 역직렬화 실패 또는 null 결과.");
-                            }
-                            // TODO: QualityMetrics 내부의 어떤 필드가 -1일 때 실패로 간주할지 구체적인 로직 추가
-                            // 예: if (inspectionResult.SomeMetric == -1) { isSuccessful = false; Console.WriteLine("[Inspection: {suffix}] 특정 메트릭 값이 -1 입니다."); }
-                        }
-                        catch (JsonException) // JSON 파싱 오류
+                        var inspectionResult = JsonSerializer.Deserialize<QualityMetrics>(resultText);
+                        if (inspectionResult == null)
                         {
                             isSuccessful = false;
-                            Console.WriteLine($"[Inspection: {suffix}] JSON 파싱 오류로 실패.");
+                            Console.WriteLine($"[Inspection: {suffix}] JSON 역직렬화 실패 또는 null 결과.");
                         }
+                        // TODO: QualityMetrics 내부의 어떤 필드가 -1일 때 실패로 간주할지 구체적인 로직 추가
                     }
-
-                    string outputFileName = isSuccessful ? $"{baseFileName}_{suffix}.json" : $"{baseFileName}_{suffix}_Ng.json";
-                    File.WriteAllText(Path.Combine(OutputRootDirectory, outputFileName), resultText);
-
-                    if (isSuccessful)
+                    catch (JsonException)
                     {
-                        Console.WriteLine($"[Inspection: {suffix}] 결과 저장 완료: {outputFileName}");
-                        // 결과 BMP 저장 (원한다면 성공 시에만)
-                        SaveBitmap(
-                           BitmapSource.Create(bitmapSource.PixelWidth, bitmapSource.PixelHeight,
-                                               96, 96, PixelFormats.Bgr32, null,
-                                               resultImageArray, bitmapSource.PixelWidth * 4),
-                           Path.Combine(OutputRootDirectory, $"{baseFileName}_{suffix}.bmp"));
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[Inspection: {suffix}] 실패 저장 완료: {outputFileName}");
+                        isSuccessful = false;
+                        Console.WriteLine($"[Inspection: {suffix}] JSON 파싱 오류로 실패.");
                     }
                 }
 
-                // 2. Image Process 처리 (이전 요청과 동일하게 유지 - 함수 실행 중 예외는 프로그램 중단으로 이어짐)
-                foreach (var process in SelectedProcesses)
+                string outputFileName = isSuccessful ? $"{baseFileName}_{suffix}.json" : $"{baseFileName}_{suffix}_Ng.json";
+                File.WriteAllText(Path.Combine(OutputRootDirectory, outputFileName), resultText);
+
+                if (isSuccessful)
                 {
-                    string suffix = process.ToString();
-                    Array.Clear(textArray, 0, textArray.Length);
+                    Console.WriteLine($"[Inspection: {suffix}] 결과 저장 완료: {outputFileName}");
+                    // 결과 BMP 저장
+                    // resultBufferPtr에서 다시 byte[]로 읽어와야 함
+                    byte[] tempResultImageArray = new byte[bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4];
+                    Marshal.Copy(resultBufferPtr, tempResultImageArray, 0, tempResultImageArray.Length);
 
-                    var processFunction = GetProcessFunction(process);
-                    if (processFunction != null)
-                    {
-                        // Process 함수 호출 (예외 처리 없음 - 실패 시 프로그램 중단)
-                        ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
+                    SaveBitmap(
+                        BitmapSource.Create(bitmapSource.PixelWidth, bitmapSource.PixelHeight,
+                                            96, 96, PixelFormats.Bgr32, null,
+                                            tempResultImageArray, bitmapSource.PixelWidth * 4),
+                        Path.Combine(OutputRootDirectory, $"{baseFileName}_{suffix}.bmp"));
+                }
+                else
+                {
+                    Console.WriteLine($"[Inspection: {suffix}] 실패 저장 완료: {outputFileName}");
+                }
+            }
+        }
 
-                        string resultImagePath = Path.Combine(OutputRootDirectory, $"{baseFileName}_{suffix}.bmp");
-                        SaveBitmap(BitmapSource.Create(
+        /// <summary>
+        /// Image Process 처리를 담당합니다.
+        /// </summary>
+        static void ProcessImages(BitmapSource bitmapSource, IntPtr imageBufferPtr, IntPtr resultBufferPtr, IntPtr textBufferPtr, string baseFileName)
+        {
+            foreach (var process in SelectedProcesses)
+            {
+                string suffix = process.ToString();
+                byte[] zeroBytes = new byte[4096];
+                Marshal.Copy(zeroBytes, 0, textBufferPtr, 4096);
+
+                var processFunction = GetProcessFunction(process);
+                if (processFunction != null)
+                {
+                    ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
+
+                    string resultImagePath = Path.Combine(OutputRootDirectory, $"{baseFileName}_{suffix}.bmp");
+                    // resultBufferPtr에서 다시 byte[]로 읽어와야 함
+                    byte[] tempResultImageArray = new byte[bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4];
+                    Marshal.Copy(resultBufferPtr, tempResultImageArray, 0, tempResultImageArray.Length);
+
+                    SaveBitmap(BitmapSource.Create(
                                 bitmapSource.PixelWidth,
                                 bitmapSource.PixelHeight,
                                 96, 96,
                                 PixelFormats.Bgr32,
                                 null,
-                                resultImageArray,
+                                tempResultImageArray, // 이제는 tempResultImageArray 사용
                                 bitmapSource.PixelWidth * 4
                             ), resultImagePath);
 
-                        string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
-                        File.WriteAllText(Path.Combine(OutputRootDirectory, $"{baseFileName}_{suffix}.json"), resultText);
-                        Console.WriteLine($"[Process: {suffix}] 결과 저장 완료: {baseFileName}_{suffix}.json");
-                    }
+                    // IntPtr to byte[] 변환을 위해 textBufferPtr에서 다시 읽어와야 함
+                    byte[] tempTextArray = new byte[4096];
+                    Marshal.Copy(textBufferPtr, tempTextArray, 0, 4096);
+                    string resultText = System.Text.Encoding.UTF8.GetString(tempTextArray).TrimEnd('\0');
+                    File.WriteAllText(Path.Combine(OutputRootDirectory, $"{baseFileName}_{suffix}.json"), resultText);
+                    Console.WriteLine($"[Process: {suffix}] 결과 저장 완료: {baseFileName}_{suffix}.json");
                 }
+            }
+        }
 
-                // 3. Image Analyze 처리 (JSON 결과만 저장)
-                foreach (var analyze in SelectedAnalyzes)
+        /// <summary>
+        /// Image Analyze 처리를 담당합니다. JSON 결과만 저장합니다.
+        /// </summary>
+        static void AnalyzeImages(BitmapSource bitmapSource, IntPtr imageBufferPtr, IntPtr textBufferPtr, string baseFileName)
+        {
+            foreach (var analyze in SelectedAnalyzes)
+            {
+                string suffix = analyze.ToString();
+                byte[] zeroBytes = new byte[4096];
+                Marshal.Copy(zeroBytes, 0, textBufferPtr, 4096);
+
+                bool isSuccessful = true;
+                string resultText = string.Empty;
+
+                var analyzeFunction = GetAnalyzeFunction(analyze);
+                if (analyzeFunction != null)
                 {
-                    string suffix = analyze.ToString();
-                    Array.Clear(textArray, 0, textArray.Length);
+                    AnalyzeImage(analyzeFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, textBufferPtr);
 
-                    bool isSuccessful = true; // 성공 여부를 추적할 플래그
-                    string resultText = string.Empty; // resultText 변수 스코프 확장
+                    // IntPtr to byte[] 변환을 위해 textBufferPtr에서 다시 읽어와야 함
+                    byte[] tempTextArray = new byte[4096];
+                    Marshal.Copy(textBufferPtr, tempTextArray, 0, 4096);
+                    resultText = System.Text.Encoding.UTF8.GetString(tempTextArray).TrimEnd('\0');
 
-                    var analyzeFunction = GetAnalyzeFunction(analyze);
-                    if (analyzeFunction != null)
+                    if (string.IsNullOrWhiteSpace(resultText) || resultText.Contains("-1"))
                     {
-                        // Analyze 함수 호출 (예외 처리 없음 - 실패 시 프로그램 중단)
-                        AnalyzeImage(analyzeFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, textBufferPtr);
-
-                        resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
-
-                        // JSON 결과 내용 검사: 빈 값, -1 포함 여부, JSON 파싱 오류
-                        if (string.IsNullOrWhiteSpace(resultText) || resultText.Contains("-1"))
+                        isSuccessful = false;
+                        Console.WriteLine($"[Analyze: {suffix}] 결과가 비어있거나 -1을 포함하여 실패로 간주합니다.");
+                    }
+                    else
+                    {
+                        if (resultText.StartsWith("{"))
                         {
-                            isSuccessful = false;
-                            Console.WriteLine($"[Analyze: {suffix}] 결과가 비어있거나 -1을 포함하여 실패로 간주합니다.");
+                            try
+                            {
+                                var analysis = JsonSerializer.Deserialize<QualityMetrics>(resultText);
+                                if (analysis == null)
+                                {
+                                    isSuccessful = false;
+                                    Console.WriteLine($"[Analyze: {suffix}] JSON 역직렬화 실패 또는 null 결과.");
+                                }
+                                // TODO: QualityMetrics 내부의 어떤 필드가 -1일 때 실패로 간주할지 구체적인 로직 추가
+                            }
+                            catch (JsonException)
+                            {
+                                isSuccessful = false;
+                                Console.WriteLine($"[Analyze: {suffix}] JSON 파싱 오류로 실패.");
+                            }
                         }
                         else
                         {
-                            if (resultText.StartsWith("{"))
-                            {
-                                try // JSON 파싱 시도 중 발생하는 예외는 여기서 처리
-                                {
-                                    var analysis = JsonSerializer.Deserialize<QualityMetrics>(resultText);
-                                    if (analysis == null)
-                                    {
-                                        isSuccessful = false;
-                                        Console.WriteLine($"[Analyze: {suffix}] JSON 역직렬화 실패 또는 null 결과.");
-                                    }
-                                    else
-                                    {
-                                        // TODO: QualityMetrics 내부의 어떤 필드가 -1일 때 실패로 간주할지 구체적인 로직 추가
-                                        // 예: if (analysis.SomeSpecificMetricValue == -1) { isSuccessful = false; Console.WriteLine("[Analyze: {suffix}] 특정 메트릭 값이 -1 입니다."); }
-                                    }
-                                }
-                                catch (JsonException) // JSON 파싱 오류
-                                {
-                                    isSuccessful = false;
-                                    Console.WriteLine($"[Analyze: {suffix}] JSON 파싱 오류로 실패.");
-                                }
-                            }
-                            else // JSON 형식이 아닌 경우도 실패로 간주
-                            {
-                                isSuccessful = false;
-                                Console.WriteLine($"[Analyze: {suffix}] 결과가 JSON 형식이 아닙니다.");
-                            }
+                            isSuccessful = false;
+                            Console.WriteLine($"[Analyze: {suffix}] 결과가 JSON 형식이 아닙니다.");
                         }
                     }
 
@@ -263,15 +307,14 @@ namespace SonoCap.MES.ImageProcess.Test
                     if (isSuccessful)
                     {
                         Console.WriteLine($"[Analyze: {suffix}] 결과 저장 완료: {outputFileName}");
-                        // QualityResultManager.MergeAndSave 호출 (성공 시)
                         if (!string.IsNullOrWhiteSpace(resultText) && resultText.StartsWith("{"))
                         {
-                            var analysis = JsonSerializer.Deserialize<QualityMetrics>(resultText); // 다시 역직렬화
+                            var analysis = JsonSerializer.Deserialize<QualityMetrics>(resultText);
                             if (analysis != null)
                             {
                                 var newRoot = new QualityMetricsRoot
                                 {
-                                    ImageName = Path.GetFileName(imagePath),
+                                    ImageName = Path.GetFileName(baseFileName), // imagePath 대신 baseFileName 사용
                                     Analysis = analysis
                                 };
                                 QualityResultManager.MergeAndSave(newRoot, Path.Combine(OutputRootDirectory, $"{baseFileName}_analyze_summary.json"));
@@ -283,12 +326,7 @@ namespace SonoCap.MES.ImageProcess.Test
                         Console.WriteLine($"[Analyze: {suffix}] 실패 저장 완료: {outputFileName}");
                     }
                 }
-
-                // 각 이미지 처리 후 핸들을 해제합니다.
-                if (imageHandle.IsAllocated) imageHandle.Free();
-                if (resultHandle.IsAllocated) resultHandle.Free();
-                if (textHandle.IsAllocated) textHandle.Free();
-            } // foreach (string imagePath in imagePaths) 끝
+            }
         }
 
         // MakeResultFolder 함수는 더 이상 사용되지 않습니다.
@@ -311,6 +349,7 @@ namespace SonoCap.MES.ImageProcess.Test
                 ImageProcessType.Resolution => MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess,
                 ImageProcessType.GeometricDistortion => MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess,
                 ImageProcessType.Gray => MyOpenCVWrapper.OpenCVWrapper.GrayProcess,
+                ImageProcessType.EnvGeo => MyOpenCVWrapper.OpenCVWrapper.EnvGeoInspection,
                 _ => throw new ArgumentOutOfRangeException()
             };
         }

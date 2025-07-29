@@ -5,6 +5,12 @@
 #include "GrayProcess.h"
 #include "UltrasoundQualityAnalyzer.h"
 #include "RunInspection.h"
+#include "EnvGeoInspection.h"
+
+void MyOpenCVWrapper::OpenCVWrapper::EnvGeoInspection(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer)
+{
+    MyOpenCVWrapper::EnvGeoInspection(buffer, width, height, resultBuffer, textBuffer);
+}
 
 void MyOpenCVWrapper::OpenCVWrapper::RunInspection(System::IntPtr buffer, int width, int height, System::IntPtr resultBuffer, System::IntPtr textBuffer, int testPart) {
 	MyOpenCVWrapper::RunInspection(buffer, width, height, resultBuffer, textBuffer, testPart);
@@ -77,15 +83,15 @@ void MyOpenCVWrapper::OpenCVWrapper::SetReferenceImage(System::String^ path) {
     System::IntPtr ptr = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(path);
     const char* nativePath = static_cast<const char*>(ptr.ToPointer());
 
-    Console::WriteLine("레퍼런스 이미지 경로: {0}", path);
+    Logger::Information("레퍼런스 이미지 경로: {0}", path);
 
 	g_referenceImage = cv::imread(nativePath, cv::IMREAD_GRAYSCALE);
 
     if (g_referenceImage.empty()) {
-        Console::WriteLine("레퍼런스 이미지 로딩 실패");
+        Logger::Information("레퍼런스 이미지 로딩 실패");
     }
     else {
-        Console::WriteLine("레퍼런스 이미지 로딩 완료");
+        Logger::Information("레퍼런스 이미지 로딩 완료");
     }
 
     System::Runtime::InteropServices::Marshal::FreeHGlobal(ptr);

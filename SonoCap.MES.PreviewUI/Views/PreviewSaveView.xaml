@@ -44,7 +44,7 @@
                 <Border Height="0" />
                 <GroupBox Header="Power" Style="{StaticResource GroupBoxLargeStyle}">
                     <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Width="500">
-                        <Slider Width="450" Minimum="30" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding SelectedPower, Mode=TwoWay}" Height="30" />
+                        <Slider Width="450" Minimum="10" Maximum="140" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding SelectedPower, Mode=TwoWay}" Height="30" />
                         <TextBlock Text="{Binding SelectedPower, StringFormat={}{0:000}}" Margin="5,0,0,0" VerticalAlignment="Center" />
                     </StackPanel>
                 </GroupBox>
@@ -140,16 +140,19 @@
         </Grid>
 
         <GroupBox Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource RemoveGroupBoxBorder}">
-            <StackPanel>
-                <Label Visibility="Visible" Style="{StaticResource LabelLargeStyle}" HorizontalContentAlignment="Center" Margin="0,0,0,15" Content="초 음 파  영 상" />
-                <Grid x:Name="ImageFocusArea" Width="900" Height="900" Focusable="True" Background="Transparent" MouseLeftButtonDown="ImageFocusArea_MouseLeftButtonDown" KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.TabNavigation="None">
-                    <Image x:Name="SnapshotImg" Stretch="Fill" Source="{Binding SnapshotImg}" Width="900" Height="900" />
-                    <Image x:Name="SrcImg" Stretch="Fill" Source="{Binding SrcImg}" Width="900" Height="900" />
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid x:Name="ImageFocusArea" Width="960" Height="960" Focusable="True" Background="Transparent" MouseLeftButtonDown="ImageFocusArea_MouseLeftButtonDown" KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.TabNavigation="None">
+                    <Image x:Name="SnapshotImg" Stretch="Fill" Source="{Binding SnapshotImg}" Width="960" Height="960" />
+                    <Image x:Name="SrcImg" Stretch="Fill" Source="{Binding SrcImg}" Width="960" Height="960" />
                     <Canvas>
                         <!-- 수직선 (화면 세로 2분할) -->
-                        <Line X1="450" Y1="0" X2="450" Y2="900" Stroke="Tomato" StrokeThickness="1" />
+                        <Line X1="480" Y1="0" X2="480" Y2="960" Stroke="Tomato" StrokeThickness="1" />
                         <!-- 수평선 (화면 가로 2분할) -->
-                        <Line X1="0" Y1="450" X2="900" Y2="450" Stroke="Tomato" StrokeThickness="1" />
+                        <Line X1="0" Y1="480" X2="960" Y2="480" Stroke="Tomato" StrokeThickness="1" />
+                        <!--대각선 좌하->우상-->
+                        <Line X1="0" Y1="960" X2="960" Y2="0" Stroke="Tomato" StrokeThickness="1" />
+                        <!--대각선 좌상->우하-->
+                        <Line X1="0" Y1="0" X2="960" Y2="960" Stroke="Tomato" StrokeThickness="1" />
                     </Canvas>
 
                     <!-- 키 이벤트 연결 -->

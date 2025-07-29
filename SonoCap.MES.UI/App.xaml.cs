@@ -260,9 +260,9 @@ namespace SonoCap.MES.UI
 
         private async Task SetTestThreshold()
         {
-            IEnumerable<Models.TestType> testTypes = await Services.GetRequiredService<ITestTypeRepository>().GetAllAsync();
+            IEnumerable<SonoCap.MES.Models.TestType> testTypes = await Services.GetRequiredService<ITestTypeRepository>().GetAllAsync();
 
-            foreach (Models.TestType testType in testTypes)
+            foreach (SonoCap.MES.Models.TestType testType in testTypes)
             {
                 TestThresholdDict[testType.Id * 10 + 1] = testType.Threshold;
                 TestThresholdDict[testType.Id * 10 + 2] = testType.Threshold;

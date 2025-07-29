@@ -57,6 +57,15 @@
     <ClInclude Include="GeoInspection.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GeoInspectionEnv.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvGeoInspection.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -101,6 +110,12 @@
     <ClCompile Include="GeoInspection.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="EnvGeoInspection.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="app.rc">
@@ -121,5 +136,8 @@
     <None Include="ORB 기반 회전 추정.md" />
     <None Include="Polar 변환 기반 회전 추정.md" />
     <None Include="cv_quality.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="SonoCap.MES.ImageProcess.json" />
   </ItemGroup>
 </Project>

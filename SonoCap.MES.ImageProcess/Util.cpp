@@ -327,10 +327,15 @@ void onTrackbarMax(int, void*) {
     processAndDisplayImage();
 }
 
-#if ENABLE_IMAGE_DISPLAY
 void showAndThreshold(const std::string& windowName, const cv::Mat& image) {
+
+    if (!(MyOpenCVWrapper::ConfigManager::getInstance().getGeneralSettings().debugImg))
+    {
+        return;
+    }
+
     if (image.empty()) {
-        std::cerr << "Error: Image is empty!" << std::endl;
+        Logger::Error("Error: Image is empty!");
         return;
     }
 
@@ -352,10 +357,6 @@ void showAndThreshold(const std::string& windowName, const cv::Mat& image) {
 
     cv::destroyWindow(windowName);
 }
-#else
-// 빈 함수 정의 (호출은 남아있지만 아무 동작 안 함)
-void showAndThreshold(const std::string&, const cv::Mat&) {}
-#endif
 
 // 트랙바 콜백 함수 정의
 void onTrackbar(int, void*) {
@@ -941,8 +942,12 @@ double calculateContourStraightnessRANSAC(const vector<Point>& contour, Mat& res
     return rmse;  // RMSE 값을 반환 (값이 작을수록 직선에 가까움)
 }
 
-#if ENABLE_IMAGE_DISPLAY
 void showAndSaveImage(const std::string& windowName, const cv::Mat& image) {
+    if (!(MyOpenCVWrapper::ConfigManager::getInstance().getGeneralSettings().debugImg))
+    {
+        return;
+    }
+
     if (image.empty()) {
         std::cerr << "Error: Image is empty!" << std::endl;
         return;
@@ -953,14 +958,9 @@ void showAndSaveImage(const std::string& windowName, const cv::Mat& image) {
 
     cv::destroyWindow(windowName);
 
-    //std::string filename = windowName + ".bmp";
-    //cv::imwrite(filename, image);
+    std::string filename = windowName + ".bmp";
+    cv::imwrite(filename, image);
 }
-#else
-// 빈 함수 정의 (호출은 남아있지만 아무 동작 안 함)
-void showAndSaveImage(const std::string&, const cv::Mat&) {}
-#endif
-
 
 // 랜덤 색상 생성 함수 (OpenCV Scalar 반환)
 cv::Scalar getRandomColor() {

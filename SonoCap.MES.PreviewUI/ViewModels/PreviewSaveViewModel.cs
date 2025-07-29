@@ -276,22 +276,80 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         [RelayCommand]
         private void Capture()
         {
+            // SnapshotImg에 원본 SrcImg를 복사합니다.
             SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
-            //string path = $"{App.appSettings.Path.ExportImg}{DateTime.Now:yyyyMMdd_HHmmss}_capture.png";
+
             string sn = string.IsNullOrWhiteSpace(SerialNumber) ? "NO_SN" : SerialNumber.Trim();
             string prefix = $"{sn}_{DateTime.Now:yyyyMMdd_HHmmss}";
-            //BitmapSource grayBitmap = Utilities.ConvertToGray8((BitmapSource)SnapshotImg);
+
+            // 그레이스케일 이미지로 변환하거나 원본 이미지를 사용합니다.
             BitmapSource grayBitmap = (BitmapSource)SnapshotImg;
+
+            // TODO: 아래 AddLinesOverlay 속성을 ViewModel에 추가하여 UI에서 제어할 수 있습니다.
+            bool addLines = false; // 여기에 UI 컨트롤(예: 체크박스)의 상태를 연결할 수 있습니다.
+
+            if (addLines)
+            {
+                // 선을 추가하는 새로운 비트맵을 만듭니다.
+                grayBitmap = AddLinesToBitmap(grayBitmap);
+            }
+
             string path = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix, "bmp");
-            //Utilities.SavePng(grayBitmap, path);
             Utilities.SaveBitmap(grayBitmap, path);
 
-            //BitmapSource envBitmap = (BitmapSource)EnvImg;
+            // 환경 이미지도 저장합니다.
             string envPath = Utilities.BuildPath(App.appSettings.Path.ExportImg, prefix + "_env", "bmp");
-            //Utilities.SavePng(envBitmap, envPath);
             Utilities.SaveBitmap((BitmapSource)EnvImg, envPath);
 
             ShowSnackbarWithOpen(path);
+        }
+
+        /// <summary>
+        /// 주어진 BitmapSource에 대각선, 가로, 세로 선을 추가합니다.
+        /// </summary>
+        /// <param name="originalBitmap">선을 추가할 원본 BitmapSource입니다.</param>
+        /// <returns>선이 그려진 새로운 BitmapSource를 반환합니다.</returns>
+        private BitmapSource AddLinesToBitmap(BitmapSource originalBitmap)
+        {
+            // WriteableBitmap으로 변환하여 수정 가능하게 함
+            var writableBitmap = new WriteableBitmap(originalBitmap);
+
+            // 이미지 그리기 작업에 사용할 DrawingVisual과 DrawingContext를 생성합니다.
+            var drawingVisual = new DrawingVisual();
+            using (DrawingContext dc = drawingVisual.RenderOpen())
+            {
+                dc.DrawImage(originalBitmap, new Rect(0, 0, originalBitmap.PixelWidth, originalBitmap.PixelHeight));
+                // 1픽셀 두께의 빨간색 펜으로 선 스타일을 정의합니다.
+                Pen linePen = new Pen(Brushes.Tomato, 1.0);
+
+                // 이미지의 가로/세로 길이를 가져옵니다.
+                double width = writableBitmap.Width;
+                double height = writableBitmap.Height;
+
+                // 중앙 가로선: 이미지 중앙 (0, height/2) -> (width, height/2)
+                dc.DrawLine(linePen, new Point(0, height / 2), new Point(width, height / 2));
+
+                // 중앙 세로선: 이미지 중앙 (width/2, 0) -> (width/2, height)
+                dc.DrawLine(linePen, new Point(width / 2, 0), new Point(width / 2, height));
+
+                // 두 개의 대각선
+                // 대각선 1: 왼쪽 위 (0, 0) -> 오른쪽 아래 (width, height)
+                dc.DrawLine(linePen, new Point(0, 0), new Point(width, height));
+
+                // 대각선 2: 오른쪽 위 (width, 0) -> 왼쪽 아래 (0, height)
+                dc.DrawLine(linePen, new Point(width, 0), new Point(0, height));
+            }
+
+            // DrawingVisual의 내용을 RenderTargetBitmap으로 렌더링하여 최종 BitmapSource를 생성합니다.
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(
+                (int)writableBitmap.Width,
+                (int)writableBitmap.Height,
+                writableBitmap.DpiX,
+                writableBitmap.DpiY,
+                PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(drawingVisual);
+
+            return renderTargetBitmap;
         }
 
         private Recorder? _rec;
@@ -655,10 +713,6 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         protected override void OnWindowActivated(object? sender, EventArgs e)
         {
             Log.Information($"{nameof(OnWindowActivated)}");
-            if( SelectedPower == 140)
-            {
-                SelectedPower = 100;
-            }
             _motorService.StartMotor();
             Task.Delay(100);
         }
