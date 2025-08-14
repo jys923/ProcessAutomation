@@ -1,8 +1,6 @@
 ﻿#pragma once
 
 #include <string>
-#include <vector>
-#include <iostream>
 #include <nlohmann/json.hpp>
 #include <opencv2/opencv.hpp> // cv::Rect 등을 위해 유지
 
@@ -17,10 +15,6 @@ namespace MyOpenCVWrapper {
         int y = 0;
         int width = 0;
         int height = 0;
-
-        cv::Rect toCvRect() const {
-            return cv::Rect(x, y, width, height);
-        }
     };
 
     inline void to_json(nlohmann::json& j, const RoiParams& r) {
@@ -62,6 +56,7 @@ namespace MyOpenCVWrapper {
             }}
         };
     }
+    
     inline void from_json(const nlohmann::json& j, GeneralSettingsParams& g) {
         g.debugImg = j.value("DebugImg", g.debugImg);
 		g.enableRotation = j.value("EnableRotation", g.enableRotation);
@@ -73,7 +68,6 @@ namespace MyOpenCVWrapper {
             g.referenceImage.loadOnStartup = refImgJson.value("LoadOnStartup", g.referenceImage.loadOnStartup);
         }
     }
-
 
     //-------------------------------------------------------------------------
     // Inspection 섹션 파라미터 구조체 (설정)
@@ -149,6 +143,7 @@ namespace MyOpenCVWrapper {
             {"angleOffset", p.angleOffset}
         };
     }
+
     inline void from_json(const nlohmann::json& j, InspectionParams::GrayParams& p) {
         if (j.contains("ROI") && j.at("ROI").is_object()) j.at("ROI").get_to(p.roi);
         p.radius = j.value("radius", p.radius);
@@ -167,6 +162,7 @@ namespace MyOpenCVWrapper {
             {"AngleToleranceDeg", p.angleToleranceDeg}
         };
     }
+
     inline void from_json(const nlohmann::json& j, InspectionParams::ResParams& p) {
         if (j.contains("ROI") && j.at("ROI").is_object()) j.at("ROI").get_to(p.roi);
         p.drMin = j.value("DRMin", p.drMin);

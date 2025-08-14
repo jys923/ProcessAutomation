@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ConfigManager.h"
+#include "RandomUtilities.h"
 #include <opencv2/opencv.hpp>
-#include <vector>
-#include <utility>
 #include <opencv2/core/utils/logger.hpp>
+#include <utility>
 #include <iostream>
 #include <vector>
 #include <numeric>
@@ -74,13 +74,15 @@ struct GrayResult {
     double mean2 = -1;
     double mean3 = -1;
 
-    friend void to_json(nlohmann::json& j, const GrayResult& g) {
-        j = nlohmann::json::object();
-        if (g.mean1 >= 0) j["mean1"] = g.mean1;
-        if (g.mean2 >= 0) j["mean2"] = g.mean2;
-        if (g.mean3 >= 0) j["mean3"] = g.mean3;
-    }
+    
 };
+
+inline void to_json(nlohmann::json& j, const GrayResult& g) {
+    j = nlohmann::json::object();
+    if (g.mean1 >= 0) j["mean1"] = g.mean1;
+    if (g.mean2 >= 0) j["mean2"] = g.mean2;
+    if (g.mean3 >= 0) j["mean3"] = g.mean3;
+}
 
 
 // Res 검사 결과
@@ -138,16 +140,18 @@ struct YIntervalError {
     double error;           // 오차
 
     // JSON 직렬화를 위한 to_json 함수
-    friend void to_json(nlohmann::json& j, const YIntervalError& e) {
-        j = nlohmann::json{
-            {"Index1", e.point1_index},
-            {"Index2", e.point2_index},
-            {"ActualInterval", e.actual_interval},
-            {"TargetMultiple", e.target_multiple},
-            {"Error", e.error}
-        };
-    }
+
 };
+
+inline void to_json(nlohmann::json& j, const YIntervalError& e) {
+    j = nlohmann::json{
+        {"Index1", e.point1_index},
+        {"Index2", e.point2_index},
+        {"ActualInterval", e.actual_interval},
+        {"TargetMultiple", e.target_multiple},
+        {"Error", e.error}
+    };
+}
 
 struct EnvGeoResult2 {
     std::vector<cv::Point2f> pointsOnLeftEdge;
@@ -161,8 +165,8 @@ struct EnvGeoResult2 {
     std::vector<YIntervalError> y_interval_errors;
 
     // ... 기존 필드들은 삭제 (y_matched_pattern_intervals_count 등) ...
-
-    friend void to_json(nlohmann::json& j, const EnvGeoResult2& r) {
+};
+    inline void to_json(nlohmann::json& j, const EnvGeoResult2& r) {
         j = nlohmann::json::object();
         j["PointsOnLeftEdge"] = r.pointsOnLeftEdge;
         j["XUniformityStdDev"] = r.x_uniformity_std_dev;
@@ -173,7 +177,7 @@ struct EnvGeoResult2 {
         // 만약 요약 정보가 필요하다면 추가
         j["YMaxAbsErrorToPattern"] = r.y_max_abs_error_to_pattern;
     }
-};
+
 
 //struct EnvGeoResult {
 //    std::vector<cv::Point2f> pointsOnLeftEdge;
@@ -188,8 +192,8 @@ struct MadMetrics {
     double mad_x;
     double x_tolerance;
     std::vector<cv::Point> filtered_out_by_x;
-
-    friend void to_json(nlohmann::json& j, const MadMetrics& m) {
+};
+    inline void to_json(nlohmann::json& j, const MadMetrics& m) {
         j = nlohmann::json{
             {"median_x", m.median_x},
             {"mad_x", m.mad_x},
@@ -197,7 +201,7 @@ struct MadMetrics {
             {"filtered_out_by_x", m.filtered_out_by_x}
         };
     }
-};
+
 
 // YIntervalMetrics 정보를 담는 구조체
 struct YIntervalMetrics {
@@ -205,8 +209,8 @@ struct YIntervalMetrics {
     double y_tolerance;
     cv::Point best_ref_point;
     std::vector<cv::Point> filtered_out_by_y;
-
-    friend void to_json(nlohmann::json& j, const YIntervalMetrics& y) {
+};
+    inline void to_json(nlohmann::json& j, const YIntervalMetrics& y) {
         j = nlohmann::json{
             {"target_y_interval", y.target_y_interval},
             {"y_tolerance", y.y_tolerance},
@@ -214,15 +218,15 @@ struct YIntervalMetrics {
             {"filtered_out_by_y", y.filtered_out_by_y}
         };
     }
-};
+
 
 struct EnvGeoResult {
     std::vector<cv::Point> findPoints;
     MadMetrics madMetrics;
     YIntervalMetrics yIntervalMetrics;
     std::vector<cv::Point> finalPoints;
-
-    friend void to_json(nlohmann::json& j, const EnvGeoResult& r) {
+};
+    inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
         j = nlohmann::json{
             {"findPoints", r.findPoints},
             {"madMetrics", r.madMetrics},
@@ -230,7 +234,7 @@ struct EnvGeoResult {
             {"finalPoints", r.finalPoints}
         };
     }
-};
+
 
 // Geo 검사 결과
 struct GeoResult {
@@ -329,8 +333,8 @@ struct GrayData {
     cv::Point center;
     double pixelMean;
 	int radius;
-
-    friend void to_json(nlohmann::json& j, const GrayData& data) {
+};
+    inline void to_json(nlohmann::json& j, const GrayData& data) {
         j = nlohmann::json::object(); // 빈 객체로 초기화
 
         // cv::Point에 대한 adl_serializer가 정의되었으므로 이제 이 한 줄로 충분합니다.
@@ -339,7 +343,7 @@ struct GrayData {
         j["radius"] = data.radius;
         j["pixelMean"] = data.pixelMean;
     }
-};
+
 
 //inline void to_json(nlohmann::json& j, const GrayData& data) {
 //    j = {

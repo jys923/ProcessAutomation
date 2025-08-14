@@ -1,9 +1,4 @@
 ﻿#include "Util.h"
-#include "RandomUtilities.h"
-
-#include <opencv2/opencv.hpp>
-#include <vector>
-#include <cmath>
 
 using namespace cv;
 using namespace std;

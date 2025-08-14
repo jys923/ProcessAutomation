@@ -30,7 +30,7 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     const double distanceTolerance = resConfig.distanceTolerance;
     const double angleToleranceDeg = resConfig.angleToleranceDeg;
     // ROI도 cv::Rect로 변환하여 사용하는 것이 편리합니다.
-    const cv::Rect roi = resConfig.roi.toCvRect();
+    const cv::Rect roi(resConfig.roi.x, resConfig.roi.y, resConfig.roi.width, resConfig.roi.height);
 
     cv::Mat gray;
     cv::cvtColor(roiImage, gray, cv::COLOR_BGRA2GRAY);
