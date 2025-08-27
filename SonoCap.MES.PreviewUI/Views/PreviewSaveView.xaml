@@ -153,7 +153,7 @@
                 <Grid x:Name="ImageFocusArea" Width="960" Height="960" Focusable="True" Background="Transparent" MouseLeftButtonDown="ImageFocusArea_MouseLeftButtonDown" KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.TabNavigation="None">
                     <Image x:Name="SnapshotImg" Stretch="Fill" Source="{Binding SnapshotImg}" Width="960" Height="960" />
                     <Image x:Name="SrcImg" Stretch="Fill" Source="{Binding SrcImg}" Width="960" Height="960" />
-                    <Canvas>
+                    <Canvas Visibility="{Binding IsAddLinesEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <!-- 수직선 (화면 세로 2분할) -->
                         <Line X1="480" Y1="0" X2="480" Y2="960" Stroke="Tomato" StrokeThickness="1" />
                         <!-- 수평선 (화면 가로 2분할) -->

@@ -1,0 +1,83 @@
+{
+  "GeneralSettings": {
+    "DebugImg": true,
+    "LogLevel": "Debug", // 예시: Debug, Info, Warn, Error (cv::utils::logging::setLogLevel에 매핑 가능)
+    "EnableRotation": false, // 이미지 회전 기능 활성화 여부
+    "ReferenceImage": {
+      "Path": "./reference_image.png",
+      "LoadOnStartup": false // 앱 시작 시 바로 로드할지 여부 (선택 사항)
+    }
+  },
+  "Inspection": {
+    "Common": { // 모든 Inspection 프로세스에 공통적으로 적용될 설정
+    },
+    "Gray": {
+      "ROI": {
+        "X": 0,
+        "Y": 0,
+        "Width": 14,
+        "Height": 14
+      },
+      "radius": 75,
+      "angleCenter": 0.39269908169872414, // CV_PI / 8 (약 22.5도)
+      "angleOffset": 0.2617993877991494 // CV_PI / 12 (약 15도)
+    },
+    "Res": {
+      "ROI": {
+        "X": 165,
+        "Y": 175,
+        "Width": 60,
+        "Height": 70
+      },
+      "DRMin": 65,
+      "DRMax": 70,
+      "MinContourArea": 4,
+      "TargetDistance": 75.0,
+      "DistanceTolerance": 5.0,
+      "AngleToleranceDeg": 5.0
+    },
+    "Geo": {
+      "ROI": {
+        "X": 60,
+        "Y": 74, //330 - 256
+        "Width": 400,
+        "Height": 50
+      },
+      "numSlices": 5, // 슬라이스 개수
+      "maskOffsetY": 15,
+      "maskHeight": 40, // 마스크 높이
+      "DRMin": 55,
+      "DRMax": 60,
+      "MinContourArea": 1000,
+      "aspectRatio": 5.0
+    },
+    "EnvGeo": {
+      "ROI": {
+        "X": 110,
+        "Y": 0,
+        "Width": 40,
+        "Height": 50
+      },
+      "DRMin": 55,
+      "DRMax": 70,
+      "MinContourArea": 5,
+      "Y_Tolerance": 5.0,
+      "TargetYInterval": 30.0,
+      "YIntervalTolerance": 5.0,
+      "X_MADConstant": 2.5,
+      "EnableXFilter": true,
+      "EnableYFilter": true
+    },
+    "Align": {
+      "ROI": {
+        "X": 0,
+        "Y": 0,
+        "Width": 0,
+        "Height": 0
+      },
+      "radius": 75,
+      "angleCenter": 0.39269908169872414, // CV_PI / 8 (약 22.5도)
+      "angleOffset": 0.2617993877991494 // CV_PI / 12 (약 15도)
+    }
+  }
+}

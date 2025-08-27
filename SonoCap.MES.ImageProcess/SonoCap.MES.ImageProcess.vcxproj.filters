@@ -60,9 +60,6 @@
     <ClInclude Include="ConfigManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GeoInspectionEnv.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="EnvGeoInspection.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -136,8 +133,11 @@
     <None Include="ORB 기반 회전 추정.md" />
     <None Include="Polar 변환 기반 회전 추정.md" />
     <None Include="cv_quality.md" />
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="SonoCap.MES.ImageProcess.json" />
+    <CopyFileToFolders Include="SonoCap.MES.ImageProcess.Release.json" />
+    <CopyFileToFolders Include="SonoCap.MES.ImageProcess.Debug.json" />
   </ItemGroup>
 </Project>

@@ -111,11 +111,11 @@
         None = 0,
         Gray,
         Res,
+        EnvGeo,
         Geo,
         Align,
         Axial,
         Lateral,
-        EnvGeo,
     }
 
 

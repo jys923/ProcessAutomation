@@ -6,6 +6,10 @@ namespace SonoCap.MES.Services.Model
 {
     public class GlobalModel
     {
+        public delegate void InitUICallback();
+
+        public event InitUICallback? OnInitUI;
+
         public event Action<int, int>? MotorStateChanged;
 
         public GlobalModel() { }
@@ -26,6 +30,32 @@ namespace SonoCap.MES.Services.Model
             HsnlibraryCS.HsnInterface.startProbeDetection();
 
             return true;
+        }
+
+        public void RefreshAll()
+        {
+            // GlobalModel 안에서 자기 속성들을 다 건드려서 업데이트 강제
+            var _ = this.Applications;
+            var __ = this.Presets;
+            var ___ = this.SubSettings;
+            var ____ = this.ViewDepthCm;
+            var _____ = this.LineDensity;
+            var ______ = this.IPGain;
+            var _______ = this.DRMin;
+            var ________ = this.DRMax;
+            var _________ = this.TxPower;
+            // ... 필요한 프로퍼티 다 조회
+        }
+
+        private void loadComplete()
+        {
+            Log.Information($"IsLoading : {IsLoading} previousState : {previousState}");
+            if (!IsLoading && previousState == ProbeStateInfoEnum.Streaming)
+            {
+                RefreshAll();
+                Log.Information($"모든 조건 충족. InitUI 호출 요청. ViewDepthCm {ViewDepthCm}");
+                OnInitUI?.Invoke();
+            }
         }
 
         private void MotorCallback(int prf_hz, int density)
@@ -362,7 +392,7 @@ namespace SonoCap.MES.Services.Model
             HsnlibraryCS.HsnInterface.disactivateProbe();
         }
 
-        private ProbeStateInfoEnum previousState = ProbeStateInfoEnum.DIsabled;
+        public ProbeStateInfoEnum previousState = ProbeStateInfoEnum.DIsabled;
 
         private void ProbeStateCallback(int state)
         {
@@ -382,11 +412,15 @@ namespace SonoCap.MES.Services.Model
                     break;
             }
             previousState = (ProbeStateInfoEnum)state;
+            Log.Information($"ProbeStateCallback: {previousState}");
+            loadComplete();
         }
 
         private void LoadingCallback(bool value)
         {
             IsLoading = value;
+            Log.Information($"LoadingCallback: {value}");
+            loadComplete();
         }
 
         public bool IsLoading { get; private set; }

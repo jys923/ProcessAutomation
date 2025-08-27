@@ -76,6 +76,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>false</VcpkgEnableManifest>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -176,6 +179,13 @@
     <CopyFileToFolders Include="SonoCap.MES.ImageProcess.json">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="SonoCap.MES.ImageProcess.Debug.json">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SonoCap.MES.ImageProcess.Release.json">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <None Include="vcpkg.json" />
     <None Include="기하학적왜곡.md" />
     <None Include="로그 스케일.md" />
     <None Include="함수 파라미터 추가 방법.md" />

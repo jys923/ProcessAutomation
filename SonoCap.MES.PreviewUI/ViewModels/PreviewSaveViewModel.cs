@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using ScreenRecorderLib;
 using Serilog;
+using SonoCap.MES.Models.Enums;
 using SonoCap.MES.Models.Process;
 using SonoCap.MES.PreviewUI.ViewModels.Base;
 using SonoCap.MES.Services;
@@ -44,14 +45,8 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             _motorService = motorService;
 
             Title = GetType().Name;
-            Init();
-        }
-
-        // Init Methods
-        private void Init()
-        {
             InitHsn();
-            InitUI();
+            //_ = InitAsync();
         }
 
         private void InitHsn()
@@ -65,6 +60,8 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             _model.MotorStateChanged += _motorService.OnMotorStateChanged;
             _model.IpCapsuleIsInnerVisible = true;
 
+            _model.OnInitUI += InitUI;
+
             //List<Tuple<int, string>> subSettingList = _model.SubSettings;
             //SubSettingList = new ObservableCollection<Tuple<int, string>>(subSettingList);
             //SelectedSubSetting = subSettingList.Find(t => t.Item1 == _model.Subsetting);
@@ -75,10 +72,16 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         private void InitUI()
         {
             ApplicationList = new ObservableCollection<Tuple<int, string>>(_model.Applications);
-            SelectedApplication = ApplicationList.FirstOrDefault(x => x.Item1 == _model.Application);
+            SelectedApplication = ApplicationList.FirstOrDefault(x => x.Item1 == _model.Application)
+                                 ?? ApplicationList.FirstOrDefault()
+                                 ?? new Tuple<int, string>(0, string.Empty);
+            Log.Information($"ApplicationList 초기화 완료, SelectedApplication: {SelectedApplication?.Item2 ?? "null"}");
 
             PresetList = new ObservableCollection<Tuple<int, string>>(_model.Presets);
-            SelectedPreset = PresetList.FirstOrDefault(x => x.Item1 == _model.Setting);
+            SelectedPreset = PresetList.FirstOrDefault(x => x.Item1 == _model.Setting)
+                             ?? PresetList.FirstOrDefault()
+                             ?? new Tuple<int, string>(0, string.Empty);
+            Log.Information($"PresetList 초기화 완료, SelectedPreset: {SelectedPreset?.Item2 ?? "null"}");
 
             // 허용할 파일명 목록
             var allowList = new HashSet<string>
@@ -93,9 +96,23 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
             // ObservableCollection 생성
             SubSettingList = new ObservableCollection<Tuple<int, string>>(filtered);
-            SelectedSubSetting = SubSettingList.FirstOrDefault(x => x.Item1 == _model.Subsetting);
+            SelectedSubSetting = SubSettingList.FirstOrDefault(x => x.Item1 == _model.Subsetting)
+                                 ?? SubSettingList.FirstOrDefault()
+                                 ?? new Tuple<int, string>(0, string.Empty);
 
-            SrcImg = Utilities.GetFileToImageSource("Resources/usImg.bmp") ?? Utilities.LoadBitmapFromResource("usImg.bmp");
+            //SrcImg = Utilities.GetFileToImageSource("Resources/usImg.bmp") ?? Utilities.LoadBitmapFromResource("usImg.bmp");
+
+            if (_depthToScanlineMap.TryGetValue(_model.ViewDepthCm, out int scanlineValue))
+            {
+                _usRenderer?.SetScanline(scanlineValue);
+            }
+
+            SelectedViewDepth = _model.ViewDepthCm;
+            SelectedLineDensity = _model.LineDensity;
+            IPGain = _model.IPGain;
+            DRMin = _model.DRMin;
+            DRMax = _model.DRMax;
+            SelectedPower = _model.TxPower;
         }
 
         private bool InitMotor()
@@ -162,8 +179,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
                 }
                 else
                 {
-                    // 매칭되는 값이 없을 경우 처리 (예: 로그 출력, 기본값 설정 등)
-                    // Console.WriteLine($"Warning: No scanline mapping found for depth: {value}");
+                    Log.Warning($"Warning: No scanline mapping found for depth: {value}");
                     // _usRenderer?.SetScanline(기본_값_또는_계산된_값);
                 }
                 OnPropertyChanged(); }
@@ -207,28 +223,32 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
         partial void OnSelectedApplicationChanged(Tuple<int, string> value)
         {
+            if (value == null) return;
             if (_model.Application != value.Item1)
             {
                 _model.Application = value.Item1;
+                InitUI();
             }
         }
 
         partial void OnSelectedPresetChanged(Tuple<int, string> value)
         {
+            if (value == null) return;
             if (_model.Setting != value.Item1)
             {
                 _model.Setting = value.Item1;
+                InitUI();
             }
         }
 
         // Events
         partial void OnSelectedSubSettingChanged(Tuple<int, string> value)
         {
+            if (value == null) return;
             if (_model.Subsetting != value.Item1)
             {
                 _model.Subsetting = value.Item1;
-                DRMin = _model.DRMin;
-                DRMax = _model.DRMax;
+                InitUI();
             }
         }
 

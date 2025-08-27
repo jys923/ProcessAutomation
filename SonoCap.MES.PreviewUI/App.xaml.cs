@@ -70,9 +70,12 @@ namespace SonoCap.MES.PreviewUI
 
         private static IConfiguration ConfigureAppSettings()
         {
+            var environmentName = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production"; // 기본값은 Production
+
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                //.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environmentName}.json", optional: true, reloadOnChange: true) // 환경별 파일 로드
                 .Build();
         }
     }

@@ -894,11 +894,24 @@ namespace SonoCap.MES.UI.ViewModels
             return Task.CompletedTask;
         }
 
-        // 변경된 ForcePassAsync 흐름
         [RelayCommand]
-        private async Task ForcePassAsync(CellPositions position)
+        private void ForcePass(CellPositions position)
         {
-            Log.Information($"{nameof(ForcePassAsync)} click {position}");
+            Log.Information($"{nameof(ForcePass)} click {position}");
+            int row = (int)position / 10;
+            _testCategory = (TestCategories)row;
+            bool proceed = Controls.AlertBox.Show("통합 검사", "통합 검사 미지원");
+            if (!proceed)
+            {
+                ResLogs.Add("통합 검사 취소");
+                return;
+            }
+        }
+
+        [RelayCommand]
+        private async Task ForcePassAsync3(CellPositions position)
+        {
+            Log.Information($"{nameof(ForcePassAsync3)} click {position}");
             int row = (int)position / 10;
             _testCategory = (TestCategories)row;
 
@@ -1114,10 +1127,10 @@ namespace SonoCap.MES.UI.ViewModels
 
         }
 
-        //[RelayCommand]
+        [RelayCommand]
         private async Task ForcePassAsync2(CellPositions position)
         {
-            Log.Information($"{nameof(ForcePassAsync)} click {position}");
+            Log.Information($"{nameof(ForcePassAsync2)} click {position}");
             int row = (int)position / 10;
             _testCategory = (TestCategories)row;
             bool proceed = Controls.MessageBox.Show("강제 검사", "강제 검사 실행?");
@@ -1542,7 +1555,7 @@ namespace SonoCap.MES.UI.ViewModels
             context.ResultBufferPtr = localResultHandle.AddrOfPinnedObject();
             context.ResultHandle = localResultHandle;
 
-            context.TextArray = new byte[1024];
+            context.TextArray = new byte[2048];
             GCHandle localTextHandle = GCHandle.Alloc(context.TextArray, GCHandleType.Pinned);
             context.TextBufferPtr = localTextHandle.AddrOfPinnedObject();
             context.TextHandle = localTextHandle;

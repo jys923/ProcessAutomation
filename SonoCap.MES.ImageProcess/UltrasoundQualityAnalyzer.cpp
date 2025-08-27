@@ -84,13 +84,19 @@ void MyOpenCVWrapper::AnalyzeBrightness(System::IntPtr inputBuffer, int imageWid
     cv::Mat grayImage;
     cv::cvtColor(inputImage, grayImage, cv::COLOR_BGRA2GRAY);
 
-    int radius = static_cast<int>(std::min(imageWidth, imageHeight) * 0.5 * 0.);
+    int outRadius = static_cast<int>(std::min(imageWidth, imageHeight) * 0.5);
+    int inRadius = static_cast<int>(std::min(imageWidth, imageHeight) * 0.35);
     int cx = imageWidth / 2;
     int cy = imageHeight / 2;
 
     // 중심 원 영역 제외한 마스크 만들기
-    cv::Mat mask = cv::Mat::ones(grayImage.size(), CV_8U) * 255;  // 전체 1
-    cv::circle(mask, cv::Point(cx, cy), radius, 0, -1); // 중심 원 제거
+    cv::Mat mask = cv::Mat::ones(grayImage.size(), CV_8U) * 0;  // 전체 1
+    cv::circle(mask, cv::Point(cx, cy), outRadius, 255, -1); // 중심 원 제거
+    cv::circle(mask, cv::Point(cx, cy), inRadius, 0, -1); // 중심 원 제거
+
+    //cv::imshow("mask", mask);
+    
+    showAndSaveImage(".\\Gray\\mask", mask);
 
     // 마스크 시각화용 이미지 저장
     {
