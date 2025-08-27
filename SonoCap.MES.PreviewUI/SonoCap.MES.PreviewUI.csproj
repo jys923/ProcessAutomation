@@ -26,4 +26,10 @@
     <ProjectReference Include="..\SonoCap.WpfCommons\SonoCap.WpfCommons.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="start.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

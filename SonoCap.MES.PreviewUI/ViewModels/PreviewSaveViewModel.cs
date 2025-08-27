@@ -1,22 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Serilog;
-using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using ScreenRecorderLib;
-using System.Windows.Interop;
-using System.IO;
-using System.Windows.Threading;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Windows.Input;
+using Serilog;
+using SonoCap.MES.Models.Process;
+using SonoCap.MES.PreviewUI.ViewModels.Base;
 using SonoCap.MES.Services;
 using SonoCap.MES.Services.Interfaces;
-using SonoCap.MES.PreviewUI.ViewModels.Base;
 using SonoCap.MES.Services.Model;
 using SonoCap.WpfCommons;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace SonoCap.MES.PreviewUI.ViewModels
 {
@@ -124,6 +126,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         [ObservableProperty] private ObservableCollection<Tuple<int, string>> _subSettingList;
         [ObservableProperty] private Tuple<int, string> _selectedSubSetting;
         [ObservableProperty] private bool _isNoiseLogEnabled;
+        [ObservableProperty] private bool _isAddLinesEnabled;
 
         partial void OnIsNoiseLogEnabledChanged(bool value)
         {
@@ -285,10 +288,19 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             // 그레이스케일 이미지로 변환하거나 원본 이미지를 사용합니다.
             BitmapSource grayBitmap = (BitmapSource)SnapshotImg;
 
-            // TODO: 아래 AddLinesOverlay 속성을 ViewModel에 추가하여 UI에서 제어할 수 있습니다.
-            bool addLines = false; // 여기에 UI 컨트롤(예: 체크박스)의 상태를 연결할 수 있습니다.
+            if (IsNoiseLogEnabled && !string.IsNullOrEmpty(_formattedResult))
+            {
+                // 이미지에 텍스트를 추가합니다.
+                grayBitmap = AddTextToBitmap(
+                    grayBitmap,
+                    _formattedResult,
+                    new Point(10, 10), // 텍스트 위치 (왼쪽 상단)
+                    16,                // 폰트 크기
+                    Brushes.White    // 텍스트 색상
+                );
+            }
 
-            if (addLines)
+            if (IsAddLinesEnabled)
             {
                 // 선을 추가하는 새로운 비트맵을 만듭니다.
                 grayBitmap = AddLinesToBitmap(grayBitmap);
@@ -302,6 +314,43 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             Utilities.SaveBitmap((BitmapSource)EnvImg, envPath);
 
             ShowSnackbarWithOpen(path);
+        }
+
+        public BitmapSource AddTextToBitmap(BitmapSource originalBitmap, string textToAdd, Point position, double fontSize, SolidColorBrush textColor)
+        {
+            // 이미지 그리기 작업에 사용할 DrawingVisual과 DrawingContext를 생성합니다.
+            var drawingVisual = new DrawingVisual();
+            using (DrawingContext dc = drawingVisual.RenderOpen())
+            {
+                // 원본 비트맵을 그립니다.
+                dc.DrawImage(originalBitmap, new Rect(0, 0, originalBitmap.PixelWidth, originalBitmap.PixelHeight));
+
+                // 텍스트를 그립니다.
+                // FormattedText를 사용하여 텍스트의 서식을 지정합니다.
+                FormattedText formattedText = new FormattedText(
+                    textToAdd,
+                    System.Globalization.CultureInfo.CurrentCulture,
+                    FlowDirection.LeftToRight,
+                    new Typeface("Arial"), // 폰트 지정 (예: Arial)
+                    fontSize,              // 폰트 크기 지정
+                    textColor,             // 텍스트 색상 지정
+                    VisualTreeHelper.GetDpi(drawingVisual).PixelsPerDip // DPI 스케일링
+                );
+
+                // 지정된 위치에 텍스트를 그립니다.
+                dc.DrawText(formattedText, position);
+            }
+
+            // DrawingVisual의 내용을 RenderTargetBitmap으로 렌더링하여 최종 BitmapSource를 생성합니다.
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap(
+                (int)originalBitmap.PixelWidth,
+                (int)originalBitmap.PixelHeight,
+                originalBitmap.DpiX,
+                originalBitmap.DpiY,
+                PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(drawingVisual);
+
+            return renderTargetBitmap;
         }
 
         /// <summary>
@@ -513,10 +562,16 @@ namespace SonoCap.MES.PreviewUI.ViewModels
                         //MyOpenCVWrapper.OpenCVWrapper.AnalyzeFFT(buffer, width, height, textBuffer);
 
                         // 결과 문자열로 변환
-                        string result = Marshal.PtrToStringAnsi(textBuffer) ?? "";
+                        string jsonString = Marshal.PtrToStringAnsi(textBuffer) ?? "";
+
+                        QualityMetrics? metrics = JsonSerializer.Deserialize<QualityMetrics>(jsonString);
+
+                        // metrics.Brightness의 값과 이름을 모두 사용
+                        //_formattedResult = $"{nameof(metrics.Brightness)}:{metrics.Brightness:F2}";
+                        _formattedResult = $"Noise Br:{metrics.Brightness:F2}";
 
                         // 로그 갱신
-                        NoiseLog = result;
+                        NoiseLog = _formattedResult;
 
                         // 메모리 해제
                         Marshal.FreeHGlobal(buffer);
@@ -634,6 +689,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         [ObservableProperty] private string _recordButtonText = "⏺";
         [ObservableProperty] private bool _isRecordEnabled = true;
         [ObservableProperty] private bool _isStopEnabled = false;
+        private string _formattedResult;
 
         private void UpdateRecordingUI()
         {
