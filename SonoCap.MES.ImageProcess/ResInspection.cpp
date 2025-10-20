@@ -23,8 +23,10 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     const InspectionParams::ResParams& resConfig = config.getInspectionParams().res;
 
     // 필요한 설정 값들을 함수 초반에 별도 변수로 선언 (가독성 및 편의성 증대)
-    const int drMin = resConfig.drMin;
-    const int drMax = resConfig.drMax;
+	int threshold = 100; // 초기 임계값
+	int maxval = 255; // 초기 임계값
+    int drMin = resConfig.drMin;
+    int drMax = resConfig.drMax;
     const double minContourArea = resConfig.minContourArea;
     const double targetDistance = resConfig.targetDistance;
     const double distanceTolerance = resConfig.distanceTolerance;
@@ -34,15 +36,16 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
 
     cv::Mat gray;
     cv::cvtColor(roiImage, gray, cv::COLOR_BGRA2GRAY);
-    //showAndSaveImage("Res_Gray", gray); // 이름 변경 (겹치지 않게)
+    showAndSaveImage("Res_Gray", gray); // 이름 변경 (겹치지 않게)
 
     // showAndThreshold 함수를 통해 사용자 대화형으로 DR 값 조절
-    showAndThreshold("Res_DR_Adjust", gray); // 이름 변경
+    //showAndThreshold("Res_DR_Adjust", gray); // 이름 변경
+    //showAndDRClip("Res_DR_Adjust", gray, drMin, drMax);
 
     // DR 클리핑 적용 (고정된 값 65, 70으로 다시 처리)
-    ApplyLinearDRClip(gray, gray, drMin, drMax, true);
+    //ApplyLinearDRClip(gray, gray, drMin, drMax, true);
     
-    showAndSaveImage("Res_DR_Clipped", gray);
+    //showAndSaveImage("Res_DR_Clipped", gray);
 
     // ROI 설정
     //cv::Rect roi(ROI_X, ROI_Y, ROI_W, ROI_H);
@@ -57,9 +60,37 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& roiImage, ResResult& result)
     }
 
     cv::Mat roiGray = gray(roi);
+
+    cv::Mat hist;
+    calcHist(roiGray, hist);
+
+    // 2. 히스토그램 데이터 로깅
+    std::string histLog = matToString(hist);
+    Logger::Information(gcnew System::String(histLog.c_str()));
+
+    // 3. 히스토그램 그래프 생성 및 표시
+    cv::Mat histGraph;
+    plotHist(hist, histGraph);
+    showAndSaveImage("Res_Histogram", histGraph);
+
+    // 4. 분위수 임계값 계산
+    double perThreshold = calcPerThreshold(hist, roiGray, 0.95);
+
+    std::string logout = "Calculated Threshold for Top % : " + std::to_string(perThreshold);
+    Logger::Information(gcnew System::String(logout.c_str()));
+
     cv::Mat binary;
-    cv::threshold(roiGray, binary, 100, 255, cv::THRESH_BINARY);
-    //showAndSaveImage("Res_BinaryROI", binary);
+    showAndThreshold("Res_BinaryROI", roiGray, perThreshold, maxval);
+    cv::threshold(roiGray, binary, perThreshold, maxval, cv::THRESH_BINARY);
+
+    /*cv::Mat binOtsu, binAdap;
+    double otsuThreshold = cv::threshold(roiGray, binOtsu, 0, 255, cv::THRESH_BINARY | cv::THRESH_OTSU);
+    std::string otsuThresholdS = "otsuThreshold : " + std::to_string(otsuThreshold);
+    Logger::Information(gcnew System::String(otsuThresholdS.c_str()));
+
+    showAndSaveImage("Res_Otsu_Binary", binOtsu);
+    cv::adaptiveThreshold(roiGray, binAdap, 255, cv::ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY, 11, 2);
+    showAndSaveImage("Res_Adaptive_Binary", binAdap);*/
 
     // 모폴로지 오프닝 (침식 후 팽창)
     cv::Mat eroded, restored;

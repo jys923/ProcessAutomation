@@ -42,9 +42,15 @@ extern std::string g_windowName;
 extern int g_drmin; // dr min 값
 extern int g_drmax; // dr max 값
 
+void showAndDRClip(const std::string& windowName, const cv::Mat& image, int& outDrMin, int& outDrMax);
+void showAndThreshold(const std::string& windowName, const cv::Mat& image, double& outThreshold, int& outMaxval);
 void showAndThreshold(const std::string& windowName, const cv::Mat& image);
 void onTrackbar(int, void*);
 
+void calcHist(const cv::Mat& grayImage, cv::Mat& hist);
+std::string matToString(const cv::Mat& hist);
+void plotHist(const cv::Mat& hist, cv::Mat& imgHist);
+double calcPerThreshold(const cv::Mat& hist, const cv::Mat& grayImage, double targetPercentile);
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);

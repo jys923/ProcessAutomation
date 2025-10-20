@@ -76,7 +76,8 @@ namespace SonoCap.MES.UI.ViewModels
         private void Init()
         {
             InitHsn();
-            InitUI();
+            //InitUI();
+            InitValidation();
             InitImg();
             InitTimer();
             string refImgPath = "Resources/refImg.bmp";
@@ -86,6 +87,52 @@ namespace SonoCap.MES.UI.ViewModels
         }
 
         private void InitUI()
+        {
+            ApplicationList = new ObservableCollection<Tuple<int, string>>(_model.Applications);
+            SelectedApplication = ApplicationList.FirstOrDefault(x => x.Item1 == _model.Application)
+                                 ?? ApplicationList.FirstOrDefault()
+                                 ?? new Tuple<int, string>(0, string.Empty);
+            Log.Information($"ApplicationList 초기화 완료, SelectedApplication: {SelectedApplication?.Item2 ?? "null"}");
+
+            PresetList = new ObservableCollection<Tuple<int, string>>(_model.Presets);
+            SelectedPreset = PresetList.FirstOrDefault(x => x.Item1 == _model.Setting)
+                             ?? PresetList.FirstOrDefault()
+                             ?? new Tuple<int, string>(0, string.Empty);
+            Log.Information($"PresetList 초기화 완료, SelectedPreset: {SelectedPreset?.Item2 ?? "null"}");
+
+            // 허용할 파일명 목록
+            var allowList = new HashSet<string>
+            {
+                "pen.json", "gen.json", "res.json",
+                "pen_fh.json", "gen_fh.json", "res_fh.json"
+            };
+
+            // 필터링 적용
+            var filtered = _model.SubSettings
+                .Where(x => allowList.Contains(x.Item2));
+
+            // ObservableCollection 생성
+            SubSettingList = new ObservableCollection<Tuple<int, string>>(filtered);
+            SelectedSubSetting = SubSettingList.FirstOrDefault(x => x.Item1 == _model.Subsetting)
+                                 ?? SubSettingList.FirstOrDefault()
+                                 ?? new Tuple<int, string>(0, string.Empty);
+
+            //SrcImg = Utilities.GetFileToImageSource("Resources/usImg.bmp") ?? Utilities.LoadBitmapFromResource("usImg.bmp");
+
+            if (_depthToScanlineMap.TryGetValue(_model.ViewDepthCm, out int scanlineValue))
+            {
+                usRenderer?.SetScanline(scanlineValue);
+            }
+
+            SelectedViewDepth = _model.ViewDepthCm;
+            SelectedLineDensity = _model.LineDensity;
+            IPGain = _model.IPGain;
+            DRMin = _model.DRMin;
+            DRMax = _model.DRMax;
+            SelectedPower = _model.TxPower;
+        }
+
+        private void InitValidation()
         {
             DepthIsEnabled.Add(0, new ValidationItem { IsEnabled = true });
             DepthIsEnabled.Add(1, new ValidationItem { IsEnabled = true });
@@ -107,28 +154,8 @@ namespace SonoCap.MES.UI.ViewModels
             TestResult = -2;
 
             SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
-
-            ApplicationList = new ObservableCollection<Tuple<int, string>>(_model.Applications);
-            SelectedApplication = ApplicationList.FirstOrDefault(x => x.Item1 == _model.Application);
-
-            PresetList = new ObservableCollection<Tuple<int, string>>(_model.Presets);
-            SelectedPreset = PresetList.FirstOrDefault(x => x.Item1 == _model.Setting);
-
-            // 허용할 파일명 목록
-            var allowList = new HashSet<string>
-            {
-                "pen.json", "gen.json", "res.json",
-                "pen_fh.json", "gen_fh.json", "res_fh.json"
-            };
-
-            // 필터링 적용
-            var filtered = _model.SubSettings
-                .Where(x => allowList.Contains(x.Item2));
-
-            // ObservableCollection 생성
-            SubSettingList = new ObservableCollection<Tuple<int, string>>(filtered);
-            SelectedSubSetting = SubSettingList.FirstOrDefault(x => x.Item1 == _model.Subsetting);
         }
+
         private void InitTimer()
         {
             CurrentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -160,6 +187,8 @@ namespace SonoCap.MES.UI.ViewModels
             }
             _model.MotorStateChanged += _motorService.OnMotorStateChanged;
             _model.IpCapsuleIsInnerVisible = true;
+
+            _model.OnInitUI += InitUI;
 
             //_selectedSubSetting = _model.Subsetting;
             //List<Tuple<int, string>> subSettingList = _model.SubSettings;
@@ -276,7 +305,7 @@ namespace SonoCap.MES.UI.ViewModels
             }
             else
             {
-                List<string> items = _testingManagementService.GetFilteredSn(SnType.Transducer,TDSn);
+                List<string> items = _testingManagementService.GetFilteredSn(SnType.Transducer, TDSn);
 
                 TDSnFilteredItems = new ObservableCollection<string>(items);
             }
@@ -518,16 +547,31 @@ namespace SonoCap.MES.UI.ViewModels
         //[ObservableProperty]
         //public IList<double> _listViewDepth = new List<double> { 3, 4, 5, 6, 7 };
 
-        //[ObservableProperty]
-        //private double _selectedViewDepth;
+        private static readonly Dictionary<double, int> _depthToScanlineMap = new Dictionary<double, int>
+        {
+            { 7, 480 },
+            { 6, 576 },
+            { 5, 720 },
+            { 4, 768 },
+            { 3, 960 }
+        };
+
         public double SelectedViewDepth
         {
-            get { return _model.ViewDepthCm; }
+            get => _model.ViewDepthCm;
             set
             {
                 _model.ViewDepthCm = value;
-                OnPropertyChanged(nameof(SelectedViewDepth));
-                //OnSelectedViewDepthChanged(value);
+                if (_depthToScanlineMap.TryGetValue(value, out int scanlineValue))
+                {
+                    usRenderer?.SetScanline(scanlineValue);
+                }
+                else
+                {
+                    Log.Warning($"Warning: No scanline mapping found for depth: {value}");
+                    // _usRenderer?.SetScanline(기본_값_또는_계산된_값);
+                }
+                OnPropertyChanged();
             }
         }
 
@@ -656,10 +700,10 @@ namespace SonoCap.MES.UI.ViewModels
             get { return _model.DRMax; }
             set
             {
-                if (value >= DRMin + 2) 
-                { 
-                    _model.DRMax = value; 
-                    OnPropertyChanged(nameof(DRMax)); 
+                if (value >= DRMin + 2)
+                {
+                    _model.DRMax = value;
+                    OnPropertyChanged(nameof(DRMax));
                 }
             }
         }
@@ -699,36 +743,35 @@ namespace SonoCap.MES.UI.ViewModels
 
         partial void OnSelectedApplicationChanged(Tuple<int, string> value)
         {
+            if (value == null) return;
             if (_model.Application != value.Item1)
             {
                 _model.Application = value.Item1;
-
-                DRMin = _model.DRMin;
-                DRMax = _model.DRMax;
+                InitUI();
             }
         }
 
         partial void OnSelectedPresetChanged(Tuple<int, string> value)
         {
+            if (value == null) return;
             if (_model.Setting != value.Item1)
             {
                 _model.Setting = value.Item1;
-
-                DRMin = _model.DRMin;
-                DRMax = _model.DRMax;
+                InitUI();
             }
         }
 
+        // Events
         partial void OnSelectedSubSettingChanged(Tuple<int, string> value)
         {
+            if (value == null) return;
             if (_model.Subsetting != value.Item1)
             {
                 _model.Subsetting = value.Item1;
-
-                DRMin = _model.DRMin;
-                DRMax = _model.DRMax;
+                InitUI();
             }
         }
+
         [ObservableProperty]
         private ImageSource _snapshotImg = default!;
 
@@ -1555,7 +1598,7 @@ namespace SonoCap.MES.UI.ViewModels
             context.ResultBufferPtr = localResultHandle.AddrOfPinnedObject();
             context.ResultHandle = localResultHandle;
 
-            context.TextArray = new byte[2048];
+            context.TextArray = new byte[4096];
             GCHandle localTextHandle = GCHandle.Alloc(context.TextArray, GCHandleType.Pinned);
             context.TextBufferPtr = localTextHandle.AddrOfPinnedObject();
             context.TextHandle = localTextHandle;
@@ -2170,7 +2213,7 @@ namespace SonoCap.MES.UI.ViewModels
             //Task.Delay(100);
             //_model.DeactivateProbe();
             e.Cancel = true;
-            if (sender is Window window) 
+            if (sender is Window window)
             {
                 window.Hide();
             }

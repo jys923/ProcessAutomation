@@ -50,14 +50,44 @@ namespace SonoCap.MES.UI
             _motorService = Services.GetRequiredService<SonoCap.MES.Services.Interfaces.IMotorService>(); // 싱글톤 유지
         }
 
-        protected override async void OnStartup(StartupEventArgs e)
+        private Mutex _mutex = null!;
+        private const string _mutexName = "Sonocap.Mes"; // 고유한 이름으로 변경
+
+        protected override void OnStartup(StartupEventArgs e)
         {
+            _mutex = new Mutex(true, _mutexName, out bool createdNew);
+
+            if (!createdNew)
+            {
+                // 이미 다른 인스턴스가 실행 중
+                MessageBox.Show("애플리케이션이 이미 실행 중입니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                this.Shutdown();
+                return;
+                //System.Diagnostics.Process.GetCurrentProcess().Kill();
+            }
+
             base.OnStartup(e); // 기본 OnStartup 메서드를 호출하여 기본 초기화 수행
 
             Utilities.ResetFolder(appTempDir);
             // 비동기 초기화 작업을 시작합니다.
             //await Task.Run(() => InitializeAsync());
             //await Task.Run(() => SetTestThreshold());
+            _= InitAppAsync();
+
+            Log.Information($"DB 초기화: {sw.ElapsedMilliseconds}ms");
+
+            // 비동기 작업이 완료된 후에 나머지 초기화 작업을 수행합니다.
+            SetMidnightTimer();
+            SetPath();
+            Log.Information($"View 표시까지: {sw.ElapsedMilliseconds}ms");
+            //ShowMainView();
+            ShowFirstView();
+
+            Log.Information($"전체 초기화: {sw.ElapsedMilliseconds}ms");
+        }
+
+        private async Task InitAppAsync()
+        {
             try
             {
                 var context = Services.GetRequiredService<MESDbContext>();
@@ -76,27 +106,34 @@ namespace SonoCap.MES.UI
                 MessageBox.Show("DB 연결에 실패했습니다.\n\n" + ex.Message, "DB 오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(1);
             }
-            
+
             // 비동기 초기화 작업을 시작합니다.
             await Task.WhenAll(
                 InitializeAsync(),
                 SetTestThreshold()
             );
-
-            Log.Information($"DB 초기화: {sw.ElapsedMilliseconds}ms");
-
-            // 비동기 작업이 완료된 후에 나머지 초기화 작업을 수행합니다.
-            SetMidnightTimer();
-            SetPath();
-            Log.Information($"View 표시까지: {sw.ElapsedMilliseconds}ms");
-            //ShowMainView();
-            ShowFirstView();
-
-            Log.Information($"전체 초기화: {sw.ElapsedMilliseconds}ms");
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            if (_mutex != null)
+            {
+                try
+                {
+                    // 예외가 발생하더라도 충돌을 막기 위해 try-catch를 사용합니다.
+                    _mutex.ReleaseMutex();
+                }
+                catch (ApplicationException)
+                {
+                    // 중복 실행 인스턴스에서 소유권이 없어서 발생한 예외이므로 무시합니다.
+                }
+                finally
+                {
+                    // 자원 정리
+                    _mutex.Dispose();
+                    Log.Information("Application Mutex disposed successfully.");
+                }
+            }
             base.OnExit(e);
 
             if (_motorService is IDisposable disposableMotor)
@@ -280,13 +317,13 @@ namespace SonoCap.MES.UI
         {
             //MainView? mainView = App.Current.Services.GetService<MainView>()!;
             //mainView.Show();
-            IViewService viewService = Services.GetService<IViewService>()!;
+            IViewService viewService = Services.GetRequiredService<IViewService>()!;
             viewService.ShowMainView();
         }
 
         private void ShowFirstView()
         {
-            IViewService viewService = Services.GetService<IViewService>()!;
+            IViewService viewService = Services.GetRequiredService<IViewService>()!;
             viewService.ShowFirstView();
         }
     }

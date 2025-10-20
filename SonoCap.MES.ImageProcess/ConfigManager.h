@@ -79,8 +79,10 @@ namespace MyOpenCVWrapper {
         struct GrayParams {
             RoiParams roi = { 0, 0, 14, 14 };
             double radius = 75.0;
-            double angleCenter = 0.39269908169872414; // CV_PI / 8.0
-            double angleOffset = 0.2617993877991494; // CV_PI / 12.0
+            //double angleCenter = 0.39269908169872414; // CV_PI / 8.0
+            //double angleOffset = 0.2617993877991494; // CV_PI / 12.0
+            double angleCenter = 22.5; // CV_PI / 8.0
+            double angleOffset = 15.0; // CV_PI / 12.0
         };
         struct ResParams {
 			RoiParams roi = { 165, 175, 60, 70 };
@@ -118,8 +120,8 @@ namespace MyOpenCVWrapper {
         struct AlignParams {
             RoiParams roi = { 0, 0, 14, 14 };
             double radius = 75.0;
-            double angleCenter = 0.39269908169872414; // CV_PI / 8.0
-            double angleOffset = 0.2617993877991494; // CV_PI / 12.0
+            double angleCenter = 22.5; //0.39269908169872414; // CV_PI / 8.0
+            double angleOffset = 15.0; //0.2617993877991494; // CV_PI / 12.0
         };
 
         // InspectionParams의 실제 멤버 변수들 (위에서 정의된 타입의 인스턴스)
