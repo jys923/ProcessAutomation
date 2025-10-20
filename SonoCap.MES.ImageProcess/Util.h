@@ -9,8 +9,20 @@
 #include <vector>
 #include <numeric>
 #include <nlohmann/json.hpp>
+#include <algorithm>
 
 using namespace SonoCap::Commons::Logging;
+
+struct PreprocessResult {
+    cv::Mat gray;
+    cv::Mat roiGray;
+    cv::Rect roi;
+    cv::Mat hist;
+    double baseThreshold;
+};
+
+std::vector<double> GenerateThresholds(double base, double range, int count);
+PreprocessResult CalcHistBasedThreshold(const cv::Mat& srcImg, const MyOpenCVWrapper::RoiParams& roi);
 
 struct EnvGeoData {
     float leftmost_x;
@@ -20,8 +32,7 @@ struct EnvGeoData {
     int originalContourIndex;
 };
 
-// ContourData 구조체 정의 (Util.h 또는 ResInspection.h에 정의되어 있어야 함)
- struct ContourData {
+struct ContourData {
      cv::Point2f center_abs;           // roiImage 기준의 절대 좌표 중심점
      double quality;
      double area;                      // 면적을 저장하여 정렬에 사용
@@ -33,7 +44,7 @@ struct EnvGeoData {
      float leftmost_x_abs;    // 전체 이미지 기준, 윤곽선의 가장 왼쪽 x 좌표
      float vertical_mid_y_abs; // 전체 이미지 기준, 윤곽선의 위-아래 중앙 y 좌표
      int originalContourIndex; // ★ 새로 추가된 필드: 원본 윤곽선의 인덱스
- };
+};
 
 // 전역 변수 선언 (extern 키워드 사용)
 extern cv::Mat g_srcImage;
@@ -42,9 +53,15 @@ extern std::string g_windowName;
 extern int g_drmin; // dr min 값
 extern int g_drmax; // dr max 값
 
+void showAndDRClip(const std::string& windowName, const cv::Mat& image, int& outDrMin, int& outDrMax);
+void showAndThreshold(const std::string& windowName, const cv::Mat& image, double& outThreshold, int& outMaxval);
 void showAndThreshold(const std::string& windowName, const cv::Mat& image);
 void onTrackbar(int, void*);
 
+void calcHist(const cv::Mat& grayImage, cv::Mat& hist);
+std::string matToString(const cv::Mat& hist);
+void plotHist(const cv::Mat& hist, cv::Mat& imgHist);
+double calcPerThreshold(const cv::Mat& hist, const cv::Mat& grayImage, double targetPercentile);
 
 // 상수 정의
 const cv::Scalar red(0, 0, 255);
@@ -73,8 +90,6 @@ struct GrayResult {
     double mean1 = -1;
     double mean2 = -1;
     double mean3 = -1;
-
-    
 };
 
 inline void to_json(nlohmann::json& j, const GrayResult& g) {
@@ -83,7 +98,6 @@ inline void to_json(nlohmann::json& j, const GrayResult& g) {
     if (g.mean2 >= 0) j["mean2"] = g.mean2;
     if (g.mean3 >= 0) j["mean3"] = g.mean3;
 }
-
 
 // Res 검사 결과
 struct ResResult {
@@ -226,14 +240,15 @@ struct EnvGeoResult {
     YIntervalMetrics yIntervalMetrics;
     std::vector<cv::Point> finalPoints;
 };
-    inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
-        j = nlohmann::json{
-            {"findPoints", r.findPoints},
-            {"madMetrics", r.madMetrics},
-            {"yIntervalMetrics", r.yIntervalMetrics},
-            {"finalPoints", r.finalPoints}
-        };
-    }
+
+inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
+    j = nlohmann::json{
+        {"findPoints", r.findPoints},
+        {"madMetrics", r.madMetrics},
+        {"yIntervalMetrics", r.yIntervalMetrics},
+        {"finalPoints", r.finalPoints}
+    };
+}
 
 
 // Geo 검사 결과

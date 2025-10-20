@@ -13,14 +13,14 @@
     },
     "Gray": {
       "ROI": {
-        "X": 0,
+        "X": 0,                                                                 
         "Y": 0,
-        "Width": 14,
-        "Height": 14
+        "Width": 12,
+        "Height": 12
       },
       "radius": 75,
-      "angleCenter": 0.39269908169872414, // CV_PI / 8 (약 22.5도)
-      "angleOffset": 0.2617993877991494 // CV_PI / 12 (약 15도)
+      "angleCenter": 22.5, // CV_PI / 8 (약 22.5도)
+      "angleOffset": 15.0 // CV_PI / 12 (약 15도)
     },
     "Res": {
       "ROI": {
@@ -29,8 +29,8 @@
         "Width": 60,
         "Height": 70
       },
-      "DRMin": 65,
-      "DRMax": 70,
+      "DRMin": 75,
+      "DRMax": 80,
       "MinContourArea": 4,
       "TargetDistance": 75.0,
       "DistanceTolerance": 5.0,

@@ -95,16 +95,42 @@ void MyOpenCVWrapper::GrayInspection2(cv::Mat& roiImage, GrayResult& result)
     }
 }
 
+//#define ROI_WIDTH     14
+//#define ROI_HEIGHT    14
+//
+//#define RADIUS        75           // 적절한 반지름
+//#define ANGLE_CENTER  (CV_PI / 8)   // 22.5도
+//#define ANGLE_OFFSET  (CV_PI / 12)  // ±15도
+
+// ===== 각도 변환 매크로 =====
+#define DEG2RAD(x)    ((x) * CV_PI / 180.0)   // degree → radian
+#define RAD2DEG(x)    ((x) * 180.0 / CV_PI)   // radian → degree
+
+// ===== ROI 크기 & 반경 =====
 #define ROI_WIDTH     14
 #define ROI_HEIGHT    14
+#define RADIUS        75   // 적절한 반지름 (픽셀)
 
-#define RADIUS        75           // 적절한 반지름
-#define ANGLE_CENTER  (CV_PI / 8)   // 22.5도
-#define ANGLE_OFFSET  (CV_PI / 12)  // ±15도
+// ===== 각도 정의 (degree 단위) =====
+#define ANGLE_CENTER_DEG   22.5   // 중심 각도
+#define ANGLE_OFFSET_DEG   15.0   // ± offset
+
+// radian으로 변환된 값
+#define ANGLE_CENTER  DEG2RAD(ANGLE_CENTER_DEG)
+#define ANGLE_OFFSET  DEG2RAD(ANGLE_OFFSET_DEG)
 
 void MyOpenCVWrapper::GrayInspection(cv::Mat& roiImage, GrayResult& result)
 {
     if (roiImage.empty() || roiImage.channels() != 4) return;
+
+    const ConfigManager& config = ConfigManager::getInstance();
+    const InspectionParams::GrayParams& grayConfig = config.getInspectionParams().gray;
+
+    int roiW = grayConfig.roi.width;
+    int roiH = grayConfig.roi.height;
+    double radius = grayConfig.radius;
+    double angleCenterRad = DEG2RAD(grayConfig.angleCenter);
+    double angleOffsetRad = DEG2RAD(grayConfig.angleOffset);
 
     cv::Mat grayImage;
     cv::cvtColor(roiImage, grayImage, cv::COLOR_BGRA2GRAY);
@@ -113,9 +139,9 @@ void MyOpenCVWrapper::GrayInspection(cv::Mat& roiImage, GrayResult& result)
     double centerY = grayImage.rows;
 
     std::vector<double> angles = {
-        ANGLE_CENTER - ANGLE_OFFSET,  // 7.5도
-        //ANGLE_CENTER,                 // 22.5도
-        ANGLE_CENTER + ANGLE_OFFSET   // 37.5도
+        angleCenterRad - angleOffsetRad,   // 예: 22.5° - 15° = 7.5°
+        //angleCenterRad,                   // 예: 22.5°
+        angleCenterRad + angleOffsetRad    // 예: 22.5° + 15° = 37.5°
     };
 
     std::vector<cv::Scalar> colors = { RedA, GreenA, BlueA };
@@ -125,15 +151,14 @@ void MyOpenCVWrapper::GrayInspection(cv::Mat& roiImage, GrayResult& result)
     {
         double angle = angles[i];
 
-
         // 중심점에서 라디안 각도로 좌표 계산
-        double cx = centerX + RADIUS * cos(angle);
-        double cy = centerY - RADIUS * sin(angle);  // 이미지 Y축은 아래로 향하므로 -
+        double cx = centerX + radius * cos(angle);
+        double cy = centerY - radius * sin(angle);  // 이미지 Y축은 아래로 향하므로 -
 
-        int x = static_cast<int>(cx - ROI_WIDTH / 2);
-        int y = static_cast<int>(cy - ROI_HEIGHT / 2);
+        int x = static_cast<int>(cx - roiW / 2);
+        int y = static_cast<int>(cy - roiH / 2);
 
-        cv::Rect roi(x, y, ROI_WIDTH, ROI_HEIGHT);
+        cv::Rect roi(x, y, roiW, roiH);
         if (roi.x >= 0 && roi.y >= 0 &&
             roi.x + roi.width <= grayImage.cols &&
             roi.y + roi.height <= grayImage.rows)

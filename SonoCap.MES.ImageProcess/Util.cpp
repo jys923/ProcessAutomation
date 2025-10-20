@@ -3,6 +3,44 @@
 using namespace cv;
 using namespace std;
 
+
+// =========================================================
+// Threshold Sweep 생성
+// =========================================================
+std::vector<double> GenerateThresholds(double base, double range, int count)
+{
+    std::vector<double> ths;
+    double start = base - range;
+    double end = base + range;
+    for (int i = 0; i < count; ++i)
+        ths.push_back(start + i * ((end - start) / (count - 1)));
+    return ths;
+}
+// =========================================================
+// 전처리: Gray, ROI, Histogram, Threshold 계산
+// =========================================================
+PreprocessResult CalcHistBasedThreshold(const cv::Mat& srcImg, const MyOpenCVWrapper::RoiParams& roi)
+{
+    PreprocessResult out;
+    cv::cvtColor(srcImg, out.gray, cv::COLOR_BGRA2GRAY);
+
+    out.roi = cv::Rect(roi.x, roi.y, roi.width, roi.height);
+    if (out.roi.x < 0 || out.roi.y < 0 ||
+        out.roi.x + out.roi.width > out.gray.cols ||
+        out.roi.y + out.roi.height > out.gray.rows) {
+        Logger::Error("ROI out of bounds");
+        return out;
+    }
+
+    out.roiGray = out.gray(out.roi);
+
+    calcHist(out.roiGray, out.hist);
+    out.baseThreshold = calcPerThreshold(out.hist, out.roiGray, 0.95);
+
+    Logger::Information("Base threshold (95th percentile): {0}", out.baseThreshold);
+    return out;
+}
+
 std::vector<cv::Point> removeOutliersIQR(const std::vector<cv::Point>& points, double k_factor)
 {
     if (points.empty()) {
@@ -280,6 +318,8 @@ void fitLineAndDraw(cv::Mat& roiImage, const std::vector<cv::Point>& contour,
 cv::Mat g_srcImage;
 cv::Mat g_dstImage;
 std::string g_windowName;
+int g_threshold = 100; // 초기 dr min 값
+int g_maxval = 255; // 초기 dr min 값
 int g_drmin = 0; // 초기 dr min 값
 int g_drmax = 100; // 초기 dr max 값
 
@@ -292,6 +332,46 @@ void processAndDisplayImage() {
     cv::imshow(g_windowName, g_dstImage);
 }
 
+void processAndDisplayImageThreshold() {
+    if (g_drmin >= g_drmax) {
+        return;
+    }
+    cv::threshold(g_srcImage, g_dstImage, g_threshold, g_maxval, cv::THRESH_BINARY);
+    cv::imshow(g_windowName, g_dstImage);
+}
+
+// DR Min 트랙바 콜백 함수
+void onTrackbarThreshold(int, void*) {
+    //if (g_drmin >= g_drmax) {
+    //    g_drmax = g_drmin + 1; // DR Min이 DR Max보다 커지면, DR Max를 DR Min + 1로 설정
+    //    if (g_drmax > 100) { // DR Max가 100을 넘지 않도록
+    //        g_drmax = 100;
+    //        g_drmin = g_drmax - 1; // DR Max가 100이 되면 DR Min은 99로 제한
+    //        if (g_drmin < 0) g_drmin = 0; // 최소값 0 보장
+    //        cv::setTrackbarPos("DR Min", "Trackbar Window", g_drmin);
+    //    }
+    //    cv::setTrackbarPos("DR Max", "Trackbar Window", g_drmax);
+    //}
+    processAndDisplayImageThreshold();
+}
+
+// DR Max 트랙바 콜백 함수
+void onTrackbarMaxval(int, void*) {
+    //if (g_drmax <= g_drmin) {
+    //    g_drmin = g_drmax - 1; // DR Max가 DR Min보다 작아지면, DR Min을 DR Max - 1로 설정
+    //    if (g_drmin < 0) { // DR Min이 0보다 작아지지 않도록
+    //        g_drmin = 0;
+    //        g_drmax = g_drmin + 1; // DR Min이 0이 되면 DR Max는 1로 제한
+    //        if (g_drmax > 100) g_drmax = 100; // 최대값 100 보장
+    //        cv::setTrackbarPos("DR Max", "Trackbar Window", g_drmax);
+    //    }
+    //    cv::setTrackbarPos("DR Min", "Trackbar Window", g_drmin);
+    //}
+    processAndDisplayImageThreshold();
+}
+
+static const std::string TRACKBAR_WINDOW = "Threshold Window";
+
 // DR Min 트랙바 콜백 함수
 void onTrackbarMin(int, void*) {
     if (g_drmin >= g_drmax) {
@@ -300,9 +380,9 @@ void onTrackbarMin(int, void*) {
             g_drmax = 100;
             g_drmin = g_drmax - 1; // DR Max가 100이 되면 DR Min은 99로 제한
             if (g_drmin < 0) g_drmin = 0; // 최소값 0 보장
-            cv::setTrackbarPos("DR Min", g_windowName, g_drmin);
+            cv::setTrackbarPos("DR Min", TRACKBAR_WINDOW, g_drmin);
         }
-        cv::setTrackbarPos("DR Max", g_windowName, g_drmax);
+        cv::setTrackbarPos("DR Max", TRACKBAR_WINDOW, g_drmax);
     }
     processAndDisplayImage();
 }
@@ -315,11 +395,90 @@ void onTrackbarMax(int, void*) {
             g_drmin = 0;
             g_drmax = g_drmin + 1; // DR Min이 0이 되면 DR Max는 1로 제한
             if (g_drmax > 100) g_drmax = 100; // 최대값 100 보장
-            cv::setTrackbarPos("DR Max", g_windowName, g_drmax);
+            cv::setTrackbarPos("DR Max", TRACKBAR_WINDOW, g_drmax);
         }
-        cv::setTrackbarPos("DR Min", g_windowName, g_drmin);
+        cv::setTrackbarPos("DR Min", TRACKBAR_WINDOW, g_drmin);
     }
     processAndDisplayImage();
+}
+
+void showAndDRClip(const std::string& windowName, const cv::Mat& image, int& outDrMin, int& outDrMax) {
+    if (!(MyOpenCVWrapper::ConfigManager::getInstance().getGeneralSettings().debugImg))
+    {
+        return;
+    }
+
+    if (image.empty()) {
+        Logger::Error("Error: Image is empty!");
+        return;
+    }
+
+    g_windowName = windowName;
+    g_srcImage = image.clone();
+
+    if (g_srcImage.channels() == 3) {
+        cv::cvtColor(g_srcImage, g_srcImage, cv::COLOR_BGR2GRAY);
+    }
+
+    g_drmin = outDrMin;
+    g_drmax = outDrMax;
+
+    cv::namedWindow(g_windowName, cv::WINDOW_AUTOSIZE);
+
+    cv::namedWindow(TRACKBAR_WINDOW, cv::WINDOW_AUTOSIZE);
+    cv::createTrackbar("DR Min", TRACKBAR_WINDOW, &g_drmin, 100, onTrackbarMin);
+    cv::createTrackbar("DR Max", TRACKBAR_WINDOW, &g_drmax, 100, onTrackbarMax);
+
+    processAndDisplayImage();
+
+    cv::waitKey(0);
+
+    // 함수가 종료되기 전에 변경된 값을 참조에 할당
+    outDrMin = g_drmin;
+    outDrMax = g_drmax;
+
+    cv::destroyWindow(TRACKBAR_WINDOW);
+    cv::destroyWindow(g_windowName);
+}
+
+void showAndThreshold(const std::string& windowName, const cv::Mat& image, double& outThreshold, int& outMaxval)
+{
+    if (!(MyOpenCVWrapper::ConfigManager::getInstance().getGeneralSettings().debugImg))
+    {
+        return;
+    }
+
+    if (image.empty()) {
+        Logger::Error("Error: Image is empty!");
+        return;
+    }
+
+    g_windowName = windowName;
+    g_srcImage = image.clone();
+
+    if (g_srcImage.channels() == 3) {
+        cv::cvtColor(g_srcImage, g_srcImage, cv::COLOR_BGR2GRAY);
+    }
+
+    g_threshold = outThreshold;
+    g_maxval = outMaxval;
+
+    cv::namedWindow(g_windowName, cv::WINDOW_AUTOSIZE);
+
+    cv::namedWindow(TRACKBAR_WINDOW, cv::WINDOW_AUTOSIZE);
+    cv::createTrackbar("threshold", TRACKBAR_WINDOW, &g_threshold, 255, onTrackbarThreshold);
+    cv::createTrackbar("maxval", TRACKBAR_WINDOW, &g_maxval, 255, onTrackbarMaxval);
+
+    processAndDisplayImageThreshold();
+
+    cv::waitKey(0);
+
+    // 함수가 종료되기 전에 변경된 값을 참조에 할당
+    outThreshold = g_threshold;
+    outMaxval = g_maxval;
+
+    cv::destroyWindow(TRACKBAR_WINDOW);
+    cv::destroyWindow(g_windowName);
 }
 
 void showAndThreshold(const std::string& windowName, const cv::Mat& image) {
@@ -368,6 +527,105 @@ void onTrackbar(int, void*) {
 
     // 결과를 화면에 표시
     cv::imshow(g_windowName, g_dstImage);
+}
+
+/**
+ * @brief 이미지 히스토그램을 계산하고, out 파라미터를 통해 결과를 반환합니다.
+ * @param grayImage 단일 채널 그레이스케일 이미지.
+ * @param hist out 파라미터: 계산된 히스토그램을 저장할 cv::Mat 객체.
+ */
+void calcHist(const cv::Mat& grayImage, cv::Mat& hist) {
+    if (grayImage.empty() || grayImage.channels() != 1) {
+        // 오류 처리. hist는 비어있는 상태로 둡니다.
+        return;
+    }
+    int histSize = 256;
+    float range[] = { 0, 256 };
+    const float* histRange = { range };
+    cv::calcHist(&grayImage, 1, 0, cv::Mat(), hist, 1, &histSize, &histRange, true, false);
+}
+
+/**
+ * @brief 히스토그램 데이터를 문자열로 변환하여 반환합니다.
+ * @param hist 변환할 히스토그램 cv::Mat 객체.
+ * @return 포맷팅된 히스토그램 데이터 문자열.
+ */
+std::string matToString(const cv::Mat& hist) {
+    if (hist.empty()) {
+        return "Histogram data is empty.";
+    }
+    cv::Ptr<cv::Formatted> fmt = cv::format(hist, cv::Formatter::FMT_NUMPY);
+    std::ostringstream oss;
+    oss << fmt;
+    std::string s = oss.str();
+    s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
+    s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+    return s;
+}
+
+/**
+ * @brief 히스토그램 데이터를 시각화하여 그래프 이미지로 생성합니다.
+ * @param hist 입력: 계산된 히스토그램 cv::Mat 객체.
+ * @param imgHist 출력: 생성된 히스토그램 그래프 이미지.
+ */
+void plotHist(const cv::Mat& hist, cv::Mat& imgHist) {
+    if (hist.empty()) {
+        imgHist = cv::Mat();
+        return;
+    }
+
+    // 히스토그램의 최댓값 찾기
+    double minVal, maxVal;
+    cv::Point minLoc, maxLoc;
+    cv::minMaxLoc(hist, &minVal, &maxVal, &minLoc, &maxLoc);
+
+    // 그래프를 그릴 이미지 초기화 (흰색 배경)
+    int histSize = hist.rows;
+    int graphHeight = 100;
+    imgHist.create(graphHeight, histSize, CV_8UC1);
+    imgHist.setTo(cv::Scalar(255));
+
+    // 히스토그램 값을 기준으로 그래프 그리기
+    for (int i = 0; i < histSize; ++i) {
+        // 현재 픽셀 값의 비율에 맞춰 높이 계산
+        int barHeight = cvRound(hist.at<float>(i, 0) * graphHeight / maxVal);
+
+        // 라인 그리기 (아래에서 위로)
+        cv::line(imgHist, cv::Point(i, graphHeight),
+            cv::Point(i, graphHeight - barHeight),
+            cv::Scalar(0));
+    }
+}
+
+/**
+ * @brief 이미 계산된 히스토그램에서 분위수 임계값을 계산합니다.
+ *
+ * @param hist 입력: 계산된 히스토그램 cv::Mat 객체.
+ * @param grayImage 입력: 전체 픽셀 수를 얻기 위한 원본 이미지.
+ * @param targetPercentile 입력: 목표 분위수 비율 (0.0에서 1.0 사이).
+ * @return 계산된 임계값 (double).
+ */
+double calcPerThreshold(const cv::Mat& hist, const cv::Mat& grayImage, double targetPercentile) {
+    if (hist.empty() || grayImage.empty()) {
+        return -1.0;
+    }
+
+    // 누적 히스토그램 계산
+    std::vector<double> cumHist(hist.rows, 0.0);
+    cumHist[0] = hist.at<float>(0);
+    for (int i = 1; i < hist.rows; ++i) {
+        cumHist[i] = cumHist[i - 1] + hist.at<float>(i);
+    }
+    double totalPixels = static_cast<double>(grayImage.total());
+
+    // 목표 분위수 지점 찾기
+    for (int i = 0; i < hist.rows; ++i) {
+        if (cumHist[i] / totalPixels >= targetPercentile) {
+            return static_cast<double>(i);
+        }
+    }
+
+    return 255.0;
 }
 
 // 이미지 표시 및 임계값 조절 함수 정의

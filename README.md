@@ -14,11 +14,11 @@ remove-migration
 ```
 
 ## Todo
+- [ ] ML 적용
 - [ ] probe sn을 rom에 쓰기  
 - [ ] pc sn api server
 - [ ] 온라인 db 서버, 파일 연동 확인
 - [ ] 중국 기하학적 왜곡 기준, 절대값 팬텀 데이터 취득
-- [ ] 
 - [ ] ptr 뷰 관련 정리
 - [X] td type으로 최종 생성 시리얼 5, 7.5 차이
 - [X] td 엑셀 읽을떄 구분 추가
