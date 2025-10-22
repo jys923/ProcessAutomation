@@ -181,5 +181,70 @@ namespace SonoCap.MES.Repositories
             return resultQuery.ToList();
         }
 
+        public async Task<IEnumerable<Test>> GetLatestTestsAsync(int? transducerId = null, int? transducerModuleId = null, int? probeId = null)
+        {
+            // 매개변수 중 적어도 하나는 null이 아닌지 확인
+            if (transducerId == null && transducerModuleId == null && probeId == null)
+            {
+                throw new ArgumentException("At least one of 'transducerId', 'transducerModuleId', or 'probeId' must be provided.");
+            }
+
+            IQueryable<Test> resultQuery = _context.Set<Test>();
+
+            // ----------------- [ 필터 조건: ID 사용 ] -----------------
+            if (transducerId.HasValue)
+            {
+                resultQuery = resultQuery
+                    .Where(test => test.TransducerId == transducerId.Value);
+            }
+            else if (transducerModuleId.HasValue)
+            {
+                resultQuery = resultQuery
+                    .Where(test => test.TransducerModuleId == transducerModuleId.Value);
+            }
+            else if (probeId.HasValue)
+            {
+                resultQuery = resultQuery
+                    .Where(test => test.ProbeId == probeId.Value);
+            }
+
+            // ----------------- [ 최신 Test 항목 쿼리 조건: ID 사용 ] -----------------
+            // 기존 GetLatestTests 로직과 동일하나, ID를 사용합니다.
+            if (transducerId.HasValue)
+            {
+                resultQuery = resultQuery
+                    .Where(test => new[] { 1, 2, 3 }.Contains(test.TestTypeId)
+                                 && test.Id == (
+                                     from t2 in _context.Set<Test>()
+                                     where t2.TransducerId == transducerId.Value
+                                       && t2.TestTypeId == test.TestTypeId
+                                     select t2.Id).Max());
+            }
+            else if (transducerModuleId.HasValue)
+            {
+                resultQuery = resultQuery
+                    .Where(test => new[] { 1, 2, 3 }.Contains(test.TestTypeId)
+                                 && test.Id == (
+                                     from t2 in _context.Set<Test>()
+                                     where t2.TransducerModuleId == transducerModuleId.Value
+                                       && t2.TestTypeId == test.TestTypeId
+                                     select t2.Id).Max());
+            }
+            else if (probeId.HasValue)
+            {
+                resultQuery = resultQuery
+                    .Where(test => new[] { 1, 2, 3 }.Contains(test.TestTypeId)
+                                 && test.Id == (
+                                     from t2 in _context.Set<Test>()
+                                     where t2.ProbeId == probeId.Value
+                                       && t2.TestTypeId == test.TestTypeId
+                                     select t2.Id).Max());
+            }
+
+            resultQuery = resultQuery.OrderBy(test => test.TestTypeId);
+
+            // ToList() 대신 비동기 메서드인 ToListAsync()를 사용하고 await를 붙입니다.
+            return await resultQuery.ToListAsync();
+        }
     }
 }
