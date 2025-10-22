@@ -3,6 +3,44 @@
 using namespace cv;
 using namespace std;
 
+
+// =========================================================
+// Threshold Sweep 생성
+// =========================================================
+std::vector<double> GenerateThresholds(double base, double range, int count)
+{
+    std::vector<double> ths;
+    double start = base - range;
+    double end = base + range;
+    for (int i = 0; i < count; ++i)
+        ths.push_back(start + i * ((end - start) / (count - 1)));
+    return ths;
+}
+// =========================================================
+// 전처리: Gray, ROI, Histogram, Threshold 계산
+// =========================================================
+PreprocessResult CalcHistBasedThreshold(const cv::Mat& srcImg, const MyOpenCVWrapper::RoiParams& roi)
+{
+    PreprocessResult out;
+    cv::cvtColor(srcImg, out.gray, cv::COLOR_BGRA2GRAY);
+
+    out.roi = cv::Rect(roi.x, roi.y, roi.width, roi.height);
+    if (out.roi.x < 0 || out.roi.y < 0 ||
+        out.roi.x + out.roi.width > out.gray.cols ||
+        out.roi.y + out.roi.height > out.gray.rows) {
+        Logger::Error("ROI out of bounds");
+        return out;
+    }
+
+    out.roiGray = out.gray(out.roi);
+
+    calcHist(out.roiGray, out.hist);
+    out.baseThreshold = calcPerThreshold(out.hist, out.roiGray, 0.95);
+
+    Logger::Information("Base threshold (95th percentile): {0}", out.baseThreshold);
+    return out;
+}
+
 std::vector<cv::Point> removeOutliersIQR(const std::vector<cv::Point>& points, double k_factor)
 {
     if (points.empty()) {

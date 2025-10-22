@@ -9,8 +9,20 @@
 #include <vector>
 #include <numeric>
 #include <nlohmann/json.hpp>
+#include <algorithm>
 
 using namespace SonoCap::Commons::Logging;
+
+struct PreprocessResult {
+    cv::Mat gray;
+    cv::Mat roiGray;
+    cv::Rect roi;
+    cv::Mat hist;
+    double baseThreshold;
+};
+
+std::vector<double> GenerateThresholds(double base, double range, int count);
+PreprocessResult CalcHistBasedThreshold(const cv::Mat& srcImg, const MyOpenCVWrapper::RoiParams& roi);
 
 struct EnvGeoData {
     float leftmost_x;
@@ -232,14 +244,15 @@ struct EnvGeoResult {
     YIntervalMetrics yIntervalMetrics;
     std::vector<cv::Point> finalPoints;
 };
-    inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
-        j = nlohmann::json{
-            {"findPoints", r.findPoints},
-            {"madMetrics", r.madMetrics},
-            {"yIntervalMetrics", r.yIntervalMetrics},
-            {"finalPoints", r.finalPoints}
-        };
-    }
+
+inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
+    j = nlohmann::json{
+        {"findPoints", r.findPoints},
+        {"madMetrics", r.madMetrics},
+        {"yIntervalMetrics", r.yIntervalMetrics},
+        {"finalPoints", r.finalPoints}
+    };
+}
 
 
 // Geo 검사 결과
