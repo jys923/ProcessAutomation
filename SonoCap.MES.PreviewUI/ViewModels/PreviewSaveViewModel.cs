@@ -30,17 +30,20 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         // Fields
         private readonly GlobalModel _model;
         private readonly IMotorService _motorService;
-        private USRenderService _usRenderer;
+        private readonly USRenderService _usRenderer;
         private double _rotationAngle = 0.0;
         private int _verticalShift = 0;
         //private bool _flipVertical = false;
 
         // Constructor
         public PreviewSaveViewModel(
+            USRenderService usRenderer,
             GlobalModel model,
             IMotorService motorService)
         {
             RecorderStatus = RecorderStatus.Idle;
+            
+            _usRenderer = usRenderer;
             _model = model;
             _motorService = motorService;
 
@@ -336,6 +339,61 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             ShowSnackbarWithOpen(path);
         }
 
+        [ObservableProperty]
+        private Brush _envRecBtnColor = Brushes.LightBlue;
+
+        [ObservableProperty]
+        private bool _isEnvRecording = false;
+
+        [RelayCommand]
+        private void EnvRec()
+        {
+            if (!IsEnvRecording)
+            {
+                // 예: depth 값이 뷰모델 프로퍼티로 있음
+                string recDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CapturedEnv");
+                Directory.CreateDirectory(recDir);
+
+                string filePath = Path.Combine(recDir,
+                    $"{DateTime.Now:yyyyMMdd_HHmmss}_envRec_{_model.ViewDepthCm}.bin");
+
+                _usRenderer.StartEnvRec(filePath);
+                IsEnvRecording = true;
+                EnvRecBtnColor = Brushes.Tomato;
+
+                Log.Information($"[PreviewViewModel] Env recording started: {filePath}");
+            }
+            else
+            {
+                _usRenderer.StopEnvRec();
+                IsEnvRecording = false;
+                EnvRecBtnColor = Brushes.LightGray;
+
+                Log.Information("[PreviewViewModel] Env recording stopped.");
+            }
+        }
+        private void EnvRec2()
+        {
+            if (!_isEnvRecording)
+            {
+                // 🔴 녹화 시작
+                _usRenderer.StartEnvRec();
+                IsEnvRecording = true;
+                EnvRecBtnColor = Brushes.LightSalmon;
+
+                Log.Information("[PreviewViewModel] Env recording started.");
+            }
+            else
+            {
+                // ⚪ 녹화 정지
+                _usRenderer.StopEnvRec();
+                IsEnvRecording = false;
+                EnvRecBtnColor = Brushes.LightBlue;
+
+                Log.Information("[PreviewViewModel] Env recording stopped.");
+            }
+        }
+
         public BitmapSource AddTextToBitmap(BitmapSource originalBitmap, string textToAdd, Point position, double fontSize, SolidColorBrush textColor)
         {
             // 이미지 그리기 작업에 사용할 DrawingVisual과 DrawingContext를 생성합니다.
@@ -538,7 +596,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         // Public Methods
         public void RenderStart()
         {
-            _usRenderer = new USRenderService(512, 512);
+            //_usRenderer = new USRenderService(512, 512);
             _usRenderer.connectRenderToTargetFunction(UpdateImageSource, UpdateEnvImageSource);
             _usRenderer.RenderStart();
         }

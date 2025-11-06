@@ -4,19 +4,31 @@ using System.Text.Json;
 
 namespace SonoCap.MES.UI.Services.TestStrategies
 {
-    public class GrayTestStrategy : ITestStrategy
+    public class GrayTestStrategy : BaseTestStrategy<Gray>
     {
-        // 생성자에서 아무것도 받지 않습니다.
-        public void Execute(TestContext context)
+        protected override void ExecuteTestLoop(TestContext c)
         {
-            InspectionPartType partType = InspectionPartType.Gray;
-            // 컨텍스트를 통해 함수에 접근
-            context.InspectionFunction(context.ImageBufferPtr, context.SnapshotImg.PixelWidth, context.SnapshotImg.PixelHeight, context.ResultBufferPtr, context.TextBufferPtr, (int)partType);
+            var type = (int)InspectionPartType.Gray;
 
-            string resultText = System.Text.Encoding.UTF8.GetString(context.TextArray).TrimEnd('\0');
-            var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
-            context.ChangedImgMetadata = JsonSerializer.Serialize(parsed.Gray);
-            context.ResultScore = InspectionCalculator.CalculateGrayScore(parsed.Gray);
+            // Gray는 단일 프레임만 검사하므로 첫 번째 버퍼만 사용
+            c.InspectionFunction(
+                c.InputBufferPtrs[0],
+                c.SnapshotImg.PixelWidth,
+                c.SnapshotImg.PixelHeight,
+                c.ResultBufferPtrs[0],
+                c.ResultTextBufferPtrs[0],
+                type
+            );
+        }
+
+        protected override int GetFinalResultIndex(TestContext c)
+            => 0; // 중앙 프레임
+
+        protected override void UpdateContextMetadataAndScore(TestContext c, Gray parsed)
+        {
+            c.ChangedImgMetadata = JsonSerializer.Serialize(parsed);
+            c.ResultScore = InspectionCalculator.CalculateGrayScore(parsed);
         }
     }
+
 }

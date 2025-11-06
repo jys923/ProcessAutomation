@@ -69,15 +69,15 @@ static bool RunResTrial(ResTrialOutcome& out,
         cv::Point2f relativeCenter(m.m10 / m.m00, m.m01 / m.m00);
         cv::Point2f absoluteCenter = relativeCenter + cv::Point2f(roi.x, roi.y);
 
-        Logger::Information(
-            "relativeCenter = ({0}, {1}), absoluteCenter = ({2}, {3}), fixedRefPoint = ({4}, {5})",
-            relativeCenter.x,
-            relativeCenter.y,
-            absoluteCenter.x,
-            absoluteCenter.y,
-            fixedRefPoint.x,
-            fixedRefPoint.y
-        );
+        //Logger::Information(
+        //    "relativeCenter = ({0}, {1}), absoluteCenter = ({2}, {3}), fixedRefPoint = ({4}, {5})",
+        //    relativeCenter.x,
+        //    relativeCenter.y,
+        //    absoluteCenter.x,
+        //    absoluteCenter.y,
+        //    fixedRefPoint.x,
+        //    fixedRefPoint.y
+        //);
 
         double currentQuality;
         cv::Mat mask = cv::Mat::zeros(roiGray.size(), CV_8UC1);
@@ -279,10 +279,10 @@ void LogEnvGeoSummary(const EnvGeoResult& e)
         "EnvGeoResult | findPts=%3zu | finalPts=%3zu | MAD(mean=%.3f,std=%.3f) | YInt(min=%.2f,max=%.2f)",
         e.findPoints.size(),
         e.finalPoints.size(),
-        e.madMetrics.median_x,
-        e.madMetrics.mad_x,
-        e.yIntervalMetrics.target_y_interval,
-        e.yIntervalMetrics.y_tolerance
+        e.xFilter.ref_point.x,
+        e.xFilter.interval,
+        e.yFilter.interval,
+        e.yFilter.tolerance
     );
 }
 
@@ -311,6 +311,50 @@ inline void LogResRow(const ResTrialOutcome& t, size_t idx)
     );
 }
 
+inline void LogResSummary(const std::vector<ResTrialOutcome>& trials)
+{
+    if (trials.empty())
+    {
+        Logger::Information("No Res trials to log.");
+        return;
+    }
+
+    using namespace System;
+    using namespace System::Text;
+
+    StringBuilder^ sb = gcnew StringBuilder(1024);
+
+    sb->AppendLine("");
+    sb->AppendLine("---- Res Trials Summary ----");
+    sb->AppendLine("Idx | Thresh | Hor(px) | Ver(px) | Edge1 | Edge2 | Edge3 | EdgeAvg");
+    sb->AppendLine("-----------------------------------------------------------------");
+
+    for (int i = 0; i < static_cast<int>(trials.size()); ++i)
+    {
+        const auto& t = trials[i];
+        const auto& r = t.result;
+        double avgEdge = (r.edgeDensity1 + r.edgeDensity2 + r.edgeDensity3) / 3.0;
+
+        sb->AppendFormat(
+            "{0,3} | {1,7:F3} | {2,7:F2} | {3,7:F2} | {4,6:F3} | {5,6:F3} | {6,6:F3} | {7,7:F3}\n",
+            i,
+            t.threshold,
+            r.horizontalDist,
+            r.verticalDist,
+            r.edgeDensity1,
+            r.edgeDensity2,
+            r.edgeDensity3,
+            avgEdge
+        );
+    }
+
+    sb->AppendLine("-----------------------------------------------------------------");
+
+    //한 번에 전체 출력
+    Logger::Information("{0}", sb->ToString());
+}
+
+
 void MyOpenCVWrapper::ResInspection(cv::Mat& srcImg, ResResult& result)
 {
     const auto& cfg = ConfigManager::getInstance().getInspectionParams().res;
@@ -332,12 +376,11 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& srcImg, ResResult& result)
     }
     else
     {
-        LogResHeader();
-        for (size_t i = 0; i < trials.size(); ++i) {
-            for (size_t i = 0; i < trials.size(); ++i) {
-                LogResRow(trials[i], i);
-            }
-        }
+        //LogResHeader();
+        //for (size_t i = 0; i < trials.size(); ++i) {
+        //    LogResRow(trials[i], i);
+        //}
+		LogResSummary(trials);
     }
 
     const ResTrialOutcome& chosen = SelectBestTrial(trials); //trials.front();

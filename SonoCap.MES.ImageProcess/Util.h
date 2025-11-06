@@ -64,6 +64,7 @@ void plotHist(const cv::Mat& hist, cv::Mat& imgHist);
 double calcPerThreshold(const cv::Mat& hist, const cv::Mat& grayImage, double targetPercentile);
 
 // 상수 정의
+// 3채널 BGR 색상 정의
 const cv::Scalar red(0, 0, 255);
 const cv::Scalar orange(0, 165, 255);
 const cv::Scalar green(0, 255, 0);
@@ -73,7 +74,24 @@ const cv::Scalar cyan(255, 255, 0);
 const cv::Scalar magenta(255, 0, 255);
 const cv::Scalar white(255, 255, 255);
 const cv::Scalar black(0, 0, 0);
+const cv::Scalar skyBlue(235, 206, 135);
 
+// --- 새롭게 추가된 인기 색상 ---
+const cv::Scalar purple(128, 0, 128);
+const cv::Scalar teal(128, 128, 0);
+const cv::Scalar gold(0, 215, 255);
+const cv::Scalar silver(192, 192, 192);
+const cv::Scalar lime(0, 255, 0);
+const cv::Scalar pink(203, 192, 255);
+const cv::Scalar HotPink(203, 64, 255, 255);
+const cv::Scalar Lime(50, 255, 50);
+const cv::Scalar DarkRed(0, 0, 180);
+const cv::Scalar DeepBlue(180, 64, 0);
+const cv::Scalar NeonCyan(255, 255, 0);
+const cv::Scalar BrightOrange(0, 165, 255);
+const cv::Scalar LightGray(240, 240, 240);
+
+// 4채널 BGRA 색상 정의 (알파=255는 불투명)
 const cv::Scalar RedA = cv::Scalar(0, 0, 255, 255);
 const cv::Scalar OrangeA = cv::Scalar(0, 165, 255, 255);
 const cv::Scalar GreenA = cv::Scalar(0, 255, 0, 255);
@@ -84,6 +102,21 @@ const cv::Scalar MagentaA = cv::Scalar(255, 0, 255, 255);
 const cv::Scalar WhiteA = cv::Scalar(255, 255, 255, 255);
 const cv::Scalar GrayA = cv::Scalar(128, 128, 128, 255);
 const cv::Scalar BlackA = cv::Scalar(0, 0, 0, 255);
+const cv::Scalar SkyBlueA = cv::Scalar(235, 206, 135, 255);
+
+// --- 새롭게 추가된 인기 색상 (4채널) ---
+const cv::Scalar PurpleA = cv::Scalar(128, 0, 128, 255);
+const cv::Scalar TealA = cv::Scalar(128, 128, 0, 255);
+const cv::Scalar GoldA = cv::Scalar(0, 215, 255, 255);
+const cv::Scalar SilverA = cv::Scalar(192, 192, 192, 255);
+const cv::Scalar LimeA = cv::Scalar(0, 255, 0, 255);
+const cv::Scalar PinkA(203, 192, 255, 255);
+const cv::Scalar HotPinkA(203, 64, 255, 255);
+const cv::Scalar DarkRedA(0, 0, 180, 255);
+const cv::Scalar DeepBlueA(180, 64, 0, 255);
+const cv::Scalar NeonCyanA(255, 255, 0, 255);
+const cv::Scalar BrightOrangeA(0, 165, 255, 255);
+const cv::Scalar LightGrayA(240, 240, 240, 255); 
 
 // Gray 검사 결과
 struct GrayResult {
@@ -180,17 +213,18 @@ struct EnvGeoResult2 {
 
     // ... 기존 필드들은 삭제 (y_matched_pattern_intervals_count 등) ...
 };
-    inline void to_json(nlohmann::json& j, const EnvGeoResult2& r) {
-        j = nlohmann::json::object();
-        j["PointsOnLeftEdge"] = r.pointsOnLeftEdge;
-        j["XUniformityStdDev"] = r.x_uniformity_std_dev;
 
-        // 새로운 필드를 JSON에 추가
-        j["YIntervalErrors"] = r.y_interval_errors;
+inline void to_json(nlohmann::json& j, const EnvGeoResult2& r) {
+    j = nlohmann::json::object();
+    j["PointsOnLeftEdge"] = r.pointsOnLeftEdge;
+    j["XUniformityStdDev"] = r.x_uniformity_std_dev;
 
-        // 만약 요약 정보가 필요하다면 추가
-        j["YMaxAbsErrorToPattern"] = r.y_max_abs_error_to_pattern;
-    }
+    // 새로운 필드를 JSON에 추가
+    j["YIntervalErrors"] = r.y_interval_errors;
+
+    // 만약 요약 정보가 필요하다면 추가
+    j["YMaxAbsErrorToPattern"] = r.y_max_abs_error_to_pattern;
+}
 
 
 //struct EnvGeoResult {
@@ -207,15 +241,15 @@ struct MadMetrics {
     double x_tolerance;
     std::vector<cv::Point> filtered_out_by_x;
 };
-    inline void to_json(nlohmann::json& j, const MadMetrics& m) {
-        j = nlohmann::json{
-            {"median_x", m.median_x},
-            {"mad_x", m.mad_x},
-            {"x_tolerance", m.x_tolerance},
-            {"filtered_out_by_x", m.filtered_out_by_x}
-        };
-    }
 
+inline void to_json(nlohmann::json& j, const MadMetrics& m) {
+    j = nlohmann::json{
+        {"median_x", m.median_x},
+        {"mad_x", m.mad_x},
+        {"x_tolerance", m.x_tolerance},
+        {"filtered_out_by_x", m.filtered_out_by_x}
+    };
+}
 
 // YIntervalMetrics 정보를 담는 구조체
 struct YIntervalMetrics {
@@ -224,32 +258,63 @@ struct YIntervalMetrics {
     cv::Point best_ref_point;
     std::vector<cv::Point> filtered_out_by_y;
 };
-    inline void to_json(nlohmann::json& j, const YIntervalMetrics& y) {
-        j = nlohmann::json{
-            {"target_y_interval", y.target_y_interval},
-            {"y_tolerance", y.y_tolerance},
-            {"best_ref_point", y.best_ref_point},
-            {"filtered_out_by_y", y.filtered_out_by_y}
-        };
-    }
 
+inline void to_json(nlohmann::json& j, const YIntervalMetrics& y) {
+    j = nlohmann::json{
+        {"target_y_interval", y.target_y_interval},
+        {"y_tolerance", y.y_tolerance},
+        {"best_ref_point", y.best_ref_point},
+        {"filtered_out_by_y", y.filtered_out_by_y}
+    };
+}
+
+struct AxisFilter {
+    double interval = 0.0;             // Y는 target interval, X는 0
+    double tolerance = 0.0;            // 공통 허용 오차
+    cv::Point ref_point;             // X: (bestK,0), Y: 기준점
+    std::vector<cv::Point> filtered_out; // 필터로 제외된 점들
+};
+
+inline void to_json(nlohmann::json& j, const AxisFilter& f) {
+    j = nlohmann::json{
+        {"interval", f.interval},
+        {"tolerance", f.tolerance},
+        {"ref_point", f.ref_point},
+        {"filtered_out", f.filtered_out}
+    };
+}
 
 struct EnvGeoResult {
     std::vector<cv::Point> findPoints;
-    MadMetrics madMetrics;
-    YIntervalMetrics yIntervalMetrics;
+    AxisFilter xFilter;
+    AxisFilter yFilter;;
     std::vector<cv::Point> finalPoints;
 };
 
 inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
     j = nlohmann::json{
         {"findPoints", r.findPoints},
-        {"madMetrics", r.madMetrics},
-        {"yIntervalMetrics", r.yIntervalMetrics},
+        {"xFilter", r.xFilter},
+        {"yFilter", r.yFilter},
         {"finalPoints", r.finalPoints}
     };
 }
 
+//struct EnvGeoResult {
+//    std::vector<cv::Point> findPoints;
+//    MadMetrics madMetrics;
+//    YIntervalMetrics yIntervalMetrics;
+//    std::vector<cv::Point> finalPoints;
+//};
+//
+//inline void to_json(nlohmann::json& j, const EnvGeoResult& r) {
+//    j = nlohmann::json{
+//        {"findPoints", r.findPoints},
+//        {"madMetrics", r.madMetrics},
+//        {"yIntervalMetrics", r.yIntervalMetrics},
+//        {"finalPoints", r.finalPoints}
+//    };
+//}
 
 // Geo 검사 결과
 struct GeoResult {

@@ -75,7 +75,7 @@ void MyOpenCVWrapper::RunInspection(System::IntPtr inputBuffer, int imageWidth, 
     // JSON 결과 직렬화
     nlohmann::json j = inspection;
     std::string finalText = j.dump(2);
-    Logger::Information(gcnew System::String(finalText.c_str()));
+    Logger::Information("\n{0}", gcnew System::String(finalText.c_str()));
 
     // 복사
     memcpy(textBuffer.ToPointer(), finalText.c_str(), finalText.size() + 1);

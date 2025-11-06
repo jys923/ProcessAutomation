@@ -18,6 +18,23 @@ namespace SonoCap.WpfCommons
     public static class Utilities
     {
 
+        /// <summary>
+        /// 바이트 배열의 고유성을 빠르게 확인하기 위한 체크섬을 계산합니다.
+        /// (전체 바이트의 합계 사용)
+        /// </summary>
+        public static long CalculateChecksum(byte[] data)
+        {
+            if (data == null || data.Length == 0) return 0;
+
+            // 배열 전체를 순회하며 합계를 계산
+            long checksum = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                checksum += data[i];
+            }
+            return checksum;
+        }
+
         public static void ShiftBytesCircularly(byte[] data, int shiftLength)
         {
             if (data == null || data.Length == 0)

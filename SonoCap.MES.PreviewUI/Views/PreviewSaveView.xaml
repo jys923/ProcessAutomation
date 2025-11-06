@@ -138,6 +138,8 @@
                     <!-- 캡처 버튼 -->
                     <Button Grid.Column="0" Grid.Row="1" FontSize="40" Background="LightBlue" Content="📸" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding CaptureCommand}" />
 
+                    <Button Grid.Column="1" Grid.Row="1" FontSize="40" Background="{Binding EnvRecBtnColor}" Content="ENV_REC" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Center" Command="{Binding EnvRecCommand}" />
+
                     <!-- 녹화 버튼 -->
                     <Button Grid.Column="2" Grid.Row="1" FontSize="40" Background="LightSalmon" Content="{Binding RecordButtonText}" Command="{Binding RecordCommand}" IsEnabled="{Binding IsRecordEnabled}" />
 

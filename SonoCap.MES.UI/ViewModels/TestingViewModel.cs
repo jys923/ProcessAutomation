@@ -53,14 +53,19 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly IMotorService _motorService;
         private readonly ImageService _imageService;
         private readonly IViewService _viewService;
+        private readonly ImageBufferService _imageBufferService;
 
         public TestingViewModel(
+            USRenderService usRenderer,
+            ImageBufferService imageBufferService,
             ImageService imageService,
             IViewService viewService,
             TestingManagementService testingManagementService,
             MES.Services.Model.GlobalModel model,
             IMotorService motorService)
         {
+            _usRenderer = usRenderer;
+            _imageBufferService = imageBufferService;
             _imageService = imageService;
             _viewService = viewService;
             _testingManagementService = testingManagementService;
@@ -121,7 +126,7 @@ namespace SonoCap.MES.UI.ViewModels
 
             if (_depthToScanlineMap.TryGetValue(_model.ViewDepthCm, out int scanlineValue))
             {
-                usRenderer?.SetScanline(scanlineValue);
+                _usRenderer?.SetScanline(scanlineValue);
             }
 
             SelectedViewDepth = _model.ViewDepthCm;
@@ -564,7 +569,7 @@ namespace SonoCap.MES.UI.ViewModels
                 _model.ViewDepthCm = value;
                 if (_depthToScanlineMap.TryGetValue(value, out int scanlineValue))
                 {
-                    usRenderer?.SetScanline(scanlineValue);
+                    _usRenderer?.SetScanline(scanlineValue);
                 }
                 else
                 {
@@ -690,6 +695,7 @@ namespace SonoCap.MES.UI.ViewModels
                 if (value <= DRMax - 2)
                 {
                     _model.DRMin = value;
+                    _usRenderer.DRMin = value;
                     OnPropertyChanged(nameof(DRMin));
                 }
             }
@@ -703,6 +709,7 @@ namespace SonoCap.MES.UI.ViewModels
                 if (value >= DRMin + 2)
                 {
                     _model.DRMax = value;
+                    _usRenderer.DRMax = value;
                     OnPropertyChanged(nameof(DRMax));
                 }
             }
@@ -816,26 +823,26 @@ namespace SonoCap.MES.UI.ViewModels
             if (key == Key.Left)
             {
                 _rotationAngle = (_rotationAngle - 1 + 360) % 360;
-                usRenderer?.SetRotationAngle(_rotationAngle);
+                _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (←)");
                 keyEventArgs.Handled = true;
             }
             else if (key == Key.Right)
             {
                 _rotationAngle = (_rotationAngle + 1) % 360;
-                usRenderer?.SetRotationAngle(_rotationAngle);
+                _usRenderer?.SetRotationAngle(_rotationAngle);
                 Log.Information($"[Rotate] angle → {_rotationAngle}° (→)");
                 keyEventArgs.Handled = true;
             }
             else if (key == Key.Up)
             {
-                usRenderer?.SetVerticalFlip(true);
+                _usRenderer?.SetVerticalFlip(true);
                 Log.Information($"[Flip Vertical] → true (↑)");
                 keyEventArgs.Handled = true;
             }
             else if (key == Key.Down)
             {
-                usRenderer?.SetVerticalFlip(false);
+                _usRenderer?.SetVerticalFlip(false);
                 Log.Information($"[Flip Vertical] → false (↓)");
                 keyEventArgs.Handled = true;
             }
@@ -1526,13 +1533,6 @@ namespace SonoCap.MES.UI.ViewModels
                 ITestStrategy strategy = GetTestStrategy(context.TestType);
                 strategy.Execute(context);
             }
-            catch (ArgumentException ex)
-            {
-                Log.Error(ex.Message);
-                ResLogs.Add(ex.Message);
-                FinalizeTestContext(context);
-                return Task.CompletedTask;
-            }
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred during test execution.");
@@ -1564,53 +1564,93 @@ namespace SonoCap.MES.UI.ViewModels
 
             // 어떤 이미지를 사용할지 ViewModel에서 결정합니다.
             ImageSource imageSourceToUse = null;
+            byte[][] imageSnapshotsToUse = null;
+
+            // 테스트 타입에 따라 _envImageBuffer 또는 _srcImageBuffer (10개 스냅샷 배열)를 선택합니다.
             if (_testType == TestTypes.EnvGeo)
             {
                 imageSourceToUse = EnvImg;
+                imageSnapshotsToUse = _imageBufferService.GetEnvSnapshot(); // _envImageBuffer는 byte[][] 타입이라고 가정
             }
             else
             {
                 imageSourceToUse = SrcImg;
+                imageSnapshotsToUse = _imageBufferService.GetSnapshot(); // _srcImageBuffer는 byte[][] 타입이라고 가정
             }
 
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                context.SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)imageSourceToUse);
+            });
+
             // 공통 함수를 호출하여 이미지 복사 및 메모리를 준비합니다.
-            PrepareImageAndMemory(context, imageSourceToUse);
+            //PrepareImageAndMemory(context, imageSourceToUse);
+            try
+            {
+                PrepareSnapshotsAndMemory(context, imageSnapshotsToUse);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Log.Error(ex, "10개 스냅샷 버퍼 준비 중 오류 발생.");
+                return null;
+            }
 
             return context;
         }
 
-        // 새로운 공통 함수: 이미지 복사 및 메모리 할당 로직을 담당합니다.
-        private void PrepareImageAndMemory(TestContext context, ImageSource imageSource)
+        // TestingViewModel.cs (추가되는 함수)
+
+        private void PrepareSnapshotsAndMemory(TestContext context, byte[][] snapshotSource)
         {
-            App.Current.Dispatcher.Invoke(() =>
+            // 1. 10개 원본 스냅샷 가져오기
+            context.InputSnapshots = snapshotSource;
+
+            if (context.InputSnapshots == null || context.InputSnapshots.Length != 10)
             {
-                context.SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)imageSource);
-            });
+                throw new InvalidOperationException("선택된 버퍼 소스에서 10개의 스냅샷을 가져오지 못했습니다.");
+            }
 
-            BitmapSource bitmapSource = (BitmapSource)context.SnapshotImg;
+            // 이미지 길이 및 텍스트 길이 설정
+            int imageLength = context.InputSnapshots[0].Length;
+            int textLength = 4096;
 
-            GCHandle localImageHandle;
-            context.ImageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out localImageHandle);
-            context.ImageHandle = localImageHandle;
+            // 10개 결과 배열 및 포인터 배열 초기화
+            context.ResultSnapshots = new byte[10][];
+            context.ResultTextArrays = new byte[10][];
+            context.InputBufferPtrs = new IntPtr[10];
+            context.ResultBufferPtrs = new IntPtr[10];
+            context.ResultTextBufferPtrs = new IntPtr[10];
 
-            context.ResultImageArray = new byte[bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4];
-            GCHandle localResultHandle = GCHandle.Alloc(context.ResultImageArray, GCHandleType.Pinned);
-            context.ResultBufferPtr = localResultHandle.AddrOfPinnedObject();
-            context.ResultHandle = localResultHandle;
+            // 10쌍의 메모리를 모두 할당하고 고정(Pinning)합니다.
+            for (int i = 0; i < 10; i++)
+            {
+                // 1. 원본 이미지 배열 고정 (Pinning)
+                GCHandle inputHandle = GCHandle.Alloc(context.InputSnapshots[i], GCHandleType.Pinned);
+                context.PinnedHandles.Add(inputHandle);
+                context.InputBufferPtrs[i] = inputHandle.AddrOfPinnedObject();
 
-            context.TextArray = new byte[4096];
-            GCHandle localTextHandle = GCHandle.Alloc(context.TextArray, GCHandleType.Pinned);
-            context.TextBufferPtr = localTextHandle.AddrOfPinnedObject();
-            context.TextHandle = localTextHandle;
+                // 2. 결과 이미지 배열 할당 및 고정
+                context.ResultSnapshots[i] = new byte[imageLength];
+                GCHandle resultImgHandle = GCHandle.Alloc(context.ResultSnapshots[i], GCHandleType.Pinned);
+                context.PinnedHandles.Add(resultImgHandle);
+                context.ResultBufferPtrs[i] = resultImgHandle.AddrOfPinnedObject();
+
+                // 3. 결과 텍스트 배열 할당 및 고정
+                context.ResultTextArrays[i] = new byte[textLength];
+                GCHandle resultTextHandle = GCHandle.Alloc(context.ResultTextArrays[i], GCHandleType.Pinned);
+                context.PinnedHandles.Add(resultTextHandle);
+                context.ResultTextBufferPtrs[i] = resultTextHandle.AddrOfPinnedObject();
+            }
+
+            Log.Information($"Snapshot Test: 10쌍의 메모리 ({context.PinnedHandles.Count}개 GCHandle) 준비 완료.");
         }
-
         // 공통 정리 함수
         private void FinalizeTestContext(TestContext context)
         {
             if (context == null) return;
 
             // 결과 텍스트 출력
-            context.ResultText = System.Text.Encoding.UTF8.GetString(context.TextArray).TrimEnd('\0');
+            //context.ResultText = System.Text.Encoding.UTF8.GetString(context.TextArray).TrimEnd('\0');
 
             // ViewModel의 속성 업데이트
             ResTxt = context.ChangedImgMetadata;
@@ -1621,23 +1661,13 @@ namespace SonoCap.MES.UI.ViewModels
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
             string originalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
             string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
-            Utilities.SaveBitmap((BitmapImage)context.SnapshotImg, originalImgName);
-
-            BitmapSource resultBitmapSource = BitmapSource.Create(
-                context.SnapshotImg.PixelWidth,
-                context.SnapshotImg.PixelHeight,
-                512, 512,
-                PixelFormats.Bgr32,
-                null,
-                context.ResultImageArray,
-                context.SnapshotImg.PixelWidth * 4
-            );
-            Utilities.SavePng(resultBitmapSource, resultImagePath);
+            Utilities.SaveBitmap(context.SnapshotImg, originalImgName);
+            Utilities.SavePng(context.ResultImg, resultImagePath);
 
             // UI 업데이트
             App.Current.Dispatcher.Invoke(() =>
             {
-                ResImg = resultBitmapSource;
+                ResImg = context.ResultImg;
             });
 
             // DB 저장을 위한 Test 객체 생성
@@ -1655,9 +1685,11 @@ namespace SonoCap.MES.UI.ViewModels
             PrepareTest(context.TestCategory, _test);
 
             // 메모리 해제
-            if (context.ImageHandle.IsAllocated) context.ImageHandle.Free();
-            if (context.ResultHandle.IsAllocated) context.ResultHandle.Free();
-            if (context.TextHandle.IsAllocated) context.TextHandle.Free();
+            foreach (var handle in context.PinnedHandles)
+            {
+                if (handle.IsAllocated)
+                    handle.Free();
+            }
         }
 
         // 테스트 타입에 맞는 전략 객체 반환 (더 이상 ViewModel이나 이미지를 전달하지 않습니다)
@@ -2088,22 +2120,22 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private USRenderService usRenderer = default!;
+        private readonly USRenderService _usRenderer;
 
         private double _rotationAngle = 0.0;
 
         public void RenderStart()
         {
-            usRenderer = new USRenderService(512, 512);
-            usRenderer.connectRenderToTargetFunction(UpdateImageSource, UpdateEnvImageSource);
-            usRenderer.RenderStart();
+            //usRenderer = new USRenderService(512, 512, _imageBufferService);
+            _usRenderer.connectRenderToTargetFunction(UpdateImageSource, UpdateEnvImageSource);
+            _usRenderer.RenderStart();
         }
 
         public void RenderEnd()
         {
-            if (usRenderer != null)
+            if (_usRenderer != null)
             {
-                usRenderer.RenderEnd();
+                _usRenderer.RenderEnd();
             }
         }
 
@@ -2227,6 +2259,30 @@ namespace SonoCap.MES.UI.ViewModels
             _motorService.StartMotor();
             //Task.Delay(100);
             //_model.ActivateProbe();
+        }
+
+        [RelayCommand]
+        private async Task AutoTestAsync()
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Log.Information($"===== Loop {i + 1} Start =====");
+
+                await CellClickAsync(CellPositions.Row1_Column3);
+                await Task.Delay(100);
+                
+                await TestAsync();
+                await Task.Delay(2000);
+
+                TestResult = 100;
+                await Task.Delay(100);
+
+                await NextAsync();
+                await Task.Delay(1000);
+            }
+
+            Log.Information("===== Loop Finished =====");
+            ResLogs.Add("100회 반복 테스트 완료");
         }
     }
 }

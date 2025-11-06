@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace SonoCap.MES.Models.Inspection
 {
@@ -16,34 +11,19 @@ namespace SonoCap.MES.Models.Inspection
         public int Y { get; set; }
     }
 
-    public class MadMetrics
+    public class AxisFilter
     {
-        [JsonPropertyName("filtered_out_by_x")]
-        public List<MesPoint>? FilteredOutByX { get; set; }
+        [JsonPropertyName("interval")]
+        public double Interval { get; set; }   // Y: target interval / X: 0
 
-        [JsonPropertyName("mad_x")]
-        public double? MadX { get; set; }
+        [JsonPropertyName("tolerance")]
+        public double Tolerance { get; set; }  // 공통 허용 오차
 
-        [JsonPropertyName("median_x")]
-        public double? MedianX { get; set; }
+        [JsonPropertyName("ref_point")]
+        public MesPoint? RefPoint { get; set; } // X: (bestK,0) / Y: 기준점
 
-        [JsonPropertyName("x_tolerance")]
-        public double? XTolerance { get; set; }
-    }
-
-    public class YIntervalMetrics
-    {
-        [JsonPropertyName("best_ref_point")]
-        public MesPoint? BestRefPoint { get; set; }
-
-        [JsonPropertyName("filtered_out_by_y")]
-        public List<MesPoint>? FilteredOutByY { get; set; }
-
-        [JsonPropertyName("target_y_interval")]
-        public double? TargetYInterval { get; set; }
-
-        [JsonPropertyName("y_tolerance")]
-        public double? YTolerance { get; set; }
+        [JsonPropertyName("filtered_out")]
+        public List<MesPoint>? FilteredOut { get; set; } // 제외된 점들
     }
 
     public class EnvGeoMetrics
@@ -54,10 +34,10 @@ namespace SonoCap.MES.Models.Inspection
         [JsonPropertyName("findPoints")]
         public List<MesPoint>? FindPoints { get; set; }
 
-        [JsonPropertyName("madMetrics")]
-        public MadMetrics? MadMetrics { get; set; }
+        [JsonPropertyName("xFilter")]
+        public AxisFilter? XFilter { get; set; }
 
-        [JsonPropertyName("yIntervalMetrics")]
-        public YIntervalMetrics? YIntervalMetrics { get; set; }
+        [JsonPropertyName("yFilter")]
+        public AxisFilter? YFilter { get; set; }
     }
 }

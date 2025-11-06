@@ -1,6 +1,8 @@
 ﻿using HsnLibraryCS;
+using Serilog;
 using SonoCap.WpfCommons;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -8,7 +10,8 @@ namespace SonoCap.MES.Services
 {
     public class USRenderService
     {
-        private HsnUltrasoundOffScreenView offScreenView;//offscreenview
+        //private HsnUltrasoundOffScreenView offScreenView;
+        private HsnUltrasoundOffScreenView? offScreenView; // nullable로 변경
 
         private int _width;
         private int _height;
@@ -19,12 +22,17 @@ namespace SonoCap.MES.Services
         public float DRMin { get; set; } = 0;
         public float DRMax { get; set; } = 100;
 
-        public USRenderService(int width, int height)
+        private readonly ImageBufferService _imageBufferService; // 필드 추가
+        private readonly EnvRecService _envRecService;
+
+        public USRenderService(int width, int height, ImageBufferService imageBufferService, EnvRecService envRecService)
         {
             _width = width;
             _height = height;
             _length = _width * _height * 4;
             //_buffer = new byte[_length];
+            _imageBufferService = imageBufferService; // 의존성 저장
+            _envRecService = envRecService;
         }
 
         Action<BitmapSource>? renderToTarget = null;
@@ -95,6 +103,8 @@ namespace SonoCap.MES.Services
             return resizedBitmap;
         }
 
+        private int _frameCnt = 0;
+
         private void LoadImage(byte[] buffer, int width, int height, int length, MetadataInfo metadata)
         {
             var curr_time = DateTime.Now;
@@ -116,6 +126,11 @@ namespace SonoCap.MES.Services
             // 버퍼를 복사하여 BitmapSource의 버퍼로 사용 (GC 안전)
             byte[] copy = new byte[length];
             Buffer.BlockCopy(buffer, 0, copy, 0, length);
+            _frameCnt++;
+            if (_frameCnt % frameSkipInterval == 0)
+            {
+                _imageBufferService.AddImage(copy);
+            }
 
             // byte[] 배열을 직접 BitmapSource로 변환
             System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
@@ -195,10 +210,31 @@ namespace SonoCap.MES.Services
         }
 
         private double _verticalShiftOffset = 0.0;
+        private int frameSkipInterval = 3;
 
         public void LoadEnv(byte[] buffer, int width, int height, int length, MetadataInfo metadata)
         {
+            //try
+            //{
+            //    int expectedBytes = width * height * 2;
+            //    int diff1 = buffer?.Length ?? 0 - expectedBytes;
+            //    int diff2 = length - expectedBytes;
+
+            //    Log.Information(
+            //        $"[USRenderService.LoadEnv] buffer.Length={buffer?.Length ?? 0}, " +
+            //        $"width={width}, height={height}, " +
+            //        $"width*height*2={expectedBytes}, length={length}, " +
+            //        $"Δ(buffer-expected)={diff1}, Δ(length-expected)={diff2}"
+            //    );
+            //}
+            //catch (Exception ex)
+            //{
+            //    Log.Error(ex, "[USRenderService.LoadEnv] Env buffer check failed");
+            //}
+
             _verticalShiftOffset = height / 360.0;
+            _envRecService.AppendRaw(buffer, length);
+
 
             byte[] processedEnvBitmapData = CreateNormalizedBitmapDataFromRaw2Byte(
                 buffer,        // 2바이트 원본 데이터
@@ -213,12 +249,17 @@ namespace SonoCap.MES.Services
 
             Utilities.ShiftBytesCircularly(processedEnvBitmapData, stride * (int)(_verticalShiftOffset * _verticalShift));
 
+            if (_frameCnt % frameSkipInterval == 0)
+            {
+                _imageBufferService.AddEnvImage(processedEnvBitmapData);
+            }
+
             // UI 스레드에서 BitmapSource 생성 및 렌더링 (LoadImage와 유사)
             System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (processedEnvBitmapData.Length == 0) // 변환 실패 시 처리
                 {
-                    Debug.WriteLine("Warning: No envelope bitmap data generated.");
+                    Log.Debug("Warning: No envelope bitmap data generated.");
                     return;
                 }
 
@@ -234,5 +275,49 @@ namespace SonoCap.MES.Services
                 renderToTargetEnv?.Invoke(envBitmapSource); // 변환된 비트맵 소스를 UI에 전달
             }));
         }
+
+        public void StartEnvRec()
+        {
+            try
+            {
+                string recDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CapturedEnv");
+                Directory.CreateDirectory(recDir);
+
+                string filePath = Path.Combine(recDir, $"{DateTime.Now:yyyyMMdd_HHmmss}_envRec.bin");
+                _envRecService.Start(filePath);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "[USRenderService] Failed to start env recording");
+            }
+        }
+
+        public void StartEnvRec(string filePath)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+                _envRecService.Start(filePath);
+                Log.Information($"[USRenderService] Started Env recording: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "[USRenderService] Failed to start env recording");
+            }
+        }
+
+        public void StopEnvRec()
+        {
+            try
+            {
+                _envRecService.Stop();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "[USRenderService] Failed to stop env recording");
+            }
+        }
+
+        public bool IsEnvRecRecording => _envRecService?.IsRecording ?? false;
     }
 }

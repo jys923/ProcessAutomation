@@ -1,26 +1,27 @@
-﻿using AspectCore.Extensions.DependencyInjection;
-using SonoCap.MES.UI.ViewModels;
-using SonoCap.MES.UI.Views;
+﻿using AspectCore.Configuration;
+using AspectCore.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Windows;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using SonoCap.Commons;
+using SonoCap.Commons.Logging;
+using SonoCap.Interceptors;
 using SonoCap.MES.Repositories;
 using SonoCap.MES.Repositories.Context;
 using SonoCap.MES.Repositories.Interfaces;
-using SonoCap.Commons;
-using System.Windows.Threading;
-using AspectCore.Configuration;
-using SonoCap.Interceptors;
-using Microsoft.Extensions.Configuration;
-using System.IO;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using System.Diagnostics;
+using SonoCap.MES.Services;
 using SonoCap.MES.UI.Services;
 using SonoCap.MES.UI.Services.Interfaces;
+using SonoCap.MES.UI.ViewModels;
+using SonoCap.MES.UI.Views;
 using SonoCap.WpfCommons;
+using System.Diagnostics;
+using System.IO;
 using System.Reflection;
-using SonoCap.Commons.Logging;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace SonoCap.MES.UI
 {
@@ -215,6 +216,14 @@ namespace SonoCap.MES.UI
             services.AddTransient<SonoCap.MES.Services.Interfaces.IExcelService, SonoCap.MES.Services.ExcelService>();
             services.AddTransient<SonoCap.MES.Services.Interfaces.IMotorService, SonoCap.MES.Services.MotorService>();
             services.AddSingleton<IViewService, ViewService>();
+            services.AddSingleton<ImageBufferService>();
+            services.AddSingleton<EnvRecService>();
+            services.AddSingleton<USRenderService>(sp =>
+            {
+                var imageBufferService = sp.GetRequiredService<ImageBufferService>();
+                var envRecService = sp.GetRequiredService<EnvRecService>();
+                return new USRenderService(512, 512, imageBufferService, envRecService);
+            });
         }
 
         private static void RegisterRepositories(IServiceCollection services)
