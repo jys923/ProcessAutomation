@@ -115,6 +115,12 @@ namespace MyOpenCVWrapper {
             double yIntervalTolerance = 5.0;
             bool enableXFilter = true;
             bool enableYFilter = true;
+            double clusterDistTol = 5.0;
+            double clusterXTol = 3.0;
+            //double clusterYTol;
+			double xTol = 2.0;
+            double yInterval = 32.0;
+            double yTol = 3.0;
         };
         
         struct AlignParams {
@@ -211,7 +217,11 @@ namespace MyOpenCVWrapper {
             {"YIntervalTolerance", p.yIntervalTolerance},
             {"X_MADConstant", p.xMadConstant},
             {"EnableXFilter", p.enableXFilter},
-            {"EnableYFilter", p.enableYFilter}
+            {"clusterDistTol", p.clusterDistTol},
+            {"clusterXTol", p.clusterXTol},
+            {"xTol", p.xTol},
+            {"yInterval", p.yInterval},
+            {"yTol", p.yTol}
         };
     }
 
@@ -227,6 +237,11 @@ namespace MyOpenCVWrapper {
         p.xMadConstant = j.value("X_MADConstant", p.xMadConstant);
         p.enableXFilter = j.value("EnableXFilter", p.enableXFilter);
         p.enableYFilter = j.value("EnableYFilter", p.enableYFilter);
+        p.clusterDistTol = j.value("clusterDistTol", p.clusterDistTol);
+        p.clusterXTol = j.value("clusterXTol", p.clusterXTol);
+        p.xTol = j.value("xTol", p.xTol);
+        p.yInterval = j.value("yInterval", p.yInterval);
+        p.yTol = j.value("yTol", p.yTol);
     }
 
     inline void to_json(nlohmann::json& j, const InspectionParams::AlignParams& p) {

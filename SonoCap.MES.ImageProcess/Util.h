@@ -13,6 +13,37 @@
 
 using namespace SonoCap::Commons::Logging;
 
+enum class MorphMode {
+    Open11 = 0,       // erode(1) °Ê dilate(1)
+    Close11,          // dilate(1) °Ê erode(1)
+    Open12,           // erode(1) °Ê dilate(2)
+    Close12,          // dilate(1) °Ê erode(2)
+    HybridOpenClose,  // Open(1,2) °Ê Close(1)
+    HybridCloseOpen   // Close(1,2) °Ê Open(1)
+};
+
+static std::string to_string(MorphMode mode)
+{
+    switch (mode) {
+    case MorphMode::Open11:          return "Open(1,1)";
+    case MorphMode::Close11:         return "Close(1,1)";
+    case MorphMode::Open12:          return "Open(1,2)";
+    case MorphMode::Close12:         return "Close(1,2)";
+    case MorphMode::HybridOpenClose: return "HybridOpen°ÊClose";
+    case MorphMode::HybridCloseOpen: return "HybridClose°ÊOpen";
+    default:                         return "Unknown";
+    }
+}
+
+constexpr std::array<MorphMode, 6> AllMorphModes = {
+        MorphMode::Open11,
+        MorphMode::Close11,
+        MorphMode::Open12,
+        MorphMode::Close12,
+        MorphMode::HybridOpenClose,
+        MorphMode::HybridCloseOpen
+};
+
 struct PreprocessResult {
     cv::Mat gray;
     cv::Mat roiGray;
