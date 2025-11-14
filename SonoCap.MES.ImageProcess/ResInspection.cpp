@@ -16,6 +16,7 @@ struct ResTrialOutcome {
     ContourData p2;
     ContourData p3;
     ResResult result;
+    MorphMode morphMode;
 };
 
 // =========================================================
@@ -25,7 +26,7 @@ static bool RunResTrial(ResTrialOutcome& out,
     const cv::Mat& fullImg,
     const cv::Rect& roi,
     double perThreshold,
-    const MyOpenCVWrapper::InspectionParams::ResParams& cfg)
+    const MyOpenCVWrapper::InspectionParams::ResParams& cfg, MorphMode morphMode)
 {
     cv::Mat roiGray = fullImg(roi);
 
@@ -37,13 +38,35 @@ static bool RunResTrial(ResTrialOutcome& out,
     const double angleToleranceDeg = cfg.angleToleranceDeg;
 
     // 1. Binary + Morphology
+    // 1. Binary + Morphology
     cv::Mat binary;
     cv::threshold(roiGray, binary, perThreshold, 255, cv::THRESH_BINARY);
-
-    cv::Mat eroded, restored;
+    cv::Mat eroded, dilated, restored;
     cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
-    cv::erode(binary, eroded, kernel);
-    cv::dilate(eroded, restored, kernel);
+
+    switch (morphMode)
+    {
+    case MorphMode::Open11:
+        cv::erode(binary, eroded, kernel, cv::Point(-1, -1), 1);
+        cv::dilate(eroded, restored, kernel, cv::Point(-1, -1), 1); break; // Open(1,1)
+    case MorphMode::Close11:
+        cv::dilate(binary, dilated, kernel, cv::Point(-1, -1), 1);
+        cv::erode(dilated, restored, kernel, cv::Point(-1, -1), 1); break; // Close(1,1)
+    case MorphMode::Open12:
+        cv::erode(binary, eroded, kernel, cv::Point(-1, -1), 1);
+        cv::dilate(eroded, restored, kernel, cv::Point(-1, -1), 2); break; // Open(1,2)
+    case MorphMode::Close12:
+        cv::dilate(binary, dilated, kernel, cv::Point(-1, -1), 1);
+        cv::erode(dilated, restored, kernel, cv::Point(-1, -1), 2); break; // Close(1,2)
+    case MorphMode::HybridOpenClose:
+        cv::erode(binary, eroded, kernel, cv::Point(-1, -1), 1);
+        cv::dilate(eroded, dilated, kernel, cv::Point(-1, -1), 2);
+        cv::erode(dilated, restored, kernel, cv::Point(-1, -1), 1); break; // Hybrid Open→Close
+    case MorphMode::HybridCloseOpen:
+        cv::dilate(binary, dilated, kernel, cv::Point(-1, -1), 1);
+        cv::erode(dilated, eroded, kernel, cv::Point(-1, -1), 2);
+        cv::dilate(eroded, restored, kernel, cv::Point(-1, -1), 1); break; // Hybrid Close→Open
+    }
 
     // 2. Contour 추출
     std::vector<std::vector<cv::Point>> contours;
@@ -311,34 +334,37 @@ inline void LogResRow(const ResTrialOutcome& t, size_t idx)
     );
 }
 
-inline void LogResSummary(const std::vector<ResTrialOutcome>& trials)
+void LogResSummary(const std::vector<ResTrialOutcome>& trials)
 {
-    if (trials.empty())
-    {
-        Logger::Information("No Res trials to log.");
+    if (trials.empty()) {
+        Logger::Information("No ResResult trials to log.");
         return;
     }
 
     using namespace System;
     using namespace System::Text;
 
-    StringBuilder^ sb = gcnew StringBuilder(1024);
-
+    StringBuilder^ sb = gcnew StringBuilder(4096);
     sb->AppendLine("");
-    sb->AppendLine("---- Res Trials Summary ----");
-    sb->AppendLine("Idx | Thresh | Hor(px) | Ver(px) | Edge1 | Edge2 | Edge3 | EdgeAvg");
-    sb->AppendLine("-----------------------------------------------------------------");
+    sb->AppendLine("---- ResResult Summary ----");
+    sb->AppendLine("----------------------------------------------------------------------------------------------");
+    sb->AppendLine(" No | Thresh | MorphMode          | Hor(px) | Ver(px) |  Edge1  |  Edge2  |  Edge3  | EdgeAvg");
+    sb->AppendLine("----------------------------------------------------------------------------------------------");
 
-    for (int i = 0; i < static_cast<int>(trials.size()); ++i)
+    for (int tIndex = 0; tIndex < static_cast<int>(trials.size()); ++tIndex)
     {
-        const auto& t = trials[i];
-        const auto& r = t.result;
+        const auto& trial = trials[tIndex];
+        const auto& r = trial.result;
+
         double avgEdge = (r.edgeDensity1 + r.edgeDensity2 + r.edgeDensity3) / 3.0;
 
+        String^ morphStr = gcnew String(to_string(trial.morphMode).c_str());
+
         sb->AppendFormat(
-            "{0,3} | {1,7:F3} | {2,7:F2} | {3,7:F2} | {4,6:F3} | {5,6:F3} | {6,6:F3} | {7,7:F3}\n",
-            i,
-            t.threshold,
+            "{0,3} | {1,6} | {2,-18} | {3,7:F2} | {4,7:F2} | {5,8:F3} | {6,8:F3} | {7,8:F3} | {8,8:F3}\n",
+            tIndex + 1,
+            trial.threshold,
+            morphStr,
             r.horizontalDist,
             r.verticalDist,
             r.edgeDensity1,
@@ -348,26 +374,73 @@ inline void LogResSummary(const std::vector<ResTrialOutcome>& trials)
         );
     }
 
-    sb->AppendLine("-----------------------------------------------------------------");
-
-    //한 번에 전체 출력
+    sb->AppendLine("----------------------------------------------------------------------------------------------");
     Logger::Information("{0}", sb->ToString());
 }
 
+
+void LogResSummary2(const std::vector<ResTrialOutcome>& trials)
+{
+    if (trials.empty()) {
+        Logger::Information("No ResResult trials to log.");
+        return;
+    }
+
+    using namespace System;
+    using namespace System::Text;
+
+    for (int tIndex = 0; tIndex < static_cast<int>(trials.size()); ++tIndex)
+    {
+        const auto& r = trials[tIndex].result;
+
+        StringBuilder^ sb = gcnew StringBuilder(2048);
+        sb->AppendLine("");
+        sb->AppendLine("---- ResResult Summary ----");
+        sb->AppendFormat("\nThreshold :{0},  ({1})\n",
+            trials[tIndex].threshold,
+            gcnew String(to_string(trials[tIndex].morphMode).c_str()));
+        sb->AppendLine("------------------------------------------------------------");
+        sb->AppendLine(" No | Hor(px) | Ver(px) | Edge1 | Edge2 | Edge3 | EdgeAvg");
+        sb->AppendLine("------------------------------------------------------------");
+
+        // 단일 결과이므로 반복 대신 바로 하나씩 출력
+        // (혹은 trials[tIndex].subResults 등 배열이 있으면 그걸 돌면 됨)
+        double avgEdge = (r.edgeDensity1 + r.edgeDensity2 + r.edgeDensity3) / 3.0;
+
+        sb->AppendFormat("{0,3} | {1,7:F2} | {2,7:F2} | {3,6:F3} | {4,6:F3} | {5,6:F3} | {6,7:F3}\n",
+            tIndex + 1,
+            r.horizontalDist,
+            r.verticalDist,
+            r.edgeDensity1,
+            r.edgeDensity2,
+            r.edgeDensity3,
+            avgEdge
+        );
+
+        sb->AppendLine("------------------------------------------------------------");
+        Logger::Information("{0}", sb->ToString());
+    }
+}
 
 void MyOpenCVWrapper::ResInspection(cv::Mat& srcImg, ResResult& result)
 {
     const auto& cfg = ConfigManager::getInstance().getInspectionParams().res;
 
     auto prep = CalcHistBasedThreshold(srcImg, cfg.roi);
-    auto thresholds = GenerateThresholds(prep.baseThreshold, 20.0, 40);
+    auto thresholds = GenerateThresholds(prep.baseThreshold, 10.0, 5);
 
     std::vector<ResTrialOutcome> trials;
 
     for (double t : thresholds) {
-    ResTrialOutcome temp;
-        if (RunResTrial(temp, prep.gray, prep.roi, t, cfg))
-            trials.push_back(temp);
+        for (MorphMode mode : AllMorphModes)
+        {
+            ResTrialOutcome temp;
+            if (RunResTrial(temp, prep.gray, prep.roi, t, cfg, mode)) 
+            {
+                temp.morphMode = mode; // (선택사항) 모드 기록용
+                trials.push_back(temp);
+            }
+        }
     }
 
     if (trials.empty()) {
@@ -390,4 +463,6 @@ void MyOpenCVWrapper::ResInspection(cv::Mat& srcImg, ResResult& result)
 
     Logger::Information("Final result threshold = {0}, verticalDist = {1}, horizontalDist = {2}",
         chosen.threshold, result.verticalDist, result.horizontalDist);
+
+    LogResSummary({ chosen });
 }

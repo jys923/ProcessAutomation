@@ -438,7 +438,7 @@
         </GroupBox>
         <GroupBox Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource RemoveGroupBoxBorder}">
             <StackPanel>
-                <Button Width="100" Height="40" Content="Auto Test" Command="{Binding AutoTestCommand}" />
+                <Button Width="100" Height="40" Content="Auto Test" Command="{Binding AutoTestCommand}" Visibility="Visible" />
                 <TextBlock Text="" FontSize="35" Foreground="DarkSlateGray" FontFamily="Digital-7" Visibility="Collapsed" />
                 <Label Style="{StaticResource LabelLargeStyle}" HorizontalContentAlignment="Center" Margin="0,0,0,15" Content="초 음 파  영 상" />
                 <Grid x:Name="ImageFocusArea" Width="512" Height="512" Focusable="True" Background="Transparent" MouseLeftButtonDown="ImageFocusArea_MouseLeftButtonDown" KeyboardNavigation.DirectionalNavigation="None" KeyboardNavigation.TabNavigation="None">

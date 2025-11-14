@@ -1,27 +1,5 @@
 ﻿#include "EnvGeoInspection.h"
 
-
-enum class MorphMode {
-    Open11 = 0,       // erode(1) → dilate(1)
-    Close11,          // dilate(1) → erode(1)
-    Open12,           // erode(1) → dilate(2)
-    Close12,          // dilate(1) → erode(2)
-    HybridOpenClose,  // Open(1,2) → Close(1)
-    HybridCloseOpen   // Close(1,2) → Open(1)
-};
-
-static std::string to_string(MorphMode mode)
-{
-    switch (mode) {
-    case MorphMode::Open11:          return "Open(1,1)";
-    case MorphMode::Close11:         return "Close(1,1)";
-    case MorphMode::Open12:          return "Open(1,2)";
-    case MorphMode::Close12:         return "Close(1,2)";
-    case MorphMode::HybridOpenClose: return "HybridOpen→Close";
-    case MorphMode::HybridCloseOpen: return "HybridClose→Open";
-    default:                         return "Unknown";
-    }
-}
 // =========================================================
 // 데이터 구조
 // =========================================================
@@ -478,78 +456,9 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     const double targetY = cfg.targetYInterval;
     const double yTol2 = cfg.yIntervalTolerance;
 
-//#define USE_Y_FILTER_PHASE_HIST    // Phase Histogram 방식
 #define USE_Y_FILTER_PHASE_BEST
 
-#ifdef USE_Y_FILTER_PHASE_HIST
-    //------------------------------------------------------------
-    // Phase Histogram 방식
-    //------------------------------------------------------------
-    const int BIN_COUNT = 64;
-    std::vector<int> hist(BIN_COUNT, 0);
-    std::vector<double> phases;
-    phases.reserve(finalFiltered.size());
-
-    // 1. phase 계산 및 히스토그램 누적
-    for (auto& d : finalFiltered) {
-        double phase = fmod(d.vertical_mid_y, targetY);
-        if (phase < 0) phase += targetY;
-        phases.push_back(phase);
-
-        int idx = static_cast<int>((phase / targetY) * BIN_COUNT);
-        hist[std::min(idx, BIN_COUNT - 1)]++;
-    }
-
-    // 2. 최대 bin → 기준 phase
-    int bestIdx = static_cast<int>(
-        std::max_element(hist.begin(), hist.end()) - hist.begin());
-    double bestPhase = (bestIdx + 0.5) * (targetY / BIN_COUNT);
-
-    // 3. 필터링
-    for (auto& d : finalFiltered) {
-        double phase = fmod(d.vertical_mid_y, targetY);
-        if (phase < 0) phase += targetY;
-        double delta = std::fabs(phase - bestPhase);
-        delta = std::min(delta, targetY - delta); // wrap-around 보정
-
-        if (delta <= yTol2)
-            filteredByY.push_back(d);
-        else
-            filteredOutY.push_back(d);
-    }
-
-    // 4. 기준점(bestRefPoint)
-    if (!filteredByY.empty()) {
-        auto nearest = std::min_element(filteredByY.begin(), filteredByY.end(),
-            [&](const EnvGeoData& a, const EnvGeoData& b) {
-                double pa = std::fmod(a.vertical_mid_y, targetY);
-                if (pa < 0) pa += targetY;
-                double pb = std::fmod(b.vertical_mid_y, targetY);
-                if (pb < 0) pb += targetY;
-                //return std::fabs(pa - bestPhase) < std::fabs(pb - bestPhase);
-                // A의 Phase와 bestPhase의 주기적인 거리 계산
-                double delta_a = std::fabs(pa - bestPhase);
-                delta_a = std::min(delta_a, targetY - delta_a); // <--- A의 주기 보정
-
-                // B의 Phase와 bestPhase의 주기적인 거리 계산
-                double delta_b = std::fabs(pb - bestPhase);
-                delta_b = std::min(delta_b, targetY - delta_b); // <--- B의 주기 보정
-
-                return delta_a < delta_b; // 주기적인 거리가 더 가까운 쪽을 선택
-
-            });
-
-        for each (auto& d in filteredByY)
-        {
-            if (std::abs(d.vertical_mid_y - (*nearest).vertical_mid_y) <= 0.5) {
-                out.result.yFilter.ref_point =
-                    cv::Point(static_cast<int>(d.leftmost_x + roi.x),
-                        static_cast<int>((*nearest).vertical_mid_y + roi.y));
-                break;
-            }
-        }
-    }
-#elif defined USE_Y_FILTER_PHASE_BEST
+#ifdef USE_Y_FILTER_PHASE_BEST
     //------------------------------------------------------------
     // Y Phase 기반 최빈값 필터링 (X_BEST_K 구조 동일)
     //------------------------------------------------------------
@@ -1021,15 +930,6 @@ TrialOutcome SelectBestTrial(const std::vector<TrialOutcome>& trials)
 
 void MyOpenCVWrapper::EnvGeoInspection(cv::Mat& srcImg, EnvGeoResult& result)
 {
-    constexpr std::array<MorphMode, 6> AllMorphModes = {
-        MorphMode::Open11,
-        MorphMode::Close11,
-        MorphMode::Open12,
-        MorphMode::Close12,
-        MorphMode::HybridOpenClose,
-        MorphMode::HybridCloseOpen
-    };
-
     const auto& cfg = ConfigManager::getInstance().getInspectionParams().envGeo;
 
     auto prep = CalcHistBasedThreshold(srcImg, cfg.roi);
