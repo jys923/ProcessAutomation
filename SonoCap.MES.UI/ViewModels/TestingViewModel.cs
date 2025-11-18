@@ -855,98 +855,25 @@ namespace SonoCap.MES.UI.ViewModels
             }
         }
 
-        private TestTypes ColumnToTestType(int col)
-        {
-            // col 값에 따라 TestTypes를 반환하는 로직 구현
-            switch (col)
-            {
-                case 1: return TestTypes.Gray;
-                case 2: return TestTypes.Res;
-                case 3: return TestTypes.EnvGeo;
-                case 4: return TestTypes.Align;
-                case 5: return TestTypes.Axial;
-                case 6: return TestTypes.Lateral;
-                case 7: return TestTypes.Geo;
-                default: return TestTypes.None;
-            }
-        }
-
         [RelayCommand]
         private Task CellClickAsync(CellPositions position)
         {
-            _oldCell = position;
-            int row = (int)position / 10;
-            int col = (int)position % 10;
-            Log.Information($"CellClick row:{row} col:{col}");
-            _testCategory = (TestCategories)row;
-            _testType = ColumnToTestType(col);
-            bool isRowChanged = _oldRow != row;
-            bool isColChanged = _oldCol != col;
+            var cell = TestCellMap.Items.FirstOrDefault(x => x.Position == position);
+            if (cell == null)
+                return Task.CompletedTask;
 
-            if (isRowChanged || isColChanged)
-            {
-                _oldRow = row;
-                _oldCol = col;
-                // 로직
-            }
+            _testCategory = cell.Category;
+            _testType = cell.TestType;
 
-            //SrcImg = default!;
-            //ResImg = default!;
-            //TestResult = -2;
-            //ValidationDict[nameof(TestResult)].IsEnabled = false;
-            IsEnvImgVisible = false;
-            switch (position)
-            {
-                case CellPositions.Row1_Column1:
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column1;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
-                    break;
-                case CellPositions.Row1_Column2:
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column2;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
-                    break;
-                case CellPositions.Row1_Column3:
-                    BlinkingCellIndex = (int)CellPositions.Row1_Column3;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
-                    IsEnvImgVisible = true;
-                    break;
-                case CellPositions.Row2_Column1:
-                    BlinkingCellIndex = (int)CellPositions.Row2_Column1;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
-                    break;
-                case CellPositions.Row2_Column2:
-                    BlinkingCellIndex = (int)CellPositions.Row2_Column2;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
-                    break;
-                case CellPositions.Row2_Column3:
-                    BlinkingCellIndex = (int)CellPositions.Row2_Column3;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
-                    IsEnvImgVisible = true;
-                    break;
-                case CellPositions.Row3_Column1:
-                    BlinkingCellIndex = (int)CellPositions.Row3_Column1;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.ResolutionProcess;
-                    break;
-                case CellPositions.Row3_Column2:
-                    BlinkingCellIndex = (int)CellPositions.Row3_Column2;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GeometricDistortionProcess;
-                    break;
-                case CellPositions.Row3_Column3:
-                    BlinkingCellIndex = (int)CellPositions.Row3_Column3;
-                    //processFunction = MyOpenCVWrapper.OpenCVWrapper.GrayProcess;
-                    IsEnvImgVisible = true;
-                    break;
-                default:
-                    break;
-            }
+            IsEnvImgVisible = cell.UsesEnvImage;
+            BlinkingCellIndex = (int)position;
 
+            // Reset basic UI
             ResImg = default!;
             TestResult = -2;
             ValidationDict[nameof(TestResult)].IsEnabled = false;
-            //OnTDSnChanged(TDSn);
             TDSnIsPopupOpen = false;
 
-            //// TestCommand의 CanExecute 상태를 갱신합니다.
             (TestCommand as AsyncRelayCommand)?.NotifyCanExecuteChanged();
             return Task.CompletedTask;
         }
@@ -1744,7 +1671,21 @@ namespace SonoCap.MES.UI.ViewModels
         [RelayCommand(CanExecute = nameof(CanNext))]
         private async Task NextAsync()
         {
-            Log.Information($"{nameof(NextAsync)}");
+            // 1) 저장
+            await SaveTestAndExportImagesAsync();
+
+            // 2) PASS/FAIL 색칠
+            _cellStatusService.SetCellPassFail(
+                _test,
+                (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+            );
+
+            // 3) 이제 다음 셀로 이동
+            await ActivateNextCellAsync();
+        }
+
+        private async Task SaveTestAndExportImagesAsync()
+        {
             _test.Result = TestResult;
 
             var basePath = App.appSettings.Path.ExportImg;
@@ -1762,43 +1703,40 @@ namespace SonoCap.MES.UI.ViewModels
             };
             string prefix = $"{sn}_{typeSuffix}";
             string baseName = await _imageService.GenNextImgNameAsync(prefix);
-            //string baseName = Utilities.GenImgName(prefix, exportPath);
-            //string finalOriginalName = baseName + ".bmp";
-            //string finalChangedName = baseName + ".png";
-            //string finalChangedName = baseName + ".png";
-            string finalOriginalName = $"{baseName}_{_tester.PcId.ToString("D3")}.bmp"; // 보간 문자열
-            string finalChangedName = $"{baseName}_{_tester.PcId.ToString("D3")}.png"; // 보간 문자열
 
-            // --- 파일 이동 및 이름 변경 ---
+            string finalOriginalName = $"{baseName}_{_tester.PcId:D3}.bmp";
+            string finalChangedName = $"{baseName}_{_tester.PcId:D3}.png";
+
             Utilities.MoveTempImageToExport(_test.OriginalImg, App.appTempDir, exportPath, finalOriginalName);
             Utilities.MoveTempImageToExport(_test.ChangedImg, App.appTempDir, exportPath, finalChangedName);
 
-            // --- 이동 후 이름을 저장용 객체에 반영 ---
             _test.OriginalImg = finalOriginalName;
             _test.ChangedImg = finalChangedName;
 
-            // --- DB 저장 ---
-            if (await _testingManagementService.SaveAsync(_test))
-            {
-                string tmp = _test.ToString();
-                Log.Information(tmp);
-                ResLogs.Add($"Add test : {tmp}");
+            await _testingManagementService.SaveAsync(_test);
+        }
 
-                CellPositions cellPosition = (CellPositions)((int)_testCategory * 10 + (int)_testType);
-                //SetCellPassFail(_test, cellPosition);
-                _cellStatusService.SetCellPassFail(
-                    _test,
-                    (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
-                );
+        private async Task ActivateNextCellAsync()
+        {
+            // 현재 셀 찾기
+            var current = TestCellMap.Items
+                .FirstOrDefault(x => x.Category == _testCategory && x.TestType == _testType);
 
-                await TryActivateNextCategoryAsync();
-            }
+            if (current == null)
+                return;
 
-            TestResult = -2;
-            ValidationDict[nameof(TestResult)].IsEnabled = false;
-            OnTDSnChanged(TDSn);
-            TDSnIsPopupOpen = false;
-            IsEnvImgVisible = false;
+            // 다음 셀 인덱스
+            int idx = TestCellMap.Items.IndexOf(current);
+
+            // 마지막 셀이면 종료
+            if (idx == -1 || idx == TestCellMap.Items.Count - 1)
+                return;
+
+            // 다음 셀
+            var next = TestCellMap.Items[idx + 1];
+
+            // 다음 셀을 UI에 적용 (기존 CellClickAsync 그대로 활용)
+            await CellClickAsync(next.Position);
         }
 
 
