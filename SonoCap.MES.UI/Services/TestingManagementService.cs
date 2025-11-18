@@ -139,6 +139,13 @@ namespace SonoCap.MES.UI.Services
             };
         }
 
+        public async Task<Transducer?> GetLatestTransducerAsync(string transducerSn)
+        {
+            return await _transducerRepository.GetBySn(transducerSn)
+                .OrderByDescending(t => t.Id)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<TransducerModule?> GetLatestTransducerModuleAsync(int transducerId)
         {
             return await _transducerModuleRepository.GetQueryable()

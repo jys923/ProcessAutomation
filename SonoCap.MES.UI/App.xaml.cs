@@ -209,6 +209,7 @@ namespace SonoCap.MES.UI
 
         private static void RegisterServices(IServiceCollection services)
         {
+            services.AddTransient<ISnFlowService, SnFlowService>();
             services.AddTransient<ICellStatusService, CellStatusService>();
             services.AddTransient<ImageService>();
             services.AddTransient<ProbeService>();
