@@ -51,6 +51,7 @@ namespace SonoCap.MES.UI.ViewModels
         private MES.Services.Model.GlobalModel _model;
         private readonly TestingManagementService _testingManagementService;
         private readonly IMotorService _motorService;
+        private readonly ICellStatusService _cellStatusService;
         private readonly ImageService _imageService;
         private readonly IViewService _viewService;
         private readonly ImageBufferService _imageBufferService;
@@ -62,7 +63,8 @@ namespace SonoCap.MES.UI.ViewModels
             IViewService viewService,
             TestingManagementService testingManagementService,
             MES.Services.Model.GlobalModel model,
-            IMotorService motorService)
+            IMotorService motorService,
+            ICellStatusService cellStatusService)
         {
             _usRenderer = usRenderer;
             _imageBufferService = imageBufferService;
@@ -71,6 +73,7 @@ namespace SonoCap.MES.UI.ViewModels
             _testingManagementService = testingManagementService;
             _model = model;
             _motorService = motorService;
+            _cellStatusService = cellStatusService;
 
             Title = this.GetType().Name;
 
@@ -158,7 +161,11 @@ namespace SonoCap.MES.UI.ViewModels
 
             TestResult = -2;
 
-            SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+            //SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+            _cellStatusService.SetCategoryDefault(
+                TestCategories.All,
+                (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+            );
         }
 
         private void InitTimer()
@@ -1415,7 +1422,11 @@ namespace SonoCap.MES.UI.ViewModels
                 if (!await _testingManagementService.IsExistsBySnAsync(SnType.Transducer, value))
                 {
                     ValidationService.ValidateField(ValidationDict, nameof(TDSn), "TDSn Is Not Exist");
-                    SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                    //SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                    _cellStatusService.SetCategoryDefault(
+                        TestCategories.All,
+                        (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+                    );
                 }
                 else
                 {
@@ -1430,7 +1441,11 @@ namespace SonoCap.MES.UI.ViewModels
                     foreach (var item in tests)
                     {
                         CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
+                        //SetCellPassFail(item, cellPosition);
+                        _cellStatusService.SetCellPassFail(
+                            item,
+                            (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+                        );
                     }
                     //BlinkingCellIndex = 10 + Math.Max(1, Math.Min(tests.Count, 3));
 
@@ -1448,7 +1463,11 @@ namespace SonoCap.MES.UI.ViewModels
                     foreach (var item in tests)
                     {
                         CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
+                        //SetCellPassFail(item, cellPosition);
+                        _cellStatusService.SetCellPassFail(
+                            item,
+                            (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+                        );
                     }
 
                     //BlinkingCellIndex = 20 + Math.Max(1, Math.Min(tests.Count, 3));
@@ -1471,7 +1490,12 @@ namespace SonoCap.MES.UI.ViewModels
                     foreach (var item in tests)
                     {
                         CellPositions cellPosition = (CellPositions)(item.TestCategoryId * 10 + item.TestTypeId);
-                        SetCellPassFail(item, cellPosition);
+                        //SetCellPassFail(item, cellPosition);
+                        _cellStatusService.SetCellPassFail(
+                            item,
+                            (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+                        );
+
                     }
                     //BlinkingCellIndex = 30 + Math.Max(1, Math.Min(tests.Count, 3));
                 }
@@ -1479,7 +1503,12 @@ namespace SonoCap.MES.UI.ViewModels
             else
             {
                 ValidationService.ValidateField(ValidationDict, nameof(TDSn), "TDSn Is Not Valid");
-                SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                //SetCellBackgrounds(TestCategories.All, Brushes.LightGray);
+                _cellStatusService.SetCategoryDefault(
+                    TestCategories.All,
+                    (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+                );
+
             }
         }
 
@@ -1705,157 +1734,6 @@ namespace SonoCap.MES.UI.ViewModels
             };
         }
 
-        //[RelayCommand(CanExecute = nameof(CanTest))]
-        //private Task TestAsync()
-        //{
-        //    Log.Information($"TestAsync response");
-
-        //    if (!Utilities.EnsureFolderExists(App.appSettings.Path.ExportImg))
-        //        return Task.CompletedTask;
-        //    //App.Current.Dispatcher.Invoke(() =>
-        //    //{
-        //    //ResImg = Utilities.CopyImageSource(SrcImg);
-        //    //});
-
-        //    //await App.Current.Dispatcher.InvokeAsync(async () =>
-        //    //{
-        //    //    ResImg = await Utilities.CopyImageSourceAsync(SrcImg);
-        //    //});
-        //    App.Current.Dispatcher.Invoke(() =>
-        //    {
-        //        SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
-        //        //ResImg = SrcImg;
-        //    });
-
-        //    // BitmapSource를 byte array로 변환하고 IntPtr로 전달
-        //    BitmapSource bitmapSource = (BitmapSource)SnapshotImg;
-        //    GCHandle imageHandle;
-        //    IntPtr imageBufferPtr = Utilities.BitmapSourceToByteArray(bitmapSource, out imageHandle);
-
-        //    // 결과 이미지 저장 배열
-        //    int resultImageSize = bitmapSource.PixelWidth * bitmapSource.PixelHeight * 4;
-        //    byte[] resultImageArray = new byte[resultImageSize];
-        //    GCHandle resultHandle = GCHandle.Alloc(resultImageArray, GCHandleType.Pinned);
-        //    IntPtr resultBufferPtr = resultHandle.AddrOfPinnedObject();
-
-        //    // 텍스트 데이터 저장 배열
-        //    byte[] textArray = new byte[1024];
-        //    GCHandle textHandle = GCHandle.Alloc(textArray, GCHandleType.Pinned);
-        //    IntPtr textBufferPtr = textHandle.AddrOfPinnedObject();
-
-
-        //    if (_testType == TestTypes.None)
-        //    {
-        //        Log.Error("Test type is not set.");
-        //        ResLogs.Add("Test type is not set.");
-        //        return Task.CompletedTask;
-        //    }
-        //    else 
-        //    if (_testType == TestTypes.Geo)
-        //    {
-        //        Utilities.ProcessImage(processFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr);
-        //    }
-        //    else
-        //    {
-        //        InspectionPartType partType = _testType switch
-        //        {
-        //            TestTypes.Gray => InspectionPartType.Gray,
-        //            TestTypes.Res => InspectionPartType.Res,
-        //            //TestTypes.Geo => InspectionPartType.Geo,
-        //            _ => InspectionPartType.None
-        //        };
-
-        //        if (partType == InspectionPartType.None)
-        //        {
-        //            Log.Error($"Invalid test type: {_testType}");
-        //            ResLogs.Add($"Invalid test type: {_testType}");
-        //            return Task.CompletedTask;
-        //        }
-
-        //        Utilities.InspectionImage(inspectionFunction, imageBufferPtr, bitmapSource.PixelWidth, bitmapSource.PixelHeight, resultBufferPtr, textBufferPtr, (int)partType);
-        //    }
-
-        //    var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
-        //    //string OriginalImgName = $"{App.appSettings.Path.ExportImg}{epoch}_ori.bmp";
-        //    //string resultImagePath = $"{App.appSettings.Path.ExportImg}{epoch}_det.png";
-        //    string OriginalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
-        //    string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
-
-
-        //    // 결과 이미지 변환 및 저장
-        //    BitmapSource resultBitmapSource = BitmapSource.Create(
-        //        bitmapSource.PixelWidth,
-        //        bitmapSource.PixelHeight,
-        //        512, 512,
-        //        PixelFormats.Bgr32,
-        //        null,
-        //        resultImageArray,
-        //        bitmapSource.PixelWidth * 4
-        //    );
-        //    //Utilities.ImageSourceToGrayBmp(SrcImg, OriginalImgName);
-        //    Utilities.SaveBitmap((BitmapImage)SnapshotImg, OriginalImgName);
-        //    Utilities.SavePng(resultBitmapSource, resultImagePath);
-        //    App.Current.Dispatcher.Invoke(() =>
-        //    {
-        //        //SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)SrcImg);
-        //        ResImg = resultBitmapSource;
-        //    });
-        //    // 결과 텍스트 출력
-        //    string resultText = System.Text.Encoding.UTF8.GetString(textArray).TrimEnd('\0');
-
-        //    var parsed = JsonSerializer.Deserialize<InspectionResult>(resultText);
-
-        //    // 내부 내용만 따로 JSON 직렬화
-        //    string metadataOnly = _testType switch
-        //    {
-        //        TestTypes.Gray => JsonSerializer.Serialize(parsed.Gray),
-        //        TestTypes.Res => JsonSerializer.Serialize(parsed.Res),
-        //        TestTypes.Geo => JsonSerializer.Serialize(parsed.Geo),
-        //        _ => "{}"
-        //    };
-
-        //    Log.Information($"metadataOnly: {metadataOnly}");
-        //    ResLogs.Add(metadataOnly);
-        //    ResTxt = metadataOnly;
-
-        //    int resultScore = _testType switch
-        //    {
-        //        TestTypes.Gray => InspectionCalculator.CalculateGrayScore(parsed.Gray),
-        //        TestTypes.Res  => InspectionCalculator.CalculateResScore(parsed.Res),
-        //        TestTypes.Geo  => InspectionCalculator.CalculateGeoScore(parsed.Geo),
-        //        _ => 0
-        //    };
-
-        //    TestResult = 100;
-
-        //    _test = new Test
-        //    {
-        //        TestCategoryId = (int)_testCategory,
-        //        TestTypeId = (int)_testType,
-        //        TesterId = _tester.Id,
-        //        Result = resultScore, // 여기서 검사 로직 통해서 계산하거나 임시 -2 등
-        //        Method = 1,
-        //        ChangedImgMetadata = metadataOnly,
-        //        OriginalImg = Path.GetFileName(OriginalImgName),
-        //        ChangedImg = Path.GetFileName(resultImagePath),
-        //    };
-
-        //    PrepareTest(_testCategory, _test);
-
-        //    // 메모리 해제
-        //    imageHandle.Free();
-        //    resultHandle.Free();
-        //    textHandle.Free();
-
-        //    // 응답 처리
-        //    // 응답을 받았을 때의 로직
-        //    //HansonoSettings settings = JsonSerializer.Deserialize<HansonoSettings>(response.Meta)!;
-        //    //ResTxt = settings.ToJson();
-
-        //    ValidationDict[nameof(TestResult)].IsEnabled = true;
-        //    return Task.CompletedTask;
-        //}
-
         private bool CanNext()
         {
             Log.Information(nameof(CanNext));
@@ -1907,7 +1785,12 @@ namespace SonoCap.MES.UI.ViewModels
                 ResLogs.Add($"Add test : {tmp}");
 
                 CellPositions cellPosition = (CellPositions)((int)_testCategory * 10 + (int)_testType);
-                SetCellPassFail(_test, cellPosition);
+                //SetCellPassFail(_test, cellPosition);
+                _cellStatusService.SetCellPassFail(
+                    _test,
+                    (pos, brush) => BorderBackgrounds[(int)pos] = new ObservableBrush { Value = brush }
+                );
+
                 await TryActivateNextCategoryAsync();
             }
 
@@ -1992,91 +1875,6 @@ namespace SonoCap.MES.UI.ViewModels
 
                         await _testingManagementService.PTRViewUpsertAsync(_probe, _pTRView);
                     }
-                    break;
-            }
-        }
-
-        private void SetCellPassFail(Test item, CellPositions cellPosition)
-        {
-            switch (item.TestTypeId)
-            {
-                case 1:
-                    if (item.Result > App.TestThresholdDict[11])
-                    {
-                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
-                    }
-                    else
-                    {
-                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
-                    }
-                    break;
-                case 2:
-                    if (item.Result > App.TestThresholdDict[12])
-                    {
-                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
-                    }
-                    else
-                    {
-                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
-                    }
-                    break;
-                case 3:
-                    if (item.Result > App.TestThresholdDict[13])
-                    {
-                        SetCellBackgrounds(Brushes.LightGreen, cellPosition);
-                    }
-                    else
-                    {
-                        SetCellBackgrounds(Brushes.Tomato, cellPosition);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private void SetCellBackgrounds(Brush brush, params CellPositions[] cellPositions)
-        {
-            foreach (CellPositions item in cellPositions)
-            {
-                BorderBackgrounds[(int)item] = new ObservableBrush { Value = brush };
-            }
-            //OnPropertyChanged(nameof(BorderBackgrounds));
-        }
-
-        private void SetCellBackgrounds(TestCategories category, Brush brush)
-        {
-            switch (category)
-            {
-                case TestCategories.All:
-                    BorderBackgrounds[(int)CellPositions.Row1_Column1] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row1_Column2] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row1_Column3] = new ObservableBrush { Value = brush };
-
-                    BorderBackgrounds[(int)CellPositions.Row2_Column1] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row2_Column2] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row2_Column3] = new ObservableBrush { Value = brush };
-
-                    BorderBackgrounds[(int)CellPositions.Row3_Column1] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row3_Column2] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row3_Column3] = new ObservableBrush { Value = brush };
-                    break;
-                case TestCategories.Processing:
-                    BorderBackgrounds[(int)CellPositions.Row1_Column1] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row1_Column2] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row1_Column3] = new ObservableBrush { Value = brush };
-                    break;
-                case TestCategories.Process:
-                    BorderBackgrounds[(int)CellPositions.Row2_Column1] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row2_Column2] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row2_Column3] = new ObservableBrush { Value = brush };
-                    break;
-                case TestCategories.Dispatch:
-                    BorderBackgrounds[(int)CellPositions.Row3_Column1] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row3_Column2] = new ObservableBrush { Value = brush };
-                    BorderBackgrounds[(int)CellPositions.Row3_Column3] = new ObservableBrush { Value = brush };
-                    break;
-                default:
                     break;
             }
         }
