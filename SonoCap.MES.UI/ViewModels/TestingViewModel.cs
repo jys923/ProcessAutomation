@@ -2,12 +2,9 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
-using SonoCap.Commons;
 using SonoCap.MES.Models;
 using SonoCap.MES.Models.Enums;
-using SonoCap.MES.Models.Inspection;
 using SonoCap.MES.Services;
 using SonoCap.MES.Services.Interfaces;
 using SonoCap.WpfCommons;
@@ -17,14 +14,10 @@ using SonoCap.MES.UI.Validation;
 using SonoCap.MES.UI.ViewModels.Base;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Brush = System.Windows.Media.Brush;
-using Brushes = System.Windows.Media.Brushes;
 using System.IO;
 using SonoCap.MES.UI.Messages;
 using SonoCap.MES.UI.Models;
@@ -37,7 +30,6 @@ namespace SonoCap.MES.UI.ViewModels
     public partial class TestingViewModel : ViewModelBase, IParameterReceiver
     {
         private Transducer? _transducer { get; set; } = default!;
-
         private TransducerModule? _transducerModule { get; set; } = default!;
         private MotorModule? _motorModule { get; set; } = default!;
         private Probe? _probe { get; set; } = default!;
@@ -45,7 +37,6 @@ namespace SonoCap.MES.UI.ViewModels
         private TestCategories _testCategory { get; set; } = default!;
         private TestTypes _testType { get; set; } = default!;
         private Tester? _tester { get; set; } = default!;
-
         private Test? _test { get; set; } = default!;
 
         private MES.Services.Model.GlobalModel _model;
@@ -55,9 +46,11 @@ namespace SonoCap.MES.UI.ViewModels
         private readonly ImageService _imageService;
         private readonly IViewService _viewService;
         private readonly ImageBufferService _imageBufferService;
+        private readonly ITestMemoryService _testMemoryService;
         private readonly ISnFlowService _snFlowService;
 
         public TestingViewModel(
+            ITestMemoryService testMemoryService,
             ISnFlowService snFlowService,
             USRenderService usRenderer,
             ImageBufferService imageBufferService,
@@ -68,6 +61,7 @@ namespace SonoCap.MES.UI.ViewModels
             IMotorService motorService,
             ICellStatusService cellStatusService)
         {
+            _testMemoryService = testMemoryService;
             _snFlowService = snFlowService;
             _usRenderer = usRenderer;
             _imageBufferService = imageBufferService;
@@ -917,113 +911,49 @@ namespace SonoCap.MES.UI.ViewModels
             context.InspectionFunction = inspectionFunction;
             context.ProcessFunction = processFunction;
 
-            // 어떤 이미지를 사용할지 ViewModel에서 결정합니다.
-            ImageSource imageSourceToUse = null;
-            byte[][] imageSnapshotsToUse = null;
-
-            // 테스트 타입에 따라 _envImageBuffer 또는 _srcImageBuffer (10개 스냅샷 배열)를 선택합니다.
-            if (_testType == TestTypes.EnvGeo)
-            {
-                imageSourceToUse = EnvImg;
-                imageSnapshotsToUse = _imageBufferService.GetEnvSnapshot(); // _envImageBuffer는 byte[][] 타입이라고 가정
-            }
-            else
-            {
-                imageSourceToUse = SrcImg;
-                imageSnapshotsToUse = _imageBufferService.GetSnapshot(); // _srcImageBuffer는 byte[][] 타입이라고 가정
-            }
+            ImageSource imageSourceToUse = (_testType == TestTypes.EnvGeo)
+                ? EnvImg
+                : SrcImg;
 
             App.Current.Dispatcher.Invoke(() =>
             {
                 context.SnapshotImg = Utilities.CopyBitmapSource((BitmapSource)imageSourceToUse);
             });
 
-            // 공통 함수를 호출하여 이미지 복사 및 메모리를 준비합니다.
-            //PrepareImageAndMemory(context, imageSourceToUse);
             try
             {
-                PrepareSnapshotsAndMemory(context, imageSnapshotsToUse);
+                _testMemoryService.Prepare(context, _testType);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
-                Log.Error(ex, "10개 스냅샷 버퍼 준비 중 오류 발생.");
+                Log.Error(ex, "메모리 준비 실패");
                 return null;
             }
 
             return context;
         }
 
-        private void PrepareSnapshotsAndMemory(TestContext context, byte[][] snapshotSource)
-        {
-            // 1. 10개 원본 스냅샷 가져오기
-            context.InputSnapshots = snapshotSource;
-
-            if (context.InputSnapshots == null || context.InputSnapshots.Length != 10)
-            {
-                throw new InvalidOperationException("선택된 버퍼 소스에서 10개의 스냅샷을 가져오지 못했습니다.");
-            }
-
-            // 이미지 길이 및 텍스트 길이 설정
-            int imageLength = context.InputSnapshots[0].Length;
-            int textLength = 4096;
-
-            // 10개 결과 배열 및 포인터 배열 초기화
-            context.ResultSnapshots = new byte[10][];
-            context.ResultTextArrays = new byte[10][];
-            context.InputBufferPtrs = new IntPtr[10];
-            context.ResultBufferPtrs = new IntPtr[10];
-            context.ResultTextBufferPtrs = new IntPtr[10];
-
-            // 10쌍의 메모리를 모두 할당하고 고정(Pinning)합니다.
-            for (int i = 0; i < 10; i++)
-            {
-                // 1. 원본 이미지 배열 고정 (Pinning)
-                GCHandle inputHandle = GCHandle.Alloc(context.InputSnapshots[i], GCHandleType.Pinned);
-                context.PinnedHandles.Add(inputHandle);
-                context.InputBufferPtrs[i] = inputHandle.AddrOfPinnedObject();
-
-                // 2. 결과 이미지 배열 할당 및 고정
-                context.ResultSnapshots[i] = new byte[imageLength];
-                GCHandle resultImgHandle = GCHandle.Alloc(context.ResultSnapshots[i], GCHandleType.Pinned);
-                context.PinnedHandles.Add(resultImgHandle);
-                context.ResultBufferPtrs[i] = resultImgHandle.AddrOfPinnedObject();
-
-                // 3. 결과 텍스트 배열 할당 및 고정
-                context.ResultTextArrays[i] = new byte[textLength];
-                GCHandle resultTextHandle = GCHandle.Alloc(context.ResultTextArrays[i], GCHandleType.Pinned);
-                context.PinnedHandles.Add(resultTextHandle);
-                context.ResultTextBufferPtrs[i] = resultTextHandle.AddrOfPinnedObject();
-            }
-
-            Log.Information($"Snapshot Test: 10쌍의 메모리 ({context.PinnedHandles.Count}개 GCHandle) 준비 완료.");
-        }
         // 공통 정리 함수
         private void FinalizeTestContext(TestContext context)
         {
             if (context == null) return;
 
-            // 결과 텍스트 출력
-            //context.ResultText = System.Text.Encoding.UTF8.GetString(context.TextArray).TrimEnd('\0');
-
-            // ViewModel의 속성 업데이트
             ResTxt = context.ChangedImgMetadata;
             Log.Information($"metadataOnly: {context.ChangedImgMetadata}");
             context.ResLogs.Add(context.ChangedImgMetadata);
 
-            // 결과 이미지 변환 및 저장
             var epoch = Utilities.GetCurrentUnixTimestampMilliseconds();
             string originalImgName = Path.Combine(App.appTempDir, $"{epoch}_ori.bmp");
             string resultImagePath = Path.Combine(App.appTempDir, $"{epoch}_det.png");
+
             Utilities.SaveBitmap(context.SnapshotImg, originalImgName);
             Utilities.SavePng(context.ResultImg, resultImagePath);
 
-            // UI 업데이트
             App.Current.Dispatcher.Invoke(() =>
             {
                 ResImg = context.ResultImg;
             });
 
-            // DB 저장을 위한 Test 객체 생성
             _test = new Test
             {
                 TestCategoryId = (int)context.TestCategory,
@@ -1037,13 +967,9 @@ namespace SonoCap.MES.UI.ViewModels
             };
             PrepareTest(context.TestCategory, _test);
 
-            // 메모리 해제
-            foreach (var handle in context.PinnedHandles)
-            {
-                if (handle.IsAllocated)
-                    handle.Free();
-            }
+            _testMemoryService.Release(context);
         }
+
 
         // 테스트 타입에 맞는 전략 객체 반환 (더 이상 ViewModel이나 이미지를 전달하지 않습니다)
         private ITestStrategy GetTestStrategy(TestTypes type)
