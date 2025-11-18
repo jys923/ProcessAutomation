@@ -5,12 +5,12 @@
 // =========================================================
 struct TrialOutcome {
     double threshold;
+    MorphMode morphMode;
+    std::vector<EnvGeoData> detectedPoints;
+    EnvGeoResult result;
     //std::vector<EnvGeoData> finalResultPoints;
     //std::vector<EnvGeoData> filteredOutXPoints;
     //std::vector<EnvGeoData> filteredOutYPoints;
-    std::vector<EnvGeoData> detectedPoints;
-    EnvGeoResult result;
-    MorphMode morphMode;
 };
 
 // =========================================================
@@ -18,9 +18,11 @@ struct TrialOutcome {
 // =========================================================
 bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& roi, double perThreshold, const MyOpenCVWrapper::InspectionParams::EnvGeoParams& cfg, MorphMode morphMode)
 {
-    std::vector<cv::Mat> stageImages;
+    AxisFilter xF, yF;
+    std::vector<EnvGeoData> detectedPoints;
 
-    out.threshold = perThreshold;
+    std::vector<cv::Mat> stageImages;
+    
     double bestThresh;
     int maxVal = 255;
 
@@ -89,7 +91,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     stageImages.push_back(dbgContours.clone());
 
     // 3. Contour → EnvGeoData 변환
-    out.detectedPoints.clear();
+    detectedPoints.clear();
     for (int i = 0; i < contours.size(); ++i) {
         const auto& contour = contours[i];
         double area = cv::contourArea(contour);
@@ -110,7 +112,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
         cv::Point2f extracted(min_x, vertical_mid_y);
         double dist = cv::pointPolygonTest(contour, extracted, false);
         if (dist < 0) continue;
-        out.detectedPoints.push_back({ min_x, vertical_mid_y, area, contour, i });*/
+        detectedPoints.push_back({ min_x, vertical_mid_y, area, contour, i });*/
 
         // ---- 컨투어 중심점(centroid) 계산 ----
         cv::Moments m = cv::moments(contour);
@@ -124,16 +126,16 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
         // ---- 컨투어 내부 여부 검사 (필요하면 완화) ----
         double dist = cv::pointPolygonTest(contour, center, true);
         if (dist < -1.0) continue;  // 바깥 1픽셀 이상만 제외 (0 또는 살짝 음수는 허용)
-        out.detectedPoints.push_back({ center.x, center.y, area, contour, i });
+        detectedPoints.push_back({ center.x, center.y, area, contour, i });
     }
 
-    if (out.detectedPoints.empty()) return false;
+    if (detectedPoints.empty()) return false;
 #define Y_GROUP_IMG
 #ifdef Y_GROUP_IMG
     cv::Mat dbgBefore;
     cv::cvtColor(roiGray, dbgBefore, cv::COLOR_GRAY2BGR);
 
-    for (auto& d : out.detectedPoints)
+    for (auto& d : detectedPoints)
     {
         // 녹색 컨투어
         std::vector<std::vector<cv::Point>> c = { d.originalContour };
@@ -157,15 +159,15 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     //const double X_TOL = 3.0;           // X 간 거리 필터
 
     std::vector<std::vector<EnvGeoData>> clusters;
-    std::vector<int> clusterIndex(out.detectedPoints.size(), -1);
+    std::vector<int> clusterIndex(detectedPoints.size(), -1);
     int clusterCount = 0;
 
     //------------------------------------------------------------
     // (1) BFS/Union-Find 스타일 클러스터링
     //------------------------------------------------------------
-    if (!out.detectedPoints.empty())
+    if (!detectedPoints.empty())
     {
-        for (size_t i = 0; i < out.detectedPoints.size(); ++i)
+        for (size_t i = 0; i < detectedPoints.size(); ++i)
         {
             if (clusterIndex[i] != -1) continue; // 이미 속한 클러스터
 
@@ -177,16 +179,16 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
             while (!q.empty())
             {
                 size_t baseIdx = q.front(); q.pop();
-                clusters.back().push_back(out.detectedPoints[baseIdx]);
+                clusters.back().push_back(detectedPoints[baseIdx]);
 
-                const auto& baseContour = out.detectedPoints[baseIdx].originalContour;
+                const auto& baseContour = detectedPoints[baseIdx].originalContour;
                 cv::Rect baseRect = cv::boundingRect(baseContour);
 
-                for (size_t j = 0; j < out.detectedPoints.size(); ++j)
+                for (size_t j = 0; j < detectedPoints.size(); ++j)
                 {
                     if (clusterIndex[j] != -1) continue;
 
-                    const auto& curContour = out.detectedPoints[j].originalContour;
+                    const auto& curContour = detectedPoints[j].originalContour;
                     cv::Rect curRect = cv::boundingRect(curContour);
 
                     // X 필터 (세로열 분리)
@@ -333,17 +335,17 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
         //tempFiltered.push_back(merged);
     }
 
-    out.detectedPoints = tempFiltered;
+    detectedPoints = tempFiltered;
 #else
     std::vector<EnvGeoData> tempFiltered;
-    tempFiltered = out.detectedPoints;
+    tempFiltered = detectedPoints;
 #endif
 
 #ifdef Y_GROUP_IMG
     cv::Mat dbgAfter;
     cv::cvtColor(roiGray, dbgAfter, cv::COLOR_GRAY2BGR);
 
-    for (auto& d : out.detectedPoints)
+    for (auto& d : detectedPoints)
     {
         // 주황색 컨투어
         std::vector<std::vector<cv::Point>> c = { d.originalContour };
@@ -428,18 +430,18 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     for each (auto& d in filteredByX)
     {
         if (std::abs(d.leftmost_x - bestK) <= 1.0) {
-            out.result.xFilter.ref_point =
+            xF.ref_point =
                 cv::Point(static_cast<int>(d.leftmost_x + roi.x),
                     static_cast<int>(d.vertical_mid_y + roi.y));
             break;
         }
     }
 
-    out.result.xFilter.interval = 0.0;     // 사용하지 않음 (유지용)
-    out.result.xFilter.tolerance = xTol;
-    out.result.xFilter.filtered_out.clear();
+    xF.interval = 0.0;     // 사용하지 않음 (유지용)
+    xF.tolerance = xTol;
+    xF.filtered_out.clear();
     for (const auto& d : filteredOutX) {
-        out.result.xFilter.filtered_out.push_back(
+        xF.filtered_out.push_back(
             cv::Point(static_cast<int>(d.leftmost_x + roi.x),
                 static_cast<int>(d.vertical_mid_y + roi.y)));
     }
@@ -454,7 +456,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
             cv::circle(dbgMad, { (int)d.leftmost_x, (int)d.vertical_mid_y }, 3, orange, -1);
         for (auto& d : filteredOutX)
             cv::circle(dbgMad, { (int)d.leftmost_x, (int)d.vertical_mid_y }, 3, orange, 1);
-        cv::circle(dbgMad, { out.result.xFilter.ref_point - cv::Point(roi.x, roi.y) }, 5, HotPink, 1);
+        cv::circle(dbgMad, xF.ref_point - cv::Point(roi.x, roi.y), 5, HotPink, 1);
         
         stageImages.push_back(dbgMad);
     }
@@ -513,7 +515,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
         double p = std::fmod(d.vertical_mid_y, targetY);
         if (p < 0) p += targetY;
         if (std::abs(p - bestPhase) <= 0.5) {
-            out.result.yFilter.ref_point =
+            yF.ref_point =
                 cv::Point(static_cast<int>(d.leftmost_x + roi.x),
                     static_cast<int>(d.vertical_mid_y + roi.y));
             break;
@@ -521,11 +523,11 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     }
 
     // 5) 결과 저장
-    out.result.yFilter.interval = targetY;
-    out.result.yFilter.tolerance = yTol;
-    out.result.yFilter.filtered_out.clear();
+    yF.interval = targetY;
+    yF.tolerance = yTol;
+    yF.filtered_out.clear();
     for (const auto& d : filteredOutY) {
-        out.result.yFilter.filtered_out.push_back(
+        yF.filtered_out.push_back(
             cv::Point(static_cast<int>(d.leftmost_x + roi.x),
                 static_cast<int>(d.vertical_mid_y + roi.y)));
     }
@@ -540,7 +542,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
             cv::circle(dbgPhase, { (int)d.leftmost_x, (int)d.vertical_mid_y }, 3, blue , -1);
         for (auto& d : filteredOutY)
             cv::circle(dbgPhase, { (int)d.leftmost_x, (int)d.vertical_mid_y }, 3, blue, 2);
-        cv::circle(dbgPhase, { out.result.yFilter.ref_point - cv::Point(roi.x, roi.y) }, 5, cyan, 1);
+        cv::circle(dbgPhase, yF.ref_point - cv::Point(roi.x, roi.y), 5, cyan, 1);
         stageImages.push_back(dbgPhase);
     }
     // 8. X/Y 필터 조합
@@ -572,16 +574,16 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
         finalResult = finalFiltered;
     }
 
-    out.result.yFilter.interval = targetY;
-    out.result.yFilter.tolerance = yTol;
+    /*out.result.yFilter.interval = targetY;
+    out.result.yFilter.tolerance = yTol;*/
 
     // Y 필터 관련 결과 저장 추가 (여기 삽입)
-    out.result.yFilter.filtered_out.clear();
+    /*out.result.yFilter.filtered_out.clear();
     for (const auto& d : filteredOutY) {
         out.result.yFilter.filtered_out.push_back(
             cv::Point(static_cast<int>(d.leftmost_x + roi.x),
                 static_cast<int>(d.vertical_mid_y + roi.y)));
-    }
+    }*/
 
     // 9. 결과 구성
     if (finalResult.empty()) return false;
@@ -605,14 +607,21 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
 
     showAndSaveImage("EnvGeo_AllStages_Threshold:" + std::to_string((int)perThreshold)+"," + to_string(morphMode), combined);
 
-    /*out.finalResultPoints = finalResult;
-    out.filteredOutXPoints = filteredOutX;
-    out.filteredOutYPoints = filteredOutY;*/
+	// 최종 결과 저장
+    out.threshold = perThreshold;
+	out.morphMode = morphMode;
+    out.detectedPoints = detectedPoints;
 
+    out.result.xFilter = xF;
+    out.result.yFilter = yF;
+
+    out.result.findPoints.clear();
+    out.result.finalPoints.clear();
+
+    for (auto& d : detectedPoints)
+        out.result.findPoints.emplace_back(d.leftmost_x + roi.x, d.vertical_mid_y + roi.y);
     for (auto& d : finalResult)
-        out.result.finalPoints.push_back(cv::Point(d.leftmost_x + roi.x, d.vertical_mid_y + roi.y));
-    for (auto& d : out.detectedPoints)
-        out.result.findPoints.push_back(cv::Point(d.leftmost_x + roi.x, d.vertical_mid_y + roi.y));
+        out.result.finalPoints.emplace_back(d.leftmost_x + roi.x, d.vertical_mid_y + roi.y);
 
     return true;
 }
@@ -837,25 +846,6 @@ inline void LogYIntervalSummary(const std::vector<EnvGeoData>& allPoints,
     Logger::Information("{0}", sb->ToString());
 }
 
-//double ComputePhaseError(const TrialOutcome& t)
-//{
-//    if (t.finalResultPoints.empty())
-//        return std::numeric_limits<double>::infinity();
-//
-//    const double refY = t.result.yFilter.ref_point.y;
-//    const double interval = t.result.yFilter.interval;
-//
-//    double sumErr = 0.0;
-//    for (auto& p : t.finalResultPoints)
-//    {
-//        double diff = std::fabs(p.vertical_mid_y - refY);
-//        double r = std::fmod(diff, interval);
-//        double err = std::min(r, interval - r); // 1과 29를 동일하게 취급
-//        sumErr += err;
-//    }
-//    return sumErr / t.finalResultPoints.size(); // 평균 오차
-//}
-
 enum class AxisMode { X, Y };
 
 double ComputePhaseError(const EnvGeoResult& r, AxisMode mode)
@@ -962,10 +952,6 @@ void MyOpenCVWrapper::EnvGeoInspection(cv::Mat& srcImg, EnvGeoResult& result)
     }
     else
     {
-        //LogEnvGeoHeader();
-        //for (size_t i = 0; i < trials.size(); ++i) {
-        //    LogEnvGeoRow(trials[i], i);
-        //}
 		LogEnvGeoSummary(trials);
     }
 
@@ -979,65 +965,6 @@ void MyOpenCVWrapper::EnvGeoInspection(cv::Mat& srcImg, EnvGeoResult& result)
     );
 
     LogEnvGeoSummary({ chosen });
-
-    // --- Detected Points 전체 출력 (y 오름차순 정렬) ---
-    {
-        /*std::vector<EnvGeoData> allPoints;
-
-        allPoints.insert(allPoints.end(), chosen.result.finalPoints.begin(), chosen.result.finalPoints.end());
-        allPoints.insert(allPoints.end(), chosen.result.xFilter.filtered_out.begin(), chosen.result.xFilter.filtered_out.end());
-        allPoints.insert(allPoints.end(), chosen.result.yFilter.filtered_out.begin(), chosen.result.yFilter.filtered_out.end());
-
-        std::sort(allPoints.begin(), allPoints.end(),
-            [](const EnvGeoData& a, const EnvGeoData& b) {
-                if (a.vertical_mid_y == b.vertical_mid_y)
-                    return a.leftmost_x < b.leftmost_x;
-                return a.vertical_mid_y < b.vertical_mid_y;
-            });
-
-        allPoints.erase(
-            std::unique(allPoints.begin(), allPoints.end(),
-                [](const EnvGeoData& a, const EnvGeoData& b) {
-                    return std::abs(a.vertical_mid_y - b.vertical_mid_y) < 0.1 &&
-                        std::abs(a.leftmost_x - b.leftmost_x) < 0.1;
-                }),
-            allPoints.end());
-
-        const double targetY = chosen.result.yFilter.interval;
-        const double tol = chosen.result.yFilter.tolerance;
-        const double refY = chosen.result.yFilter.ref_point.y;
-
-		LogYIntervalSummary(allPoints, refY, targetY, tol);*/
-
-        /*std::ostringstream ossY;
-        ossY << "\nY-Interval Verification (refY=" << refY
-            << ", target=" << targetY
-            << ", tol=" << tol << ")\n";
-        ossY << "-------------------------------------------------------------\n";
-        ossY << " No |    X   |    Y   | ΔY(refY) | Remainder |  Status\n";
-        ossY << "-------------------------------------------------------------\n";
-
-        int idx = 1;
-        for (const auto& d : allPoints)
-        {
-            double dY = d.vertical_mid_y - refY;
-            double rem = std::fmod(std::abs(dY), targetY);
-            if (rem < 0) rem += targetY;
-
-            bool ok = (std::abs(rem) < tol) || (std::abs(rem - targetY) < tol);
-
-            ossY << std::setw(3) << idx++ << " | "
-                << std::setw(6) << std::fixed << std::setprecision(1) << d.leftmost_x << " | "
-                << std::setw(6) << d.vertical_mid_y << " | "
-                << std::setw(8) << std::fixed << std::setprecision(1) << dY << " | "
-                << std::setw(10) << std::fixed << std::setprecision(2) << rem << " | "
-                << (ok ? "OK" : "OUT") << "\n";
-        }
-
-        ossY << "-------------------------------------------------------------\n";
-        Logger::Information("{0}", gcnew System::String(ossY.str().c_str()));*/
-    }
-
 
     DrawEnvGeoTrial(srcImg, prep.roi, chosen);
     result = chosen.result;
