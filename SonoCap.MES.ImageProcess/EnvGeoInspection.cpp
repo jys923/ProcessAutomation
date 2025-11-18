@@ -25,7 +25,14 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     int maxVal = 255;
 
     const double minContourArea = cfg.minContourArea;
-    const float yTolerance = cfg.yTolerance;
+    //const float yTolerance = cfg.yTolerance;
+
+    const double BASE_DIST_TOL = cfg.clusterDistTol;   // 기존 BASE_DIST_TOL 대체
+    const double X_TOL = cfg.clusterXTol;      // 기존 X_TOL 대체
+    //const double clusterYTol = cfg.clusterYTol;      // 새 항목 (Y 방향 병합 간격)
+    const double xTol = cfg.xTol;             // 기존 하드코딩 2.0 대체
+    const double targetY = cfg.yInterval;        // 기존 targetYInterval 대체
+    const double yTol = cfg.yTol;             // 기존 yIntervalTolerance 대체
 
     // 1. Binary + Morphology
     cv::Mat binary;
@@ -143,11 +150,11 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
 #define USE_CONTOUR_CLUSTER_NEARBY
 
 #ifdef USE_CONTOUR_CLUSTER_NEARBY
-//------------------------------------------------------------
-// 컨투어 간 근접성 기반 클러스터링 (윤곽선 거리 기준, 형태학적 병합)
-//------------------------------------------------------------
-    const double BASE_DIST_TOL = 5.0;   // 기본 컨투어 경계 간 허용 거리
-    const double X_TOL = 3.0;           // X 간 거리 필터
+    //------------------------------------------------------------
+    // 컨투어 간 근접성 기반 클러스터링 (윤곽선 거리 기준, 형태학적 병합)
+    //------------------------------------------------------------
+    //const double BASE_DIST_TOL = 5.0;   // 기본 컨투어 경계 간 허용 거리
+    //const double X_TOL = 3.0;           // X 간 거리 필터
 
     std::vector<std::vector<EnvGeoData>> clusters;
     std::vector<int> clusterIndex(out.detectedPoints.size(), -1);
@@ -388,7 +395,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     if (xs.empty()) return false;
 #ifdef USE_X_FILTER_BEST_K
     // 기존 min/max 구문 유지 (호환용)
-    double xTol = 2.0;// cfg.xTolerance;  // 새 파라미터 (예: 2~4 픽셀 권장)
+    //double xTol = 2.0;// cfg.xTolerance;  // 새 파라미터 (예: 2~4 픽셀 권장)
     double bestK = 0.0;
     int bestCount = 0;
 
@@ -453,8 +460,8 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     }
     // 7. Y 간격 필터링
     std::vector<EnvGeoData> filteredByY, filteredOutY;
-    const double targetY = cfg.targetYInterval;
-    const double yTol2 = cfg.yIntervalTolerance;
+    //const double targetY = cfg.targetYInterval;
+    //const double yTol2 = cfg.yIntervalTolerance;
 
 #define USE_Y_FILTER_PHASE_BEST
 
@@ -481,7 +488,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     {
         int count = 0;
         for (double pj : phases)
-            if (std::abs(pj - pi) <= yTol2)
+            if (std::abs(pj - pi) <= yTol)
                 count++;
 
         if (count > bestCountY) {
@@ -494,7 +501,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     for (size_t i = 0; i < finalFiltered.size(); ++i)
     {
         double phase = phases[i];
-        if (std::abs(phase - bestPhase) <= yTol2)
+        if (std::abs(phase - bestPhase) <= yTol)
             filteredByY.push_back(finalFiltered[i]);
         else
             filteredOutY.push_back(finalFiltered[i]);
@@ -515,7 +522,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
 
     // 5) 결과 저장
     out.result.yFilter.interval = targetY;
-    out.result.yFilter.tolerance = yTol2;
+    out.result.yFilter.tolerance = yTol;
     out.result.yFilter.filtered_out.clear();
     for (const auto& d : filteredOutY) {
         out.result.yFilter.filtered_out.push_back(
@@ -566,7 +573,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     }
 
     out.result.yFilter.interval = targetY;
-    out.result.yFilter.tolerance = yTol2;
+    out.result.yFilter.tolerance = yTol;
 
     // Y 필터 관련 결과 저장 추가 (여기 삽입)
     out.result.yFilter.filtered_out.clear();
