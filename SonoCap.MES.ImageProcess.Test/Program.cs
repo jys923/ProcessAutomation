@@ -81,7 +81,7 @@ namespace SonoCap.MES.ImageProcess.Test
         };
 
         // --- 상수 설정 ---
-        private const string ImageDirectory = "../../../../TestImg/img4/"; // 처리할 이미지들이 있는 폴더 경로
+        private const string ImageDirectory = "../../../../TestImg/img5/"; // 처리할 이미지들이 있는 폴더 경로
         //private const string ImageDirectory = "../../../../TestImg/images/"; // 처리할 이미지들이 있는 폴더 경로
         private const string ImageSearchPattern = "*.bmp"; // 처리할 이미지 파일 확장자 (예: *.bmp, *.png, *.* 등)
         private const string OutputRootDirectory = ".\\DebugOutput\\"; // 결과 파일이 저장될 기본 루트 폴더

@@ -631,71 +631,47 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
 // =========================================================
 static void DrawEnvGeoTrial(cv::Mat& srcImg, const cv::Rect& roi, const TrialOutcome& t)
 {
+    cv::rectangle(srcImg, roi, YellowA, 1);
+
     for (auto& d : t.detectedPoints) {
         std::vector<std::vector<cv::Point>> c = { d.originalContour };
         for (auto& p : c[0]) p += cv::Point(roi.x, roi.y);
         cv::drawContours(srcImg, c, -1, GreenA, 1);
     }
 
-    /*
-    for (auto& d : t.filteredOutXPoints)
-        cv::circle(srcImg, { int(d.leftmost_x + roi.x), int(d.vertical_mid_y + roi.y) }, 2, OrangeA, -1);
-
-    for (auto& d : t.filteredOutYPoints)
-        cv::circle(srcImg, { int(d.leftmost_x + roi.x), int(d.vertical_mid_y + roi.y) }, 2, BlueA, -1);
-
-    for (auto& d : t.finalResultPoints)
-        cv::circle(srcImg, { int(d.leftmost_x + roi.x), int(d.vertical_mid_y + roi.y) }, 2, RedA, -1);
-        
-    if (t.bestRefPoint.area > 0)
-        cv::circle(srcImg, { int(t.bestRefPoint.leftmost_x + roi.x), int(t.bestRefPoint.vertical_mid_y + roi.y) }, 3, CyanA, -1);
-    */
-
     for (auto& d : t.result.xFilter.filtered_out)
-        cv::circle(srcImg, { d.x, d.y }, 2, OrangeA, -1);
+        cv::circle(srcImg, { d.x, d.y }, 2, BrightOrangeA, -1);
 
     for (auto& d : t.result.yFilter.filtered_out)
-        cv::circle(srcImg, { d.x, d.y }, 2, BlueA, -1);
+        cv::circle(srcImg, { d.x, d.y }, 2, DeepBlue, -1);
 
     for (auto& d : t.result.finalPoints)
         cv::circle(srcImg, { d.x, d.y }, 2, RedA, -1);
 
-    //if (t.bestRefPoint.area > 0)
     cv::circle(srcImg, { t.result.xFilter.ref_point.x, t.result.xFilter.ref_point.y }, 4, BrightOrangeA, 2);
-    cv::circle(srcImg, { t.result.yFilter.ref_point.x, t.result.yFilter.ref_point.y }, 4, CyanA, 2);
+    cv::circle(srcImg, { t.result.yFilter.ref_point.x, t.result.yFilter.ref_point.y }, 4, DeepBlue, 2);
 
-    cv::rectangle(srcImg, roi, YellowA, 1);
+    // ref 기준 점 그리기
+    int imgW = srcImg.cols;
+    int imgH = srcImg.rows;
 
-    // --- 간단한 cnt 표시 (512x512 기준, 오른쪽 아래 구석) ---
+    int refX = t.result.xFilter.ref_point.x;
+    int refY = t.result.yFilter.ref_point.y;
+    int yInterval = static_cast<int>(t.result.yFilter.interval); // 보통 32
+
+    // 수직 방향 점: (refX, refY + n*interval)
+    for (int y = refY; y >= 0; y -= yInterval)
+        cv::circle(srcImg, cv::Point(refX, y), 1, NeonCyan, -1);
+
+    for (int y = refY + yInterval; y < imgH; y += yInterval)
+        cv::circle(srcImg, cv::Point(refX, y), 1, NeonCyan, -1);
+
+    // --- 간단한 cnt 표시 (512x480 기준, 오른쪽 아래 구석) ---
     int cnt = static_cast<int>(t.result.finalPoints.size());
     std::string text = "cnt:" + std::to_string(cnt);
-    cv::putText(srcImg, text, cv::Point(srcImg.cols - 100 , srcImg.rows - 10), cv::FONT_HERSHEY_SIMPLEX, 0.8, red, 2);
+    cv::putText(srcImg, text, cv::Point(srcImg.cols - 100, srcImg.rows - 20), cv::FONT_HERSHEY_SIMPLEX, 0.8, red, 2);
 
     showAndSaveImage("EnvGeo_End", srcImg);
-}
-
-void LogEnvGeoHeader()
-{
-    Logger::Information("---- EnvGeoResult Summary ----");
-    Logger::Information("Idx | findPts | finalPts | median_x | mad_x | target_y_interval | y_tolerance");
-    Logger::Information("--------------------------------------------------------------------------");
-}
-
-// 2) 인덱스 포함 단일 행 출력
-void LogEnvGeoRow(const TrialOutcome& t, size_t idx)
-{
-    const auto& e = t.result;
-
-    Logger::Information(
-        "{Idx,3} | {FindPts,7} | {FinalPts,9} | {Median,9:F3} | {MAD,6:F3} | {Target,17:F2} | {Tol,11:F2}",
-        static_cast<int>(idx),
-        e.findPoints.size(),
-        e.finalPoints.size(),
-        e.xFilter.ref_point.x,
-        e.xFilter.tolerance,
-        e.yFilter.interval,
-        e.yFilter.tolerance
-    );
 }
 
 void LogEnvGeoSummary(const std::vector<TrialOutcome>& trials)
@@ -717,13 +693,26 @@ void LogEnvGeoSummary(const std::vector<TrialOutcome>& trials)
         const double interval = r.yFilter.interval;
         const double yTol = r.yFilter.tolerance;
 
-        const auto& pts = r.findPoints;
+        // ⬇️⬇️⬇️ 여기서 pts 복사 후 정렬
+        std::vector<cv::Point> pts = r.findPoints;
+
         if (pts.empty()) continue;
+
+        // **Y 오름차순 정렬**
+        std::sort(pts.begin(), pts.end(),
+            [](const cv::Point& a, const cv::Point& b) {
+                return a.y < b.y;
+            }
+        );
+        // ⬆️⬆️⬆️ 정렬 완료
 
         StringBuilder^ sb = gcnew StringBuilder(2048);
         sb->AppendLine("");
         sb->AppendLine("---- EnvGeoResult Summary ----");
-        sb->AppendFormat("\nThreshold :{0},  ({1})\n", trials[tIndex].threshold, gcnew String(to_string(trials[tIndex].morphMode).c_str()));
+        sb->AppendFormat("\nThreshold :{0},  ({1})\n",
+            trials[tIndex].threshold,
+            gcnew String(to_string(trials[tIndex].morphMode).c_str())
+        );
         sb->AppendFormat("X-Filter : refX={0:F1}, tol={1:F1}\n", refX, xTol);
         sb->AppendFormat("Y-Filter : refY={0:F1}, interval={1:F1}, tol={2:F1}\n", refY, interval, yTol);
         sb->AppendLine("--------------------------------------------------------------------");
@@ -748,102 +737,21 @@ void LogEnvGeoSummary(const std::vector<TrialOutcome>& trials)
             bool isRefX = (std::fabs(p.x - refX) < 0.5);
             bool isRefY = (std::fabs(p.y - refY) < 0.5);
 
-            sb->AppendFormat("{0,3} | {1,7:F1}{2} | {3,8:F1} | {4,4} | {5,7:F1}{6} | {7,10:F2} | {8,4}\n",
+            sb->AppendFormat(
+                "{0,3} | {1,7:F1}{2} | {3,8:F1} | {4,4} | {5,7:F1}{6} | {7,10:F2} | {8,4}\n",
                 idx++,
                 p.x, (isRefX ? " *" : "  "),
                 dX,
                 xOK ? "OK" : "NG",
                 p.y, (isRefY ? " *" : "  "),
                 delta,
-                yOK ? "OK" : "NG");
+                yOK ? "OK" : "NG"
+            );
         }
 
         sb->AppendLine("------------------------------------------------------------");
         Logger::Information("{0}", sb->ToString());
     }
-}
-
-void LogEnvGeoSummary2(const std::vector<TrialOutcome>& trials)
-{
-    if (trials.empty())
-    {
-        Logger::Information("No EnvGeoResult trials to log.");
-        return;
-    }
-
-    using namespace System;
-    using namespace System::Text;
-
-    StringBuilder^ sb = gcnew StringBuilder(1024);
-
-    sb->AppendLine("");
-    sb->AppendLine("---- EnvGeoResult Summary ----");
-    sb->AppendLine("Idx | findPts | finalPts | median_x | mad_x | target_y_interval | y_tolerance");
-    sb->AppendLine("--------------------------------------------------------------------------");
-
-    for (int i = 0; i < static_cast<int>(trials.size()); ++i)
-    {
-        const auto& e = trials[i].result;
-
-        sb->AppendFormat(
-            "{0,3} | {1,7} | {2,9} | {3,9:F3} | {4,6:F3} | {5,17:F2} | {6,11:F2}\n",
-            i,
-            static_cast<int>(e.findPoints.size()),
-            static_cast<int>(e.finalPoints.size()),
-            e.xFilter.ref_point.x,
-            e.xFilter.tolerance,
-            e.yFilter.interval,
-            e.yFilter.tolerance
-        );
-    }
-
-    sb->AppendLine("--------------------------------------------------------------------------");
-
-    // 한 번만 출력 (여러 줄을 한 이벤트로)
-    Logger::Information("{0}", sb->ToString());
-}
-
-inline void LogYIntervalSummary(const std::vector<EnvGeoData>& allPoints,
-    double refY, double targetY, double tol)
-{
-    if (allPoints.empty())
-    {
-        Logger::Information("No Y-interval points to display.");
-        return;
-    }
-
-    using namespace System;
-    using namespace System::Text;
-
-    StringBuilder^ sb = gcnew StringBuilder(1024);
-
-    sb->AppendFormat("\nY-Interval Verification (refY={0:F1}, target={1:F1}, tol={2:F1})\n",
-        refY, targetY, tol);
-    sb->AppendLine("-------------------------------------------------------------");
-    sb->AppendLine(" No |    X   |    Y   | ΔY(refY) | Remainder |  Status");
-    sb->AppendLine("-------------------------------------------------------------");
-
-    int idx = 1;
-    for (const auto& d : allPoints)
-    {
-        double dY = d.vertical_mid_y - refY;
-        double rem = std::fmod(std::abs(dY), targetY);
-        if (rem < 0) rem += targetY;
-        bool ok = (std::abs(rem) < tol) || (std::abs(rem - targetY) < tol);
-
-        sb->AppendFormat("{0,3} | {1,6:F1} | {2,6:F1} | {3,8:F1} | {4,10:F2} | {5}\n",
-            idx++,
-            d.leftmost_x,
-            d.vertical_mid_y,
-            dY,
-            rem,
-            ok ? "OK" : "OUT");
-    }
-
-    sb->AppendLine("-------------------------------------------------------------");
-
-    // 🚀 한 번만 출력 (전체 블록)
-    Logger::Information("{0}", sb->ToString());
 }
 
 enum class AxisMode { X, Y };
