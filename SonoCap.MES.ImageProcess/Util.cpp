@@ -1211,7 +1211,20 @@ void showAndSaveImage(const std::string& windowName, const cv::Mat& image) {
 
     cv::destroyWindow(windowName);
 
-    std::string filename = windowName + ".bmp";
+    // 저장 폴더
+    std::string folder = "./Debug/";
+
+    // C++14에서는 experimental::filesystem 사용해야 함
+    try {
+        fs::create_directories(folder);   // 없으면 생성, 있으면 아무 일 없음
+    }
+    catch (const fs::filesystem_error& e) {
+        std::cerr << "Directory creation failed: " << e.what() << std::endl;
+        return;
+    }
+
+    std::string filename = folder + windowName + ".bmp";
+
     cv::imwrite(filename, image);
 }
 

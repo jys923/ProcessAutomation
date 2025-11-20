@@ -10,6 +10,8 @@
 #include <numeric>
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 using namespace SonoCap::Commons::Logging;
 
@@ -25,12 +27,12 @@ enum class MorphMode {
 static std::string to_string(MorphMode mode)
 {
     switch (mode) {
-    case MorphMode::Open11:          return "Open(1,1)";
-    case MorphMode::Close11:         return "Close(1,1)";
-    case MorphMode::Open12:          return "Open(1,2)";
-    case MorphMode::Close12:         return "Close(1,2)";
-    case MorphMode::HybridOpenClose: return "HybridOpen°ÊClose";
-    case MorphMode::HybridCloseOpen: return "HybridClose°ÊOpen";
+    case MorphMode::Open11:          return "Open11";
+    case MorphMode::Close11:         return "Close11";
+    case MorphMode::Open12:          return "Open12";
+    case MorphMode::Close12:         return "Close12";
+    case MorphMode::HybridOpenClose: return "HybridOpenClose";
+    case MorphMode::HybridCloseOpen: return "HybridCloseOpen";
     default:                         return "Unknown";
     }
 }

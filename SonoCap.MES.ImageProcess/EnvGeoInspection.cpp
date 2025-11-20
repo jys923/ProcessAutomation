@@ -605,7 +605,7 @@ bool RunEnvGeoTrial(TrialOutcome& out, const cv::Mat& roiGray, const cv::Rect& r
     cv::Mat combined;
     cv::hconcat(stageImages, combined);
 
-    showAndSaveImage("EnvGeo_AllStages_Threshold:" + std::to_string((int)perThreshold)+"," + to_string(morphMode), combined);
+    //showAndSaveImage("EnvGeo_T_" + std::to_string((int)perThreshold)+"_M_" + to_string(morphMode) + "_INT", combined);
 
 	// 최종 결과 저장
     out.threshold = perThreshold;
@@ -671,7 +671,7 @@ static void DrawEnvGeoTrial(cv::Mat& srcImg, const cv::Rect& roi, const TrialOut
     std::string text = "cnt:" + std::to_string(cnt);
     cv::putText(srcImg, text, cv::Point(srcImg.cols - 100, srcImg.rows - 20), cv::FONT_HERSHEY_SIMPLEX, 0.8, red, 2);
 
-    showAndSaveImage("EnvGeo_End", srcImg);
+    showAndSaveImage("EnvGeo_T_" + std::to_string((int)t.threshold) + "_M_" + to_string(t.morphMode) + "_FIN", srcImg);
 }
 
 void LogEnvGeoSummary(const std::vector<TrialOutcome>& trials)
