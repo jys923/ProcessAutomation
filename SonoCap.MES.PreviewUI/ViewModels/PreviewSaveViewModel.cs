@@ -11,6 +11,7 @@ using SonoCap.MES.Services.Model;
 using SonoCap.WpfCommons;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -42,7 +43,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
             IMotorService motorService)
         {
             RecorderStatus = RecorderStatus.Idle;
-            
+
             _usRenderer = usRenderer;
             _model = model;
             _motorService = motorService;
@@ -147,6 +148,9 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         [ObservableProperty] private Tuple<int, string> _selectedSubSetting;
         [ObservableProperty] private bool _isNoiseLogEnabled;
         [ObservableProperty] private bool _isAddLinesEnabled;
+        [ObservableProperty] private bool _isRebootEnabled;
+
+
 
         partial void OnIsNoiseLogEnabledChanged(bool value)
         {
@@ -174,7 +178,8 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         public double SelectedViewDepth
         {
             get => _model.ViewDepthCm;
-            set { 
+            set
+            {
                 _model.ViewDepthCm = value;
                 if (_depthToScanlineMap.TryGetValue(value, out int scanlineValue))
                 {
@@ -185,7 +190,8 @@ namespace SonoCap.MES.PreviewUI.ViewModels
                     Log.Warning($"Warning: No scanline mapping found for depth: {value}");
                     // _usRenderer?.SetScanline(기본_값_또는_계산된_값);
                 }
-                OnPropertyChanged(); }
+                OnPropertyChanged();
+            }
         }
 
         public int SelectedLineDensity
@@ -209,19 +215,29 @@ namespace SonoCap.MES.PreviewUI.ViewModels
         public float DRMin
         {
             get => _model.DRMin;
-            set { if (value <= DRMax - 2) { 
+            set
+            {
+                if (value <= DRMax - 2)
+                {
                     _model.DRMin = value;
                     _usRenderer.DRMin = value;
-                    OnPropertyChanged(); } }
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public float DRMax
         {
             get => _model.DRMax;
-            set { if (value >= DRMin + 2) { 
+            set
+            {
+                if (value >= DRMin + 2)
+                {
                     _model.DRMax = value;
                     _usRenderer.DRMax = value;
-                    OnPropertyChanged(); } }
+                    OnPropertyChanged();
+                }
+            }
         }
 
         partial void OnSelectedApplicationChanged(Tuple<int, string> value)
@@ -616,7 +632,7 @@ namespace SonoCap.MES.PreviewUI.ViewModels
                 // 10프레임마다 한 번 분석 수행
                 _frameCounter++;
                 if (
-                    IsNoiseLogEnabled && 
+                    IsNoiseLogEnabled &&
                     _frameCounter % AnalysisFrameInterval == 0)
                 {
                     try
@@ -834,13 +850,41 @@ namespace SonoCap.MES.PreviewUI.ViewModels
 
         protected override void OnWindowClosing(object? sender, CancelEventArgs e)
         {
+            // 1. 공통 종료 정리 작업
             Log.Information($"{nameof(OnWindowClosing)}");
             _motorService.StopMotor();
             Task.Delay(100);
-            e.Cancel = true;
-            if (sender is Window window)
+
+            // 2. ViewModel 상태 확인
+            //if (DataContext is PreviewSaveViewModel viewModel)
             {
-                window.Hide();
+                // 3. 재부팅이 활성화되었는지 확인
+                if (IsRebootEnabled)
+                {
+                    // 사용자 확인 메시지
+                    var result = MessageBox.Show("프로그램을 종료하고 시스템을 재부팅하시겠습니까?",
+                                                    "시스템 재부팅 확인",
+                                                    MessageBoxButton.YesNo,
+                                                    MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // 재부팅 명령 실행. 이 명령은 프로세스를 종료시킵니다.
+                        Process.Start("shutdown.exe", "/r /t 0");
+
+                        // shutdown 명령이 실행되었으므로 창은 닫히도록 둡니다.
+                        return;
+                    }
+                    else
+                    {
+                        // 종료 취소
+                        e.Cancel = true;
+
+                        IsRebootEnabled = false; // 체크박스 해제 (선택 사항)
+
+                        return;
+                    }
+                }
             }
         }
 
